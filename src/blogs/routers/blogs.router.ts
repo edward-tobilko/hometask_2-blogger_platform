@@ -1,27 +1,47 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 
-import { db } from "../../db/mock.db";
-import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
-import { errorMessages } from "../../core/utils/error-messages.util";
+import { adminGuardMiddlewareAuth } from "../../auth/admin-guard.middleware";
+import { blogParamIdMiddlewareValidation } from "../../core/middlewares/validations/blog-param-id-validation.middleware";
+import { inputValidationResultMiddleware } from "../../core/middlewares/validations/input-validation-result.middleware";
+import { blogBodyInputValidationMiddleware } from "../../core/middlewares/validations/blog-body-input-validation.middleware";
+import { getBlogListHandler } from "./handlers/get-blog-list.handler";
+import { getBlogByIdHandler } from "./handlers/get-blog.handler";
+import { createNewBlogHandler } from "./handlers/create-blog.handler";
+import { deleteBlogHandler } from "./handlers/delete-blog.handler";
+import { updateBlogHandler } from "./handlers/update-blog.handler";
 
 export const blogsRouter = Router({});
 
-blogsRouter.get("", (_req: Request, res: Response) => {
-  const blogs = db.blogs;
+blogsRouter.get("", getBlogListHandler);
 
-  res.status(HTTP_STATUS_CODES.OK_200).json(blogs);
-});
+blogsRouter.get(
+  "/:id",
+  blogParamIdMiddlewareValidation,
+  inputValidationResultMiddleware,
+  getBlogByIdHandler
+);
 
-blogsRouter.get("/:id", (req: Request<{ id: string }>, res: Response) => {
-  const currentBlog = db.blogs.find((blog) => blog.id === req.params.id);
+blogsRouter.post(
+  "",
+  adminGuardMiddlewareAuth,
+  blogBodyInputValidationMiddleware,
+  inputValidationResultMiddleware,
+  createNewBlogHandler
+);
 
-  if (!currentBlog) {
-    return res
-      .status(HTTP_STATUS_CODES.NOT_FOUND_404)
-      .json(errorMessages([{ field: "id", message: "Blog not found" }]));
-  }
+blogsRouter.put(
+  "/:id",
+  adminGuardMiddlewareAuth,
+  blogParamIdMiddlewareValidation,
+  blogBodyInputValidationMiddleware,
+  inputValidationResultMiddleware,
+  updateBlogHandler
+);
 
-  res.status(HTTP_STATUS_CODES.OK_200).json(currentBlog);
-});
-
-blogsRouter.post("", (req: Request<{ id: string }>, res: Response) => {});
+blogsRouter.delete(
+  "/:id",
+  adminGuardMiddlewareAuth,
+  blogParamIdMiddlewareValidation,
+  inputValidationResultMiddleware,
+  deleteBlogHandler
+);
