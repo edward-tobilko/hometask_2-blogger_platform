@@ -12,3 +12,5 @@ const server = app.listen(PORT);
 server.on("listening -> ", () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+console.log("ENTRY:", __filename);

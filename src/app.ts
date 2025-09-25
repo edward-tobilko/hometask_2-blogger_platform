@@ -1,30 +1,31 @@
 import express, { Express, Request, Response } from "express";
+
 import { db } from "./db/mock.db";
+import {
+  BLOGS_PATH,
+  POSTS_PATH,
+  ROOT_PATH,
+  TESTING_PATH,
+} from "./core/paths/paths";
+import { blogsRouter } from "./blogs/routers/blogs.router";
+import { HTTP_STATUS_CODES } from "./core/utils/http-statuses.util";
+import { postsRouter } from "./blogs/routers/posts.router";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
 
-  app.get("/", (_req: Request, res: Response) => {
-    res.status(200).json("Hello back");
+  app.get(ROOT_PATH, (_req: Request, res: Response) => {
+    res.status(HTTP_STATUS_CODES.OK_200).json("Hello back");
   });
 
-  app.get("/blogs", (_req: Request, res: Response) => {
-    const blogs = db.blogs;
+  app.use(BLOGS_PATH, blogsRouter);
+  app.use(POSTS_PATH, postsRouter);
 
-    res.status(200).json(blogs);
-  });
-
-  app.get("/posts", (_req: Request, res: Response) => {
-    const posts = db.posts;
-
-    res.status(200).json(posts);
-  });
-
-  app.delete("/testing/all-data", (_req: Request, res: Response) => {
+  app.delete(`${TESTING_PATH}/all-data`, (_req: Request, res: Response) => {
     db.blogs = [];
     db.posts = [];
 
-    res.sendStatus(204);
+    res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   });
 
   return app;

@@ -1,4 +1,5 @@
-import { BloggerTypeModel, PostTypeModel } from "./../types/blogger.types";
+import { PostTypeModel } from "../types/post.types";
+import { BloggerTypeModel } from "./../types/blogger.types";
 
 export const db = {
   blogs: <BloggerTypeModel[]>[
