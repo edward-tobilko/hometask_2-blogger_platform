@@ -1,8 +1,8 @@
 import { PostTypeModel } from "../types/post.types";
-import { BloggerTypeModel } from "./../types/blogger.types";
+import { BlogTypeModel } from "../types/blog.types";
 
 export const db = {
-  blogs: <BloggerTypeModel[]>[
+  blogs: <BlogTypeModel[]>[
     {
       id: "1",
       name: "JavaScript Basics",
@@ -26,37 +26,35 @@ export const db = {
     },
   ],
 
-  posts: <PostTypeModel[][]>[
-    [
-      {
-        id: "101",
-        title: "Getting Started with TypeScript",
-        shortDescription:
-          "Why TypeScript makes JavaScript development safer and faster.",
-        content:
-          "TypeScript is a strongly typed superset of JavaScript that compiles to plain JS. It provides static typing, interfaces, generics, and more.",
-        blogId: "1",
-        blogName: "JavaScript Basics",
-      },
-      {
-        id: "102",
-        title: "Building REST APIs with Express",
-        shortDescription: "Step-by-step guide to creating your first REST API.",
-        content:
-          "Express is a minimal and flexible Node.js web application framework. It provides a robust set of features for building APIs quickly.",
-        blogId: "2",
-        blogName: "Node.js API",
-      },
-      {
-        id: "103",
-        title: "React vs Vue in 2025",
-        shortDescription:
-          "A fair comparison of the two most popular frontend frameworks.",
-        content:
-          "React and Vue both excel in different areas. React has a larger ecosystem, while Vue focuses on simplicity and fast learning curve.",
-        blogId: "3",
-        blogName: "Frontend Samurai",
-      },
-    ],
+  posts: <PostTypeModel[]>[
+    {
+      id: "101",
+      title: "Getting Started with TypeScript",
+      shortDescription:
+        "Why TypeScript makes JavaScript development safer and faster.",
+      content:
+        "TypeScript is a strongly typed superset of JavaScript that compiles to plain JS. It provides static typing, interfaces, generics, and more.",
+      blogId: "1",
+      blogName: "JavaScript Basics",
+    },
+    {
+      id: "102",
+      title: "Building REST APIs with Express",
+      shortDescription: "Step-by-step guide to creating your first REST API.",
+      content:
+        "Express is a minimal and flexible Node.js web application framework. It provides a robust set of features for building APIs quickly.",
+      blogId: "2",
+      blogName: "Node.js API",
+    },
+    {
+      id: "103",
+      title: "React vs Vue in 2025",
+      shortDescription:
+        "A fair comparison of the two most popular frontend frameworks.",
+      content:
+        "React and Vue both excel in different areas. React has a larger ecosystem, while Vue focuses on simplicity and fast learning curve.",
+      blogId: "3",
+      blogName: "Frontend Samurai",
+    },
   ],
 };
