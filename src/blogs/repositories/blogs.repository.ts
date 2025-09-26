@@ -1,21 +1,21 @@
 import { db } from "../../db/mock.db";
 import {
   BloggerInputDtoTypeModel,
-  BloggerTypeModel,
-} from "../../types/blogger.types";
+  BlogTypeModel,
+} from "../../types/blog.types";
 
 export const blogsRepository = {
-  findAllBlogs(): BloggerTypeModel[] {
+  findAllBlogs(): BlogTypeModel[] {
     const blogs = db.blogs;
 
     return blogs;
   },
 
-  findBlogById(id: string): BloggerTypeModel | null {
+  findBlogById(id: string): BlogTypeModel | null {
     return db.blogs.find((blog) => blog.id === id) ?? null;
   },
 
-  createNewBlog(newBlog: BloggerTypeModel): BloggerTypeModel {
+  createNewBlog(newBlog: BlogTypeModel): BlogTypeModel {
     db.blogs.push(newBlog);
 
     return newBlog;
