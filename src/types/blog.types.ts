@@ -5,10 +5,10 @@ type BlogTypeModel = {
   websiteUrl: string;
 };
 
-type BloggerInputDtoTypeModel = {
+type BlogInputDtoTypeModel = {
   name: string;
   description: string;
   websiteUrl: string;
 };
 
-export { BlogTypeModel, BloggerInputDtoTypeModel };
+export { BlogTypeModel, BlogInputDtoTypeModel };
