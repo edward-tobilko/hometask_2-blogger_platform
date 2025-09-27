@@ -1,8 +1,5 @@
 import { db } from "../../db/mock.db";
-import {
-  BloggerInputDtoTypeModel,
-  BlogTypeModel,
-} from "../../types/blog.types";
+import { BlogInputDtoTypeModel, BlogTypeModel } from "../../types/blog.types";
 
 export const blogsRepository = {
   findAllBlogs(): BlogTypeModel[] {
@@ -21,7 +18,7 @@ export const blogsRepository = {
     return newBlog;
   },
 
-  updateBlog(id: string, dto: BloggerInputDtoTypeModel): void {
+  updateBlog(id: string, dto: BlogInputDtoTypeModel): void {
     const blog = db.blogs.find((blog) => blog.id === id);
 
     if (!blog) {
