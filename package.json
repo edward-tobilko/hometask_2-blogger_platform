@@ -7,7 +7,8 @@
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "dev": "nodemon --watch src --ext ts,tsx --exec \"node --inspect=9229 --enable-source-maps --import tsx src/server.ts\""
+    "dev": "nodemon --watch src --ext ts,tsx --exec \"node --inspect=9229 --enable-source-maps --import tsx src/server.ts\"",
+    "test:e2e": "jest src/__tests__/e2e"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
