@@ -32,7 +32,7 @@ export function createNewPostHandler(
   }
 
   const createNewPost: PostTypeModel = {
-    id: nextId,
+    id: String(nextId),
     title: title,
     shortDescription: shortDescription,
     content: content,

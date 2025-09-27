@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
 
-import { BloggerInputDtoTypeModel } from "../../../../types/blog.types";
-import { db } from "../../../../db/mock.db";
+import { BlogInputDtoTypeModel } from "../../../../types/blog.types";
 import { HTTP_STATUS_CODES } from "../../../../core/utils/http-statuses.util";
 import { errorMessages } from "../../../../core/utils/error-messages.util";
 import { blogsRepository } from "../../../repositories/blogs.repository";
 
 export function updateBlogHandler(
-  req: Request<{ id: string }, {}, BloggerInputDtoTypeModel>,
+  req: Request<{ id: string }, {}, BlogInputDtoTypeModel>,
   res: Response
 ) {
   const blog = blogsRepository.findBlogById(req.params.id);

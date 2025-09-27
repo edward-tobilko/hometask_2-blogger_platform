@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import {
-  BloggerInputDtoTypeModel,
+  BlogInputDtoTypeModel,
   BlogTypeModel,
 } from "../../../../types/blog.types";
 import { HTTP_STATUS_CODES } from "../../../../core/utils/http-statuses.util";
@@ -9,7 +9,7 @@ import { db } from "../../../../db/mock.db";
 import { blogsRepository } from "../../../repositories/blogs.repository";
 
 export function createNewBlogHandler(
-  req: Request<{}, {}, BloggerInputDtoTypeModel>,
+  req: Request<{}, {}, BlogInputDtoTypeModel>,
   res: Response
 ) {
   const lastId = db.blogs.length ? Number(db.blogs[db.blogs.length - 1].id) : 0;
