@@ -16,7 +16,7 @@ export function createNewBlogHandler(
   const nextId = lastId + 1;
 
   const createNewBlog: BlogTypeModel = {
-    id: nextId,
+    id: String(nextId),
     name: req.body.name,
     description: req.body.description,
     websiteUrl: req.body.websiteUrl,
