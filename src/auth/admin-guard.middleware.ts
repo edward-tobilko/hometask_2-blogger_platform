@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "qwerty";
+export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "qwerty";
 
 export const adminGuardMiddlewareAuth = (
   req: Request,
