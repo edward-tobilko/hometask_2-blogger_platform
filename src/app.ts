@@ -21,7 +21,7 @@ export const setupApp = (app: Express) => {
   app.use(BLOGS_PATH, blogsRouter);
   app.use(POSTS_PATH, postsRouter);
 
-  app.delete(`${TESTING_PATH}/all-data`, (_req: Request, res: Response) => {
+  app.delete(TESTING_PATH, (_req: Request, res: Response) => {
     db.blogs = [];
     db.posts = [];
 
