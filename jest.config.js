@@ -1,26 +1,22 @@
-const { createDefaultPreset } = require("ts-jest");
-
-const tsJestTransformCfg = createDefaultPreset().transform;
-
-/** @type {import("jest").Config} **/
-const config = {
+/** @type {import("jest").Config} */
+module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
   moduleFileExtensions: ["ts", "tsx", "js", "json", "node"],
 
-  // ищем unit and e2e:
-  testMatch: [
-    "**/?(*.)+(spec|test).ts",
-    "<rootDir>/src/__tests__/e2e/**/*.(spec|test).ts",
-  ],
+  // шукаємо тести тільки в .test.ts та .e2e.ts файлах
+  testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.e2e.ts"],
+
+  // НЕ виконувати утиліти, якщо вони лишилися в __tests__/utils
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/src/__tests__/utils/"],
 
   clearMocks: true,
   coverageDirectory: "coverage",
-
   transform: {
-    ...tsJestTransformCfg,
+    ...require("ts-jest").createDefaultPreset().transform,
   },
-};
 
-module.exports = config;
+  // серіалізуємо запуск (аналог -i), щоб не було гонок зі спільним db
+  maxWorkers: 1,
+};
