@@ -36,7 +36,7 @@ describe.each([
     ])("if incorrect id - 400", async ({ id }) => {
       const resultError = await request(app)
         .get(`${path}/${id}`)
-        .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
+        .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
       const { errorsMessages } = errorMessages(
         resultError.body.errorsMessages as ErrorMessagesTypeModel[]

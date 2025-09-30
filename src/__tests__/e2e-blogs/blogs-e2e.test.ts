@@ -94,7 +94,7 @@ describe("E2E Blogs API tests", () => {
 
     await request(app)
       .get(`${BLOGS_PATH}/abc`)
-      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
+      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
   it("PUT: /blogs/:id -> should update blog by id - 204", async () => {

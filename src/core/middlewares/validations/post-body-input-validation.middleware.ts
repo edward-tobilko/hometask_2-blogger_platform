@@ -6,6 +6,8 @@ const titleValidation = body("title")
   .isString()
   .withMessage("Title should be a string")
   .trim()
+  .notEmpty()
+  .withMessage("Title is required")
   .isLength({ max: 30 })
   .withMessage("Title must not exceed 30 characters");
 
@@ -13,13 +15,17 @@ const shortDescription = body("shortDescription")
   .isString()
   .withMessage("Short description should be a string")
   .trim()
+  .notEmpty()
+  .withMessage("Description is required")
   .isLength({ max: 100 })
-  .withMessage("Short description must not exceed 100 characters");
+  .withMessage("Description must not exceed 100 characters");
 
 const content = body("content")
   .isString()
   .withMessage("Content should be a string")
   .trim()
+  .notEmpty()
+  .withMessage("Content is required")
   .isLength({ max: 1000 })
   .withMessage("Content must not exceed 1000 characters");
 

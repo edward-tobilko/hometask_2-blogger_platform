@@ -4,6 +4,8 @@ const nameValidation = body("name")
   .isString()
   .withMessage("Name should be a string")
   .trim()
+  .notEmpty()
+  .withMessage("Name is required")
   .isLength({ max: 15 })
   .withMessage("Name must not exceed 15 characters");
 
@@ -11,6 +13,8 @@ const descriptionValidation = body("description")
   .isString()
   .withMessage("Description should be a string")
   .trim()
+  .notEmpty()
+  .withMessage("Description is required")
   .isLength({ max: 500 })
   .withMessage("Description must not exceed 500 characters");
 
@@ -18,6 +22,8 @@ const websiteUrlValidation = body("websiteUrl")
   .isString()
   .withMessage("WebsiteUrl should be a string")
   .trim()
+  .notEmpty()
+  .withMessage("WebsiteUrl is required")
   .isLength({ max: 100 })
   .withMessage("Website URL must not exceed 100 characters")
   .matches(

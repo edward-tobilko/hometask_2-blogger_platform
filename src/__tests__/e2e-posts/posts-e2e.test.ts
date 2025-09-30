@@ -119,7 +119,7 @@ describe("E2E Posts API tests", () => {
 
     await request(app)
       .get(`${POSTS_PATH}/abc`)
-      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
+      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
   it("PUT: /posts/:id -> should update post by id - 204", async () => {
