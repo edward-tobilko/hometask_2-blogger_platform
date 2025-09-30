@@ -23,7 +23,7 @@ export const inputValidationResultMiddleware = (
 ) => {
   const errors = validationResult(req)
     .formatWith(formatErrors)
-    .array({ onlyFirstError: false });
+    .array({ onlyFirstError: true });
 
   if (errors.length > 0) {
     return res
