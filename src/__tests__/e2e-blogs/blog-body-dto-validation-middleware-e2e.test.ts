@@ -39,24 +39,24 @@ describe("Create (POST) blogs API body validation ", () => {
 
   it.each([
     {
-      name: "name is string",
+      name: "name is a string",
       payload: { ...testValidDtoBlog, name: 2 },
       field: "name",
     },
     {
-      name: "name length > 15",
-      payload: { ...testValidDtoBlog, name: "maxLength".repeat(16) },
+      name: "name length > 15 symbols",
+      payload: { ...testValidDtoBlog, name: "name".repeat(16) },
       field: "name",
     },
 
     {
-      name: "description is string",
+      name: "description is a string",
       payload: { ...testValidDtoBlog, description: 2 },
       field: "description",
     },
     {
-      name: "description length > 500",
-      payload: { ...testValidDtoBlog, description: "maxLength".repeat(501) },
+      name: "description length > 500 symbols",
+      payload: { ...testValidDtoBlog, description: "description".repeat(501) },
       field: "description",
     },
 
