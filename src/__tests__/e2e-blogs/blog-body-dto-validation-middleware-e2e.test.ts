@@ -25,15 +25,15 @@ describe("Create (POST) blogs API body validation ", () => {
   });
 
   it("201 - when payload is valid", async () => {
-    const createDriverResponse = await request(app)
+    const createBlogResponse = await request(app)
       .post(BLOGS_PATH)
       .set("Authorization", adminToken)
       .send(testValidDtoBlog)
       .expect(HTTP_STATUS_CODES.CREATED_201);
 
-    expect(createDriverResponse.body).toEqual({
+    expect(createBlogResponse.body).toEqual({
       ...testValidDtoBlog,
-      id: expect.any(String),
+      id: expect.any(Number),
     });
   });
 
@@ -87,7 +87,7 @@ describe("Create (POST) blogs API body validation ", () => {
         .send(payload)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      expect(createBlogResponse.body.errorMessages).toEqual(
+      expect(createBlogResponse.body.errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             field,
@@ -104,4 +104,13 @@ describe("Create (POST) blogs API body validation ", () => {
       .send(testValidDtoBlog)
       .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
+<<<<<<< HEAD
 });
+=======
+});
+
+// ? it.each([]) - параметризований тест (масив кейсів, яких потрібно обробити від помилок).
+// ? payload — частина тіла запиту, яка ламає валідатор.
+// ? as const  - робить масив літеральним та readonly (типи рядків/значень не розширюються до string/number).
+// ? async ({name, payload, field}) - аргументи (ключі) колбеку які отримують значення з кортежу, де name - назва, payload — об’єкт, який ми додамо до валідного тіла, щоб зробити його невалідним і field - помилка, яку ми будемо виводити.
+>>>>>>> 78f6f5c (home_task-2)

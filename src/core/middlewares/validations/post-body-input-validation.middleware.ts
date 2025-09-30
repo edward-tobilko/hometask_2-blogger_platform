@@ -24,13 +24,12 @@ const content = body("content")
   .withMessage("Content must not exceed 1000 characters");
 
 const blogId = body("blogId")
-  .isString()
-  .withMessage("Blog id must be a string")
   .trim()
-  .notEmpty()
-  .withMessage("Blog id is required")
+  .isInt({ min: 1 })
+  .withMessage("Blog id must be a positive integer")
+  .toInt()
   .bail()
-  .custom((id) => {
+  .custom((id: number) => {
     const exists = blogsRepository.findBlogById(id);
 
     if (!exists) throw new Error(`Blog with id=${id} does not exist`);

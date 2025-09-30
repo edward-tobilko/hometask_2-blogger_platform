@@ -1,11 +1,10 @@
 import express from "express";
 import request from "supertest";
-import { log } from "node:console";
 
 import { setupApp } from "../../app";
 import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
 import { BlogInputDtoTypeModel, BlogTypeModel } from "../../types/blog.types";
-import { BLOGS_PATH, TESTING_PATH } from "../../core/paths/paths";
+import { BLOGS_PATH } from "../../core/paths/paths";
 import { clearDB } from "../utils/clear-db";
 import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
 
@@ -42,9 +41,7 @@ describe("E2E Blogs API tests", () => {
   };
 
   beforeEach(async () => {
-    await request(app)
-      .delete(TESTING_PATH)
-      .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
+    await clearDB(app);
   });
 
   it("GET: /blogs -> should return blogs list - 200", async () => {
@@ -60,7 +57,19 @@ describe("E2E Blogs API tests", () => {
   });
 
   it("POST: /blogs -> should create new blog - 201", async () => {
-    await createBlogResponse(name1, description1);
+    const getCreatedBlogResponse = await createBlogResponse(
+      name1,
+      description1
+    );
+
+    expect(getCreatedBlogResponse).toEqual(
+      expect.objectContaining({
+        ...testValidDtoBlog,
+        name: name1,
+        description: description1,
+        id: expect.any(Number),
+      })
+    );
   });
 
   it("GET: /blogs/:id -> should return one blog by id - 200", async () => {
@@ -73,13 +82,19 @@ describe("E2E Blogs API tests", () => {
       .get(`${BLOGS_PATH}/${getCreatedBlogResponse.id}`)
       .expect(HTTP_STATUS_CODES.OK_200);
 
-    expect(blogResponse.body).toEqual(getCreatedBlogResponse);
+    expect(blogResponse.body).toEqual(
+      expect.objectContaining(getCreatedBlogResponse)
+    );
   });
 
   it("GET: /blogs/:id -> should NOT return blog by id (If blog for passed id does not exist) - 404", async () => {
-    await request(app).get(`/99999`).expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+    await request(app)
+      .get(`${BLOGS_PATH}/99999`)
+      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
-    await request(app).get(`/abc`).expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+    await request(app)
+      .get(`${BLOGS_PATH}/abc`)
+      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
   });
 
   it("PUT: /blogs/:id -> should update blog by id - 204", async () => {
@@ -127,9 +142,5 @@ describe("E2E Blogs API tests", () => {
     expect(getResponseDeletedBlogResult.status).toBe(
       HTTP_STATUS_CODES.NOT_FOUND_404
     );
-  });
-
-  afterEach(async () => {
-    await clearDB(app);
   });
 });

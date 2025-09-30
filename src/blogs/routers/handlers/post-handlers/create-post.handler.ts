@@ -16,10 +16,10 @@ export function createNewPostHandler(
 ) {
   const { title, shortDescription, content, blogId } = req.body;
 
-  const lastId = db.posts.length ? Number(db.posts[db.posts.length - 1].id) : 0;
+  const lastId = db.posts.length ? db.posts[db.posts.length - 1].id : 0;
   const nextId = lastId + 1;
 
-  const blog = blogsRepository.findBlogById(String(blogId));
+  const blog = blogsRepository.findBlogById(blogId);
 
   if (!blog) {
     return res
@@ -32,11 +32,11 @@ export function createNewPostHandler(
   }
 
   const createNewPost: PostTypeModel = {
-    id: String(nextId),
+    id: nextId,
     title: title,
     shortDescription: shortDescription,
     content: content,
-    blogId: String(blogId),
+    blogId: blogId,
     blogName: blog.name,
   };
 

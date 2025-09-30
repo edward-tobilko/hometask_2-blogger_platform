@@ -13,14 +13,14 @@ export function updatePostHandler(
   const { id } = req.params;
   const dto: PostInputDtoTypeModel = req.body;
 
-  const post = postRepository.getPostById(req.params.id);
+  const post = postRepository.getPostById(+req.params.id);
 
   if (!post) {
     res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
       errorMessages([
         {
           field: "id",
-          message: `Post with id=${id} is not found`,
+          message: `Post with id=${+id} is not found`,
         },
       ])
     );
@@ -40,7 +40,7 @@ export function updatePostHandler(
   }
 
   postRepository.updatePost(
-    id,
+    +id,
     {
       ...dto,
       title: dto.title,

@@ -5,10 +5,10 @@ module.exports = {
   roots: ["<rootDir>/src"],
   moduleFileExtensions: ["ts", "tsx", "js", "json", "node"],
 
-  // шукаємо тести тільки в .test.ts та .e2e.ts файлах
+  // ! шукаємо тести тільки в .test.ts та .e2e.ts файлах
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.e2e.ts"],
 
-  // НЕ виконувати утиліти, якщо вони лишилися в __tests__/utils
+  // ! НЕ виконувати утиліти, якщо вони лишилися в __tests__/utils
   testPathIgnorePatterns: ["/node_modules/", "<rootDir>/src/__tests__/utils/"],
 
   clearMocks: true,
