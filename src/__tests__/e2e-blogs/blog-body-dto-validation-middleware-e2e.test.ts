@@ -33,7 +33,7 @@ describe("Create (POST) blogs API body validation ", () => {
 
     expect(createBlogResponse.body).toEqual({
       ...testValidDtoBlog,
-      id: expect.any(Number),
+      id: expect.any(String),
     });
   });
 

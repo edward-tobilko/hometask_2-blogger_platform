@@ -8,7 +8,7 @@ export function getBlogByIdHandler(
   req: Request<{ id: string }>,
   res: Response
 ) {
-  const id = +req.params.id;
+  const id = req.params.id;
 
   const currentBlog = blogsRepository.findBlogById(id);
 

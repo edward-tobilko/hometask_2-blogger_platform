@@ -6,7 +6,7 @@ export const postRepository = {
     return db.posts;
   },
 
-  getPostById(postId: number): PostTypeModel | null {
+  getPostById(postId: string): PostTypeModel | null {
     return db.posts.find((post) => post.id === postId) ?? null;
   },
 
@@ -17,7 +17,7 @@ export const postRepository = {
   },
 
   updatePost(
-    postId: number,
+    postId: string,
     dto: PostInputDtoTypeModel,
     blogName: string
   ): void {
@@ -36,7 +36,7 @@ export const postRepository = {
     return;
   },
 
-  deletePost(id: number): boolean {
+  deletePost(id: string): boolean {
     const findIndexPost = db.posts.findIndex(
       (indexPost) => indexPost.id === id
     );

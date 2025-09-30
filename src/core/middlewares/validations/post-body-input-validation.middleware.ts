@@ -25,11 +25,12 @@ const content = body("content")
 
 const blogId = body("blogId")
   .trim()
-  .isInt({ min: 1 })
+  .isNumeric()
   .withMessage("Blog id must be a positive integer")
-  .toInt()
+  .notEmpty()
+  .withMessage("Blog id is required")
   .bail()
-  .custom((id: number) => {
+  .custom((id: string) => {
     const exists = blogsRepository.findBlogById(id);
 
     if (!exists) throw new Error(`Blog with id=${id} does not exist`);

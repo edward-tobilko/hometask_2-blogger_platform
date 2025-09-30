@@ -17,7 +17,7 @@ describe("Create (POST) posts API body validation ", () => {
   const app = express();
   setupApp(app);
 
-  const testValidDtoPost = (blogId: number) =>
+  const testValidDtoPost = (blogId: string) =>
     ({
       title: "test title",
       shortDescription: "test short desc",
@@ -54,7 +54,7 @@ describe("Create (POST) posts API body validation ", () => {
 
     expect(createPostResponse.body).toEqual({
       ...testValidDtoPost(blog.id),
-      id: expect.any(Number),
+      id: expect.any(String),
       blogId: blog.id,
       blogName: blog.name,
     });
@@ -133,7 +133,7 @@ describe("Create (POST) posts API body validation ", () => {
   );
 
   it("400 - blogId does not exist", async () => {
-    const blogId = 999999;
+    const blogId = "999999";
 
     const result = await request(app)
       .post(POSTS_PATH)

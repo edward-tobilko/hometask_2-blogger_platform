@@ -67,7 +67,7 @@ describe("E2E Blogs API tests", () => {
         ...testValidDtoBlog,
         name: name1,
         description: description1,
-        id: expect.any(Number),
+        id: expect.any(String),
       })
     );
   });

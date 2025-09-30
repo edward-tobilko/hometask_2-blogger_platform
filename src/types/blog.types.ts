@@ -1,5 +1,5 @@
 type BlogTypeModel = {
-  id: number;
+  id: string;
   name: string;
   description: string;
   websiteUrl: string;

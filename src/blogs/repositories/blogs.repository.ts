@@ -8,7 +8,7 @@ export const blogsRepository = {
     return blogs;
   },
 
-  findBlogById(id: number): BlogTypeModel | null {
+  findBlogById(id: string): BlogTypeModel | null {
     return db.blogs.find((blog) => blog.id === id) ?? null;
   },
 
@@ -18,7 +18,7 @@ export const blogsRepository = {
     return newBlog;
   },
 
-  updateBlog(id: number, dto: BlogInputDtoTypeModel): void {
+  updateBlog(id: string, dto: BlogInputDtoTypeModel): void {
     const blog = db.blogs.find((blog) => blog.id === id);
 
     if (!blog) {
@@ -32,7 +32,7 @@ export const blogsRepository = {
     return;
   },
 
-  deleteBlog(id: number): void {
+  deleteBlog(id: string): void {
     const deletedBlog = db.blogs.findIndex((indexBlog) => indexBlog.id === id);
 
     db.blogs.splice(deletedBlog, 1);

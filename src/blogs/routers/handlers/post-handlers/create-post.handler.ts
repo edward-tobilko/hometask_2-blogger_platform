@@ -16,7 +16,7 @@ export function createNewPostHandler(
 ) {
   const { title, shortDescription, content, blogId } = req.body;
 
-  const lastId = db.posts.length ? db.posts[db.posts.length - 1].id : 0;
+  const lastId = db.posts.length ? Number(db.posts[db.posts.length - 1].id) : 0;
   const nextId = lastId + 1;
 
   const blog = blogsRepository.findBlogById(blogId);
@@ -32,11 +32,11 @@ export function createNewPostHandler(
   }
 
   const createNewPost: PostTypeModel = {
-    id: nextId,
+    id: String(nextId),
     title: title,
     shortDescription: shortDescription,
     content: content,
-    blogId: blogId,
+    blogId: String(blogId),
     blogName: blog.name,
   };
 

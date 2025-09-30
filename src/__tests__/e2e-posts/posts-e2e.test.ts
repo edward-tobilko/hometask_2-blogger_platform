@@ -22,7 +22,7 @@ describe("E2E Posts API tests", () => {
   let shortDescription2 = "new short description-2";
 
   // * Helper functions
-  const testValidDtoPost = (blogId: number) =>
+  const testValidDtoPost = (blogId: string) =>
     ({
       title: "test title",
       shortDescription: "test short desc",
@@ -33,7 +33,7 @@ describe("E2E Posts API tests", () => {
   const createPostResponse = async (
     title: string,
     shortDescription: string,
-    blogId: number
+    blogId: string
   ) => {
     const response = await request(app)
       .post(POSTS_PATH)
@@ -87,7 +87,7 @@ describe("E2E Posts API tests", () => {
     expect(getCreatedPostResponse).toEqual(
       expect.objectContaining({
         ...testValidDtoPost(blog.id),
-        id: expect.any(Number),
+        id: expect.any(String),
         title: title1,
         shortDescription: shortDescription1,
         blogId: blog.id,

@@ -12,11 +12,11 @@ export function createNewBlogHandler(
   req: Request<{}, {}, BlogInputDtoTypeModel>,
   res: Response
 ) {
-  const lastId = db.blogs.length ? db.blogs[db.blogs.length - 1].id : 0;
+  const lastId = db.blogs.length ? Number(db.blogs[db.blogs.length - 1].id) : 0;
   const nextId = lastId + 1;
 
   const createNewBlog: BlogTypeModel = {
-    id: nextId,
+    id: String(nextId),
     name: req.body.name,
     description: req.body.description,
     websiteUrl: req.body.websiteUrl,

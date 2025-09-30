@@ -9,7 +9,7 @@ export function updateBlogHandler(
   req: Request<{ id: string }, {}, BlogInputDtoTypeModel>,
   res: Response
 ) {
-  const blog = blogsRepository.findBlogById(+req.params.id);
+  const blog = blogsRepository.findBlogById(req.params.id);
 
   if (!blog) {
     return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
@@ -22,7 +22,7 @@ export function updateBlogHandler(
     );
   }
 
-  blogsRepository.updateBlog(+req.params.id, req.body);
+  blogsRepository.updateBlog(req.params.id, req.body);
 
   res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
 }
