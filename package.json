@@ -1,7 +1,7 @@
 {
-  "name": "hometask_2-blog_platform",
+  "name": "hometask_2-blogger_platform",
   "version": "1.0.0",
-  "description": "Express REST API backend course pet-project Blog Platform",
+  "description": "Express REST API backend course pet-project Blogger Platform",
   "author": "eduard.tobilko",
   "license": "MIT",
   "scripts": {
