@@ -3,7 +3,7 @@ import request from "supertest";
 
 import { setupApp } from "../../app";
 import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
-import { BlogInputDtoTypeModel } from "../../types/blog.types";
+import { BlogInputDtoTypeModel } from "../../blogs/types/blog.types";
 import { clearDB } from "../utils/clear-db";
 import { BLOGS_PATH } from "../../core/paths/paths";
 import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";

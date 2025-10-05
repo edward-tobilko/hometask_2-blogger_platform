@@ -1,4 +1,7 @@
-import { ErrorMessagesTypeModel } from "../../types/error-messages.types";
+type ErrorMessagesTypeModel = {
+  field: string;
+  message: string;
+};
 
 export const errorMessages = (
   errors: ErrorMessagesTypeModel[]

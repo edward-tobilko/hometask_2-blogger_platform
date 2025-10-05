@@ -9,15 +9,15 @@
     "start": "node dist/server.js",
     "dev": "nodemon --watch src --ext ts,tsx --exec \"node --inspect=9229 --enable-source-maps --import tsx src/server.ts\"",
     "jest": "jest -i",
-    "test:coverage": "jest -i --coverage src/__tests__",
-    "test:e2e": "jest -i src/__tests__",
+    "test:e2e": "jest -i src/__tests__/e2e",
     "lint": "eslint --fix .",
     "format": "prettier --write ."
   },
   "dependencies": {
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "express-validator": "^7.2.1"
+    "express-validator": "^7.2.1",
+    "mongodb": "^6.20.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

@@ -1,6 +1,5 @@
 import express, { Express, Request, Response } from "express";
 
-import { db } from "./db/mock.db";
 import {
   BLOGS_PATH,
   POSTS_PATH,
@@ -9,7 +8,7 @@ import {
 } from "./core/paths/paths";
 import { blogsRouter } from "./blogs/routers/blogs.router";
 import { HTTP_STATUS_CODES } from "./core/utils/http-statuses.util";
-import { postsRouter } from "./blogs/routers/posts.router";
+import { postsRouter } from "./posts/routers/posts.router";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());

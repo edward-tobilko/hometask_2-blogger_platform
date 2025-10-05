@@ -6,10 +6,10 @@ import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
 import { clearDB } from "../utils/clear-db";
 import { BLOGS_PATH, POSTS_PATH } from "../../core/paths/paths";
 import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
-import { PostInputDtoTypeModel } from "../../types/post.types";
+import { PostInputDtoTypeModel } from "../../posts/types/post.types";
 import { errorMessages } from "../../core/utils/error-messages.util";
 import { ErrorMessagesTypeModel } from "../../types/error-messages.types";
-import { BlogTypeModel } from "../../types/blog.types";
+import { BlogTypeModel } from "../../blogs/types/blog.types";
 
 const adminToken = generateBasicAuthToken();
 

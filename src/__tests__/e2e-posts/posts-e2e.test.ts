@@ -5,9 +5,12 @@ import { setupApp } from "../../app";
 import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
 import { clearDB } from "../utils/clear-db";
 import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
-import { PostInputDtoTypeModel, PostTypeModel } from "../../types/post.types";
+import {
+  PostInputDtoTypeModel,
+  PostTypeModel,
+} from "../../posts/types/post.types";
 import { BLOGS_PATH, POSTS_PATH } from "../../core/paths/paths";
-import { BlogTypeModel } from "../../types/blog.types";
+import { BlogTypeModel } from "../../blogs/types/blog.types";
 
 const adminToken = generateBasicAuthToken();
 

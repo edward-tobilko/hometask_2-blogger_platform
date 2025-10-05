@@ -1,5 +1,4 @@
-import { db } from "../../db/mock.db";
-import { BlogInputDtoTypeModel, BlogTypeModel } from "../../types/blog.types";
+import { BlogInputDtoTypeModel, BlogTypeModel } from "../types/blog.types";
 
 export const blogsRepository = {
   findAllBlogs(): BlogTypeModel[] {
