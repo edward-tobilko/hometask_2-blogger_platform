@@ -1,15 +1,21 @@
 import express from "express";
 import request from "supertest";
 
-import { setupApp } from "../../app";
-import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
-import { clearDB } from "../utils/clear-db";
-import { BLOGS_PATH, POSTS_PATH } from "../../core/paths/paths";
-import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
-import { PostInputDtoTypeModel } from "../../posts/types/post.types";
-import { errorMessages } from "../../core/utils/error-messages.util";
-import { ErrorMessagesTypeModel } from "../../types/error-messages.types";
-import { BlogTypeModel } from "../../blogs/types/blog.types";
+import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
+import { setupApp } from "../../../app";
+import { clearDB } from "../../utils/clear-db";
+import { runDB, stopDB } from "../../../db/mongo.db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
+import { createPostUtil } from "../../utils/posts/create-post.util";
+import { PostInputDto } from "../../../posts/types/post.types";
+import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
+import { createBlogUtil } from "../../utils/blogs/create-blog.util";
+import { POSTS_PATH } from "../../../core/paths/paths";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import {
+  ErrorMessages,
+  errorMessagesUtil,
+} from "../../../core/utils/error-messages.util";
 
 const adminToken = generateBasicAuthToken();
 
@@ -17,47 +23,36 @@ describe("Create (POST) posts API body validation ", () => {
   const app = express();
   setupApp(app);
 
-  const testValidDtoPost = (blogId: string) =>
-    ({
-      title: "test title",
-      shortDescription: "test short desc",
-      content: "test content",
-      blogId,
-    }) as PostInputDtoTypeModel;
+  let validPostDto: PostInputDto; // готовий валідний DTO з коректним blogId
+  let blogName: string;
 
-  async function createBlogAndGetIdAndName() {
-    const result = await request(app)
-      .post(BLOGS_PATH)
-      .set("Authorization", adminToken)
-      .send({
-        name: "blog name",
-        description: "blog desc",
-        websiteUrl: "https://example.com",
-      })
-      .expect(HTTP_STATUS_CODES.CREATED_201);
-
-    return result.body as BlogTypeModel;
-  }
-
-  beforeEach(async () => {
+  beforeAll(async () => {
+    await runDB(SETTINGS_MONGO_DB.MONGO_URL);
     await clearDB(app);
+
+    // * створюємо блог і на його id збираємо валідний пост
+    const createdBlog = await createBlogUtil(app);
+    validPostDto = getPostDtoUtil(createdBlog.id);
+    blogName = createdBlog.name;
+  });
+
+  afterAll(async () => {
+    await stopDB();
   });
 
   it("201 - when payload is valid", async () => {
-    const blog = await createBlogAndGetIdAndName();
+    const createdPostResponse = await createPostUtil(app, validPostDto);
 
-    const createPostResponse = await request(app)
-      .post(POSTS_PATH)
-      .set("Authorization", adminToken)
-      .send(testValidDtoPost(blog.id))
-      .expect(HTTP_STATUS_CODES.CREATED_201);
-
-    expect(createPostResponse.body).toEqual({
-      ...testValidDtoPost(blog.id),
-      id: expect.any(String),
-      blogId: blog.id,
-      blogName: blog.name,
-    });
+    expect(createdPostResponse).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        title: validPostDto.title,
+        shortDescription: validPostDto.shortDescription,
+        content: validPostDto.content,
+        blogId: validPostDto.blogId,
+        blogName, // з репозиторію по blogId
+      })
+    );
   });
 
   it.each([
@@ -109,19 +104,17 @@ describe("Create (POST) posts API body validation ", () => {
   ] as const)(
     "400 - should not create post if the inputModel has incorrect values",
     async ({ name, payload, field }) => {
-      const blog = await createBlogAndGetIdAndName();
-
       const createPostResponse = await request(app)
         .post(POSTS_PATH)
         .set("Authorization", adminToken)
-        .send({ ...testValidDtoPost(blog.id), ...payload })
+        .send({ ...validPostDto, ...payload })
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      const { errorsMessages } = errorMessages(
-        createPostResponse.body.errorsMessages as ErrorMessagesTypeModel[]
+      const { errorMessages } = errorMessagesUtil(
+        createPostResponse.body.errorMessages as ErrorMessages[]
       );
 
-      expect(errorsMessages).toEqual(
+      expect(errorMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             field,
@@ -133,19 +126,19 @@ describe("Create (POST) posts API body validation ", () => {
   );
 
   it("400 - blogId does not exist", async () => {
-    const blogId = "999999";
+    const nonExistingBlogId = "507f1f77bcf86cd799439011";
 
     const result = await request(app)
       .post(POSTS_PATH)
       .set("Authorization", adminToken)
-      .send(testValidDtoPost(blogId))
+      .send({ ...validPostDto, blogId: nonExistingBlogId })
       .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-    const { errorsMessages } = errorMessages(
-      result.body.errorsMessages as ErrorMessagesTypeModel[]
+    const { errorMessages } = errorMessagesUtil(
+      result.body.errorMessages as ErrorMessages[]
     );
 
-    expect(errorsMessages).toEqual(
+    expect(errorMessages).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           field: "blogId",
@@ -156,11 +149,9 @@ describe("Create (POST) posts API body validation ", () => {
   });
 
   it("401 - when no Authorization header", async () => {
-    const blog = await createBlogAndGetIdAndName();
-
     await request(app)
       .post(POSTS_PATH)
-      .send(testValidDtoPost(blog.id))
+      .send(validPostDto)
       .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 });

@@ -5,17 +5,16 @@ import { setupApp } from "../../../app";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 import { clearDB } from "../../utils/clear-db";
 import { BLOGS_PATH } from "../../../core/paths/paths";
-import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { BlogInputDto } from "../../../blogs/types/blog.types";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
-
-const adminToken = generateBasicAuthToken();
+import { createBlogUtil } from "../../utils/blogs/create-blog.util";
+import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 
 const testBlogDataDto: BlogInputDto = getBlogDtoUtil();
 
-describe("Create (POST) blogs API body validation ", () => {
+describe("Create (POST) blogs API body dto validation ", () => {
   const app = express();
   setupApp(app);
 
@@ -29,16 +28,18 @@ describe("Create (POST) blogs API body validation ", () => {
   });
 
   it("201 - when payload is valid", async () => {
-    const createBlogResponse = await request(app)
-      .post(BLOGS_PATH)
-      .set("Authorization", adminToken)
-      .send(testBlogDataDto)
-      .expect(HTTP_STATUS_CODES.CREATED_201);
+    const createBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
-    expect(createBlogResponse.body).toEqual({
-      ...testBlogDataDto,
-      id: expect.any(String),
+    expect(createBlogResponse).toMatchObject({
+      name: testBlogDataDto.name,
+      description: testBlogDataDto.description,
+      websiteUrl: testBlogDataDto.websiteUrl,
+      isMembership: false,
     });
+
+    // * Перевіряємо поля, які генерує сервер
+    expect(createBlogResponse).toHaveProperty("id", expect.any(String));
+    expect(createBlogResponse).toHaveProperty("createdAt", expect.any(String));
   });
 
   it.each([
@@ -87,14 +88,14 @@ describe("Create (POST) blogs API body validation ", () => {
     async ({ name, payload, field }) => {
       const createBlogResponse = await request(app)
         .post(BLOGS_PATH)
-        .set("Authorization", adminToken)
+        .set("Authorization", generateBasicAuthToken())
         .send(payload)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      expect(createBlogResponse.body.errorsMessages).toEqual(
+      expect(createBlogResponse.body.errorMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            field,
+            field, // for example -> name
             message: expect.any(String),
           }),
         ])
@@ -109,3 +110,6 @@ describe("Create (POST) blogs API body validation ", () => {
       .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 });
+
+// ? Пояснення:
+// * toMatchObject -  дозволяє перевірити тільки суттєві поля, не вимагаючи 100% збігу об’єктів.

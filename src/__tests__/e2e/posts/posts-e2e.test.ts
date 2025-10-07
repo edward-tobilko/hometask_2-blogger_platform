@@ -1,16 +1,17 @@
 import express from "express";
 import request from "supertest";
 
-import { setupApp } from "../../app";
-import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
-import { clearDB } from "../utils/clear-db";
-import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
-import {
-  PostInputDtoTypeModel,
-  PostTypeModel,
-} from "../../posts/types/post.types";
-import { BLOGS_PATH, POSTS_PATH } from "../../core/paths/paths";
-import { BlogTypeModel } from "../../blogs/types/blog.types";
+import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
+import { setupApp } from "../../../app";
+import { clearDB } from "../../utils/clear-db";
+import { runDB, stopDB } from "../../../db/mongo.db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { POSTS_PATH } from "../../../core/paths/paths";
+import { createPostUtil } from "../../utils/posts/create-post.util";
+import { PostInputDto } from "../../../posts/types/post.types";
+import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
+import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 
 const adminToken = generateBasicAuthToken();
 
@@ -18,59 +19,32 @@ describe("E2E Posts API tests", () => {
   const app = express();
   setupApp(app);
 
-  let blog: BlogTypeModel;
-  let title1 = "new title-1";
-  let title2 = "new title-2";
-  let shortDescription1 = "new short description-1";
-  let shortDescription2 = "new short description-2";
+  // * підготовлюємо базу, яку нам потрібно для посту
+  let createdBlog: { id: string; name: string };
+  let postDataDto: PostInputDto;
 
-  // * Helper functions
-  const testValidDtoPost = (blogId: string) =>
-    ({
-      title: "test title",
-      shortDescription: "test short desc",
-      content: "test content",
-      blogId,
-    }) as PostInputDtoTypeModel;
-
-  const createPostResponse = async (
-    title: string,
-    shortDescription: string,
-    blogId: string
-  ) => {
-    const response = await request(app)
-      .post(POSTS_PATH)
-      .set("Authorization", adminToken)
-      .send({
-        ...testValidDtoPost(blogId),
-        title: title,
-        shortDescription: shortDescription,
-      })
-      .expect(HTTP_STATUS_CODES.CREATED_201);
-
-    return response.body as PostTypeModel;
-  };
-
-  beforeEach(async () => {
+  beforeAll(async () => {
+    await runDB(SETTINGS_MONGO_DB.MONGO_URL);
     await clearDB(app);
 
-    // * створюємо валідний блог і тримаємо його для тестів
-    const blogResultResponse = await request(app)
-      .post(BLOGS_PATH)
-      .set("Authorization", adminToken)
-      .send({
-        name: "name",
-        description: "description",
-        websiteUrl: "https://example.com",
-      })
-      .expect(HTTP_STATUS_CODES.CREATED_201);
+    // * створюємо блог після підключення до БД
+    const createdBlogResponse = await createBlogUtil(app);
+    createdBlog = {
+      id: createdBlogResponse.id,
+      name: createdBlogResponse.name,
+    };
 
-    blog = blogResultResponse.body as BlogTypeModel;
+    // * формуємо валідний DTO поста під цей блог
+    postDataDto = getPostDtoUtil(createdBlog.id);
+  });
+
+  afterAll(async () => {
+    await stopDB();
   });
 
   it("GET: /posts -> should return posts list - 200", async () => {
-    await createPostResponse(title1, shortDescription1, blog.id);
-    await createPostResponse(title2, shortDescription2, blog.id);
+    await createPostUtil(app, postDataDto);
+    await createPostUtil(app, postDataDto);
 
     const postListResponse = await request(app)
       .get(POSTS_PATH)
@@ -81,100 +55,81 @@ describe("E2E Posts API tests", () => {
   });
 
   it("POST: /posts -> should create new post - 201", async () => {
-    const getCreatedPostResponse = await createPostResponse(
-      title1,
-      shortDescription1,
-      blog.id
-    );
+    const createdPostResponse = await createPostUtil(app, postDataDto);
 
-    expect(getCreatedPostResponse).toEqual(
+    expect(createdPostResponse).toEqual(
       expect.objectContaining({
-        ...testValidDtoPost(blog.id),
         id: expect.any(String),
-        title: title1,
-        shortDescription: shortDescription1,
-        blogId: blog.id,
-        blogName: blog.name,
+        title: postDataDto.title,
+        shortDescription: postDataDto.shortDescription,
+        blogId: createdBlog.id,
+        blogName: createdBlog.name,
+        createdAt: expect.any(String),
       })
     );
   });
 
   it("GET: /posts/:id -> should return one post by id - 200", async () => {
-    const getCreatedPostResponse = await createPostResponse(
-      title1,
-      shortDescription1,
-      blog.id
-    );
+    const createdPostResponse = await createPostUtil(app, postDataDto);
 
     const postResponse = await request(app)
-      .get(`${POSTS_PATH}/${getCreatedPostResponse.id}`)
+      .get(`${POSTS_PATH}/${createdPostResponse.id}`)
       .expect(HTTP_STATUS_CODES.OK_200);
 
     expect(postResponse.body).toEqual(
-      expect.objectContaining(getCreatedPostResponse)
+      expect.objectContaining(createdPostResponse)
     );
   });
 
   it("GET: /posts/:id -> should NOT return post by id (If post for passed id does not exist) - 404", async () => {
     await request(app)
-      .get(`${POSTS_PATH}/99999`)
+      .get(`${POSTS_PATH}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     await request(app)
-      .get(`${POSTS_PATH}/abc`)
+      .get(`${POSTS_PATH}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
   it("PUT: /posts/:id -> should update post by id - 204", async () => {
-    const getResponseCreatedPostResult = await createPostResponse(
-      title1,
-      shortDescription1,
-      blog.id
-    );
+    const createdPostResponse = await createPostUtil(app, postDataDto);
 
-    const updatedDtoPost: PostInputDtoTypeModel = {
-      ...testValidDtoPost(blog.id),
+    const updatedDtoPost: PostInputDto = {
+      ...postDataDto,
       title: "updated title",
-      blogId: blog.id,
+      blogId: createdBlog.id,
     };
 
     await request(app)
-      .put(`${POSTS_PATH}/${getResponseCreatedPostResult.id}`)
+      .put(`${POSTS_PATH}/${createdPostResponse.id}`)
       .set("Authorization", adminToken)
       .send(updatedDtoPost)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-    const getResponseUpdatedPostResult = await request(app)
-      .get(`${POSTS_PATH}/${getResponseCreatedPostResult.id}`)
+    const updatedPostResult = await request(app)
+      .get(`${POSTS_PATH}/${createdPostResponse.id}`)
       .expect(HTTP_STATUS_CODES.OK_200);
 
-    expect(getResponseUpdatedPostResult.body).toEqual(
+    expect(updatedPostResult.body).toEqual(
       expect.objectContaining({
         ...updatedDtoPost,
-        id: getResponseCreatedPostResult.id,
-        blogId: blog.id,
+        id: createdPostResponse.id,
       })
     );
   });
 
   it("DELETE: /posts/:id -> should remove post by id and check after NOT FOUND", async () => {
-    const getResponseCreatedPostResult = await createPostResponse(
-      title1,
-      shortDescription1,
-      blog.id
-    );
+    const createdPostResponse = await createPostUtil(app, postDataDto);
 
     await request(app)
-      .delete(`${POSTS_PATH}/${getResponseCreatedPostResult.id}`)
+      .delete(`${POSTS_PATH}/${createdPostResponse.id}`)
       .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-    const getResponseDeletedPostResult = await request(app).get(
-      `${POSTS_PATH}/${getResponseCreatedPostResult.id}`
+    const deletedPostResult = await request(app).get(
+      `${POSTS_PATH}/${createdPostResponse.id}`
     );
 
-    expect(getResponseDeletedPostResult.status).toBe(
-      HTTP_STATUS_CODES.NOT_FOUND_404
-    );
+    expect(deletedPostResult.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 });

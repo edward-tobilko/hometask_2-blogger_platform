@@ -49,25 +49,20 @@ describe("E2E Blogs API tests", () => {
   });
 
   it("POST: /blogs -> should create new blog - 201", async () => {
-    const getCreatedBlogResponse = await createBlogUtil(app, {
-      name: "test name-1",
-      description: "test desc-1",
-    });
+    const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
-    expect(getCreatedBlogResponse).toEqual(
-      expect.objectContaining({
-        ...testBlogDataDto,
-      })
+    expect(createdBlogResponse).toEqual(
+      expect.objectContaining(testBlogDataDto)
     );
   });
 
   it("GET: /blogs/:id -> should return one blog by id - 200", async () => {
-    const createdBlogResponse = await createBlogUtil(app, {
-      name: "test name-1",
-      description: "test desc-1",
-    });
+    const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
-    const getBlogByIdResponse = getBlogByIdUtil(app, createdBlogResponse.id);
+    const getBlogByIdResponse = await getBlogByIdUtil(
+      app,
+      createdBlogResponse.id
+    );
 
     expect(getBlogByIdResponse).toEqual(
       expect.objectContaining(createdBlogResponse)
@@ -76,19 +71,16 @@ describe("E2E Blogs API tests", () => {
 
   it("GET: /blogs/:id -> should NOT return blog by id (If blog for passed id does not exist) - 404", async () => {
     await request(app)
-      .get(`${BLOGS_PATH}/99999`)
+      .get(`${BLOGS_PATH}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     await request(app)
-      .get(`${BLOGS_PATH}/abc`)
+      .get(`${BLOGS_PATH}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
   it("PUT: /blogs/:id -> should update blog by id - 204", async () => {
-    const getResponseCreatedBlogResult = await createBlogUtil(app, {
-      name: "test name-1",
-      description: "test desc-1",
-    });
+    const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     const updatedDtoBlog = {
       ...testBlogDataDto,
@@ -96,38 +88,39 @@ describe("E2E Blogs API tests", () => {
     };
 
     await request(app)
-      .put(`${BLOGS_PATH}/${getResponseCreatedBlogResult.id}`)
+      .put(`${BLOGS_PATH}/${createdBlogResponse.id}`)
       .set("Authorization", adminToken)
       .send(updatedDtoBlog)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-    const getResponseUpdatedBlogResult = getBlogByIdUtil(
+    const updatedBlogResponse = await getBlogByIdUtil(
       app,
-      getResponseCreatedBlogResult.id
+      createdBlogResponse.id
     );
 
-    expect(getResponseUpdatedBlogResult).toEqual({
+    expect(updatedBlogResponse).toEqual({
       ...updatedDtoBlog,
-      id: getResponseCreatedBlogResult.id,
+      id: createdBlogResponse.id,
+      createdAt: expect.any(String),
+      isMembership: false,
     });
   });
 
   it("DELETE: /blogs/:id -> should remove blog by id and check after NOT FOUND", async () => {
-    const getResponseCreatedBlogResult = await createBlogUtil(app, {
-      name: "test name-1",
-      description: "test desc-1",
-    });
+    const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
+
+    expect(typeof createdBlogResponse.id).toBe("string");
 
     await request(app)
-      .delete(`${BLOGS_PATH}/${getResponseCreatedBlogResult.id}`)
+      .delete(`${BLOGS_PATH}/${createdBlogResponse.id}`)
       .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-    const getResponseDeletedBlogResult = getBlogByIdUtil(
-      app,
-      getResponseCreatedBlogResult.id
-    );
-
-    expect(getResponseDeletedBlogResult).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
+    await request(app)
+      .get(`${BLOGS_PATH}/${createdBlogResponse.id}`)
+      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 });
+
+// ? Пояснення:
+// * toMatchObject -  дозволяє перевірити тільки суттєві поля, не вимагаючи 100% збігу об’єктів.
