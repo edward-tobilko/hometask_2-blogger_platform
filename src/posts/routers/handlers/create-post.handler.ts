@@ -12,7 +12,7 @@ import { mapToPostViewModelUtil } from "../mappers/map-to-post-view-model.util";
 
 export async function createNewPostHandler(
   req: Request<{}, {}, PostInputDto>,
-  res: Response<PostView | { errorsMessages: ErrorMessages[] }>
+  res: Response<PostView | { errorMessages: ErrorMessages[] }>
 ) {
   try {
     const { title, shortDescription, content, blogId } = req.body;

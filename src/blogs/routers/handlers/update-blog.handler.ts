@@ -10,7 +10,7 @@ import {
 
 export async function updateBlogHandler(
   req: Request<{ id: string }, {}, BlogInputDto>,
-  res: Response<{ errorsMessages: ErrorMessages[] }>
+  res: Response<{ errorMessages: ErrorMessages[] }>
 ) {
   try {
     const blogDb = await blogsRepository.findBlogById(req.params.id);

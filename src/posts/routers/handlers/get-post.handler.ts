@@ -12,7 +12,7 @@ import { PostView } from "../../types/post.types";
 
 export async function getPostHandler(
   req: Request<{ id: string }>,
-  res: Response<PostView | { errorsMessages: ErrorMessages[] }>
+  res: Response<PostView | { errorMessages: ErrorMessages[] }>
 ) {
   try {
     const postView = await postRepository.getPostById(req.params.id);

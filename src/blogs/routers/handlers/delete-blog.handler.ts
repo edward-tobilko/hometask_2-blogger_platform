@@ -9,7 +9,7 @@ import { blogsRepository } from "../../repositories/blogs.repository";
 
 export async function deleteBlogHandler(
   req: Request<{ id: string }>,
-  res: Response<{ errorsMessages: ErrorMessages[] }>
+  res: Response<{ errorMessages: ErrorMessages[] }>
 ) {
   try {
     const blogDb = await blogsRepository.findBlogById(req.params.id);

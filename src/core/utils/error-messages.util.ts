@@ -5,6 +5,6 @@ export type ErrorMessages = {
 
 export const errorMessagesUtil = (
   errors: ErrorMessages[]
-): { errorsMessages: ErrorMessages[] } => {
-  return { errorsMessages: errors };
+): { errorMessages: ErrorMessages[] } => {
+  return { errorMessages: errors };
 };

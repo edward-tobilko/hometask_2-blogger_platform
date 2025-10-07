@@ -28,7 +28,7 @@ export const inputValidationResultMiddleware = (
   if (errors.length > 0) {
     return res
       .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
-      .json({ errorsMessages: errors });
+      .json({ errorMessages: errors });
   }
 
   next();

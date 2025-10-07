@@ -11,7 +11,7 @@ import { mapToBlogViewModelUtil } from "../mappers/map-to-blog-view-model.util";
 
 export async function getBlogByIdHandler(
   req: Request<{ id: string }>,
-  res: Response<BlogView | { errorsMessages: ErrorMessages[] }>
+  res: Response<BlogView | { errorMessages: ErrorMessages[] }>
 ) {
   try {
     const id = req.params.id;

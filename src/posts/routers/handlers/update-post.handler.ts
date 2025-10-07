@@ -11,7 +11,7 @@ import {
 
 export async function updatePostHandler(
   req: Request<{ id: string }, PostInputDto>,
-  res: Response<{ errorsMessages: ErrorMessages[] }>
+  res: Response<{ errorMessages: ErrorMessages[] }>
 ) {
   try {
     const { id } = req.params;

@@ -9,7 +9,7 @@ import {
 
 export async function deletePostHandler(
   req: Request<{ id: string }>,
-  res: Response<{ errorsMessages: ErrorMessages[] }>
+  res: Response<{ errorMessages: ErrorMessages[] }>
 ) {
   try {
     const deletePostResponse = await postRepository.deletePost(req.params.id);
