@@ -1,42 +1,48 @@
 import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import { PostInputDtoTypeModel, PostTypeModel } from "../../types/post.types";
 import { postRepository } from "../../repositories/posts.repository";
 import { blogsRepository } from "../../../blogs/repositories/blogs.repository";
-import { errorMessages } from "../../../core/utils/error-messages.util";
+import { PostInputDto, PostView } from "../../types/post.types";
+import {
+  ErrorMessages,
+  errorMessagesUtil,
+} from "../../../core/utils/error-messages.util";
+import { mapToPostViewModelUtil } from "../mappers/map-to-post-view-model.util";
 
-export function createNewPostHandler(
-  req: Request<{}, {}, PostInputDtoTypeModel>,
-  res: Response
+export async function createNewPostHandler(
+  req: Request<{}, {}, PostInputDto>,
+  res: Response<PostView | { errorsMessages: ErrorMessages[] }>
 ) {
-  const { title, shortDescription, content, blogId } = req.body;
+  try {
+    const { title, shortDescription, content, blogId } = req.body;
 
-  const lastId = db.posts.length ? Number(db.posts[db.posts.length - 1].id) : 0;
-  const nextId = lastId + 1;
+    const blogsDbResponse = await blogsRepository.findBlogById(blogId);
 
-  const blog = blogsRepository.findBlogById(blogId);
+    if (!blogsDbResponse) {
+      return res
+        .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
+        .json(
+          errorMessagesUtil([
+            { field: "blogId", message: `Blog with id=${blogId} is not found` },
+          ])
+        );
+    }
 
-  if (!blog) {
-    return res
-      .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
-      .json(
-        errorMessages([
-          { field: "blogId", message: `Blog with id=${blogId} is not found` },
-        ])
-      );
+    const blogViewResponse = await postRepository.createNewPost(
+      {
+        title,
+        shortDescription,
+        content,
+        blogId,
+      },
+      blogsDbResponse.name
+    );
+
+    res
+      .status(HTTP_STATUS_CODES.CREATED_201)
+      .json(mapToPostViewModelUtil(blogViewResponse));
+  } catch (error: unknown) {
+    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
   }
-
-  const createNewPost: PostTypeModel = {
-    id: String(nextId),
-    title: title,
-    shortDescription: shortDescription,
-    content: content,
-    blogId: String(blogId),
-    blogName: blog.name,
-  };
-
-  postRepository.createNewPost(createNewPost);
-
-  res.status(HTTP_STATUS_CODES.CREATED_201).json(createNewPost);
 }

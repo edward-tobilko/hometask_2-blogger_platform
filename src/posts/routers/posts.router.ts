@@ -6,7 +6,7 @@ import { paramIdMiddlewareValidation } from "../../core/middlewares/validations/
 import { inputValidationResultMiddleware } from "../../core/middlewares/validations/input-validation-result.middleware";
 import { createNewPostHandler } from "./handlers/create-post.handler";
 import { adminGuardMiddlewareAuth } from "../../auth/admin-guard.middleware";
-import { postBodyInputValidationMiddleware } from "../validations/post-body-input-validation.middleware";
+import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { updatePostHandler } from "./handlers/update-post.handler";
 import { deletePostHandler } from "./handlers/delete-post.handler";
 

@@ -9,6 +9,7 @@ import {
 import { blogsRouter } from "./blogs/routers/blogs.router";
 import { HTTP_STATUS_CODES } from "./core/utils/http-statuses.util";
 import { postsRouter } from "./posts/routers/posts.router";
+import { testingRouter } from "./testing/routers/testing.router";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
@@ -19,13 +20,7 @@ export const setupApp = (app: Express) => {
 
   app.use(BLOGS_PATH, blogsRouter);
   app.use(POSTS_PATH, postsRouter);
-
-  app.delete(TESTING_PATH, (_req: Request, res: Response) => {
-    db.blogs = [];
-    db.posts = [];
-
-    res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
-  });
+  app.use(TESTING_PATH, testingRouter);
 
   return app;
 };

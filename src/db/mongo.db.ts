@@ -1,12 +1,16 @@
 import { Collection, Db, MongoClient } from "mongodb";
 
+import { PostDb } from "../posts/types/post.types";
+import { BlogDb } from "../blogs/types/blog.types";
+import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo-db";
+
 const BLOG_COLLECTION_NAME = "blogs";
 const POST_COLLECTION_NAME = "posts";
 
 let client: MongoClient;
 
-export let blogCollection: Collection<DriverType>;
-export let postCollection: Collection<RideType>;
+export let blogCollection: Collection<BlogDb>;
+export let postCollection: Collection<PostDb>;
 
 // * Подключения к бд
 export async function runDB(url: string): Promise<void> {
@@ -15,8 +19,8 @@ export async function runDB(url: string): Promise<void> {
   const dataBase: Db = client.db(SETTINGS_MONGO_DB.DB_NAME);
 
   // * Инициализация коллекций
-  blogCollection = dataBase.collection<DriverType>(DRIVER_COLLECTION_NAME);
-  postCollection = dataBase.collection<RideType>(RIDE_COLLECTION_NAME);
+  blogCollection = dataBase.collection<BlogDb>(BLOG_COLLECTION_NAME);
+  postCollection = dataBase.collection<PostDb>(POST_COLLECTION_NAME);
 
   try {
     await client.connect();

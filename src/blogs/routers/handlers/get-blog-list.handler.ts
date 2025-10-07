@@ -1,10 +1,21 @@
 import { Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../../../../core/utils/http-statuses.util";
-import { blogsRepository } from "../../../repositories/blogs.repository";
+import { blogsRepository } from "../../repositories/blogs.repository";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { BlogView } from "../../types/blog.types";
+import { mapToBlogViewModelUtil } from "../mappers/map-to-blog-view-model.util";
 
-export function getBlogListHandler(_req: Request, res: Response) {
-  const blogs = blogsRepository.findAllBlogs();
+export async function getBlogListHandler(
+  _req: Request,
+  res: Response<BlogView[]>
+) {
+  try {
+    const blogsDb = await blogsRepository.findAllBlogs();
 
-  res.status(HTTP_STATUS_CODES.OK_200).json(blogs);
+    const blogsView = blogsDb.map(mapToBlogViewModelUtil);
+
+    res.status(HTTP_STATUS_CODES.OK_200).json(blogsView);
+  } catch (error: unknown) {
+    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+  }
 }

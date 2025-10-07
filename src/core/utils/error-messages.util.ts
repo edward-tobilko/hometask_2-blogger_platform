@@ -1,10 +1,10 @@
-type ErrorMessagesTypeModel = {
+export type ErrorMessages = {
   field: string;
   message: string;
 };
 
-export const errorMessages = (
-  errors: ErrorMessagesTypeModel[]
-): { errorsMessages: ErrorMessagesTypeModel[] } => {
+export const errorMessagesUtil = (
+  errors: ErrorMessages[]
+): { errorsMessages: ErrorMessages[] } => {
   return { errorsMessages: errors };
 };

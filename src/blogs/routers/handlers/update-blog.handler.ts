@@ -1,28 +1,35 @@
 import { Request, Response } from "express";
 
-import { BlogInputDtoTypeModel } from "../../../../types/blog.types";
-import { HTTP_STATUS_CODES } from "../../../../core/utils/http-statuses.util";
-import { errorMessages } from "../../../../core/utils/error-messages.util";
-import { blogsRepository } from "../../../repositories/blogs.repository";
+import { BlogInputDto } from "../../types/blog.types";
+import { blogsRepository } from "../../repositories/blogs.repository";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import {
+  ErrorMessages,
+  errorMessagesUtil,
+} from "../../../core/utils/error-messages.util";
 
-export function updateBlogHandler(
-  req: Request<{ id: string }, {}, BlogInputDtoTypeModel>,
-  res: Response
+export async function updateBlogHandler(
+  req: Request<{ id: string }, {}, BlogInputDto>,
+  res: Response<{ errorsMessages: ErrorMessages[] }>
 ) {
-  const blog = blogsRepository.findBlogById(req.params.id);
+  try {
+    const blogDb = await blogsRepository.findBlogById(req.params.id);
 
-  if (!blog) {
-    return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
-      errorMessages([
-        {
-          field: "id",
-          message: `Blog with id=${req.params.id} is not found`,
-        },
-      ])
-    );
+    if (!blogDb) {
+      return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
+        errorMessagesUtil([
+          {
+            field: "id",
+            message: `Blog with id=${req.params.id} is not found`,
+          },
+        ])
+      );
+    }
+
+    await blogsRepository.updateBlog(req.params.id, req.body);
+
+    res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+  } catch (error: unknown) {
+    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
   }
-
-  blogsRepository.updateBlog(req.params.id, req.body);
-
-  res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
 }
