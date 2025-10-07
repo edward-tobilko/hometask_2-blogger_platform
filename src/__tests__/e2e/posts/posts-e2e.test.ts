@@ -12,6 +12,10 @@ import { createPostUtil } from "../../utils/posts/create-post.util";
 import { PostInputDto } from "../../../posts/types/post.types";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
+import {
+  getPostByIdBodyUtil,
+  getPostByIdResponseCodeUtil,
+} from "../../utils/posts/get-post-by-id.util";
 
 const adminToken = generateBasicAuthToken();
 
@@ -72,13 +76,9 @@ describe("E2E Posts API tests", () => {
   it("GET: /posts/:id -> should return one post by id - 200", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
-    const postResponse = await request(app)
-      .get(`${POSTS_PATH}/${createdPostResponse.id}`)
-      .expect(HTTP_STATUS_CODES.OK_200);
+    const postResponse = await getPostByIdBodyUtil(app, createdPostResponse.id);
 
-    expect(postResponse.body).toEqual(
-      expect.objectContaining(createdPostResponse)
-    );
+    expect(postResponse).toEqual(expect.objectContaining(createdPostResponse));
   });
 
   it("GET: /posts/:id -> should NOT return post by id (If post for passed id does not exist) - 404", async () => {
@@ -106,11 +106,12 @@ describe("E2E Posts API tests", () => {
       .send(updatedDtoPost)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-    const updatedPostResult = await request(app)
-      .get(`${POSTS_PATH}/${createdPostResponse.id}`)
-      .expect(HTTP_STATUS_CODES.OK_200);
+    const updatedPostResult = await getPostByIdBodyUtil(
+      app,
+      createdPostResponse.id
+    );
 
-    expect(updatedPostResult.body).toEqual(
+    expect(updatedPostResult).toEqual(
       expect.objectContaining({
         ...updatedDtoPost,
         id: createdPostResponse.id,
@@ -126,8 +127,9 @@ describe("E2E Posts API tests", () => {
       .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-    const deletedPostResult = await request(app).get(
-      `${POSTS_PATH}/${createdPostResponse.id}`
+    const deletedPostResult = await getPostByIdResponseCodeUtil(
+      app,
+      createdPostResponse.id
     );
 
     expect(deletedPostResult.status).toBe(HTTP_STATUS_CODES.NOT_FOUND_404);
