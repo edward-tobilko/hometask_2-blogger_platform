@@ -10,8 +10,8 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 
 export async function createBlogUtil(
   app: Express,
-  blogInputDto: Partial<BlogInputDto>
-): Promise<WithId<BlogView>> {
+  blogInputDto?: Partial<BlogInputDto>
+): Promise<BlogView> {
   const defaultBlogDataDto: BlogInputDto = getBlogDtoUtil();
   const blogDataDto = { ...defaultBlogDataDto, ...blogInputDto };
 
