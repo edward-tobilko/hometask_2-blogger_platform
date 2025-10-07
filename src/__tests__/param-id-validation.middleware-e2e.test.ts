@@ -5,8 +5,10 @@ import { setupApp } from "../app";
 import { clearDB } from "./utils/clear-db";
 import { BLOGS_PATH, POSTS_PATH } from "../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
-import { errorMessages } from "../core/utils/error-messages.util";
-import { ErrorMessagesTypeModel } from "../types/error-messages.types";
+import {
+  ErrorMessages,
+  errorMessagesUtil,
+} from "../core/utils/error-messages.util";
 
 describe.each([
   { urlName: "blogs", path: BLOGS_PATH },
@@ -38,8 +40,8 @@ describe.each([
         .get(`${path}/${id}`)
         .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
-      const { errorsMessages } = errorMessages(
-        resultError.body.errorsMessages as ErrorMessagesTypeModel[]
+      const { errorsMessages } = errorMessagesUtil(
+        resultError.body.errorsMessages as ErrorMessages[]
       );
 
       expect(errorsMessages).toEqual(
