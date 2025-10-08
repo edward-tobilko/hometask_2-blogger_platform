@@ -8,7 +8,7 @@ const bootstrap = async () => {
   const app = express();
   setupApp(app);
 
-  const PORT = SETTINGS_MONGO_DB.PORT;
+  const PORT = Number(SETTINGS_MONGO_DB.PORT ?? 5001);
 
   await runDB(SETTINGS_MONGO_DB.MONGO_URL);
 
