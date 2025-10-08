@@ -12,7 +12,7 @@ import { mapToPostViewModelUtil } from "../mappers/map-to-post-view-model.util";
 
 export async function createNewPostHandler(
   req: Request<{}, {}, PostInputDto>,
-  res: Response<PostView | { errorMessages: ErrorMessages[] }>
+  res: Response<PostView | { errorsMessages: ErrorMessages[] }>
 ) {
   try {
     const { title, shortDescription, content, blogId } = req.body;
@@ -24,7 +24,7 @@ export async function createNewPostHandler(
         .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
         .json(
           errorMessagesUtil([
-            { field: "blogId", message: `Blog with id=${blogId} is not found` },
+            { message: `Blog with id=${blogId} is not found`, field: "blogId" },
           ])
         );
     }

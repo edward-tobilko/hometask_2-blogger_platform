@@ -92,11 +92,11 @@ describe("Create (POST) blogs API body dto validation ", () => {
         .send(payload)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      expect(createBlogResponse.body.errorMessages).toEqual(
+      expect(createBlogResponse.body.errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            field, // for example -> name
             message: expect.any(String),
+            field, // for example -> name
           }),
         ])
       );

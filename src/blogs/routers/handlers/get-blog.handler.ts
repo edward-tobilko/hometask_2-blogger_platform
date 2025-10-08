@@ -11,7 +11,7 @@ import { mapToBlogViewModelUtil } from "../mappers/map-to-blog-view-model.util";
 
 export async function getBlogByIdHandler(
   req: Request<{ id: string }>,
-  res: Response<BlogView | { errorMessages: ErrorMessages[] }>
+  res: Response<BlogView | { errorsMessages: ErrorMessages[] }>
 ) {
   try {
     const id = req.params.id;
@@ -23,7 +23,7 @@ export async function getBlogByIdHandler(
         .status(HTTP_STATUS_CODES.NOT_FOUND_404)
         .json(
           errorMessagesUtil([
-            { field: "id", message: `Blog with id=${id} is not found` },
+            { message: `Blog with id=${id} is not found`, field: "id" },
           ])
         );
     }

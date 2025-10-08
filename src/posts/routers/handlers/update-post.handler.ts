@@ -11,7 +11,7 @@ import {
 
 export async function updatePostHandler(
   req: Request<{ id: string }, PostInputDto>,
-  res: Response<{ errorMessages: ErrorMessages[] }>
+  res: Response<{ errorsMessages: ErrorMessages[] }>
 ) {
   try {
     const { id } = req.params;
@@ -23,8 +23,8 @@ export async function updatePostHandler(
       res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
         errorMessagesUtil([
           {
-            field: "id",
             message: `Post with id=${id} is not found`,
+            field: "id",
           },
         ])
       );
@@ -36,8 +36,8 @@ export async function updatePostHandler(
       return res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json(
         errorMessagesUtil([
           {
-            field: "blogId",
             message: `Blog with id=${dto.blogId} is not found`,
+            field: "blogId",
           },
         ])
       );

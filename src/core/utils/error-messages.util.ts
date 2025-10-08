@@ -1,10 +1,10 @@
 export type ErrorMessages = {
-  field: string;
   message: string;
+  field: string;
 };
 
 export const errorMessagesUtil = (
   errors: ErrorMessages[]
-): { errorMessages: ErrorMessages[] } => {
-  return { errorMessages: errors };
+): { errorsMessages: ErrorMessages[] } => {
+  return { errorsMessages: errors };
 };

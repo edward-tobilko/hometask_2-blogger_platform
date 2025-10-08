@@ -13,9 +13,6 @@
     "lint": "eslint --fix .",
     "format": "prettier --write ."
   },
-  "engines": {
-    "node": ">=18 <21"
-  },
   "dependencies": {
     "express": "^5.1.0",
     "express-validator": "^7.2.1",

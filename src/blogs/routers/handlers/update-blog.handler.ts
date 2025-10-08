@@ -10,7 +10,7 @@ import {
 
 export async function updateBlogHandler(
   req: Request<{ id: string }, {}, BlogInputDto>,
-  res: Response<{ errorMessages: ErrorMessages[] }>
+  res: Response<{ errorsMessages: ErrorMessages[] }>
 ) {
   try {
     const blogDb = await blogsRepository.findBlogById(req.params.id);
@@ -19,8 +19,8 @@ export async function updateBlogHandler(
       return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
         errorMessagesUtil([
           {
-            field: "id",
             message: `Blog with id=${req.params.id} is not found`,
+            field: "id",
           },
         ])
       );

@@ -110,15 +110,15 @@ describe("Create (POST) posts API body validation ", () => {
         .send({ ...validPostDto, ...payload })
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      const { errorMessages } = errorMessagesUtil(
-        createPostResponse.body.errorMessages as ErrorMessages[]
+      const { errorsMessages } = errorMessagesUtil(
+        createPostResponse.body.errorsMessages as ErrorMessages[]
       );
 
-      expect(errorMessages).toEqual(
+      expect(errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            field,
             message: expect.any(String),
+            field,
           }),
         ])
       );
@@ -134,15 +134,15 @@ describe("Create (POST) posts API body validation ", () => {
       .send({ ...validPostDto, blogId: nonExistingBlogId })
       .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-    const { errorMessages } = errorMessagesUtil(
-      result.body.errorMessages as ErrorMessages[]
+    const { errorsMessages } = errorMessagesUtil(
+      result.body.errorsMessages as ErrorMessages[]
     );
 
-    expect(errorMessages).toEqual(
+    expect(errorsMessages).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          field: "blogId",
           message: expect.stringContaining("does not exist"),
+          field: "blogId",
         }),
       ])
     );

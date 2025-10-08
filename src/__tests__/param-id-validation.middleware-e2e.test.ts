@@ -49,11 +49,11 @@ describe.each([
         .get(`${path}/${id}`)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      const { errorMessages } = errorMessagesUtil(
+      const { errorsMessages } = errorMessagesUtil(
         resultError.body.errorMessages as ErrorMessages[]
       );
 
-      expect(errorMessages).toEqual(
+      expect(errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             field: "id",

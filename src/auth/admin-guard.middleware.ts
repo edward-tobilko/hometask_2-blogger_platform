@@ -1,13 +1,7 @@
+import { SETTINGS_MONGO_DB } from "./../core/settings/setting-mongo-db";
 import { NextFunction, Request, Response } from "express";
-import dotenv from "dotenv";
 
 import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
-import { envFile } from "../core/settings/setting-mongo-db";
-
-dotenv.config({ path: envFile });
-
-export const ADMIN_USERNAME = process.env.ADMIN_USERNAME ?? "";
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "";
 
 export const adminGuardMiddlewareAuth = (
   req: Request,
@@ -25,13 +19,18 @@ export const adminGuardMiddlewareAuth = (
     if (!base64Credentials)
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-    const credentials = Buffer.from(base64Credentials, "base64").toString(
-      "utf-8"
-    );
+    const decoded = Buffer.from(base64Credentials, "base64").toString("utf-8");
 
-    const [username, password] = credentials.split(":");
+    const sep = decoded.indexOf(":");
+    if (sep === -1) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    const username = decoded.slice(0, sep);
+    const password = decoded.slice(sep + 1);
+
+    if (
+      username === SETTINGS_MONGO_DB.ADMIN_USERNAME &&
+      password === SETTINGS_MONGO_DB.ADMIN_PASSWORD
+    ) {
       return next();
     }
 

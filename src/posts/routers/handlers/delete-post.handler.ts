@@ -9,7 +9,7 @@ import {
 
 export async function deletePostHandler(
   req: Request<{ id: string }>,
-  res: Response<{ errorMessages: ErrorMessages[] }>
+  res: Response<{ errorsMessages: ErrorMessages[] }>
 ) {
   try {
     const deletePostResponse = await postRepository.deletePost(req.params.id);
@@ -18,8 +18,8 @@ export async function deletePostHandler(
       return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
         errorMessagesUtil([
           {
-            field: "id",
             message: `Post with id=${req.params.id} is not found`,
+            field: "id",
           },
         ])
       );

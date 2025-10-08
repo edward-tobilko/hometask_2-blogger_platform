@@ -12,7 +12,7 @@ import { PostView } from "../../types/post.types";
 
 export async function getPostHandler(
   req: Request<{ id: string }>,
-  res: Response<PostView | { errorMessages: ErrorMessages[] }>
+  res: Response<PostView | { errorsMessages: ErrorMessages[] }>
 ) {
   try {
     const postView = await postRepository.getPostById(req.params.id);
@@ -21,8 +21,8 @@ export async function getPostHandler(
       return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
         errorMessagesUtil([
           {
-            field: "id",
             message: `Blog with id=${req.params.id} is not found`,
+            field: "id",
           },
         ])
       );
