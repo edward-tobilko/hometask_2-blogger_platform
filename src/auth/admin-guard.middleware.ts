@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
+import dotenv from "dotenv";
 
 import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
 
-export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "qwerty";
+dotenv.config();
+
+export const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 export const adminGuardMiddlewareAuth = (
   req: Request,
