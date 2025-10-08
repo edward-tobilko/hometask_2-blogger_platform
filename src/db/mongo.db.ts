@@ -26,7 +26,7 @@ export async function runDB(url: string): Promise<void> {
     await client.connect();
     await dataBase.command({ ping: 1 });
 
-    console.log("✅ Connected to the database");
+    console.log(`✅ Connected to the database: ${SETTINGS_MONGO_DB.DB_NAME}`);
   } catch (e) {
     await client.close();
 
