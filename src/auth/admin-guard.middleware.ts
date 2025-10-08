@@ -2,36 +2,39 @@ import { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 
 import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
+import { envFile } from "../core/settings/setting-mongo-db";
 
-dotenv.config();
+dotenv.config({ path: envFile });
 
-export const ADMIN_USERNAME = process.env.ADMIN_USERNAME;
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+export const ADMIN_USERNAME = process.env.ADMIN_USERNAME ?? "";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "";
 
 export const adminGuardMiddlewareAuth = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const auth = req.headers["authorization"] as string;
+  const auth = req.headers.authorization;
 
-  if (!auth) {
+  if (!auth?.startsWith("Basic")) {
     return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
-  const [authType, token] = auth.split(" ");
+  try {
+    const base64Credentials = auth.split(" ")[1];
+    const credentials = Buffer.from(base64Credentials, "base64").toString(
+      "utf-8"
+    );
 
-  if (authType !== "Basic") {
+    const [username, password] = credentials.split(":");
+
+    if (username === ADMIN_USERNAME || password === ADMIN_PASSWORD) {
+      return next();
+    }
+
+    return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  } catch (error) {
+    console.error("Auth decode error:", error);
     return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
-
-  const credentials = Buffer.from(token, "base64").toString("utf-8");
-
-  const [username, password] = credentials.split(":");
-
-  if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
-    return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-  }
-
-  next();
 };
