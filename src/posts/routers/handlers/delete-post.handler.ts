@@ -12,18 +12,22 @@ export async function deletePostHandler(
   res: Response<{ errorsMessages: ErrorMessages[] }>
 ) {
   try {
-    const deletePostResponse = await postRepository.deletePost(req.params.id);
+    const id = req.params.id;
 
-    if (!deletePostResponse) {
+    const postDb = await postRepository.getPostById(id);
+
+    if (!postDb) {
       return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
         errorMessagesUtil([
           {
-            message: `Post with id=${req.params.id} is not found`,
+            message: `Post with id=${id} is not found`,
             field: "id",
           },
         ])
       );
     }
+
+    await postRepository.deletePost(id);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

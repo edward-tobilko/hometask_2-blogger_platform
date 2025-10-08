@@ -61,7 +61,7 @@ export const postRepository = {
     return;
   },
 
-  async deletePost(id: string): Promise<boolean> {
+  async deletePost(id: string): Promise<void> {
     const deleteResult = await postCollection.deleteOne({
       _id: new ObjectId(id),
     });
@@ -70,6 +70,6 @@ export const postRepository = {
       throw new Error("Blog not exist");
     }
 
-    return true;
+    return;
   },
 };
