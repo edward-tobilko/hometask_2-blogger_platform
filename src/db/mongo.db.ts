@@ -17,13 +17,13 @@ export async function runDB(url: string): Promise<void> {
   client = new MongoClient(url);
 
   try {
+    await client.connect();
     const dataBase: Db = client.db(SETTINGS_MONGO_DB.DB_NAME);
 
     // * Инициализация коллекций
     blogCollection = dataBase.collection<BlogDb>(BLOG_COLLECTION_NAME);
     postCollection = dataBase.collection<PostDb>(POST_COLLECTION_NAME);
 
-    await client.connect();
     await dataBase.command({ ping: 1 });
 
     console.log(`✅ Connected to the database: ${SETTINGS_MONGO_DB.DB_NAME}`);
