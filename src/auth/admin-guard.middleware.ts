@@ -16,19 +16,22 @@ export const adminGuardMiddlewareAuth = (
 ) => {
   const auth = req.headers.authorization;
 
-  if (!auth?.startsWith("Basic")) {
+  if (!auth?.startsWith("Basic ")) {
     return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 
   try {
     const base64Credentials = auth.split(" ")[1];
+    if (!base64Credentials)
+      return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
     const credentials = Buffer.from(base64Credentials, "base64").toString(
       "utf-8"
     );
 
     const [username, password] = credentials.split(":");
 
-    if (username === ADMIN_USERNAME || password === ADMIN_PASSWORD) {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
       return next();
     }
 
