@@ -6,7 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 import {
   ErrorMessages,
   errorMessagesUtil,
-} from "../../../core/utils/error-messages.util";
+} from "../../../core/utils/api-error-result.util";
 import { mapToBlogViewModelUtil } from "../mappers/map-to-blog-view-model.util";
 
 export async function getBlogByIdHandler(

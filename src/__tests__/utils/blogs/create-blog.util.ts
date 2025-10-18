@@ -1,6 +1,5 @@
 import { Express } from "express";
 import request from "supertest";
-import { WithId } from "mongodb";
 
 import { BlogInputDto, BlogView } from "../../../blogs/types/blog.types";
 import { getBlogDtoUtil } from "./get-blog-dto.util";

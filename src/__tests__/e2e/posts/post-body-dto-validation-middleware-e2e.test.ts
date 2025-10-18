@@ -15,7 +15,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 import {
   ErrorMessages,
   errorMessagesUtil,
-} from "../../../core/utils/error-messages.util";
+} from "../../../core/utils/api-error-result.util";
 
 const adminToken = generateBasicAuthToken();
 

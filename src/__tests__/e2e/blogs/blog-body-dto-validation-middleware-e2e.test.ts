@@ -111,5 +111,4 @@ describe("Create (POST) blogs API body dto validation ", () => {
   });
 });
 
-// ? Пояснення:
-// * toMatchObject -  дозволяє перевірити тільки суттєві поля, не вимагаючи 100% збігу об’єктів.
+// ? toMatchObject -  allows you to check only essential fields without requiring a 100% match of objects.

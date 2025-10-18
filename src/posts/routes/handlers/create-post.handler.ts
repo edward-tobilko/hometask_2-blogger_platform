@@ -7,7 +7,7 @@ import { PostInputDto, PostView } from "../../types/post.types";
 import {
   ErrorMessages,
   errorMessagesUtil,
-} from "../../../core/utils/error-messages.util";
+} from "../../../core/utils/api-error-result.util";
 import { mapToPostViewModelUtil } from "../mappers/map-to-post-view-model.util";
 
 export async function createNewPostHandler(

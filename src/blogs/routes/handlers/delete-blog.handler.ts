@@ -1,15 +1,14 @@
 import { Request, Response } from "express";
 
-import { BlogInputDto } from "../../types/blog.types";
-import { blogsRepository } from "../../repositories/blogs.repository";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 import {
   ErrorMessages,
   errorMessagesUtil,
-} from "../../../core/utils/error-messages.util";
+} from "../../../core/utils/api-error-result.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { blogsRepository } from "../../repositories/blogs.repository";
 
-export async function updateBlogHandler(
-  req: Request<{ id: string }, {}, BlogInputDto>,
+export async function deleteBlogHandler(
+  req: Request<{ id: string }>,
   res: Response<{ errorsMessages: ErrorMessages[] }>
 ) {
   try {
@@ -26,7 +25,7 @@ export async function updateBlogHandler(
       );
     }
 
-    await blogsRepository.updateBlog(req.params.id, req.body);
+    await blogsRepository.deleteBlog(req.params.id);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

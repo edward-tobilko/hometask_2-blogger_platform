@@ -7,7 +7,7 @@ import { PostInputDto } from "../../types/post.types";
 import {
   ErrorMessages,
   errorMessagesUtil,
-} from "../../../core/utils/error-messages.util";
+} from "../../../core/utils/api-error-result.util";
 
 export async function updatePostHandler(
   req: Request<{ id: string }, PostInputDto>,

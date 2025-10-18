@@ -1,8 +1,8 @@
 import { Router } from "express";
 
-import { adminGuardMiddlewareAuth } from "../../auth/admin-guard.middleware";
-import { paramIdMiddlewareValidation } from "../../core/middlewares/validations/param-id-validation.middleware";
-import { inputValidationResultMiddleware } from "../../core/middlewares/validations/input-validation-result.middleware";
+import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.middleware";
+import { paramIdMiddlewareValidation } from "../../core/middlewares/validation/param-id-validation.middleware";
+import { inputValidationResultMiddleware } from "../../core/middlewares/validation/input-validation-result.middleware";
 import { blogBodyInputValidationMiddleware } from "../validations/blog-dto-input-validation.middleware";
 import { getBlogListHandler } from "./handlers/get-blog-list.handler";
 import { getBlogByIdHandler } from "./handlers/get-blog.handler";
@@ -10,18 +10,18 @@ import { createNewBlogHandler } from "./handlers/create-blog.handler";
 import { updateBlogHandler } from "./handlers/update-blog.handler";
 import { deleteBlogHandler } from "./handlers/delete-blog.handler";
 
-export const blogsRouter = Router({});
+export const blogsRoute = Router({});
 
-blogsRouter.get("", getBlogListHandler);
+blogsRoute.get("", getBlogListHandler);
 
-blogsRouter.get(
+blogsRoute.get(
   "/:id",
   paramIdMiddlewareValidation,
   inputValidationResultMiddleware,
   getBlogByIdHandler
 );
 
-blogsRouter.post(
+blogsRoute.post(
   "",
   adminGuardMiddlewareAuth,
   blogBodyInputValidationMiddleware,
@@ -29,7 +29,7 @@ blogsRouter.post(
   createNewBlogHandler
 );
 
-blogsRouter.put(
+blogsRoute.put(
   "/:id",
   adminGuardMiddlewareAuth,
   paramIdMiddlewareValidation,
@@ -38,7 +38,7 @@ blogsRouter.put(
   updateBlogHandler
 );
 
-blogsRouter.delete(
+blogsRoute.delete(
   "/:id",
   adminGuardMiddlewareAuth,
   paramIdMiddlewareValidation,

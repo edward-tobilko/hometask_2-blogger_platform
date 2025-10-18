@@ -30,25 +30,27 @@ describe("E2E Blogs API tests", () => {
     await stopDB();
   });
 
-  it("GET: /blogs -> should return blogs list - 200", async () => {
-    await createBlogUtil(app, {
-      name: "test name-1",
-      description: "test desc-1",
-    });
-    await createBlogUtil(app, {
-      name: "test name-1",
-      description: "test desc-1",
-    });
+  it("GET: /api/blogs -> should return blogs list - 200", async () => {
+    await Promise.all([
+      createBlogUtil(app, {
+        name: "test name-1",
+        description: "test desc-1",
+      }),
+      createBlogUtil(app, {
+        name: "test name-1",
+        description: "test desc-1",
+      }),
+    ]);
 
     const blogListResponse = await request(app)
       .get(BLOGS_PATH)
       .expect(HTTP_STATUS_CODES.OK_200);
 
-    expect(Array.isArray(blogListResponse.body)).toBe(true);
-    expect(blogListResponse.body.length).toBeGreaterThanOrEqual(2);
+    expect(Array.isArray(blogListResponse.body.items)).toBeInstanceOf(true);
+    expect(blogListResponse.body.items.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("POST: /blogs -> should create new blog - 201", async () => {
+  it("POST: /api/blogs -> should create new blog - 201", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     expect(createdBlogResponse).toEqual(
@@ -56,7 +58,7 @@ describe("E2E Blogs API tests", () => {
     );
   });
 
-  it("GET: /blogs/:id -> should return one blog by id - 200", async () => {
+  it("GET: /api/blogs/:id -> should return one blog by id - 200", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     const getBlogByIdResponse = await getBlogByIdUtil(

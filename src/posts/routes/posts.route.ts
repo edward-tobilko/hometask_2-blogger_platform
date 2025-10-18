@@ -2,25 +2,25 @@ import { Router } from "express";
 
 import { getPostListHandler } from "./handlers/get-post-list.handler";
 import { getPostHandler } from "./handlers/get-post.handler";
-import { paramIdMiddlewareValidation } from "../../core/middlewares/validations/param-id-validation.middleware";
-import { inputValidationResultMiddleware } from "../../core/middlewares/validations/input-validation-result.middleware";
+import { paramIdMiddlewareValidation } from "../../core/middlewares/validation/param-id-validation.middleware";
+import { inputValidationResultMiddleware } from "../../core/middlewares/validation/input-validation-result.middleware";
 import { createNewPostHandler } from "./handlers/create-post.handler";
-import { adminGuardMiddlewareAuth } from "../../auth/admin-guard.middleware";
+import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.middleware";
 import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { updatePostHandler } from "./handlers/update-post.handler";
 import { deletePostHandler } from "./handlers/delete-post.handler";
 
-export const postsRouter = Router({});
+export const postsRoute = Router({});
 
-postsRouter.get("", getPostListHandler);
-postsRouter.get(
+postsRoute.get("", getPostListHandler);
+postsRoute.get(
   "/:id",
   paramIdMiddlewareValidation,
   inputValidationResultMiddleware,
   getPostHandler
 );
 
-postsRouter.post(
+postsRoute.post(
   "",
   adminGuardMiddlewareAuth,
   postBodyInputValidationMiddleware,
@@ -28,7 +28,7 @@ postsRouter.post(
   createNewPostHandler
 );
 
-postsRouter.put(
+postsRoute.put(
   "/:id",
   adminGuardMiddlewareAuth,
   paramIdMiddlewareValidation,
@@ -37,7 +37,7 @@ postsRouter.put(
   updatePostHandler
 );
 
-postsRouter.delete(
+postsRoute.delete(
   "/:id",
   adminGuardMiddlewareAuth,
   paramIdMiddlewareValidation,

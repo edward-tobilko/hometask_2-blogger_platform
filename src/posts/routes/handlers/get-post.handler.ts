@@ -6,7 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 import {
   ErrorMessages,
   errorMessagesUtil,
-} from "../../../core/utils/error-messages.util";
+} from "../../../core/utils/api-error-result.util";
 import { mapToPostViewModelUtil } from "../mappers/map-to-post-view-model.util";
 import { PostView } from "../../types/post.types";
 

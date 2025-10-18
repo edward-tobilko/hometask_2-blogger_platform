@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
-// * view model
-export type PostView = {
+// * View model
+export type PostViewModel = {
   id: string;
   title: string;
   shortDescription: string;
@@ -11,8 +11,8 @@ export type PostView = {
   createdAt: string;
 };
 
-// * database model
-export type PostDb = {
+// * DataBase model
+export type PostDbDocument = {
   _id: ObjectId;
   title: string;
   shortDescription: string;
@@ -22,8 +22,8 @@ export type PostDb = {
   createdAt: Date;
 };
 
-// * dto model
-export type PostInputDto = {
+// * Dto model
+export type PostInputDtoModel = {
   title: string;
   shortDescription: string;
   content: string;

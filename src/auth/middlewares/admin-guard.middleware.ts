@@ -1,7 +1,7 @@
-import { SETTINGS_MONGO_DB } from "./../core/settings/setting-mongo-db";
+import { SETTINGS_MONGO_DB } from "../../core/settings/setting-mongo-db";
 import { NextFunction, Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
 
 export const adminGuardMiddlewareAuth = (
   req: Request,

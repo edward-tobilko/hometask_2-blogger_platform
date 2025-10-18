@@ -1,6 +1,6 @@
-import { ObjectId } from "mongodb";
+import { SortDirections } from "../../core/types/sort-directions.enum";
 
-type BlogView = {
+type BlogViewModel = {
   id: string;
   name: string;
   description: string;
@@ -9,8 +9,7 @@ type BlogView = {
   isMembership: boolean;
 };
 
-type BlogDb = {
-  _id: ObjectId;
+type BlogDbDocument = {
   name: string;
   description: string;
   websiteUrl: string;
@@ -18,10 +17,30 @@ type BlogDb = {
   isMembership: boolean;
 };
 
-type BlogInputDto = {
+type BlogInputDtoModel = {
   name: string;
   description: string;
   websiteUrl: string;
 };
 
-export { BlogView, BlogInputDto, BlogDb };
+type BlogPostInputDtoModel = {
+  title: string;
+  shortDescription: string;
+  content: string;
+};
+
+type BlogsQueryInput = {
+  searchNameTerm: string;
+  sortBy: string;
+  sortDirection: SortDirections;
+  pageNumber: number;
+  pageSize: number;
+};
+
+export {
+  BlogViewModel,
+  BlogInputDtoModel,
+  BlogPostInputDtoModel,
+  BlogDbDocument,
+  BlogsQueryInput,
+};
