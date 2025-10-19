@@ -4,12 +4,13 @@ import { blogCollection } from "../../db/mongo.db";
 import {
   BlogDbDocument,
   BlogInputDtoModel,
-  BlogsQueryInput,
+  BlogQueryParamInput,
 } from "../types/blog.types";
+import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 
 export const blogsRepository = {
   async findAllBlogsRepo(
-    queryDto: BlogsQueryInput
+    queryDto: BlogQueryParamInput
   ): Promise<{ items: WithId<BlogDbDocument>[]; totalCount: number }> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } =
       queryDto;
@@ -31,24 +32,31 @@ export const blogsRepository = {
     return { items, totalCount };
   },
 
-  // async findBlogById(blogId: string): Promise<WithId<BlogDbDocument> | null> {
-  //   return blogCollection.findOne({ _id: new ObjectId(blogId) }) ?? null;
-  // },
+  async findBlogByIdRepo(blogId: string): Promise<WithId<BlogDbDocument>> {
+    const result = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 
-  // async createNewBlog(dto: BlogInputDtoModel): Promise<WithId<BlogDbDocument>> {
-  //   const newBlog: BlogDbDocument = {
-  //     _id: new ObjectId(),
-  //     name: dto.name,
-  //     description: dto.description,
-  //     websiteUrl: dto.websiteUrl,
-  //     createdAt: new Date(),
-  //     isMembership: false,
-  //   };
+    if (!result) {
+      throw new RepositoryNotFoundError("Blog is not exist");
+    }
 
-  //   const insertResult = await blogCollection.insertOne(newBlog);
+    return result;
+  },
 
-  //   return { ...newBlog, _id: insertResult.insertedId };
-  // },
+  async createNewBlogRepo(
+    dto: BlogInputDtoModel
+  ): Promise<WithId<BlogDbDocument>> {
+    const newBlog = {
+      name: dto.name,
+      description: dto.description,
+      websiteUrl: dto.websiteUrl,
+      createdAt: new Date(),
+      isMembership: true,
+    };
+
+    const insertResult = await blogCollection.insertOne(newBlog);
+
+    return { ...newBlog, _id: insertResult.insertedId };
+  },
 
   // async updateBlog(id: string, dto: BlogInputDtoModel): Promise<void> {
   //   const updateResult = await blogCollection.updateOne(

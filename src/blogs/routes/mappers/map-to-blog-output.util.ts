@@ -2,9 +2,9 @@ import { WithId } from "mongodb";
 
 import { BlogDbDocument, BlogViewModel } from "../../types/blog.types";
 
-export function mapToBlogViewModelUtil(
+export const mapToBlogOutputUtil = (
   blogDb: WithId<BlogDbDocument>
-): BlogViewModel {
+): BlogViewModel => {
   return {
     id: blogDb._id.toString(),
     name: blogDb.name,
@@ -13,4 +13,4 @@ export function mapToBlogViewModelUtil(
     createdAt: blogDb.createdAt.toISOString(),
     isMembership: blogDb.isMembership,
   };
-}
+};

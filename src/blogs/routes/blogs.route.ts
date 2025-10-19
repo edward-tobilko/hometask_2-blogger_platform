@@ -9,10 +9,17 @@ import { getBlogByIdHandler } from "./handlers/get-blog.handler";
 import { createNewBlogHandler } from "./handlers/create-blog.handler";
 import { updateBlogHandler } from "./handlers/update-blog.handler";
 import { deleteBlogHandler } from "./handlers/delete-blog.handler";
+import { paginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting-validation.middleware";
+import { BlogSortField } from "../types/blog.types";
 
 export const blogsRoute = Router({});
 
-blogsRoute.get("", getBlogListHandler);
+blogsRoute.get(
+  "",
+  paginationAndSortingValidation(BlogSortField),
+  inputValidationResultMiddleware,
+  getBlogListHandler
+);
 
 blogsRoute.get(
   "/:id",

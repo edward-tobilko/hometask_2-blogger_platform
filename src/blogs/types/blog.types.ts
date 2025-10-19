@@ -1,4 +1,4 @@
-import { SortDirections } from "../../core/types/sort-directions.enum";
+import { PaginationSorting } from "../../core/types/pagination-sorting.type";
 
 type BlogViewModel = {
   id: string;
@@ -7,6 +7,14 @@ type BlogViewModel = {
   websiteUrl: string;
   createdAt: string;
   isMembership: boolean;
+};
+
+type BlogListPaginatedOutput = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: BlogViewModel[];
 };
 
 type BlogDbDocument = {
@@ -29,18 +37,19 @@ type BlogPostInputDtoModel = {
   content: string;
 };
 
-type BlogsQueryInput = {
-  searchNameTerm: string;
-  sortBy: string;
-  sortDirection: SortDirections;
-  pageNumber: number;
-  pageSize: number;
-};
+enum BlogSortField {
+  CreatedAt = "createdAt",
+}
+
+type BlogQueryParamInput = PaginationSorting<BlogSortField> &
+  Partial<{ searchNameTerm: string }>;
 
 export {
   BlogViewModel,
   BlogInputDtoModel,
   BlogPostInputDtoModel,
   BlogDbDocument,
-  BlogsQueryInput,
+  BlogQueryParamInput,
+  BlogListPaginatedOutput,
+  BlogSortField,
 };
