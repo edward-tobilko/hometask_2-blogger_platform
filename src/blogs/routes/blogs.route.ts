@@ -11,9 +11,12 @@ import { updateBlogHandler } from "./handlers/update-blog.handler";
 import { deleteBlogHandler } from "./handlers/delete-blog.handler";
 import { paginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting-validation.middleware";
 import { BlogSortField } from "../types/blog.types";
+import { createPostForBlogHandler } from "./handlers/create-post-for-blog.handler";
+import { getPostListByIdBlogHandler } from "./handlers/get-post-list-by-id-blog.handler";
 
 export const blogsRoute = Router({});
 
+// * GET methods
 blogsRoute.get(
   "",
   paginationAndSortingValidation(BlogSortField),
@@ -28,6 +31,9 @@ blogsRoute.get(
   getBlogByIdHandler
 );
 
+blogsRoute.get("/:id/posts", getPostListByIdBlogHandler);
+
+// * POST methods
 blogsRoute.post(
   "",
   adminGuardMiddlewareAuth,
@@ -36,6 +42,9 @@ blogsRoute.post(
   createNewBlogHandler
 );
 
+blogsRoute.post("/:id/posts", createPostForBlogHandler);
+
+// * PUT methods
 blogsRoute.put(
   "/:id",
   adminGuardMiddlewareAuth,
@@ -45,6 +54,7 @@ blogsRoute.put(
   updateBlogHandler
 );
 
+// * DELETE methods
 blogsRoute.delete(
   "/:id",
   adminGuardMiddlewareAuth,

@@ -1,12 +1,13 @@
-import { ObjectId, WithId } from "mongodb";
+import { InsertOneResult, ObjectId, WithId } from "mongodb";
 
-import { blogCollection } from "../../db/mongo.db";
+import { blogCollection, postCollection } from "../../db/mongo.db";
 import {
   BlogDbDocument,
   BlogInputDtoModel,
   BlogQueryParamInput,
 } from "../types/blog.types";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
+import { PostDbDocument } from "../../posts/types/post.types";
 
 export const blogsRepository = {
   async findAllBlogsRepo(
@@ -56,6 +57,15 @@ export const blogsRepository = {
     const insertResult = await blogCollection.insertOne(newBlog);
 
     return { ...newBlog, _id: insertResult.insertedId };
+  },
+
+  async createNewPostForBlogRepo(
+    newPostForBlog: PostDbDocument
+  ): Promise<WithId<PostDbDocument>> {
+    const insertedResult: InsertOneResult =
+      await postCollection.insertOne(newPostForBlog);
+
+    return { ...newPostForBlog, _id: insertedResult.insertedId };
   },
 
   // async updateBlog(id: string, dto: BlogInputDtoModel): Promise<void> {

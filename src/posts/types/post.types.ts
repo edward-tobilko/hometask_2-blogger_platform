@@ -13,7 +13,6 @@ export type PostViewModel = {
 
 // * DataBase model
 export type PostDbDocument = {
-  _id: ObjectId;
   title: string;
   shortDescription: string;
   content: string;
