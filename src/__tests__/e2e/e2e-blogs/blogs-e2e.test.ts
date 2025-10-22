@@ -10,12 +10,12 @@ import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
-import { BlogInputDto } from "../../../blogs/types/blog.types";
+import { BlogInputDtoModel } from "../../../blogs/types/blog.types";
 import { getBlogByIdUtil } from "../../utils/blogs/get-blog-by-id.util";
 
 const adminToken = generateBasicAuthToken();
 
-const testBlogDataDto: BlogInputDto = getBlogDtoUtil();
+const testBlogDataDto: BlogInputDtoModel = getBlogDtoUtil();
 
 describe("E2E Blogs API tests", () => {
   const app = express();
@@ -57,6 +57,10 @@ describe("E2E Blogs API tests", () => {
       expect.objectContaining(testBlogDataDto)
     );
   });
+
+  it("GET: /api/blogs/:id/posts -> should return posts list for blog - 200", async () => {});
+
+  it("POST: /api/blogs/:id/posts -> should create post for blog - 201", async () => {});
 
   it("GET: /api/blogs/:id -> should return one blog by id - 200", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);

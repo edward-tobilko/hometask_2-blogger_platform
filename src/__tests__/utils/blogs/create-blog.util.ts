@@ -1,17 +1,20 @@
 import { Express } from "express";
 import request from "supertest";
 
-import { BlogInputDto, BlogView } from "../../../blogs/types/blog.types";
 import { getBlogDtoUtil } from "./get-blog-dto.util";
 import { BLOGS_PATH } from "../../../core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import {
+  BlogInputDtoModel,
+  BlogViewModel,
+} from "../../../blogs/types/blog.types";
 
 export async function createBlogUtil(
   app: Express,
-  blogInputDto?: Partial<BlogInputDto>
-): Promise<BlogView> {
-  const defaultBlogDataDto: BlogInputDto = getBlogDtoUtil();
+  blogInputDto?: Partial<BlogInputDtoModel>
+): Promise<BlogViewModel> {
+  const defaultBlogDataDto: BlogInputDtoModel = getBlogDtoUtil();
   const blogDataDto = { ...defaultBlogDataDto, ...blogInputDto };
 
   const createdBlogResponse = await request(app)

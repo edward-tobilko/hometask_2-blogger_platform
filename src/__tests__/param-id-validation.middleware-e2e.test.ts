@@ -5,12 +5,10 @@ import { setupApp } from "../app";
 import { clearDB } from "./utils/clear-db";
 import { BLOGS_PATH, POSTS_PATH } from "../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
-import {
-  ErrorMessages,
-  errorMessagesUtil,
-} from "../core/utils/api-error-result.util";
 import { runDB, stopDB } from "../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo-db";
+import { apiErrorResultUtil } from "../core/utils/api-error-result.util";
+import { FieldError } from "../core/types/field-error.type";
 
 describe.each([
   { urlName: "blogs", path: BLOGS_PATH },
@@ -49,8 +47,8 @@ describe.each([
         .get(`${path}/${id}`)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      const { errorsMessages } = errorMessagesUtil(
-        resultError.body.errorMessages as ErrorMessages[]
+      const { errorsMessages } = apiErrorResultUtil(
+        resultError.body.errorMessages as FieldError[]
       );
 
       expect(errorsMessages).toEqual(

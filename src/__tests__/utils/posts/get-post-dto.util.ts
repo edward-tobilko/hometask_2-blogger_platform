@@ -1,4 +1,4 @@
-import { PostInputDto } from "../../../posts/types/post.types";
+import { PostInputDtoModel } from "../../../posts/types/post.types";
 
 export const getPostDtoUtil = (blogId: string) =>
   ({
@@ -6,4 +6,4 @@ export const getPostDtoUtil = (blogId: string) =>
     shortDescription: "test short desc",
     content: "test content",
     blogId,
-  }) as PostInputDto;
+  }) as PostInputDtoModel;

@@ -9,7 +9,6 @@ import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 import { POSTS_PATH } from "../../../core/paths/paths";
 import { createPostUtil } from "../../utils/posts/create-post.util";
-import { PostInputDto } from "../../../posts/types/post.types";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import {

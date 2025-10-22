@@ -1,9 +1,9 @@
-import { BlogInputDto } from "../../../blogs/types/blog.types";
+import { BlogInputDtoModel } from "../../../blogs/types/blog.types";
 
-export function getBlogDtoUtil(): BlogInputDto {
+export function getBlogDtoUtil(): BlogInputDtoModel {
   return {
     name: "random name",
     description: "random description",
-    websiteUrl: "https://example.com",
+    websiteUrl: "https://random-example.com",
   };
 }

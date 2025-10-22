@@ -3,19 +3,21 @@ import { Express } from "express";
 
 import { POSTS_PATH } from "../../../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import { PostInputDto, PostView } from "../../../posts/types/post.types";
+import {
+  PostInputDtoModel,
+  PostViewModel,
+} from "../../../posts/types/post.types";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { getPostDtoUtil } from "./get-post-dto.util";
 import { createBlogUtil } from "../blogs/create-blog.util";
 
 export const createPostUtil = async (
   app: Express,
-  postInputDto: Partial<PostInputDto>
-): Promise<PostView> => {
-  // * створюємо валідний блог і тримаємо його для тестів
+  postInputDto: Partial<PostInputDtoModel>
+): Promise<PostViewModel> => {
   const createBlog = await createBlogUtil(app);
 
-  const defaultPostDataDto: PostInputDto = getPostDtoUtil(createBlog.id);
+  const defaultPostDataDto: PostInputDtoModel = getPostDtoUtil(createBlog.id);
   const postDataDto = { ...defaultPostDataDto, ...postInputDto };
 
   const createdPostResponse = await request(app)
@@ -24,5 +26,5 @@ export const createPostUtil = async (
     .send(postDataDto)
     .expect(HTTP_STATUS_CODES.CREATED_201);
 
-  return createdPostResponse.body as PostView;
+  return createdPostResponse.body as PostViewModel;
 };
