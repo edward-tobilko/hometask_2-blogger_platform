@@ -1,47 +1,33 @@
 import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import { postRepository } from "../../repositories/posts.repository";
-import { blogsRepository } from "../../../blogs/repositories/blogs.repository";
-import { PostInputDto, PostView } from "../../types/post.types";
-import {
-  ErrorMessages,
-  errorMessagesUtil,
-} from "../../../core/utils/api-error-result.util";
-import { mapToPostViewModelUtil } from "../mappers/map-to-post-view-model.util";
+import { PostInputDtoModel } from "../../types/post.types";
+import { blogsService } from "../../../blogs/application/blogs-service";
+import { postsService } from "../../application/posts-service";
+import { mapToPostOutputUtil } from "../mappers/map-to-post-output.util";
 
 export async function createNewPostHandler(
-  req: Request<{}, {}, PostInputDto>,
-  res: Response<PostView | { errorsMessages: ErrorMessages[] }>
+  req: Request<{}, {}, PostInputDtoModel>,
+  res: Response
 ) {
   try {
     const { title, shortDescription, content, blogId } = req.body;
 
-    const blogsDbResponse = await blogsRepository.findBlogById(blogId);
+    const blogDbResponse = await blogsService.findBlogById(blogId);
 
-    if (!blogsDbResponse) {
-      return res
-        .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
-        .json(
-          errorMessagesUtil([
-            { message: `Blog with id=${blogId} is not found`, field: "blogId" },
-          ])
-        );
-    }
-
-    const blogViewResponse = await postRepository.createNewPost(
+    const postOutputResponse = await postsService.createPost(
       {
         title,
         shortDescription,
         content,
         blogId,
       },
-      blogsDbResponse.name
+      blogDbResponse.name
     );
 
     res
       .status(HTTP_STATUS_CODES.CREATED_201)
-      .json(mapToPostViewModelUtil(blogViewResponse));
+      .json(mapToPostOutputUtil(postOutputResponse));
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
   }

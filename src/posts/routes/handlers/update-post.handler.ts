@@ -1,58 +1,21 @@
 import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import { postRepository } from "../../repositories/posts.repository";
-import { blogsRepository } from "../../../blogs/repositories/blogs.repository";
-import { PostInputDto } from "../../types/post.types";
-import {
-  ErrorMessages,
-  errorMessagesUtil,
-} from "../../../core/utils/api-error-result.util";
+import { PostInputDtoModel } from "../../types/post.types";
+import { postsService } from "../../application/posts-service";
+import { blogsService } from "../../../blogs/application/blogs-service";
 
 export async function updatePostHandler(
-  req: Request<{ id: string }, PostInputDto>,
-  res: Response<{ errorsMessages: ErrorMessages[] }>
+  req: Request<{ id: string }, {}, PostInputDtoModel, {}>,
+  res: Response
 ) {
   try {
     const { id } = req.params;
-    const dto: PostInputDto = req.body;
+    const dto: PostInputDtoModel = req.body;
 
-    const post = await postRepository.getPostById(req.params.id);
+    const blog = await blogsService.findBlogById(dto.blogId);
 
-    if (!post) {
-      res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
-        errorMessagesUtil([
-          {
-            message: `Post with id=${id} is not found`,
-            field: "id",
-          },
-        ])
-      );
-    }
-
-    const blog = await blogsRepository.findBlogById(dto.blogId);
-
-    if (!blog) {
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json(
-        errorMessagesUtil([
-          {
-            message: `Blog with id=${dto.blogId} is not found`,
-            field: "blogId",
-          },
-        ])
-      );
-    }
-
-    await postRepository.updatePost(
-      id,
-      {
-        ...dto,
-        title: dto.title,
-        shortDescription: dto.shortDescription,
-        content: dto.content,
-      },
-      blog.name
-    );
+    await postsService.updatePost(id, dto, blog.name);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

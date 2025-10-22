@@ -1,5 +1,10 @@
 import { PaginationSorting } from "../../core/types/pagination-sorting.type";
 
+enum BlogSortField {
+  CreatedAt = "createdAt",
+}
+
+// * Output model
 type BlogViewModel = {
   id: string;
   name: string;
@@ -17,6 +22,10 @@ type BlogListPaginatedOutput = {
   items: BlogViewModel[];
 };
 
+type BlogQueryParamInput = PaginationSorting<BlogSortField> &
+  Partial<{ searchNameTerm: string; blogId: string }>;
+
+// * DB models
 type BlogDbDocument = {
   name: string;
   description: string;
@@ -25,6 +34,7 @@ type BlogDbDocument = {
   isMembership: boolean;
 };
 
+// * Dto models
 type BlogInputDtoModel = {
   name: string;
   description: string;
@@ -36,13 +46,6 @@ type BlogPostInputDtoModel = {
   shortDescription: string;
   content: string;
 };
-
-enum BlogSortField {
-  CreatedAt = "createdAt",
-}
-
-type BlogQueryParamInput = PaginationSorting<BlogSortField> &
-  Partial<{ searchNameTerm: string; blogId: string }>;
 
 export {
   BlogViewModel,

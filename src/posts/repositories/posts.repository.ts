@@ -1,32 +1,54 @@
 import { ObjectId, WithId } from "mongodb";
 
 import { postCollection } from "../../db/mongo.db";
-import { PostDb, PostInputDto } from "../types/post.types";
+import {
+  PostDbDocument,
+  PostInputDtoModel,
+  PostQueryParamInput,
+} from "../types/post.types";
+import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 
-export const postRepository = {
-  async getAllPosts(): Promise<WithId<PostDb>[]> {
-    return postCollection.find().toArray();
+export const postsRepository = {
+  async getAllPostsRepo(queryParam: PostQueryParamInput): Promise<{
+    items: WithId<PostDbDocument>[];
+    totalCount: number;
+  }> {
+    const filter = {};
+
+    const { pageNumber, pageSize, sortDirection, sortBy } = queryParam;
+
+    const items = await postCollection
+      .find(filter)
+      .sort({ [sortBy]: sortDirection })
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
+      .toArray();
+
+    const totalCount = await postCollection.countDocuments(filter);
+
+    return { items, totalCount };
   },
 
-  async getPostById(postId: string): Promise<WithId<PostDb> | null> {
-    return postCollection.findOne({ _id: new ObjectId(postId) }) ?? null;
+  async getPostByIdRepo(postId: string): Promise<WithId<PostDbDocument>> {
+    const result = postCollection.findOne({ _id: new ObjectId(postId) });
+
+    if (!result) {
+      throw new RepositoryNotFoundError("Post is not exist");
+    }
+
+    return result;
   },
 
-  async createNewPost(
-    dto: PostInputDto,
+  async createPostRepo(
+    dto: PostInputDtoModel,
     blogName: string
-  ): Promise<WithId<PostDb>> {
-    const newPost: PostDb = {
-      // * create on my own
-      _id: new ObjectId(),
-
-      // * dto body
+  ): Promise<WithId<PostDbDocument>> {
+    const newPost: PostDbDocument = {
       title: dto.title,
       shortDescription: dto.shortDescription,
       content: dto.content,
       blogId: new ObjectId(dto.blogId),
 
-      // * get name from blog
       blogName: blogName,
       createdAt: new Date(),
     };
@@ -36,9 +58,9 @@ export const postRepository = {
     return { ...newPost, _id: insertResult.insertedId };
   },
 
-  async updatePost(
+  async updatePostRepo(
     postId: string,
-    dto: PostInputDto,
+    dto: PostInputDtoModel,
     blogName: string
   ): Promise<void> {
     const updateResult = await postCollection.updateOne(
@@ -61,13 +83,13 @@ export const postRepository = {
     return;
   },
 
-  async deletePost(id: string): Promise<void> {
+  async deletePostRepo(id: string): Promise<void> {
     const deleteResult = await postCollection.deleteOne({
       _id: new ObjectId(id),
     });
 
     if (deleteResult.deletedCount < 1) {
-      throw new Error("Blog not exist");
+      throw new Error("Post not exist");
     }
 
     return;

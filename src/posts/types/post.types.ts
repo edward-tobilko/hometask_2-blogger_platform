@@ -1,6 +1,12 @@
 import { ObjectId } from "mongodb";
 
-// * View model
+import { PaginationSorting } from "../../core/types/pagination-sorting.type";
+
+export enum PostSortField {
+  CreatedAt = "createdAt",
+}
+
+// * Output models
 export type PostViewModel = {
   id: string;
   title: string;
@@ -19,7 +25,9 @@ export type PostForBlogListPaginatedOutput = {
   items: PostViewModel[];
 };
 
-// * DataBase model
+export type PostQueryParamInput = PaginationSorting<PostSortField>;
+
+// * DataBase models
 export type PostDbDocument = {
   title: string;
   shortDescription: string;
@@ -29,7 +37,7 @@ export type PostDbDocument = {
   createdAt: Date;
 };
 
-// * Dto model
+// * Dto models
 export type PostInputDtoModel = {
   title: string;
   shortDescription: string;

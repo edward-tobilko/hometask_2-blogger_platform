@@ -9,10 +9,18 @@ import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.mid
 import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { updatePostHandler } from "./handlers/update-post.handler";
 import { deletePostHandler } from "./handlers/delete-post.handler";
+import { paginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting-validation.middleware";
+import { PostSortField } from "../types/post.types";
 
 export const postsRoute = Router({});
 
-postsRoute.get("", getPostListHandler);
+// * GET methods
+postsRoute.get(
+  "",
+  paginationAndSortingValidation(PostSortField),
+  inputValidationResultMiddleware,
+  getPostListHandler
+);
 postsRoute.get(
   "/:id",
   paramIdMiddlewareValidation,
@@ -20,6 +28,7 @@ postsRoute.get(
   getPostHandler
 );
 
+// * POST methods
 postsRoute.post(
   "",
   adminGuardMiddlewareAuth,
@@ -28,6 +37,7 @@ postsRoute.post(
   createNewPostHandler
 );
 
+// * PUT methods
 postsRoute.put(
   "/:id",
   adminGuardMiddlewareAuth,
@@ -37,6 +47,7 @@ postsRoute.put(
   updatePostHandler
 );
 
+// * DELETE methods
 postsRoute.delete(
   "/:id",
   adminGuardMiddlewareAuth,

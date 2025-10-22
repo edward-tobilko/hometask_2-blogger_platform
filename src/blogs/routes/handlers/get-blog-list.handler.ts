@@ -42,3 +42,5 @@ export async function getBlogListHandler(
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
   }
 }
+
+// ? Request<Params, ResBody, ReqBody, Query>

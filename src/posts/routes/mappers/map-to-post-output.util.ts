@@ -2,7 +2,7 @@ import { WithId } from "mongodb";
 
 import { PostDbDocument, PostViewModel } from "../../types/post.types";
 
-export function mapToPostViewModelUtil(
+export function mapToPostOutputUtil(
   post: WithId<PostDbDocument>
 ): PostViewModel {
   return {

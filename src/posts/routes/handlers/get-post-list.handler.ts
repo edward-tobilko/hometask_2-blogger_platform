@@ -1,23 +1,38 @@
 import { Request, Response } from "express";
-import { log } from "node:console";
+import { matchedData } from "express-validator";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import { postRepository } from "../../repositories/posts.repository";
-import { mapToPostViewModelUtil } from "../mappers/map-to-post-view-model.util";
-import { PostView } from "../../types/post.types";
+import { postsService } from "../../application/posts-service";
+import {
+  PostForBlogListPaginatedOutput,
+  PostQueryParamInput,
+} from "../../types/post.types";
+import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
+import { mapToPostListOutputUtil } from "../mappers/map-to-post-list-output.util";
 
 export async function getPostListHandler(
-  _req: Request,
-  res: Response<PostView[]>
+  req: Request<{}, {}, PostQueryParamInput>,
+  res: Response<PostForBlogListPaginatedOutput>
 ) {
   try {
-    const fetchPostsDb = await postRepository.getAllPosts();
+    const sanitizedQueryParam = matchedData<PostQueryParamInput>(req, {
+      locations: ["query"],
+      includeOptionals: true,
+    });
 
-    const fetchPostView = fetchPostsDb.map(mapToPostViewModelUtil);
+    const queryParamInput =
+      setDefaultSortAndPaginationIfNotExist(sanitizedQueryParam);
 
-    log(fetchPostView);
+    const { items, totalCount } =
+      await postsService.getAllPosts(queryParamInput);
 
-    res.status(HTTP_STATUS_CODES.OK_200).json(fetchPostView);
+    const fetchedPostsOutput = mapToPostListOutputUtil(items, {
+      page: queryParamInput.pageNumber,
+      pageSize: queryParamInput.pageSize,
+      totalCount,
+    });
+
+    res.status(HTTP_STATUS_CODES.OK_200).json(fetchedPostsOutput);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
   }
