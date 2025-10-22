@@ -42,7 +42,7 @@ enum BlogSortField {
 }
 
 type BlogQueryParamInput = PaginationSorting<BlogSortField> &
-  Partial<{ searchNameTerm: string }>;
+  Partial<{ searchNameTerm: string; blogId: string }>;
 
 export {
   BlogViewModel,

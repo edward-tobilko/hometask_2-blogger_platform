@@ -6,7 +6,7 @@ import {
   BlogViewModel,
 } from "../../types/blog.types";
 
-export function mapToBlogsListOutputUtil(
+export function mapToBlogListOutputUtil(
   blogDb: WithId<BlogDbDocument>[],
   meta: { page: number; pageSize: number; totalCount: number }
 ): BlogListPaginatedOutput {

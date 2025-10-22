@@ -7,7 +7,7 @@ import {
   BlogListPaginatedOutput,
   BlogQueryParamInput,
 } from "../../types/blog.types";
-import { mapToBlogsListOutputUtil } from "../mappers/map-to-blogs-list-output.util";
+import { mapToBlogListOutputUtil } from "../mappers/map-to-blog-list-output.util";
 import { blogsService } from "../../application/blogs-service";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 
@@ -31,7 +31,7 @@ export async function getBlogListHandler(
       `Blogs: ${items.map((item) => item.name)} - Total: ${totalCount.toString()}`
     );
 
-    const blogsListOutput = mapToBlogsListOutputUtil(items, {
+    const blogsListOutput = mapToBlogListOutputUtil(items, {
       page: queryParamInput.pageNumber,
       pageSize: queryParamInput.pageSize,
       totalCount,

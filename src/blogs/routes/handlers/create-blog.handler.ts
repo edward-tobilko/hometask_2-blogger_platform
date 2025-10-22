@@ -10,7 +10,7 @@ export async function createNewBlogHandler(
   res: Response<BlogViewModel>
 ) {
   try {
-    const createdNewBlog = await blogsService.createNewBlog(req.body);
+    const createdNewBlog = await blogsService.createBlog(req.body);
 
     const blogOutput = mapToBlogOutputUtil(createdNewBlog);
 

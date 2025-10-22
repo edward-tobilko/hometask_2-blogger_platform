@@ -11,6 +11,14 @@ export type PostViewModel = {
   createdAt: string;
 };
 
+export type PostForBlogListPaginatedOutput = {
+  pagesCount: number;
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  items: PostViewModel[];
+};
+
 // * DataBase model
 export type PostDbDocument = {
   title: string;

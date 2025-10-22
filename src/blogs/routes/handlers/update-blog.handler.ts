@@ -1,16 +1,15 @@
 import { Request, Response } from "express";
 
-import { blogsRepository } from "../../repositories/blogs.repository";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { BlogInputDtoModel } from "../../types/blog.types";
+import { blogsService } from "../../application/blogs-service";
 
 export async function updateBlogHandler(
-  req: Request<{ id: string }, {}, BlogInputDto>,
+  req: Request<{ id: string }, {}, BlogInputDtoModel>,
   res: Response
 ) {
   try {
-    const blogDb = await blogsRepository.findBlogById(req.params.id);
-
-    await blogsRepository.updateBlog(req.params.id, req.body);
+    await blogsService.updateBlog(req.params.id, req.body);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

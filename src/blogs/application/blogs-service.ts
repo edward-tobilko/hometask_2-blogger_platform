@@ -24,31 +24,47 @@ export const blogsService = {
     return await blogsRepository.findBlogByIdRepo(blogId);
   },
 
-  async createNewBlog(dto: BlogInputDtoModel): Promise<WithId<BlogDbDocument>> {
-    return await blogsRepository.createNewBlogRepo(dto);
+  async createBlog(dto: BlogInputDtoModel): Promise<WithId<BlogDbDocument>> {
+    return await blogsRepository.createBlogRepo(dto);
   },
 
-  async createNewPostForBlog(
+  async createPostForBlog(
     blogId: string,
     dto: PostInputDtoModel
   ): Promise<PostViewModel> {
     const blog = await blogsRepository.findBlogByIdRepo(blogId);
 
-    const newPostByIdBlog: PostDbDocument = {
+    const newPostForBlog: PostDbDocument = {
       title: dto.title,
       shortDescription: dto.shortDescription,
       content: dto.content,
-      blogId: new ObjectId(dto.blogId),
+      blogId: blog._id,
       blogName: blog.name,
       createdAt: new Date(),
     };
 
     const createdPostForBlog =
-      await blogsRepository.createNewPostForBlogRepo(newPostByIdBlog);
+      await blogsRepository.createPostForBlogRepo(newPostForBlog);
 
     const mappedPostForBlogOutput =
       mapToPostForBlogOutputUtil(createdPostForBlog);
 
     return mappedPostForBlogOutput;
+  },
+
+  async getAllPostsForBlog(
+    queryDto: BlogQueryParamInput
+  ): Promise<{ postsForBlog: WithId<PostDbDocument>[]; totalCount: number }> {
+    return await blogsRepository.getAllPostsForBlogRepo(queryDto);
+  },
+
+  async updateBlog(id: string, dto: BlogInputDtoModel): Promise<void> {
+    return await blogsRepository.updateBlogRepo(id, dto);
+  },
+
+  async deleteBlog(id: string): Promise<void> {
+    const deleteResult = await blogsRepository.deleteBlogRepo(id);
+
+    return deleteResult;
   },
 };

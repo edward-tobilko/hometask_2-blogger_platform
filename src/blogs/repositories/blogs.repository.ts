@@ -1,4 +1,5 @@
 import { InsertOneResult, ObjectId, WithId } from "mongodb";
+import { log } from "node:console";
 
 import { blogCollection, postCollection } from "../../db/mongo.db";
 import {
@@ -43,7 +44,7 @@ export const blogsRepository = {
     return result;
   },
 
-  async createNewBlogRepo(
+  async createBlogRepo(
     dto: BlogInputDtoModel
   ): Promise<WithId<BlogDbDocument>> {
     const newBlog = {
@@ -54,12 +55,12 @@ export const blogsRepository = {
       isMembership: true,
     };
 
-    const insertResult = await blogCollection.insertOne(newBlog);
+    const insertedResult = await blogCollection.insertOne(newBlog);
 
-    return { ...newBlog, _id: insertResult.insertedId };
+    return { ...newBlog, _id: insertedResult.insertedId };
   },
 
-  async createNewPostForBlogRepo(
+  async createPostForBlogRepo(
     newPostForBlog: PostDbDocument
   ): Promise<WithId<PostDbDocument>> {
     const insertedResult: InsertOneResult =
@@ -68,34 +69,55 @@ export const blogsRepository = {
     return { ...newPostForBlog, _id: insertedResult.insertedId };
   },
 
-  // async updateBlog(id: string, dto: BlogInputDtoModel): Promise<void> {
-  //   const updateResult = await blogCollection.updateOne(
-  //     { _id: new ObjectId(id) },
-  //     {
-  //       $set: {
-  //         name: dto.name,
-  //         description: dto.description,
-  //         websiteUrl: dto.websiteUrl,
-  //       },
-  //     }
-  //   );
+  async getAllPostsForBlogRepo(
+    queryDto: BlogQueryParamInput
+  ): Promise<{ postsForBlog: WithId<PostDbDocument>[]; totalCount: number }> {
+    const { pageNumber, pageSize, sortBy, sortDirection, blogId } = queryDto;
 
-  //   if (updateResult.matchedCount < 1) {
-  //     throw new Error("Blog not exist");
-  //   }
+    const filter = { blogId: new ObjectId(blogId) };
 
-  //   return;
-  // },
+    const cursor = postCollection
+      .find(filter)
+      .sort({ [sortBy]: sortDirection })
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize);
 
-  // async deleteBlog(id: string): Promise<void> {
-  //   const deleteResult = await blogCollection.deleteOne({
-  //     _id: new ObjectId(id),
-  //   });
+    const [postsForBlog, totalCount] = await Promise.all([
+      cursor.toArray(),
+      postCollection.countDocuments(filter),
+    ]);
 
-  //   if (deleteResult.deletedCount < 1) {
-  //     throw new Error("Blog not exist");
-  //   }
+    return { postsForBlog, totalCount };
+  },
 
-  //   return;
-  // },
+  async updateBlogRepo(id: string, dto: BlogInputDtoModel): Promise<void> {
+    const updateResult = await blogCollection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          name: dto.name,
+          description: dto.description,
+          websiteUrl: dto.websiteUrl,
+        },
+      }
+    );
+
+    if (updateResult.matchedCount < 1) {
+      throw new Error("Blog not exist");
+    }
+
+    return;
+  },
+
+  async deleteBlogRepo(id: string): Promise<void> {
+    const deleteResult = await blogCollection.deleteOne({
+      _id: new ObjectId(id),
+    });
+
+    if (deleteResult.deletedCount < 1) {
+      throw new Error("Blog not exist");
+    }
+
+    return;
+  },
 };

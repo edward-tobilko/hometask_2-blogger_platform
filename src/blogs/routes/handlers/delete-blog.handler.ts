@@ -1,31 +1,14 @@
 import { Request, Response } from "express";
 
-import {
-  ErrorMessages,
-  errorMessagesUtil,
-} from "../../../core/utils/api-error-result.util";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import { blogsRepository } from "../../repositories/blogs.repository";
+import { blogsService } from "../../application/blogs-service";
 
 export async function deleteBlogHandler(
   req: Request<{ id: string }>,
-  res: Response<{ errorsMessages: ErrorMessages[] }>
+  res: Response
 ) {
   try {
-    const blogDb = await blogsRepository.findBlogById(req.params.id);
-
-    if (!blogDb) {
-      return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json(
-        errorMessagesUtil([
-          {
-            message: `Blog with id=${req.params.id} is not found`,
-            field: "id",
-          },
-        ])
-      );
-    }
-
-    await blogsRepository.deleteBlog(req.params.id);
+    await blogsService.deleteBlog(req.params.id);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

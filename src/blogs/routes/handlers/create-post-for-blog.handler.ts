@@ -16,7 +16,7 @@ export async function createPostForBlogHandler(
     const blogId = req.params.id;
     const dto = req.body;
 
-    const createdNewPostForBlogResult = await blogsService.createNewPostForBlog(
+    const createdNewPostForBlogResult = await blogsService.createPostForBlog(
       blogId,
       dto
     );
