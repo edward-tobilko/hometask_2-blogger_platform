@@ -1,5 +1,4 @@
 import { InsertOneResult, ObjectId, WithId } from "mongodb";
-import { log } from "node:console";
 
 import { blogCollection, postCollection } from "../../db/mongo.db";
 import {
@@ -38,7 +37,7 @@ export const blogsRepository = {
     const result = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!result) {
-      throw new RepositoryNotFoundError("Blog is not exist");
+      throw new RepositoryNotFoundError("blogId is not exist");
     }
 
     return result;

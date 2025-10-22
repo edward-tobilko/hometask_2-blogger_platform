@@ -15,6 +15,7 @@ import {
   getPostByIdBodyUtil,
   getPostByIdResponseCodeUtil,
 } from "../../utils/posts/get-post-by-id.util";
+import { PostInputDtoModel } from "../../../posts/types/post.types";
 
 const adminToken = generateBasicAuthToken();
 
@@ -22,22 +23,22 @@ describe("E2E Posts API tests", () => {
   const app = express();
   setupApp(app);
 
-  // * підготовлюємо базу, яку нам потрібно для посту
+  // * prepare the base we need for the post
   let createdBlog: { id: string; name: string };
-  let postDataDto: PostInputDto;
+  let postDataDto: PostInputDtoModel;
 
   beforeAll(async () => {
     await runDB(SETTINGS_MONGO_DB.MONGO_URL);
     await clearDB(app);
 
-    // * створюємо блог після підключення до БД
+    // * create a blog after connecting to the db
     const createdBlogResponse = await createBlogUtil(app);
     createdBlog = {
       id: createdBlogResponse.id,
       name: createdBlogResponse.name,
     };
 
-    // * формуємо валідний DTO поста під цей блог
+    // * creating a valid DTO post for this blog
     postDataDto = getPostDtoUtil(createdBlog.id);
   });
 
@@ -65,6 +66,7 @@ describe("E2E Posts API tests", () => {
         id: expect.any(String),
         title: postDataDto.title,
         shortDescription: postDataDto.shortDescription,
+        content: postDataDto.content,
         blogId: createdBlog.id,
         blogName: createdBlog.name,
         createdAt: expect.any(String),
@@ -93,7 +95,7 @@ describe("E2E Posts API tests", () => {
   it("PUT: /posts/:id -> should update post by id - 204", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
-    const updatedDtoPost: PostInputDto = {
+    const updatedDtoPost: PostInputDtoModel = {
       ...postDataDto,
       title: "updated title",
       blogId: createdBlog.id,

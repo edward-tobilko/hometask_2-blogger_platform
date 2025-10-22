@@ -30,7 +30,7 @@ export const postsRepository = {
   },
 
   async getPostByIdRepo(postId: string): Promise<WithId<PostDbDocument>> {
-    const result = postCollection.findOne({ _id: new ObjectId(postId) });
+    const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
     if (!result) {
       throw new RepositoryNotFoundError("Post is not exist");

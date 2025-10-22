@@ -7,15 +7,13 @@ import { clearDB } from "../../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
 import { createPostUtil } from "../../utils/posts/create-post.util";
-import { PostInputDto } from "../../../posts/types/post.types";
+import { PostInputDtoModel } from "../../../posts/types/post.types";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { POSTS_PATH } from "../../../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import {
-  ErrorMessages,
-  errorMessagesUtil,
-} from "../../../core/utils/api-error-result.util";
+import { apiErrorResultUtil } from "../../../core/utils/api-error-result.util";
+import { FieldError } from "../../../core/types/field-error.type";
 
 const adminToken = generateBasicAuthToken();
 
@@ -23,14 +21,14 @@ describe("Create (POST) posts API body validation ", () => {
   const app = express();
   setupApp(app);
 
-  let validPostDto: PostInputDto; // готовий валідний DTO з коректним blogId
+  let validPostDto: PostInputDtoModel; // ready valid DTO with correct blogId
   let blogName: string;
 
   beforeAll(async () => {
     await runDB(SETTINGS_MONGO_DB.MONGO_URL);
     await clearDB(app);
 
-    // * створюємо блог і на його id збираємо валідний пост
+    // * create a blog and collect a valid post on its ID
     const createdBlog = await createBlogUtil(app);
     validPostDto = getPostDtoUtil(createdBlog.id);
     blogName = createdBlog.name;
@@ -50,7 +48,7 @@ describe("Create (POST) posts API body validation ", () => {
         shortDescription: validPostDto.shortDescription,
         content: validPostDto.content,
         blogId: validPostDto.blogId,
-        blogName, // з репозиторію по blogId
+        blogName, // from the repository by blogId
       })
     );
   });
@@ -110,8 +108,8 @@ describe("Create (POST) posts API body validation ", () => {
         .send({ ...validPostDto, ...payload })
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      const { errorsMessages } = errorMessagesUtil(
-        createPostResponse.body.errorsMessages as ErrorMessages[]
+      const { errorsMessages } = apiErrorResultUtil(
+        createPostResponse.body.errorsMessages as FieldError[]
       );
 
       expect(errorsMessages).toEqual(
@@ -134,14 +132,14 @@ describe("Create (POST) posts API body validation ", () => {
       .send({ ...validPostDto, blogId: nonExistingBlogId })
       .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-    const { errorsMessages } = errorMessagesUtil(
-      result.body.errorsMessages as ErrorMessages[]
+    const { errorsMessages } = apiErrorResultUtil(
+      result.body.errorsMessages as FieldError[]
     );
 
     expect(errorsMessages).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          message: expect.stringContaining("does not exist"),
+          message: expect.stringContaining("blogId is not exist"),
           field: "blogId",
         }),
       ])

@@ -112,7 +112,7 @@ describe("E2E Blogs API tests", () => {
     });
   });
 
-  it("DELETE: /blogs/:id -> should remove blog by id and check after NOT FOUND", async () => {
+  it("DELETE: /blogs/:id -> should remove blog by id and check after NOT FOUND - 204", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     expect(typeof createdBlogResponse.id).toBe("string");
