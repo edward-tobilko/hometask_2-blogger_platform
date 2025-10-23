@@ -11,6 +11,13 @@ export function paginationAndSortingValidation<T extends string>(
   sortFieldEnum: Record<string, T>
 ) {
   return [
+    query("searchNameTerm")
+      .optional({ nullable: true })
+      .isString()
+      .trim()
+      .isLength({ max: 100 })
+      .withMessage("searchNameTerm must be a string up to 100 characters"),
+
     query("sortBy")
       .customSanitizer((value) => {
         const allowed = Object.values(sortFieldEnum);

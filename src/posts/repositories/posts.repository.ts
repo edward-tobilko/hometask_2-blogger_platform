@@ -17,9 +17,11 @@ export const postsRepository = {
 
     const { pageNumber, pageSize, sortDirection, sortBy } = queryParam;
 
+    const sortDirectionValue = sortDirection === "asc" ? 1 : -1;
+
     const items = await postCollection
       .find(filter)
-      .sort({ [sortBy]: sortDirection })
+      .sort({ [sortBy]: sortDirectionValue })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .toArray();
@@ -62,7 +64,9 @@ export const postsRepository = {
     postId: string,
     dto: PostInputDtoModel,
     blogName: string
-  ): Promise<void> {
+  ): Promise<boolean> {
+    if (!ObjectId.isValid(postId)) return false;
+
     const updateResult = await postCollection.updateOne(
       { _id: new ObjectId(postId) },
       {
@@ -76,11 +80,7 @@ export const postsRepository = {
       }
     );
 
-    if (updateResult.matchedCount < 1) {
-      throw new Error("Post not exist");
-    }
-
-    return;
+    return updateResult.matchedCount === 1;
   },
 
   async deletePostRepo(id: string): Promise<boolean> {

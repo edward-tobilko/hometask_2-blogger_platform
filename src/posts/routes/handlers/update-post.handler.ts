@@ -17,7 +17,9 @@ export async function updatePostHandler(
 
     const blog = await blogsService.findBlogById(dto.blogId);
 
-    await postsService.updatePost(id, dto, blog.name);
+    const updatedPost = await postsService.updatePost(id, dto, blog.name);
+
+    if (!updatedPost) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

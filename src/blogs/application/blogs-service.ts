@@ -58,8 +58,8 @@ export const blogsService = {
     return await blogsRepository.getAllPostsForBlogRepo(queryDto);
   },
 
-  async updateBlog(id: string, dto: BlogInputDtoModel): Promise<void> {
-    return await blogsRepository.updateBlogRepo(id, dto);
+  async updateBlog(id: string, dto: BlogInputDtoModel): Promise<boolean> {
+    return blogsRepository.updateBlogRepo(id, dto);
   },
 
   async deleteBlog(id: string): Promise<boolean> {

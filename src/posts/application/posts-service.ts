@@ -30,8 +30,8 @@ export const postsService = {
     postId: string,
     dto: PostInputDtoModel,
     blogName: string
-  ): Promise<void> {
-    return await postsRepository.updatePostRepo(postId, dto, blogName);
+  ): Promise<boolean> {
+    return postsRepository.updatePostRepo(postId, dto, blogName);
   },
 
   async deletePost(id: string): Promise<boolean> {

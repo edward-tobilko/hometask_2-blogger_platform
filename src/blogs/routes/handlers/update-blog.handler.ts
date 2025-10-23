@@ -11,7 +11,9 @@ export async function updateBlogHandler(
   next: NextFunction
 ) {
   try {
-    await blogsService.updateBlog(req.params.id, req.body);
+    const updatedBlog = await blogsService.updateBlog(req.params.id, req.body);
+
+    if (!updatedBlog) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

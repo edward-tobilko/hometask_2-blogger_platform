@@ -91,7 +91,9 @@ export const blogsRepository = {
     return { postsForBlog, totalCount };
   },
 
-  async updateBlogRepo(id: string, dto: BlogInputDtoModel): Promise<void> {
+  async updateBlogRepo(id: string, dto: BlogInputDtoModel): Promise<boolean> {
+    if (!ObjectId.isValid(id)) return false;
+
     const updateResult = await blogCollection.updateOne(
       { _id: new ObjectId(id) },
       {
@@ -103,11 +105,7 @@ export const blogsRepository = {
       }
     );
 
-    if (updateResult.matchedCount < 1) {
-      throw new Error("Blog not exist");
-    }
-
-    return;
+    return updateResult.matchedCount === 1;
   },
 
   async deleteBlogRepo(id: string): Promise<boolean> {
