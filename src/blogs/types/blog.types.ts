@@ -1,4 +1,5 @@
 import { PaginationSorting } from "../../core/types/pagination-sorting.type";
+import { PostInputDtoModel } from "../../posts/types/post.types";
 
 enum BlogSortField {
   CreatedAt = "createdAt",
@@ -41,11 +42,7 @@ type BlogInputDtoModel = {
   websiteUrl: string;
 };
 
-type BlogPostInputDtoModel = {
-  title: string;
-  shortDescription: string;
-  content: string;
-};
+type BlogPostInputDtoModel = Omit<PostInputDtoModel, "blogId">;
 
 export {
   BlogViewModel,

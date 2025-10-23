@@ -25,7 +25,7 @@ export function paginationAndSortingValidation<T extends string>(
     query("sortDirection")
       .customSanitizer((value) =>
         value === undefined || value === ""
-          ? Object.values(DEFAULT_SORT_DIRECTION)
+          ? DEFAULT_SORT_DIRECTION
           : String(value).toLowerCase()
       )
       .isIn(Object.values(SortDirections))

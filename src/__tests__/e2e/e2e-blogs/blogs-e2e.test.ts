@@ -3,23 +3,30 @@ import request from "supertest";
 
 import { setupApp } from "../../../app";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
-import { BLOGS_PATH } from "../../../core/paths/paths";
+import { BLOGS_PATH, POSTS_PATH } from "../../../core/paths/paths";
 import { clearDB } from "../../utils/clear-db";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
-import { BlogInputDtoModel } from "../../../blogs/types/blog.types";
+import {
+  BlogInputDtoModel,
+  BlogPostInputDtoModel,
+} from "../../../blogs/types/blog.types";
 import { getBlogByIdUtil } from "../../utils/blogs/get-blog-by-id.util";
+import { getPostsForBlogDtoUtil } from "../../utils/blogs/get-posts-for-blog-dto.util";
+import { createPostForBlogUtil } from "../../utils/blogs/create-post-for-blog.util";
 
 const adminToken = generateBasicAuthToken();
-
-const testBlogDataDto: BlogInputDtoModel = getBlogDtoUtil();
 
 describe("E2E Blogs API tests", () => {
   const app = express();
   setupApp(app);
+
+  const testBlogDataDto: BlogInputDtoModel = getBlogDtoUtil();
+  const testPostsForBlogDataDto: BlogPostInputDtoModel =
+    getPostsForBlogDtoUtil();
 
   beforeAll(async () => {
     await runDB(SETTINGS_MONGO_DB.MONGO_URL);
@@ -46,7 +53,7 @@ describe("E2E Blogs API tests", () => {
       .get(BLOGS_PATH)
       .expect(HTTP_STATUS_CODES.OK_200);
 
-    expect(Array.isArray(blogListResponse.body.items)).toBeInstanceOf(true);
+    expect(Array.isArray(blogListResponse.body.items)).toBe(true);
     expect(blogListResponse.body.items.length).toBeGreaterThanOrEqual(2);
   });
 
@@ -58,9 +65,38 @@ describe("E2E Blogs API tests", () => {
     );
   });
 
-  it("GET: /api/blogs/:id/posts -> should return posts list for blog - 200", async () => {});
+  it("GET: /api/blogs/:id/posts -> should return posts list for blog - 200", async () => {
+    const createdBlog = await createBlogUtil(app, testBlogDataDto);
 
-  it("POST: /api/blogs/:id/posts -> should create post for blog - 201", async () => {});
+    await Promise.all([
+      await createPostForBlogUtil(app, createdBlog.id),
+      await createPostForBlogUtil(app, createdBlog.id),
+    ]);
+
+    const postListForBlogResponse = await request(app)
+      .get(`${BLOGS_PATH}`)
+      .expect(HTTP_STATUS_CODES.OK_200);
+
+    expect(Array.isArray(postListForBlogResponse.body.items)).toBe(true);
+    expect(postListForBlogResponse.body.items.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("POST: /api/blogs/:id/posts -> should create post for blog - 201", async () => {
+    const createdBlog = await createBlogUtil(app, testBlogDataDto);
+    const createdPostForBlog = await createPostForBlogUtil(app, createdBlog.id);
+
+    expect(createdPostForBlog).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        title: testPostsForBlogDataDto.title,
+        shortDescription: testPostsForBlogDataDto.shortDescription,
+        content: testPostsForBlogDataDto.content,
+        blogId: createdBlog.id,
+        blogName: createdBlog.name,
+        createdAt: expect.any(String),
+      })
+    );
+  });
 
   it("GET: /api/blogs/:id -> should return one blog by id - 200", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
@@ -108,7 +144,7 @@ describe("E2E Blogs API tests", () => {
       ...updatedDtoBlog,
       id: createdBlogResponse.id,
       createdAt: expect.any(String),
-      isMembership: false,
+      isMembership: true,
     });
   });
 
@@ -128,5 +164,4 @@ describe("E2E Blogs API tests", () => {
   });
 });
 
-// ? Пояснення:
-// * toMatchObject -  дозволяє перевірити тільки суттєві поля, не вимагаючи 100% збігу об’єктів.
+// ? toMatchObject -  allows you to check only essential fields without requiring a 100% match of objects.

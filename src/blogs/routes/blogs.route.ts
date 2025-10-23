@@ -14,6 +14,7 @@ import { BlogSortField } from "../types/blog.types";
 import { createPostForBlogHandler } from "./handlers/create-post-for-blog.handler";
 import { getPostListForBlogHandler } from "./handlers/get-post-list-for-blog.handler";
 import { postForBlogDtoInputValidationMiddleware } from "../validations/post-for-blog-dto-input-validation.middleware";
+import { PostSortField } from "../../posts/types/post.types";
 
 export const blogsRoute = Router({});
 
@@ -35,6 +36,7 @@ blogsRoute.get(
 blogsRoute.get(
   "/:id/posts",
   paramIdMiddlewareValidation,
+  paginationAndSortingValidation(PostSortField),
   inputValidationResultMiddleware,
   getPostListForBlogHandler
 );

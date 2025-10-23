@@ -54,8 +54,8 @@ describe("E2E Posts API tests", () => {
       .get(POSTS_PATH)
       .expect(HTTP_STATUS_CODES.OK_200);
 
-    expect(Array.isArray(postListResponse.body)).toBe(true);
-    expect(postListResponse.body.length).toBeGreaterThanOrEqual(2);
+    expect(Array.isArray(postListResponse.body.items)).toBe(true);
+    expect(postListResponse.body.items.length).toBeGreaterThanOrEqual(2);
   });
 
   it("POST: /posts -> should create new post - 201", async () => {
