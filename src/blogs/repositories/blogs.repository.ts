@@ -46,12 +46,12 @@ export const blogsRepository = {
   async createBlogRepo(
     dto: BlogInputDtoModel
   ): Promise<WithId<BlogDbDocument>> {
-    const newBlog = {
+    const newBlog: BlogDbDocument = {
       name: dto.name,
       description: dto.description,
       websiteUrl: dto.websiteUrl,
+      isMembership: false,
       createdAt: new Date(),
-      isMembership: true,
     };
 
     const insertedResult = await blogCollection.insertOne(newBlog);

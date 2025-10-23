@@ -28,6 +28,7 @@ blogsRoute.get(
 
 blogsRoute.get(
   "/:id",
+  adminGuardMiddlewareAuth,
   paramIdMiddlewareValidation,
   inputValidationResultMiddleware,
   getBlogByIdHandler

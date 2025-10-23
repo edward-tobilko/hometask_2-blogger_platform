@@ -23,6 +23,7 @@ postsRoute.get(
 );
 postsRoute.get(
   "/:id",
+  adminGuardMiddlewareAuth,
   paramIdMiddlewareValidation,
   inputValidationResultMiddleware,
   getPostHandler

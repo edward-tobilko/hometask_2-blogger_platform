@@ -114,10 +114,12 @@ describe("E2E Blogs API tests", () => {
   it("GET: /blogs/:id -> should NOT return blog by id (If blog for passed id does not exist) - 404", async () => {
     await request(app)
       .get(`${BLOGS_PATH}/507f1f77bcf86cd799439011`)
+      .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     await request(app)
       .get(`${BLOGS_PATH}/507f1f77bcf86cd799439011`)
+      .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
@@ -144,7 +146,7 @@ describe("E2E Blogs API tests", () => {
       ...updatedDtoBlog,
       id: createdBlogResponse.id,
       createdAt: expect.any(String),
-      isMembership: true,
+      isMembership: false,
     });
   });
 
@@ -160,6 +162,7 @@ describe("E2E Blogs API tests", () => {
 
     await request(app)
       .get(`${BLOGS_PATH}/${createdBlogResponse.id}`)
+      .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 });

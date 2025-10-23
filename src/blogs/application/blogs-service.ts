@@ -1,4 +1,4 @@
-import { ObjectId, WithId } from "mongodb";
+import { WithId } from "mongodb";
 
 import { blogsRepository } from "../repositories/blogs.repository";
 import {

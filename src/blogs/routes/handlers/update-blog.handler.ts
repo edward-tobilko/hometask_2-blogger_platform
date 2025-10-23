@@ -1,18 +1,23 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
 import { BlogInputDtoModel } from "../../types/blog.types";
 import { blogsService } from "../../application/blogs-service";
+import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
 
 export async function updateBlogHandler(
   req: Request<{ id: string }, {}, BlogInputDtoModel>,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
     await blogsService.updateBlog(req.params.id, req.body);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {
-    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+    if (error instanceof RepositoryNotFoundError) {
+      return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
+    }
+    return next(error);
   }
 }

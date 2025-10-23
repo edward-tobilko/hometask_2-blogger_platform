@@ -13,9 +13,11 @@ export function paginationAndSortingValidation<T extends string>(
   return [
     query("sortBy")
       .customSanitizer((value) => {
-        return value === undefined || value === ""
-          ? Object.values(sortFieldEnum)[0]
-          : value;
+        const allowed = Object.values(sortFieldEnum);
+
+        if (!value || value === "") return allowed[0]; // default
+
+        return allowed.includes(value) ? value : allowed[0]; // without 400 status code
       })
       .isIn(Object.values(sortFieldEnum))
       .withMessage(

@@ -85,10 +85,12 @@ describe("E2E Posts API tests", () => {
   it("GET: /posts/:id -> should NOT return post by id (If post for passed id does not exist) - 404", async () => {
     await request(app)
       .get(`${POSTS_PATH}/507f1f77bcf86cd799439011`)
+      .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     await request(app)
       .get(`${POSTS_PATH}/507f1f77bcf86cd799439011`)
+      .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
