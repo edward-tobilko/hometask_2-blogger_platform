@@ -10,7 +10,9 @@ export async function deleteBlogHandler(
   next: NextFunction
 ) {
   try {
-    await blogsService.deleteBlog(req.params.id);
+    const deletedBlog = await blogsService.deleteBlog(req.params.id);
+
+    if (!deletedBlog) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

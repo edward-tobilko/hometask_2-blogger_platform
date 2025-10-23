@@ -83,15 +83,13 @@ export const postsRepository = {
     return;
   },
 
-  async deletePostRepo(id: string): Promise<void> {
+  async deletePostRepo(id: string): Promise<boolean> {
+    if (!ObjectId.isValid(id)) return false;
+
     const deleteResult = await postCollection.deleteOne({
       _id: new ObjectId(id),
     });
 
-    if (deleteResult.deletedCount < 1) {
-      throw new Error("Post not exist");
-    }
-
-    return;
+    return deleteResult.deletedCount === 1;
   },
 };

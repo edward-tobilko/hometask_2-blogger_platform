@@ -12,7 +12,9 @@ export async function deletePostHandler(
   try {
     const id = req.params.id;
 
-    await postsService.deletePost(id);
+    const deletedPost = await postsService.deletePost(id);
+
+    if (!deletedPost) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {

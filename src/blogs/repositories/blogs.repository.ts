@@ -110,15 +110,13 @@ export const blogsRepository = {
     return;
   },
 
-  async deleteBlogRepo(id: string): Promise<void> {
+  async deleteBlogRepo(id: string): Promise<boolean> {
+    if (!ObjectId.isValid(id)) return false;
+
     const deleteResult = await blogCollection.deleteOne({
       _id: new ObjectId(id),
     });
 
-    if (deleteResult.deletedCount < 1) {
-      throw new Error("Blog not exist");
-    }
-
-    return;
+    return deleteResult.deletedCount === 1;
   },
 };

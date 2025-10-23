@@ -34,7 +34,7 @@ export const postsService = {
     return await postsRepository.updatePostRepo(postId, dto, blogName);
   },
 
-  async deletePost(id: string): Promise<void> {
-    return await postsRepository.deletePostRepo(id);
+  async deletePost(id: string): Promise<boolean> {
+    return postsRepository.deletePostRepo(id);
   },
 };

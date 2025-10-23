@@ -62,9 +62,7 @@ export const blogsService = {
     return await blogsRepository.updateBlogRepo(id, dto);
   },
 
-  async deleteBlog(id: string): Promise<void> {
-    const deleteResult = await blogsRepository.deleteBlogRepo(id);
-
-    return deleteResult;
+  async deleteBlog(id: string): Promise<boolean> {
+    return blogsRepository.deleteBlogRepo(id);
   },
 };
