@@ -16,6 +16,15 @@ export async function getPostListForBlogHandler(
   next: NextFunction
 ) {
   try {
+    const blogId = req.params.id;
+
+    if (!ObjectId.isValid(blogId))
+      return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
+
+    const blog = await blogsService.findBlogById(blogId);
+
+    if (!blog) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
+
     const sanitizedQueryParam = matchedData<BlogQueryParamInput>(req, {
       locations: ["query"],
       includeOptionals: true,
@@ -38,9 +47,6 @@ export async function getPostListForBlogHandler(
       pageSize: queryParamInput.pageSize,
       totalCount,
     });
-
-    if (!ObjectId.isValid(req.params.id))
-      return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     res.status(HTTP_STATUS_CODES.OK_200).json(postListForBlogOutput);
   } catch (error: unknown) {

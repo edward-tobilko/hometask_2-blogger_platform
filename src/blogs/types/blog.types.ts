@@ -3,6 +3,7 @@ import { PostInputDtoModel } from "../../posts/types/post.types";
 
 enum BlogSortField {
   CreatedAt = "createdAt",
+  Name = "name",
 }
 
 // * Output model

@@ -37,7 +37,9 @@ export function paginationAndSortingValidation<T extends string>(
 
     query("pageNumber")
       .customSanitizer((value) =>
-        value === undefined || value === "" ? DEFAULT_PAGE_NUMBER : +value
+        value === undefined || value === ""
+          ? DEFAULT_PAGE_NUMBER
+          : Number(value)
       )
       .isInt({ min: 1 })
       .toInt()

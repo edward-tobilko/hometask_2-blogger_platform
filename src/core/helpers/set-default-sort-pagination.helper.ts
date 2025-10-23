@@ -1,8 +1,9 @@
+import { BlogSortField } from "../../blogs/types/blog.types";
 import { PaginationSorting } from "../types/pagination-sorting.type";
 import { SortDirections } from "../types/sort-directions.enum";
 
-export const DEFAULT_SORT_BY = "createdAt";
-export const DEFAULT_SORT_DIRECTION: SortDirections = SortDirections.DESC; // default desc
+export const DEFAULT_SORT_BY = BlogSortField.Name;
+export const DEFAULT_SORT_DIRECTION: SortDirections = SortDirections.ASC; // default desc
 export const DEFAULT_PAGE_NUMBER = 1;
 export const DEFAULT_PAGE_SIZE = 10;
 

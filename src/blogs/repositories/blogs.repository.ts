@@ -21,9 +21,11 @@ export const blogsRepository = {
       filter.name = { $regex: searchNameTerm, $options: "i" };
     }
 
+    const sortDirectionValue = sortDirection === "asc" ? 1 : -1;
+
     const items = await blogCollection
       .find(filter)
-      .sort({ [sortBy]: sortDirection })
+      .sort({ [sortBy]: sortDirectionValue })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .toArray();

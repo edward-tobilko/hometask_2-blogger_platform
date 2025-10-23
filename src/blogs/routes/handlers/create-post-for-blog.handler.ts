@@ -22,6 +22,10 @@ export async function createPostForBlogHandler(
     if (!ObjectId.isValid(blogId))
       return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
+    const blog = await blogsService.findBlogById(blogId);
+
+    if (!blog) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
+
     const createdNewPostForBlogResult = await blogsService.createPostForBlog(
       blogId,
       dto
