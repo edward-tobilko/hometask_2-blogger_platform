@@ -4,6 +4,7 @@ import { PaginationSorting } from "../../core/types/pagination-sorting.type";
 
 export enum PostSortField {
   CreatedAt = "createdAt",
+  BlogName = "blogName",
 }
 
 // * Output models

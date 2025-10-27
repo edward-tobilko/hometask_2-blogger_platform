@@ -21,6 +21,7 @@ export const postsRepository = {
 
     const items = await postCollection
       .find(filter)
+      .collation({ locale: "en", numericOrdering: false }) // for blogName sort
       .sort({ [sortBy]: sortDirectionValue })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
