@@ -1,6 +1,6 @@
 import { param } from "express-validator";
 
-export const paramIdMiddlewareValidation = param("id")
+export const paramIdValidation = param("id")
   .exists()
   .withMessage("ID is required")
   .isString()
@@ -10,3 +10,22 @@ export const paramIdMiddlewareValidation = param("id")
   .withMessage("ID must not be empty")
   .isMongoId()
   .withMessage("Incorrect format of ObjectId");
+
+//   // * добавляем id валидацию на driverId в теле post
+// export const dataIdBodyValidation = body('data.id')
+//   .exists()
+//   .withMessage('ID in body is required')
+//   .custom((value, { req }) => {
+//     if (value !== req?.params?.id) {
+//       throw new Error('ID in URL param and data body must match');
+//     }
+
+//     return true;
+//   });
+
+// ? exists() - существует в запросе
+// ? isString() - является строкой
+// ? isNumeric() - состоит только из цифр
+
+// ? value — это значение data.id
+// ? req — это объект запроса

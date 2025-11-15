@@ -5,31 +5,38 @@ import {
   validationResult,
 } from "express-validator";
 
+import { ValidationErrorType } from "./../../errors/types/validation-error.type";
 import { HTTP_STATUS_CODES } from "../../utils/http-statuses.util";
+import { createErrorMessages } from "../../errors/create-error-messages.error";
 
-const formatErrors = (error: ValidationError) => {
+const formatValidationErrors = (
+  error: ValidationError
+): ValidationErrorType => {
   const expressError = error as unknown as FieldValidationError;
 
   return {
-    message: expressError.msg,
-    field: expressError.path,
+    status: HTTP_STATUS_CODES.BAD_REQUEST_400,
+    source: expressError.path, // Поле с ошибкой
+    detail: expressError.msg, // Сообщение ошибки
   };
 };
 
 export const inputValidationResultMiddleware = (
-  req: Request,
+  req: Request<{}, {}, {}, {}>,
   res: Response,
   next: NextFunction
 ) => {
   const errors = validationResult(req)
-    .formatWith(formatErrors)
+    .formatWith(formatValidationErrors)
     .array({ onlyFirstError: true });
 
   if (errors.length > 0) {
     return res
       .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
-      .json({ errorsMessages: errors });
+      .json(createErrorMessages(errors));
   }
 
-  next();
+  next(); // Если ошибок нет, передаём управление дальше
 };
+
+// ? { onlyFirstError: true } - покажет нам первую ошибку филда, а не все сразу

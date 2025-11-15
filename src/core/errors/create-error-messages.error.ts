@@ -1,8 +1,8 @@
-import { ValidationError } from "./types/validation-error.type";
+import { ValidationErrorType } from "./types/validation-error.type";
 import { ValidationErrorListOutput } from "./types/validation-error.type-output";
 
 export const createErrorMessages = (
-  errors: ValidationError[]
+  errors: ValidationErrorType[]
 ): ValidationErrorListOutput => {
   return {
     errors: errors.map((error) => {

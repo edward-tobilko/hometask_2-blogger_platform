@@ -8,14 +8,14 @@ import {
 import { SortDirections } from "../../types/sort-directions.enum";
 
 export function paginationAndSortingValidation<T extends string>(
-  sortFieldEnum: Record<string, T>
+  sortFieldEnum: Record<string, T> // Record<string, T> - тип объекта, где ключи типа string, значения типа Т
 ) {
   return [
     query("sortBy")
       .customSanitizer((value) => {
         return value === undefined || value === ""
-          ? Object.values(sortFieldEnum)[0]
-          : value;
+          ? Object.values(sortFieldEnum)[0] // Дефолтное значение - первое поле
+          : Number(value);
       })
       .isIn(Object.values(sortFieldEnum))
       .withMessage(
@@ -35,7 +35,9 @@ export function paginationAndSortingValidation<T extends string>(
 
     query("pageNumber")
       .customSanitizer((value) =>
-        value === undefined || value === "" ? DEFAULT_PAGE_NUMBER : +value
+        value === undefined || value === ""
+          ? DEFAULT_PAGE_NUMBER
+          : Number(value)
       )
       .isInt({ min: 1 })
       .toInt()
@@ -43,7 +45,7 @@ export function paginationAndSortingValidation<T extends string>(
 
     query("pageSize")
       .customSanitizer((value) =>
-        value === undefined || value === "" ? DEFAULT_PAGE_SIZE : +value
+        value === undefined || value === "" ? DEFAULT_PAGE_SIZE : Number(value)
       )
       .isInt({ min: 1 })
       .toInt()
