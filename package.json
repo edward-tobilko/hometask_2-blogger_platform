@@ -14,11 +14,13 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
     "mongodb": "^6.20.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.5.2",
