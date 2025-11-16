@@ -26,29 +26,11 @@ type BlogListPaginatedOutput = {
 type BlogQueryParamInput = PaginationSorting<BlogSortField> &
   Partial<{ searchNameTerm: string; blogId: string }>;
 
-// * DB models
-type BlogDbDocument = {
-  name: string;
-  description: string;
-  websiteUrl: string;
-  createdAt: Date;
-  isMembership: boolean;
-};
-
-// * Dto models
-type BlogInputDtoModel = {
-  name: string;
-  description: string;
-  websiteUrl: string;
-};
-
 type BlogPostInputDtoModel = Omit<PostInputDtoModel, "blogId">;
 
 export {
   BlogViewModel,
-  BlogInputDtoModel,
   BlogPostInputDtoModel,
-  BlogDbDocument,
   BlogQueryParamInput,
   BlogListPaginatedOutput,
   BlogSortField,

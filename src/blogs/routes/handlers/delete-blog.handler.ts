@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
 
 export async function deleteBlogHandler(

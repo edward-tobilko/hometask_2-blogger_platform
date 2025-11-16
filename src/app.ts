@@ -7,7 +7,7 @@ import {
   TESTING_PATH,
 } from "./core/paths/paths";
 import { blogsRoute } from "./blogs/routes/blogs.route";
-import { HTTP_STATUS_CODES } from "./core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "./core/utils/http-status-codes.util";
 import { testingRoute } from "./testing/routes/testing.route";
 import { postsRoute } from "./posts/routes/posts.route";
 

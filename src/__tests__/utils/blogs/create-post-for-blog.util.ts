@@ -3,7 +3,7 @@ import request from "supertest";
 
 import { BLOGS_PATH } from "../../../core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { getPostsForBlogDtoUtil } from "./get-posts-for-blog-dto.util";
 import { BlogPostInputDtoModel } from "../../../blogs/types/blog.types";
 import { PostViewModel } from "../../../posts/types/post.types";

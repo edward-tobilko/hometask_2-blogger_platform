@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 
-import { Resources } from "../../types/resources-enum";
+import { Resources } from "../../types/resources.enum";
 
 export function resourceValidation(resourceType: Resources) {
   return body("data.type")

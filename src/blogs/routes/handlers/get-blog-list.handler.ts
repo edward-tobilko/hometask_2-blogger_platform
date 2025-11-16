@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { log } from "node:console";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import {
   BlogListPaginatedOutput,
   BlogQueryParamInput,

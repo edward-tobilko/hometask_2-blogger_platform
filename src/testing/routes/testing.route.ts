@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 
 import { blogCollection, postCollection } from "../../db/mongo.db";
-import { HTTP_STATUS_CODES } from "../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../core/utils/http-status-codes.util";
 
 export const testingRoute = Router({});
 

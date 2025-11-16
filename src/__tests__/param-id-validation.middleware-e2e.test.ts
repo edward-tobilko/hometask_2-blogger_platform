@@ -4,11 +4,11 @@ import request from "supertest";
 import { setupApp } from "../app";
 import { clearDB } from "./utils/clear-db";
 import { BLOGS_PATH, POSTS_PATH } from "../core/paths/paths";
-import { HTTP_STATUS_CODES } from "../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../core/utils/http-status-codes.util";
 import { runDB, stopDB } from "../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo-db";
+import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo.db";
 import { apiErrorResultUtil } from "../core/utils/api-error-result.util";
-import { FieldError } from "../core/types/field-error.type";
+import { FieldError } from "../core/types/fields-only.type";
 
 describe.each([
   { urlName: "blogs", path: BLOGS_PATH },

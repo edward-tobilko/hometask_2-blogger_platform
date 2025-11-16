@@ -4,7 +4,7 @@ import request from "supertest";
 import { getBlogDtoUtil } from "./get-blog-dto.util";
 import { BLOGS_PATH } from "../../../core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import {
   BlogInputDtoModel,
   BlogViewModel,

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { log } from "console";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import {
   PostInputDtoModel,
   PostViewModel,

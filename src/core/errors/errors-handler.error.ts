@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ApplicationError } from "./application.error";
-import { HTTP_STATUS_CODES } from "../utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../utils/http-status-codes.util";
 import { createErrorMessages } from "./create-error-messages.error";
 
 export const errorsHandler = (

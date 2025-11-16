@@ -2,7 +2,7 @@ import request from "supertest";
 import { Express } from "express";
 
 import { BLOGS_PATH } from "../../../core/paths/paths";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { BlogViewModel } from "../../../blogs/types/blog.types";
 
 export async function getBlogByIdUtil(

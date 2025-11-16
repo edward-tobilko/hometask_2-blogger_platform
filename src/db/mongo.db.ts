@@ -2,12 +2,14 @@ import { Collection, Db, MongoClient } from "mongodb";
 
 import { PostDbDocument } from "../posts/types/post.types";
 import { BlogDbDocument } from "../blogs/types/blog.types";
-import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo-db";
+import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo.db";
 
 let client: MongoClient;
 
+const AUTH_COLLECTION_NAME = "auth";
 const BLOG_COLLECTION_NAME = "blogs";
 const POST_COLLECTION_NAME = "posts";
+const USERS_COLLECTION_NAME = "users";
 
 export let blogCollection: Collection<BlogDbDocument>;
 export let postCollection: Collection<PostDbDocument>;

@@ -5,15 +5,15 @@ import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { setupApp } from "../../../app";
 import { clearDB } from "../../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
 import { createPostUtil } from "../../utils/posts/create-post.util";
 import { PostInputDtoModel } from "../../../posts/types/post.types";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { POSTS_PATH } from "../../../core/paths/paths";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { apiErrorResultUtil } from "../../../core/utils/api-error-result.util";
-import { FieldError } from "../../../core/types/field-error.type";
+import { FieldError } from "../../../core/types/fields-only.type";
 
 const adminToken = generateBasicAuthToken();
 

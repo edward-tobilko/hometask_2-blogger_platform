@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODES } from "../../utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../utils/http-status-codes.util";
 
 // * Type for createErrorMessages helper func
 export type ValidationErrorType = {

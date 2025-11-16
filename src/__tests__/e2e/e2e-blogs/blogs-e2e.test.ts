@@ -2,13 +2,13 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "../../../app";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { BLOGS_PATH, POSTS_PATH } from "../../../core/paths/paths";
 import { clearDB } from "../../utils/clear-db";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo-db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import {
   BlogInputDtoModel,

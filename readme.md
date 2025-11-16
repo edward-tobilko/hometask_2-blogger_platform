@@ -1,4 +1,4 @@
-1. Загальна ідея:
+1. **Загальна ідея**
 
 Запит від клієнта проходить такий шлях:
 
@@ -6,112 +6,82 @@ HTTP -> routes (request-payload + validation + http-handlers) -> application (se
 
 Плюс зверху є спільне ядро core, де лежать помилки, загальні типи, utils, swagger, настройки БД тощо.
 
-2. Папка core:
+2. **core**
 
 2.1 core/errors/types:
 
-validation-error.type.ts, validation-error.type-output.ts – типи, які описують, як виглядає помилка валідації всередині коду і у відповіді API.
+- validation-error.type.ts, validation-error.type-output.ts – типи, які описують, як виглядає помилка валідації всередині коду і у відповіді API.
 
-2.2 core/errors:
+  2.2 core/errors:
 
-application.error.ts – базовий клас для бізнес-помилок (наприклад, NotFound, Forbidden і т.д.).
-create-error-messages.error.ts – хелпери, які будують текст помилки (наприклад, “Driver is not found”).
-errors.handler.ts – глобальний error-handler для Express: ловить усі помилки і перетворює їх у нормальний JSON-response.
-repository-not-found.error.ts – помилка, коли репозиторій/ресурс не знайдений.
+- application.error.ts – базовий клас для бізнес-помилок (наприклад, NotFound, Forbidden і т.д.).
+- create-error-messages.error.ts – хелпери, які будують текст помилки (наприклад, “Driver is not found”).
+- errors.handler.ts – глобальний error-handler для Express: ловить усі помилки і перетворює їх у нормальний JSON-response.
+- repository-not-found.error.ts – помилка, коли репозиторій/ресурс не знайдений.
 
-2.3 core/helpers:
+  2.3 core/helpers:
 
-create-command.helper.ts – базовий клас/хелпер для command об’єктів (CQRS стиль: команда на створення, оновлення тощо).
-set-default-sort-and-pagination.helper.ts – виставляє дефолтну пагінацію/сортування (page, pageSize, sortBy, sortDirection), якщо клієнт їх не передав.
+- create-command.helper.ts – базовий клас/хелпер для command об’єктів (CQRS стиль: команда на створення, оновлення тощо).
+- set-default-sort-and-pagination.helper.ts – виставляє дефолтну пагінацію/сортування (page, pageSize, sortBy, sortDirection), якщо клієнт їх не передав.
 
-2.4 core/infrastructure/crypto:
+  2.4 core/infrastructure/crypto:
 
-password-hasher.ts – обгортка над, наприклад, bcrypt. В одному місці описано: як хешувати пароль, порівнювати пароль з хешем.
+- password-hasher.ts – обгортка над, наприклад, bcrypt. В одному місці описано: як хешувати пароль, порівнювати пароль з хешем.
 
-2.5 core/middlewares/validation - Express-middlewares, які перевіряють вхідні дані до того, як вони потраплять у handler:
+  2.5 core/middlewares/validation - Express-middlewares, які перевіряють вхідні дані до того, як вони потраплять у handler:
 
-input-validation-result.middleware.ts – збирає помилки з валідації і віддає 400 з красивим JSON-ом.
-params-id-validation.middleware.ts – перевіряє :id (чи це валідний ObjectId і т.д.).
-query-pagination-sorting-validation.middleware.ts – перевіряє query-параметри пагінації/сортування.
-resource-validation.middleware.ts – перевіряє, що resources з resources-enum валідний.
+- input-validation-result.middleware.ts – збирає помилки з валідації і віддає 400 з красивим JSON-ом.
+- params-id-validation.middleware.ts – перевіряє :id (чи це валідний ObjectId і т.д.).
+- query-pagination-sorting-validation.middleware.ts – перевіряє query-параметри пагінації/сортування.
+- resource-validation.middleware.ts – перевіряє, що resources з resources-enum валідний.
 
-2.6 core/paths
+  2.6 core/paths:
 
-paths.ts – централізоване місце з усіма URL-шляхами (/drivers, /rides і т.п.), щоб не розкидати строки по всьому проекту.
+- paths.ts – централізоване місце з усіма URL-шляхами (/drivers, /rides і т.п.), щоб не розкидати строки по всьому проекту.
 
-core/result
+  2.7 core/result:
 
-types/
+types/ -> application-result-body.type.ts, application-result-status.type.ts – типи, які описують статус виконання операції (success, not_found, bad_request тощо) та тіло результату.
 
-application-result-body-type..., application-result-status-... – типи, які описують:
-
-статус виконання операції (success, not_found, bad_request тощо),
-
-тіло результату.
-
-application-result.ts – універсальний клас/обгортка для результатів сервісів:
-
-success(data),
-
-notFound(message),
-
-error(message) тощо.
-
-create-error-application-re... – хелпер, щоб легко створювати ApplicationResult з помилкою.
+- application.result.ts – універсальний клас/обгортка/паттерн для результатів сервісів: success(data), notFound(message), error(message) тощо.
+- create-error-application.result.ts – хелпер, щоб легко створювати ApplicationResult з помилкою.
 
 Тобто усі сервісні/аплікейшн-шари повертають не “голі” дані, а ApplicationResult. Потім http-handler дивиться на цей результат і вирішує, який статус коду віддати.
 
-core/settings-mongoDB
+2.8 core/settings-mongoDB:
 
-settings-mongo.db.ts – налаштування Mongo: URI, ім’я бази, опції.
+- settings-mongo.db.ts – налаштування Mongo: URI, ім’я бази, опції.
 
-core/swagger
+  2.9 core/swagger:
 
-setup-swagger.ts – ініціалізація Swagger UI + підключення \*.swagger.yml файлів.
+- setup-swagger.ts – ініціалізація Swagger UI + підключення \*.swagger.yml файлів.
 
-core/types
+  2.10 core/types - Це загальні generics/типи, які можна юзати в різних модулях:
 
-fields-only-type.ts – утиліта типів (наприклад, взяти тільки певні поля з типу).
+- fields-only.type.ts – утиліта типів (наприклад, взяти тільки певні поля з типу).
+- paginator-output.type.ts – тип для пагінованої відповіді (total, page, pageSize).
+- pagination-sorting.type.ts – спільний тип для параметрів пагінації та сортування.
+- resources.enum.ts – enum ресурсів (blogs, users, і т.д.).
+- with-meta.type.ts – тип, який додає meta до відповіді.
 
-paginated-type.output.ts – тип для пагінованої відповіді (items, total, page, pageSize).
+  2.11 core/utils:
 
-pagination-and-sorting-type... – спільний тип для параметрів пагінації та сортування.
+- http-status-codes.util.ts – enum/об’єкт з HTTP статус-кодами (200, 201, 400, 404, 500…).
 
-resources-enum.ts – enum ресурсів (drivers, rides, і т.д.).
+3. **db**
 
-with-meta-type.ts – тип, який додає meta до відповіді.
+- mongo.db.ts – функції для роботи з Mongo:
 
-Це загальні generics/типи, які можна юзати в різних модулях.
+4. **blogs**
 
-core/utils
+Тут уже функціональний модуль (bounded context) – все про блоги.
 
-http-statuses.ts – enum/об’єкт з HTTP статус-кодами (200, 201, 400, 404, 500…), щоб не писати “магічні числа”.
+4.1 blogs/domain:
 
-core/db
+- blog.domain.ts – доменна-модель блога (entity): які поля є, які інваріанти, можливо методи типу updateBlog, deactivate, тощо.
+- blog-dto.domain.ts – DTO, з яким працює домен, напр. CreateBlogDomainDto, UpdateBlogDomainDto. Домейн не знає про HTTP, Mongo, Express - тільки бізнес-логіка.
 
-mongo.db.ts – функції для роботи з Mongo:
-
-runDB() – підключитись,
-
-stopDB() – відключитись,
-
-clearDB() – очистити (часто використовується в тестах).
-
-3. Модуль drivers
-
-Тут уже функціональний модуль (bounded context) – все про водіїв.
-
-drivers/domain
-
-driver.domain.ts – доменно-модель драйвера (entity): які поля є, які інваріанти, можливо методи типу updateName, deactivate, тощо.
-
-driver-dto.domain.ts – DTO, з яким працює домен:
-
-напр. CreateDriverDomainDto, UpdateDriverDomainDto.
-
-Домейн не знає про HTTP, Mongo, Express – тільки бізнес-логіка.
-
-drivers/repositories
+  4.2 blogs/repositories:
 
 Це рівень доступу до даних:
 

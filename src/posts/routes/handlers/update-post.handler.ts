@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { PostInputDtoModel } from "../../types/post.types";
 import { postsService } from "../../application/posts-service";
 import { blogsService } from "../../../blogs/application/blogs-service";

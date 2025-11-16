@@ -3,7 +3,7 @@ import { Express } from "express";
 
 import { PostViewModel } from "../../../posts/types/post.types";
 import { POSTS_PATH } from "../../../core/paths/paths";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-statuses.util";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 
 export async function getPostByIdBodyUtil(
   app: Express,
