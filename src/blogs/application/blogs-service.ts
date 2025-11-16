@@ -1,17 +1,13 @@
 import { ObjectId, WithId } from "mongodb";
 
 import { blogsRepository } from "../repositories/blogs.repository";
-import {
-  BlogDbDocument,
-  BlogInputDtoModel,
-  BlogQueryParamInput,
-} from "../types/blog.types";
+import { BlogQueryParamInput } from "../types/blog.types";
 import {
   PostDbDocument,
   PostInputDtoModel,
   PostViewModel,
 } from "../../posts/types/post.types";
-import { mapToPostForBlogOutputUtil } from "../routes/mappers/map-to-post-for-blog-output.util";
+import { mapToPostForBlogOutputUtil } from "./mappers/map-to-post-for-blog-output.util";
 
 export const blogsService = {
   async findAllBlogs(

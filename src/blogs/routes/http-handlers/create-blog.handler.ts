@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { BlogInputDtoModel, BlogViewModel } from "../../types/blog.types";
 import { blogsService } from "../../application/blogs-service";
-import { mapToBlogOutputUtil } from "../mappers/map-to-blog-output.util";
 
 export async function createNewBlogHandler(
   req: Request<{}, {}, BlogInputDtoModel>,

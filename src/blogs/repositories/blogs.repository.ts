@@ -1,38 +1,10 @@
 import { InsertOneResult, ObjectId, WithId } from "mongodb";
 
 import { blogCollection, postCollection } from "../../db/mongo.db";
-import {
-  BlogDbDocument,
-  BlogInputDtoModel,
-  BlogQueryParamInput,
-} from "../types/blog.types";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { PostDbDocument } from "../../posts/types/post.types";
 
 export const blogsRepository = {
-  async findAllBlogsRepo(
-    queryDto: BlogQueryParamInput
-  ): Promise<{ items: WithId<BlogDbDocument>[]; totalCount: number }> {
-    const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } =
-      queryDto;
-    const filter: any = {};
-
-    if (searchNameTerm) {
-      filter.name = { $regex: searchNameTerm, $options: "i" };
-    }
-
-    const items = await blogCollection
-      .find(filter)
-      .sort({ [sortBy]: sortDirection })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .toArray();
-
-    const totalCount = await blogCollection.countDocuments(filter);
-
-    return { items, totalCount };
-  },
-
   async findBlogByIdRepo(blogId: string): Promise<WithId<BlogDbDocument>> {
     const result = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 

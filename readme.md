@@ -76,131 +76,58 @@ types/ -> application-result-body.type.ts, application-result-status.type.ts –
 
 Тут уже функціональний модуль (bounded context) – все про блоги.
 
-4.1 blogs/domain:
+4.1 blogs/application - аплікейшн-шар – реалізація use-cases:
+
+commands/:
+
+- blog-dto-type.commands.ts – DTO для команд що треба, щоб створити блог (name, description, websiteUrl), що треба, щоб оновити блог. Саме командні DTO описують вхід для use-case-ів “create / update / delete”.
+
+mappers/:
+
+- map-to-blog-output.mapper.ts – маппер домен → output type (що віддаємо клієнту).
+- map-to-blog-list-paginated.mapper.ts – маппер списку блогів + пагінаційної інформації → структура відповіді API.
+
+output/:
+
+- blog-type.output.ts – як виглядає один блог у відповіді.
+- blog-list-paginated-type.output.ts – тип для пагінованого списку блогів, який вертає API.
+
+query-handlers/:
+
+- get-blog-list-type.query.ts – handler, який реалізує use-case: “отримати список блогів”; приймає DTO з фільтрами/пагінацією; викликає blog-query.repository; використовує маппери і повертає ApplicationResult з blogs-list-paginated-type.
+
+- blog-query.service.ts – сервіс для читання (всі “get”).
+- blogs.service.ts – сервіс для запису: create/update/delete драйвера; всередині викликає domain (створити entity), репозиторії, маппери;завертає все в ApplicationResult. Тобто application = сценарії використання (“створи водія”, “онови”, “дай список”).
+
+  4.2 blogs/domain:
 
 - blog.domain.ts – доменна-модель блога (entity): які поля є, які інваріанти, можливо методи типу updateBlog, deactivate, тощо.
 - blog-dto.domain.ts – DTO, з яким працює домен, напр. CreateBlogDomainDto, UpdateBlogDomainDto. Домейн не знає про HTTP, Mongo, Express - тільки бізнес-логіка.
 
-  4.2 blogs/repositories:
+  4.3 blogs/repositories - Це рівень доступу до даних:
 
-Це рівень доступу до даних:
+- drivers.repository.ts – основний репозиторій: працює напряму з Mongo-колекцією.
+- driver-query.repository.ts – окремий репозиторій для читання (CQRS): методи для отримання списків з фільтрами, пагінацією, join з іншими колекціями, агрегації, пошук.
 
-drivers.repository.ts – основний репозиторій:
+  4.4 blogs/routes - Це HTTP-шар – тут уже Express. Кожен handler: Забирає дані з req(body, params, query). Перетворює їх у відповідний command/query DTO. Викликає application service / handler. Береться ApplicationResult і на його основі відправляється HTTP-response.
 
-create(driverDto),
+http-handlers/:
 
-findById(id),
+- create-blog.handler.ts – Express-handler для POST /blogs.
+- create-post-for-blog.handler.ts - для /blogs/:blogId/posts.
+- get-blogs-list.handler.ts – для GET /blogs.
+- get-blog.handler.ts – для GET /blog/:id.
+- update-blog.handler.ts – для PUT/PATCH /blog/:id.
+- delete-blog.handler.ts – для DELETE /blog/:id.
+- get-blog-posts-list.handler.ts – GET /blogs/:blogId/posts і т.п.
 
-update(...),
+request-payloads/:
 
-delete(...).
-Працює напряму з Mongo-колекцією.
-
-driver-query.repository.ts – окремий репозиторій для читання (CQRS):
-
-методи для отримання списків з фільтрами, пагінацією,
-
-join з іншими колекціями, агрегації, пошук.
-
-Тобто:
-
-Service / handler каже: “мені потрібен список драйверів з такими фільтрами” → query-repository йде в БД, дістає дані.
-
-drivers/application
-
-Це аплікейшн-шар – реалізація use-cases.
-
-commands/
-
-driver-dto-type.command... – DTO для команд:
-
-що треба, щоб створити драйвера (name, phone, car…),
-
-що треба, щоб оновити драйвера.
-
-Саме командні DTO описують вхід для use-case-ів “create / update / delete”.
-
-mappers/
-
-map-to-driver-output.map... – маппер домен → output type (що віддаємо клієнту).
-
-map-to-driver-list-paginat... – маппер списку драйверів + пагінаційної інформації → структура відповіді API.
-
-output/
-
-driver-type.output.ts – як виглядає один driver у відповіді.
-
-driver-data-type.output.ts – можливо те саме, але з додатковими полями.
-
-driver-list-paginated-type... – тип для пагінованого списку драйверів, який вертає API.
-
-query-handlers/
-
-get-driver-list-type.query.ts – handler, який реалізує use-case:
-
-“отримати список драйверів”;
-
-приймає DTO з фільтрами/пагінацією;
-
-викликає driver-query.repository;
-
-використовує маппери і повертає ApplicationResult з driver-list-paginated-type.
-
-driver-query.service.ts – сервіс для читання (всі “get”).
-
-drivers.service.ts – сервіс для запису:
-
-create/update/delete драйвера;
-
-всередині викликає domain (створити entity), репозиторії, маппери;
-
-завертає все в ApplicationResult.
-
-Тобто application = сценарії використання (“створи водія”, “онови”, “дай список”).
-
-drivers/routes
-
-Це HTTP-шар – тут уже Express.
-
-http-handlers/
-
-create-driver.handler.ts – Express-handler для POST /drivers.
-
-get-driver-list.handler.ts – для GET /drivers.
-
-get-driver.handler.ts – для GET /drivers/:id.
-
-update-driver.handler.ts – для PUT/PATCH /drivers/:id.
-
-delete-driver.handler.ts – для DELETE /drivers/:id.
-
-get-driver-rides-list.handl... – GET /drivers/:id/rides і т.п.
-
-Кожен handler:
-
-Забирає дані з req (body, params, query).
-
-Перетворює їх у відповідний command/query DTO.
-
-Викликає application service / handler.
-
-Береться ApplicationResult і на його основі відправляється HTTP-response.
-
-request-payloads/
-
-Це те, що тебе, схоже, найбільше бентежить 🙂
-
-create-driver-request.payload.ts – тип, який описує тіло запиту для POST /drivers:
-
-name, phone, carModel тощо – саме в тому вигляді, як приходить з клієнта.
-
-update-driver-request.payload.ts – payload для оновлення драйвера.
-
-driver-list-request.payload.ts – payload (query) для списку драйверів: page, pageSize, sortBy, search…
-
-driver-errors-request.payl... – структура помилок для driver-запитів.
-
-driver-sort-field-enum.ts – enum, які поля можна використовувати для сортування (name, createdAt і т.д.).
+- create-blog-request.payload.ts – тип, який описує тіло запиту для POST /blogs: name, description, websiteUrl тощо – саме в тому вигляді, як приходить з клієнта.
+- update-blog-request.payload.ts – payload для оновлення блога.
+- blogs-list-request.payload.ts – payload (query) для списку блогів: page, pageSize, sortBy, search…
+- blog-errors-request.payload.ts – структура помилок для blog-запитів.
+- blog-sort-field-enum-request.payload.ts – enum, які поля можна використовувати для сортування (name, createdAt і т.д.).
 
 Payload ≠ DTO.
 RequestPayload – це HTTP-рівень (як виглядають дані в запиті).

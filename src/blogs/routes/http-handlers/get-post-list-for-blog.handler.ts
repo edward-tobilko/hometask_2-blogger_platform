@@ -6,7 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
 import { BlogQueryParamInput } from "../../types/blog.types";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
-import { mapToPostForBlogListOutputUtil } from "../mappers/map-to-post-for-blog-list-output.uti";
+import { mapToPostForBlogListOutputUtil } from "../../application/mappers/map-to-post-for-blog-list-output.uti";
 
 export async function getPostListForBlogHandler(
   req: Request<{ id: string }, {}, BlogQueryParamInput>,

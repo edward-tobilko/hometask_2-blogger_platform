@@ -7,7 +7,7 @@ import {
   BlogListPaginatedOutput,
   BlogQueryParamInput,
 } from "../../types/blog.types";
-import { mapToBlogListOutputUtil } from "../mappers/map-to-blog-list-output.util";
+import { mapToBlogListOutputUtil } from "../../application/mappers/map-to-blog-list-output.util";
 import { blogsService } from "../../application/blogs-service";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 
