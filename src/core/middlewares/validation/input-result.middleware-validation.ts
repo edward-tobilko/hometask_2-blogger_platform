@@ -5,7 +5,7 @@ import {
   validationResult,
 } from "express-validator";
 
-import { ValidationErrorType } from "./../../errors/types/validation-error.type";
+import { ValidationErrorType } from "../../errors/types/validation-error.type";
 import { HTTP_STATUS_CODES } from "../../utils/http-status-codes.util";
 import { createErrorMessages } from "../../errors/create-error-messages.error";
 
@@ -21,7 +21,7 @@ const formatValidationErrors = (
   };
 };
 
-export const inputValidationResultMiddleware = (
+export const inputResultMiddlewareValidation = (
   req: Request<{}, {}, {}, {}>,
   res: Response,
   next: NextFunction

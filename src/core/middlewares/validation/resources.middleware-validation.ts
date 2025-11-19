@@ -2,7 +2,7 @@ import { body } from "express-validator";
 
 import { Resources } from "../../types/resources.enum";
 
-export function resourceValidation(resourceType: Resources) {
+export function resourcesValidation(resourceType: Resources) {
   return body("data.type")
     .isString()
     .equals(resourceType)

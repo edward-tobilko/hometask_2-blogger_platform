@@ -45,7 +45,7 @@ const websiteUrlValidation = body("websiteUrl")
   .isURL({ protocols: ["https"], require_protocol: true })
   .withMessage("Website URL must be a valid https URL");
 
-export const blogBodyInputValidationMiddleware = [
+export const createBlogDtoRequestPayloadValidation = [
   nameValidation,
   descriptionValidation,
   websiteUrlValidation,

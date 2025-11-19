@@ -7,7 +7,7 @@ import {
 } from "../../helpers/set-default-sort-pagination.helper";
 import { SortDirections } from "../../types/sort-directions.enum";
 
-export function paginationAndSortingValidation<T extends string>(
+export function queryPaginationAndSortingValidation<T extends string>(
   sortFieldEnum: Record<string, T> // Record<string, T> - тип объекта, где ключи типа string, значения типа Т
 ) {
   return [

@@ -42,7 +42,7 @@ const content = body("content")
   .isLength({ max: 1000 })
   .withMessage("Content must not exceed 1000 characters");
 
-export const postForBlogDtoInputValidationMiddleware = [
+export const createPostForBlogDtoRequestPayloadValidation = [
   titleValidation,
   shortDescription,
   content,

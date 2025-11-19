@@ -30,10 +30,10 @@ HTTP -> routes (request-payload + validation + http-handlers) -> application (se
 
   2.5 core/middlewares/validation - Express-middlewares, які перевіряють вхідні дані до того, як вони потраплять у handler:
 
-- input-validation-result.middleware.ts – збирає помилки з валідації і віддає 400 з красивим JSON-ом.
-- params-id-validation.middleware.ts – перевіряє :id (чи це валідний ObjectId і т.д.).
-- query-pagination-sorting-validation.middleware.ts – перевіряє query-параметри пагінації/сортування.
-- resource-validation.middleware.ts – перевіряє, що resources з resources-enum валідний.
+- input-result.middleware-validation.ts – збирає помилки з валідації і віддає 400 з красивим JSON-ом.
+- params-id.middleware-validation.ts – перевіряє :id (чи це валідний ObjectId і т.д.).
+- query-pagination-sorting.middlewarevalidation.ts – перевіряє query-параметри пагінації/сортування.
+- resources.middleware-validation.ts – перевіряє, що resources з resources-enum валідний.
 
   2.6 core/paths:
 
@@ -94,7 +94,7 @@ output/:
 
 query-handlers/:
 
-- get-blog-list-type.query.ts – handler, який реалізує use-case: “отримати список блогів”; приймає DTO з фільтрами/пагінацією; викликає blog-query.repository; використовує маппери і повертає ApplicationResult з blogs-list-paginated-type.
+- get-blogs-list-type.query-handler.ts – handler, який реалізує use-case: “отримати список блогів”; приймає DTO з фільтрами/пагінацією; викликає blog-query.repository; використовує маппери і повертає ApplicationResult з blogs-list-paginated-type.
 
 - blog-query.service.ts – сервіс для читання (всі “get”).
 - blogs.service.ts – сервіс для запису: create/update/delete драйвера; всередині викликає domain (створити entity), репозиторії, маппери;завертає все в ApplicationResult. Тобто application = сценарії використання (“створи водія”, “онови”, “дай список”).
@@ -123,27 +123,21 @@ http-handlers/:
 
 request-payloads/:
 
-- create-blog-request.payload.ts – тип, який описує тіло запиту для POST /blogs: name, description, websiteUrl тощо – саме в тому вигляді, як приходить з клієнта.
-- update-blog-request.payload.ts – payload для оновлення блога.
-- blogs-list-request.payload.ts – payload (query) для списку блогів: page, pageSize, sortBy, search…
-- blog-errors-request.payload.ts – структура помилок для blog-запитів.
-- blog-sort-field-enum-request.payload.ts – enum, які поля можна використовувати для сортування (name, createdAt і т.д.).
+- create-blog.request-payload.ts – тип, який описує тіло запиту для POST /blogs: name, description, websiteUrl тощо – саме в тому вигляді, як приходить з клієнта.
+- update-blog.request-payload.ts – payload для оновлення блога.
+- blogs-list.request-payload.ts – payload (query) для списку блогів: page, pageSize, sortBy, search…
+- blog-errors.request-payload.ts – структура помилок для blog-запитів.
+- blog-sort-field.request-payload.ts – enum, які поля можна використовувати для сортування (name, createdAt і т.д.).
 
 Payload ≠ DTO.
 RequestPayload – це HTTP-рівень (як виглядають дані в запиті).
 Command / Query DTO – це вже чистий application-рівень (там можуть бути інші назви, перетворені типи тощо).
 
-validation/
+request-paload-validations/:
 
-driver-request-payload.val... – схеми валідації (наприклад, zod/class-validator) для create/update/list payload’ів.
+- create-blog-dto.request-payload-validation.ts – схема валідації (наприклад, zod/class-validator/express-validator) для create/update/list payload’ів.
 
-Тут описано, які поля обов’язкові, які типи, мін/макс довжина і т.д.
-
-drivers.route.ts
-
-Тут створюється Router, підключаються всі http-handlers і middlewares:
-
-router.post('/', validateCreateDriver, createDriverHandler), і т.п.
+- blogs.route.ts - Тут створюється Router, підключаються всі http-handlers і middlewares:
 
 drivers/docs
 

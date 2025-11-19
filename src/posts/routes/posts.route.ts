@@ -2,14 +2,14 @@ import { Router } from "express";
 
 import { getPostListHandler } from "./handlers/get-post-list.handler";
 import { getPostHandler } from "./handlers/get-post.handler";
-import { paramIdMiddlewareValidation } from "../../core/middlewares/validation/param-id-validation.middleware";
-import { inputValidationResultMiddleware } from "../../core/middlewares/validation/input-validation-result.middleware";
+import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
+import { inputValidationResultMiddleware } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { createNewPostHandler } from "./handlers/create-post.handler";
 import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.middleware";
 import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { updatePostHandler } from "./handlers/update-post.handler";
 import { deletePostHandler } from "./handlers/delete-post.handler";
-import { paginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting-validation.middleware";
+import { paginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import { PostSortField } from "../types/post.types";
 
 export const postsRoute = Router({});
@@ -23,7 +23,7 @@ postsRoute.get(
 );
 postsRoute.get(
   "/:id",
-  paramIdMiddlewareValidation,
+  paramIdValidation,
   inputValidationResultMiddleware,
   getPostHandler
 );
@@ -41,7 +41,7 @@ postsRoute.post(
 postsRoute.put(
   "/:id",
   adminGuardMiddlewareAuth,
-  paramIdMiddlewareValidation,
+  paramIdValidation,
   postBodyInputValidationMiddleware,
   inputValidationResultMiddleware,
   updatePostHandler
@@ -51,7 +51,7 @@ postsRoute.put(
 postsRoute.delete(
   "/:id",
   adminGuardMiddlewareAuth,
-  paramIdMiddlewareValidation,
+  paramIdValidation,
   inputValidationResultMiddleware,
   deletePostHandler
 );

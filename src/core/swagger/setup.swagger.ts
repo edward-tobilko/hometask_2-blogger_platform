@@ -6,9 +6,9 @@ const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Uber API",
+      title: "Blogger Platform API",
       version: "1.0.0",
-      description: "uber API",
+      description: "blogger_platform API",
     },
   },
   apis: ["./src/**/*.swagger.yml"],
