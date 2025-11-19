@@ -1,45 +1,40 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import {
-  BlogListPaginatedOutput,
-  BlogQueryParamInput,
-} from "../../types/blog.types";
-import { mapToBlogListOutputUtil } from "../../application/mappers/map-to-blog-list-output.util";
-import { blogsService } from "../../application/blogs-service";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
+import { BlogListPaginatedOutput } from "../../application/output/blog-list-paginated-type.output";
+import { blogsQueryService } from "../../application/blog-query.service";
+import { BlogsListRequestPayload } from "../request-payloads/blogs-list.request-payload";
+import { BlogSortField } from "../request-payloads/blog-sort-field.request-payload";
 
 export async function getBlogListHandler(
-  req: Request<{}, {}, BlogQueryParamInput>,
-  res: Response<BlogListPaginatedOutput>
+  req: Request<{}, {}, {}, BlogsListRequestPayload>,
+  res: Response<BlogListPaginatedOutput>,
+  next: NextFunction
 ) {
   try {
-    const sanitizedQueryParam = matchedData<BlogQueryParamInput>(req, {
+    const sanitizedQueryParam = matchedData<BlogsListRequestPayload>(req, {
       locations: ["query"],
       includeOptionals: true,
     });
 
     const queryParamInput =
-      setDefaultSortAndPaginationIfNotExist(sanitizedQueryParam);
+      setDefaultSortAndPaginationIfNotExist<BlogSortField>(sanitizedQueryParam);
 
-    const { items, totalCount } =
-      await blogsService.findAllBlogs(queryParamInput);
+    const blogsListOutput =
+      await blogsQueryService.getBlogsList(queryParamInput);
 
     log(
-      `Blogs: ${items.map((item) => item.name)} - Total: ${totalCount.toString()}`
+      `Blogs page ${blogsListOutput.page}/${blogsListOutput.pagesCount} - items: ${blogsListOutput.items.length} - total: ${blogsListOutput.totalCount}`
     );
-
-    const blogsListOutput = mapToBlogListOutputUtil(items, {
-      page: queryParamInput.pageNumber,
-      pageSize: queryParamInput.pageSize,
-      totalCount,
-    });
 
     res.status(HTTP_STATUS_CODES.OK_200).json(blogsListOutput);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+
+    next(error);
   }
 }
 

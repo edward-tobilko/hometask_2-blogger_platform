@@ -1,8 +1,8 @@
 import { body } from "express-validator";
 
-import { blogsRepository } from "../../blogs/repositories/blogs.repository";
+// import { blogsRepository } from "../../blogs/repositories/blogs.repository";
 import { ObjectId } from "mongodb";
-import { blogsService } from "../../blogs/application/blogs-service";
+// import { blogsService } from "../../blogs/application/blogs-service";
 
 const titleValidation = body("title")
   .exists()
@@ -61,9 +61,9 @@ const blogId = body("blogId")
   .withMessage("Blog id must be a valid Mongo ObjectId")
   .bail()
   .custom(async (id: string) => {
-    const exists = await blogsService.findBlogById(id);
+    // const exists = await blogsService.findBlogById(id);
 
-    if (!exists) throw new Error(`Blog with id=${id} does not exist`);
+    // if (!exists) throw new Error(`Blog with id=${id} does not exist`);
 
     return true;
   });

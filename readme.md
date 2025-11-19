@@ -139,52 +139,24 @@ request-paload-validations/:
 
 - blogs.route.ts - Тут створюється Router, підключаються всі http-handlers і middlewares:
 
-drivers/docs
+- app.ts – створення і налаштування Express-додатку: підключення middleware, routes, swagger.
+- server.ts – запуск HTTP-сервера (app.listen(...)).
 
-drivers.swagger.yml – swagger-опис ендпоінтів, який потім підтягує core/swagger/setup-swagger.ts.
+5. Як усе працює на прикладі одного запиту:
 
-4. rides / testing / інше
+Запит: POST /blogs (створити пост).
+Запит прилітає у blogs.route.ts → маршрут POST /blogs.
 
-rides – скоріш за все такий самий модуль, як drivers, тільки для поїздок. Структура буде аналогічна:
+Йдуть middleware: валідація create-blog-dto.request-payload-validation.ts → при помилці повертаємо 400. Якщо ок:
 
-domain, repositories, application, routes, docs.
+- create-blog.handler.ts отримує req.body, приводить до типу CreateBlogRequestPayload.
+- Handler створює Command DTO і викликає blogsService.createBlog(commandDto).
 
-testing/docs, testing/routes – все, що стосується тестів (swagger-доки для тестування, окремі route’и під тестове оточення, e2e-тести тощо).
+blogs.service:
 
-app.ts – створення і налаштування Express-додатку: підключення middleware, routes, swagger.
-
-server.ts – запуск HTTP-сервера (app.listen(...)).
-
-5. Як усе працює на прикладі одного запиту
-
-Запит: POST /drivers (створити водія)
-
-Запит прилітає у drivers.route.ts → маршрут POST /drivers.
-
-Йдуть middleware:
-
-валідація create-driver-request.payload → при помилці повертаємо 400.
-
-Якщо ок:
-
-create-driver.handler.ts отримує req.body, приводить до типу CreateDriverRequestPayload.
-
-Handler створює Command DTO і викликає drivers.service.createDriver(commandDto).
-
-drivers.service:
-
-створює domain-entity Driver,
-
-використовує drivers.repository для збереження в Mongo,
-
-через mapper перетворює на DriverOutputType,
-
-повертає ApplicationResult.success(data).
+- створює domain-entity Blog,
+- використовує blogs.repository для збереження в Mongo,
+- через mapper перетворює на BlogOutput,
+- повертає ApplicationResult.success(data).
 
 Handler дивиться на ApplicationResult, дістає statusCode та body, і відправляє клієнту JSON-response.
-
-Якщо хочеш, наступним кроком можу:
-
-взяти конкретний файл, наприклад create-driver-request.payload.ts або drivers.service.ts,
-
-прямо на коді показати, що куди йде і як це зв’язано з іншими файлами.
