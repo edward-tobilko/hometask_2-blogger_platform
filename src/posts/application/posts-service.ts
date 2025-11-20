@@ -1,28 +1,24 @@
 import { WithId } from "mongodb";
 
 import { postsRepository } from "../repositories/posts.repository";
-import {
-  PostDbDocument,
-  PostInputDtoModel,
-  PostQueryParamInput,
-} from "../types/post.types";
+import { PostDomain } from "../domain/post.domain";
 
 export const postsService = {
   async getAllPosts(queryParam: PostQueryParamInput): Promise<{
-    items: WithId<PostDbDocument>[];
+    items: WithId<PostDomain>[];
     totalCount: number;
   }> {
     return await postsRepository.getAllPostsRepo(queryParam);
   },
 
-  async getPostById(postId: string): Promise<WithId<PostDbDocument>> {
+  async getPostById(postId: string): Promise<WithId<PostDomain>> {
     return await postsRepository.getPostByIdRepo(postId);
   },
 
   async createPost(
     dto: PostInputDtoModel,
     blogName: string
-  ): Promise<WithId<PostDbDocument>> {
+  ): Promise<WithId<PostDomain>> {
     return await postsRepository.createPostRepo(dto, blogName);
   },
 

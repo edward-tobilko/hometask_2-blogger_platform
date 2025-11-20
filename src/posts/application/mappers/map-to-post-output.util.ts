@@ -1,8 +1,9 @@
 import { WithId } from "mongodb";
 
-import { PostDbDocument, PostOutput } from "../../types/post.types";
+import { PostOutput } from "../output/post-type.output";
+import { PostDomain } from "../../domain/post.domain";
 
-export function mapToPostOutput(post: WithId<PostDbDocument>): PostOutput {
+export function mapToPostOutput(post: WithId<PostDomain>): PostOutput {
   return {
     id: post._id.toString(),
     title: post.title,

@@ -4,7 +4,7 @@ import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.mid
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { getBlogListHandler } from "./http-handlers/get-blog-list.handler";
 import { getBlogByIdHandler } from "./http-handlers/get-blog.handler";
-// import { createNewBlogHandler } from "./http-handlers/create-blog.handler";
+import { createNewBlogHandler } from "./http-handlers/create-blog.handler";
 // import { updateBlogHandler } from "./http-handlers/update-blog.handler";
 // import { deleteBlogHandler } from "./http-handlers/delete-blog.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
@@ -47,8 +47,8 @@ blogsRoute.post(
   "",
   adminGuardMiddlewareAuth,
   createBlogDtoRequestPayloadValidation,
-  inputResultMiddlewareValidation
-  // createNewBlogHandler
+  inputResultMiddlewareValidation,
+  createNewBlogHandler
 );
 
 blogsRoute.post(

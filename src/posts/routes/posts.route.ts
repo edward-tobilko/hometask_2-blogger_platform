@@ -10,7 +10,7 @@ import { postBodyInputValidationMiddleware } from "../validations/post-input-dto
 // import { updatePostHandler } from "./handlers/update-post.handler";
 import { deletePostHandler } from "./http-handlers/delete-post.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
-import { PostSortField } from "../types/post.types";
+import { PostSortField } from "./request-payloads/post-sort-field.request-payload";
 
 export const postsRoute = Router({});
 

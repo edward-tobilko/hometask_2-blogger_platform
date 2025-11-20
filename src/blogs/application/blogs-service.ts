@@ -1,17 +1,36 @@
 import { ObjectId, WithId } from "mongodb";
 
-import {
-  PostDbDocument,
-  PostInputDtoModel,
-} from "../../posts/types/post.types";
+import { BlogsRepository } from "../repositories/blogs.repository";
+import { WithMeta } from "../../core/types/with-meta.type";
+import { CreateBlogDtoCommand } from "./commands/blog-dto-type.commands";
+import { ApplicationResult } from "../../core/result/application.result";
+import { BlogDomain } from "../domain/blog.domain";
 
 export class BlogsService {
+  private blogsRepository: BlogsRepository;
+
+  constructor() {
+    this.blogsRepository = new BlogsRepository();
+  }
+
   // async findBlogById(blogId: string): Promise<WithId<BlogDbDocument>> {
   //   return await blogsRepository.findBlogByIdRepo(blogId);
   // }
-  // async createBlog(dto: BlogInputDtoModel): Promise<WithId<BlogDbDocument>> {
-  //   return await blogsRepository.createBlogRepo(dto);
-  // }
+
+  async createBlog(
+    command: WithMeta<CreateBlogDtoCommand>
+  ): Promise<ApplicationResult<{ id: string } | null>> {
+    const newBlog = BlogDomain.createBlog(command.payload);
+
+    const createdBlog = await this.blogsRepository.saveBlogRepo(newBlog);
+
+    return new ApplicationResult({
+      data: {
+        id: createdBlog._id!.toString(),
+      },
+    });
+  }
+
   // async createPostForBlog(
   //   blogId: string,
   //   dto: PostInputDtoModel
@@ -44,3 +63,5 @@ export class BlogsService {
   //   return deleteResult;
   // }
 }
+
+export const blogsService = new BlogsService();

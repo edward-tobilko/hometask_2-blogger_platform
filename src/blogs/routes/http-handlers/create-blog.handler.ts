@@ -1,17 +1,23 @@
-// import { Request, Response } from "express";
+import { Request, Response } from "express";
+import { log } from "node:console";
 
-// import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-// import { blogsService } from "../../application/blogs-service";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { createCommand } from "../../../core/helpers/create-command.helper";
+import { blogsService } from "../../application/blogs-service";
 
-// export async function createNewBlogHandler(
-//   req: Request<{}, {}, BlogInputDtoModel>,
-//   res: Response<BlogViewModel>
-// ) {
-//   try {
-//     const createdBlog = await blogsService.createBlog(req.body);
+export async function createNewBlogHandler(
+  req: Request<{}, {}, {}, {}>,
+  res: Response
+) {
+  try {
+    const command = createCommand(req.body);
 
-//     res.status(HTTP_STATUS_CODES.CREATED_201).json(blogOutput);
-//   } catch (error: unknown) {
-//     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
-//   }
-// }
+    const createdBlogResult = await blogsService.createBlog(command);
+
+    log("createdBlogResult ->", createdBlogResult);
+
+    res.status(HTTP_STATUS_CODES.CREATED_201).json(blogOutput);
+  } catch (error: unknown) {
+    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+  }
+}
