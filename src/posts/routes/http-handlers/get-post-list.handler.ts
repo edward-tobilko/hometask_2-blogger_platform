@@ -8,7 +8,7 @@ import {
   PostQueryParamInput,
 } from "../../types/post.types";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
-import { mapToPostListOutputUtil } from "../mappers/map-to-post-list-output.util";
+import { mapToPostListOutputUtil } from "../../application/mappers/map-to-post-list-output.util";
 
 export async function getPostListHandler(
   req: Request<{}, {}, PostQueryParamInput>,

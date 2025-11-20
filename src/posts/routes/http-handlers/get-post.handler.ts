@@ -3,7 +3,7 @@ import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { postsService } from "../../application/posts-service";
-import { mapToPostOutputUtil } from "../mappers/map-to-post-output.util";
+import { mapToPostOutputUtil } from "../../application/mappers/map-to-post-output.util";
 import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
 
 export async function getPostHandler(

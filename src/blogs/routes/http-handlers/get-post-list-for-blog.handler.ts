@@ -1,43 +1,45 @@
-// import { Request, Response } from "express";
-// import { matchedData } from "express-validator";
-// import { log } from "node:console";
+import { NextFunction, Request, Response } from "express";
+import { matchedData } from "express-validator";
+import { log } from "node:console";
 
-// import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-// import { blogsService } from "../../application/blogs-service";
-// import { BlogQueryParamInput } from "../../types/blog.types";
-// import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
-// import { mapToPostForBlogListOutputUtil } from "../../application/mappers/map-to-post-for-blog-list-output.uti";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
+import { BlogsListRequestPayload } from "../request-payloads/blogs-list.request-payload";
+import { BlogSortField } from "../request-payloads/blog-sort-field.request-payload";
+import { blogsQueryService } from "../../application/blog-query.service";
+import { PostsListPaginatedOutput } from "../../../posts/application/output/posts-list-type.output";
 
-// export async function getPostListForBlogHandler(
-//   req: Request<{ id: string }, {}, BlogQueryParamInput>,
-//   res: Response
-// ) {
-//   try {
-//     const sanitizedQueryParam = matchedData<BlogQueryParamInput>(req, {
-//       locations: ["query"],
-//       includeOptionals: true,
-//     });
+export async function getPostListForBlogHandler(
+  req: Request<{ id: string }, {}, {}, BlogsListRequestPayload>,
+  res: Response<PostsListPaginatedOutput>,
+  next: NextFunction
+) {
+  try {
+    const sanitizedQueryParam = matchedData<BlogsListRequestPayload>(req, {
+      locations: ["query"],
+      includeOptionals: true,
+    });
 
-//     const queryParamInput: BlogQueryParamInput = {
-//       ...setDefaultSortAndPaginationIfNotExist(sanitizedQueryParam),
-//       blogId: req.params.id,
-//     };
+    const queryParamInput = {
+      ...setDefaultSortAndPaginationIfNotExist<BlogSortField>(
+        sanitizedQueryParam
+      ),
+      blogId: req.params.id,
+    };
 
-//     const { postsForBlog, totalCount } =
-//       await blogsService.getAllPostsForBlog(queryParamInput);
+    const postsListByBlogOutput =
+      await blogsQueryService.getPostsListByBlog(queryParamInput);
 
-//     log(
-//       `Post list for blog: ${postsForBlog.map((item) => item.blogName)} - Total: ${totalCount.toString()}`
-//     );
+    log(
+      `Post list for blog ${postsListByBlogOutput.page}/${postsListByBlogOutput.pagesCount} - items: ${postsListByBlogOutput.items.length} - total: ${postsListByBlogOutput.totalCount}`
+    );
 
-//     const postListForBlogOutput = mapToPostForBlogListOutputUtil(postsForBlog, {
-//       page: queryParamInput.pageNumber,
-//       pageSize: queryParamInput.pageSize,
-//       totalCount,
-//     });
+    res.status(HTTP_STATUS_CODES.OK_200).json(postsListByBlogOutput);
+  } catch (error: unknown) {
+    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 
-//     res.status(HTTP_STATUS_CODES.OK_200).json(postListForBlogOutput);
-//   } catch (error: unknown) {
-//     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
-//   }
-// }
+    next(error);
+  }
+}
+
+// ? Request<Params, ResBody, ReqBody, Query>

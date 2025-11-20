@@ -1,7 +1,14 @@
-import { blogCollection } from "../../db/mongo.db";
+import { ObjectId } from "mongodb";
+
+import { blogCollection, postCollection } from "../../db/mongo.db";
 import { mapToBlogListOutput } from "../application/mappers/map-to-blog-list-output.util";
 import { BlogListPaginatedOutput } from "../application/output/blog-list-paginated-type.output";
 import { BlogsListRequestPayload } from "../routes/request-payloads/blogs-list.request-payload";
+import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
+import { BlogOutput } from "../application/output/blog-type.output";
+import { mapToBlogOutput } from "../application/mappers/map-to-blog-output.mapper";
+import { mapToPostListOutput } from "../../posts/application/mappers/map-to-post-list-output.util";
+import { PostsListPaginatedOutput } from "../../posts/application/output/posts-list-type.output";
 
 export class BlogQueryRepository {
   async findAllBlogsQueryRepo(
@@ -42,5 +49,42 @@ export class BlogQueryRepository {
     });
 
     return blogsListOutput;
+  }
+
+  async findBlogByIdQueryRepo(blogId: string): Promise<BlogOutput> {
+    const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
+
+    if (!blog) {
+      throw new RepositoryNotFoundError("Blog is not exist");
+    }
+
+    return mapToBlogOutput(blog);
+  }
+
+  async findAllPostsForBlogQueryRepo(
+    queryDto: BlogsListRequestPayload
+  ): Promise<PostsListPaginatedOutput> {
+    const { pageNumber, pageSize, sortBy, sortDirection, blogId } = queryDto;
+
+    const filter = { blogId: new ObjectId(blogId) };
+
+    const cursor = postCollection
+      .find(filter)
+      .sort({ [sortBy]: sortDirection })
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize);
+
+    const [postsForBlog, totalCount] = await Promise.all([
+      cursor.toArray(),
+      postCollection.countDocuments(filter),
+    ]);
+
+    const postListForBlogOutput = mapToPostListOutput(postsForBlog, {
+      page: pageNumber,
+      pageSize,
+      totalCount,
+    });
+
+    return postListForBlogOutput;
   }
 }

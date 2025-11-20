@@ -13,9 +13,9 @@ export function queryPaginationAndSortingValidation<T extends string>(
   return [
     query("sortBy")
       .customSanitizer((value) => {
-        return value === undefined || value === ""
+        return !value
           ? Object.values(sortFieldEnum)[0] // Дефолтное значение - первое поле
-          : Number(value);
+          : value;
       })
       .isIn(Object.values(sortFieldEnum))
       .withMessage(
@@ -23,11 +23,11 @@ export function queryPaginationAndSortingValidation<T extends string>(
       ),
 
     query("sortDirection")
-      .customSanitizer((value) =>
-        value === undefined || value === ""
-          ? DEFAULT_SORT_DIRECTION
-          : String(value).toLowerCase()
-      )
+      .customSanitizer((value) => {
+        if (!value) return -1;
+
+        return value ? DEFAULT_SORT_DIRECTION : String(value).toLowerCase();
+      })
       .isIn(Object.values(SortDirections))
       .withMessage(
         `Sort direction must be one of: ${Object.values(SortDirections).join(", ")}`

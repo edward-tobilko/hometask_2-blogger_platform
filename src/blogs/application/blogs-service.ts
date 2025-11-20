@@ -3,7 +3,6 @@ import { ObjectId, WithId } from "mongodb";
 import {
   PostDbDocument,
   PostInputDtoModel,
-  PostViewModel,
 } from "../../posts/types/post.types";
 
 export class BlogsService {
