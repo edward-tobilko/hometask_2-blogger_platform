@@ -23,3 +23,5 @@ export async function getBlogByIdHandler(
     return next();
   }
 }
+
+// ? Request<Params, ResBody, ReqBody, Query>

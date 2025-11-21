@@ -1,8 +1,23 @@
+import { InsertOneResult, ObjectId, WithId } from "mongodb";
+
 import { blogCollection, postCollection } from "../../db/mongo.db";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { BlogDomain } from "../domain/blog.domain";
+import { PostDomain } from "../../posts/domain/post.domain";
 
 export class BlogsRepository {
+  async findBlogByIdReconstituteRepo(
+    blogId: string
+  ): Promise<WithId<BlogDomain>> {
+    const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
+
+    if (!blog) {
+      throw new RepositoryNotFoundError("Blog is not exist!");
+    }
+
+    return BlogDomain.reconstitute(blog);
+  }
+
   async saveBlogRepo(newBlog: BlogDomain): Promise<BlogDomain> {
     if (!newBlog._id) {
       const insertResult = await blogCollection.insertOne(newBlog);
@@ -33,20 +48,44 @@ export class BlogsRepository {
       return newBlog;
     }
   }
-  // async createPostForBlogRepo(
-  //   newPostForBlog: PostDbDocument
-  // ): Promise<WithId<PostDbDocument>> {
-  //   const insertedResult: InsertOneResult =
-  //     await postCollection.insertOne(newPostForBlog);
-  //   return { ...newPostForBlog, _id: insertedResult.insertedId };
-  // }
-  // async deleteBlogRepo(id: string): Promise<void> {
-  //   const deleteResult = await blogCollection.deleteOne({
-  //     _id: new ObjectId(id),
-  //   });
-  //   if (deleteResult.deletedCount < 1) {
-  //     throw new Error("Blog not exist");
-  //   }
-  //   return;
-  // }
+
+  async savePostForBlogRepo(newPostForBlog: PostDomain): Promise<PostDomain> {
+    if (!newPostForBlog._id) {
+      const insertResult: InsertOneResult =
+        await postCollection.insertOne(newPostForBlog);
+
+      newPostForBlog._id = insertResult.insertedId;
+
+      return newPostForBlog;
+    } else {
+      const { _id, ...dtoToUpdate } = newPostForBlog;
+
+      const updateResult = await postCollection.updateOne(
+        {
+          _id,
+        },
+        {
+          $set: dtoToUpdate,
+        }
+      );
+
+      if (updateResult.matchedCount < 1) {
+        throw new RepositoryNotFoundError("Post for blog does't exist!");
+      }
+
+      return newPostForBlog;
+    }
+  }
+
+  async deleteBlogRepo(id: string): Promise<void> {
+    const deleteResult = await blogCollection.deleteOne({
+      _id: new ObjectId(id),
+    });
+
+    if (deleteResult.deletedCount < 1) {
+      throw new RepositoryNotFoundError("Blog is not exist!");
+    }
+
+    return;
+  }
 }

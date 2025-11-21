@@ -1,21 +1,25 @@
-import { ObjectId, WithId } from "mongodb";
-
 import { BlogsRepository } from "../repositories/blogs.repository";
 import { WithMeta } from "../../core/types/with-meta.type";
-import { CreateBlogDtoCommand } from "./commands/blog-dto-type.commands";
+import {
+  CreateBlogDtoCommand,
+  UpdateBlogDtoCommand,
+} from "./commands/blog-dto-type.commands";
 import { ApplicationResult } from "../../core/result/application.result";
 import { BlogDomain } from "../domain/blog.domain";
+import { BlogQueryRepository } from "../repositories/blog-query.repository";
+import { PostDomain } from "../../posts/domain/post.domain";
+import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
+import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/post-dto-type.commands";
+import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
 
 export class BlogsService {
   private blogsRepository: BlogsRepository;
+  private blogQueryRepository: BlogQueryRepository;
 
   constructor() {
     this.blogsRepository = new BlogsRepository();
+    this.blogQueryRepository = new BlogQueryRepository();
   }
-
-  // async findBlogById(blogId: string): Promise<WithId<BlogDbDocument>> {
-  //   return await blogsRepository.findBlogByIdRepo(blogId);
-  // }
 
   async createBlog(
     command: WithMeta<CreateBlogDtoCommand>
@@ -31,37 +35,58 @@ export class BlogsService {
     });
   }
 
-  // async createPostForBlog(
-  //   blogId: string,
-  //   dto: PostInputDtoModel
-  // ): Promise<PostViewModel> {
-  //   const blog = await blogsRepository.findBlogByIdRepo(blogId);
-  //   const newPostForBlog: PostDbDocument = {
-  //     title: dto.title,
-  //     shortDescription: dto.shortDescription,
-  //     content: dto.content,
-  //     blogId: blog._id,
-  //     blogName: blog.name,
-  //     createdAt: new Date(),
-  //   };
-  //   const createdPostForBlog =
-  //     await blogsRepository.createPostForBlogRepo(newPostForBlog);
-  //   const mappedPostForBlogOutput =
-  //     mapToPostForBlogOutputUtil(createdPostForBlog);
-  //   return mappedPostForBlogOutput;
-  // }
-  // async getAllPostsForBlog(
-  //   queryDto: BlogQueryParamInput
-  // ): Promise<{ postsForBlog: WithId<PostDbDocument>[]; totalCount: number }> {
-  //   return await blogsRepository.getAllPostsForBlogRepo(queryDto);
-  // }
-  // async updateBlog(id: string, dto: BlogInputDtoModel): Promise<void> {
-  //   return await blogsRepository.updateBlogRepo(id, dto);
-  // }
-  // async deleteBlog(id: string): Promise<void> {
-  //   const deleteResult = await blogsRepository.deleteBlogRepo(id);
-  //   return deleteResult;
-  // }
+  async createPostForBlog(
+    command: WithMeta<CreatePostForBlogDtoCommand>
+  ): Promise<ApplicationResult<{ id: string } | null>> {
+    // ищеи блог
+    const blog = await this.blogQueryRepository.findBlogByIdQueryRepo(
+      command.payload.blogId
+    );
+
+    if (!blog) {
+      throw new RepositoryNotFoundError("Blog does not exist!");
+    }
+
+    // добавляем blogName к доменному dto
+    const domainDto: CreatePostDtoDomain = {
+      ...command.payload,
+      blogName: blog.name,
+    };
+
+    // создаем доммен
+    const newPost = PostDomain.createPost(domainDto);
+
+    // сохраняем
+    const createdPostForBlog =
+      await this.blogsRepository.savePostForBlogRepo(newPost);
+
+    // возвращаем output
+    return new ApplicationResult({
+      data: { id: createdPostForBlog._id!.toString() },
+    });
+  }
+
+  async updateBlog(
+    command: WithMeta<UpdateBlogDtoCommand>
+  ): Promise<ApplicationResult<null>> {
+    const { id, ...blogDomainDto } = command.payload;
+
+    const blog = await this.blogsRepository.findBlogByIdReconstituteRepo(id);
+
+    blog.updateBlog(blogDomainDto);
+
+    await this.blogsRepository.saveBlogRepo(blog);
+
+    return new ApplicationResult({ data: null });
+  }
+
+  async deleteBlog(
+    command: WithMeta<{ id: string }>
+  ): Promise<ApplicationResult<null>> {
+    await this.blogsRepository.deleteBlogRepo(command.payload.id);
+
+    return new ApplicationResult({ data: null });
+  }
 }
 
 export const blogsService = new BlogsService();

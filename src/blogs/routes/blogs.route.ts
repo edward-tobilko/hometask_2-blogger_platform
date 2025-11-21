@@ -5,10 +5,10 @@ import { inputResultMiddlewareValidation } from "../../core/middlewares/validati
 import { getBlogListHandler } from "./http-handlers/get-blog-list.handler";
 import { getBlogByIdHandler } from "./http-handlers/get-blog.handler";
 import { createNewBlogHandler } from "./http-handlers/create-blog.handler";
-// import { updateBlogHandler } from "./http-handlers/update-blog.handler";
-// import { deleteBlogHandler } from "./http-handlers/delete-blog.handler";
+import { updateBlogHandler } from "./http-handlers/update-blog.handler";
+import { deleteBlogHandler } from "./http-handlers/delete-blog.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
-// import { createPostForBlogHandler } from "./http-handlers/create-post-for-blog.handler";
+import { createPostForBlogHandler } from "./http-handlers/create-post-for-blog.handler";
 import { getPostListForBlogHandler } from "./http-handlers/get-post-list-for-blog.handler";
 import { BlogSortField } from "./request-payloads/blog-sort-field.request-payload";
 import { createBlogDtoRequestPayloadValidation } from "./request-payload-validations/create-blog-dto.request-payload-validation";
@@ -55,8 +55,8 @@ blogsRoute.post(
   "/:id/posts",
   adminGuardMiddlewareAuth,
   createPostForBlogDtoRequestPayloadValidation,
-  inputResultMiddlewareValidation
-  // createPostForBlogHandler
+  inputResultMiddlewareValidation,
+  createPostForBlogHandler
 );
 
 // * PUT methods
@@ -65,8 +65,8 @@ blogsRoute.put(
   adminGuardMiddlewareAuth,
   paramIdValidation,
   updateBlogDtoRequestPayloadValidation,
-  inputResultMiddlewareValidation
-  // updateBlogHandler
+  inputResultMiddlewareValidation,
+  updateBlogHandler
 );
 
 // * DELETE methods
@@ -74,6 +74,6 @@ blogsRoute.delete(
   "/:id",
   adminGuardMiddlewareAuth,
   paramIdValidation,
-  inputResultMiddlewareValidation
-  // deleteBlogHandler
+  inputResultMiddlewareValidation,
+  deleteBlogHandler
 );

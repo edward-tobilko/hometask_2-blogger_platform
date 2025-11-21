@@ -55,7 +55,7 @@ export class BlogQueryRepository {
     const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist");
+      throw new RepositoryNotFoundError("Blog is not exist!");
     }
 
     return mapToBlogOutput(blog);

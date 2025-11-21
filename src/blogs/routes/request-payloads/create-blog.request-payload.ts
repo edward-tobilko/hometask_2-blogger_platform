@@ -1,3 +1,5 @@
-import { CreateBlogDtoCommand } from "../../application/commands/blog-dto-type.commands";
-
-export type CreateBlogRequestPayload = CreateBlogDtoCommand;
+export type CreateBlogRequestPayload = {
+  name: string;
+  description: string;
+  websiteUrl: string;
+};
