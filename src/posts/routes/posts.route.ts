@@ -4,13 +4,13 @@ import { getPostListHandler } from "./http-handlers/get-post-list.handler";
 import { getPostHandler } from "./http-handlers/get-post.handler";
 import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-// import { createNewPostHandler } from "./handlers/create-post.handler";
 import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.middleware";
 import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 // import { updatePostHandler } from "./handlers/update-post.handler";
 import { deletePostHandler } from "./http-handlers/delete-post.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import { PostSortField } from "./request-payloads/post-sort-field.request-payload";
+import { createPostHandler } from "./http-handlers/create-post.handler";
 
 export const postsRoute = Router({});
 
@@ -33,8 +33,8 @@ postsRoute.post(
   "",
   adminGuardMiddlewareAuth,
   postBodyInputValidationMiddleware,
-  inputResultMiddlewareValidation
-  // createNewPostHandler
+  inputResultMiddlewareValidation,
+  createPostHandler
 );
 
 // * PUT methods

@@ -5,7 +5,7 @@ import { PostsListPaginatedOutput } from "../output/posts-list-type.output";
 import { PostDomain } from "../../domain/post.domain";
 
 export function mapToPostListOutput(
-  postDb: WithId<PostDomain>[],
+  postsDb: WithId<PostDomain>[],
   meta: { page: number; pageSize: number; totalCount: number }
 ): PostsListPaginatedOutput {
   return {
@@ -13,7 +13,8 @@ export function mapToPostListOutput(
     page: meta.page,
     pageSize: meta.pageSize,
     totalCount: meta.totalCount,
-    items: postDb.map(
+
+    items: postsDb.map(
       (post): PostOutput => ({
         id: post._id.toString(),
         title: post.title,

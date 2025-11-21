@@ -1,6 +1,5 @@
-export type CreatePostRequestPayload = {
+export type CreatePostForBlogRequestPayload = {
   title: string;
   shortDescription: string;
   content: string;
-  blogId: string;
 };

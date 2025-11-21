@@ -1,39 +1,33 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { postsService } from "../../application/posts-service";
-import {
-  PostForBlogListPaginatedOutput,
-  PostQueryParamInput,
-} from "../../types/post.types";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
-import { mapToPostListOutputUtil } from "../../application/mappers/map-to-post-list-output.util";
+import { PostsListRequestPayload } from "../request-payloads/posts-list.request-payload";
+import { postQueryService } from "../../application/post-query-service";
 
 export async function getPostListHandler(
-  req: Request<{}, {}, PostQueryParamInput>,
-  res: Response<PostForBlogListPaginatedOutput>
+  req: Request<{}, {}, {}, PostsListRequestPayload>,
+  res: Response,
+  next: NextFunction
 ) {
   try {
-    const sanitizedQueryParam = matchedData<PostQueryParamInput>(req, {
+    const sanitizedQueryParam = matchedData<PostsListRequestPayload>(req, {
       locations: ["query"],
       includeOptionals: true,
     });
 
-    const queryParamInput =
+    const queryParam =
       setDefaultSortAndPaginationIfNotExist(sanitizedQueryParam);
 
-    const { items, totalCount } =
-      await postsService.getAllPosts(queryParamInput);
+    const postsListOutput = await postQueryService.getPosts(queryParam);
 
-    const fetchedPostsOutput = mapToPostListOutputUtil(items, {
-      page: queryParamInput.pageNumber,
-      pageSize: queryParamInput.pageSize,
-      totalCount,
-    });
-
-    res.status(HTTP_STATUS_CODES.OK_200).json(fetchedPostsOutput);
+    res.status(HTTP_STATUS_CODES.OK_200).json(postsListOutput);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+
+    next(error);
   }
 }
+
+// ? Request<Params, ResBody, ReqBody, Query>

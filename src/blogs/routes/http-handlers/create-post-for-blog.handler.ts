@@ -4,7 +4,7 @@ import { log } from "console";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
 import { createCommand } from "../../../core/helpers/create-command.helper";
-import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
+import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post-for-blog.request-payload";
 import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/post-dto-type.commands";
 
 export async function createPostForBlogHandler(
