@@ -1,70 +1,60 @@
-import { ObjectId, WithId } from "mongodb";
+import { ObjectId } from "mongodb";
 
 import { postCollection } from "../../db/mongo.db";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { PostDomain } from "../domain/post.domain";
 
 export class PostsRepository {
-  // async getPostByIdRepo(postId: string): Promise<WithId<PostDbDocument>> {
-  //   const result = await postCollection.findOne({ _id: new ObjectId(postId) });
-  //   if (!result) {
-  //     throw new RepositoryNotFoundError("postId is not exist");
-  //   }
-  //   return result;
-  // }
+  async getPostDomainById(postId: string): Promise<PostDomain> {
+    const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
-  async savePostRepo(newPost: PostDomain): Promise<PostDomain> {
-    if (!newPost._id) {
-      const insertResult = await postCollection.insertOne(newPost);
-
-      newPost._id = insertResult.insertedId;
-
-      return newPost;
-    } else {
-      const { _id, ...dtoToUpdate } = newPost;
-
-      const updateResult = await postCollection.updateOne(
-        { _id },
-        { $set: { ...dtoToUpdate } }
-      );
-
-      if (updateResult.matchedCount < 1) {
-        throw new RepositoryNotFoundError("Post is not exist!");
-      }
-
-      return newPost;
+    if (!result) {
+      throw new RepositoryNotFoundError("Post is not exist!");
     }
+
+    return PostDomain.reconstitute({
+      ...result,
+      blogId: result.blogId,
+      blogName: result.blogName,
+      createdAt: result.createdAt,
+    });
   }
 
-  // async updatePostRepo(
-  //   postId: string,
-  //   dto: PostInputDtoModel,
-  //   blogName: string
-  // ): Promise<void> {
-  //   const updateResult = await postCollection.updateOne(
-  //     { _id: new ObjectId(postId) },
-  //     {
-  //       $set: {
-  //         title: dto.title,
-  //         shortDescription: dto.shortDescription,
-  //         content: dto.content,
-  //         blogId: new ObjectId(dto.blogId),
-  //         blogName,
-  //       },
-  //     }
-  //   );
-  //   if (updateResult.matchedCount < 1) {
-  //     throw new Error("Post not exist");
-  //   }
-  //   return;
-  // }
-  // async deletePostRepo(id: string): Promise<void> {
-  //   const deleteResult = await postCollection.deleteOne({
-  //     _id: new ObjectId(id),
-  //   });
-  //   if (deleteResult.deletedCount < 1) {
-  //     throw new Error("Post not exist");
-  //   }
-  //   return;
-  // }
+  async createPostRepo(newPost: PostDomain): Promise<PostDomain> {
+    const insertResult = await postCollection.insertOne(newPost);
+
+    newPost._id = insertResult.insertedId;
+
+    return newPost;
+  }
+
+  async updatePostRepo(post: PostDomain): Promise<PostDomain> {
+    if (!post._id) {
+      throw new RepositoryNotFoundError("Post id is not provided for update");
+    }
+    const { _id, ...dtoToUpdate } = post;
+
+    const updateResult = await postCollection.updateOne(
+      { _id },
+      { $set: dtoToUpdate }
+    );
+
+    if (updateResult.matchedCount < 1) {
+      throw new RepositoryNotFoundError("Post is not exist!");
+    }
+
+    return post;
+  }
+
+  async deletePostRepo(id: string): Promise<void> {
+    const deleteResult = await postCollection.deleteOne({
+      _id: new ObjectId(id),
+    });
+
+    if (deleteResult.deletedCount < 1) {
+      throw new Error("Post is not exist!");
+    }
+
+    return;
+  }
 }

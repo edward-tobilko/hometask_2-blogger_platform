@@ -2,10 +2,13 @@ import { PostDomain } from "../domain/post.domain";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { ApplicationResult } from "../../core/result/application.result";
 import { PostsRepository } from "../repositories/posts.repository";
-import { CreatePostDtoCommand } from "./commands/post-dto-type.commands";
+import {
+  CreatePostDtoCommand,
+  UpdatePostDtoCommand,
+} from "./commands/post-dto-type.commands";
 import { BlogQueryRepository } from "../../blogs/repositories/blog-query.repository";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
-import { ObjectId } from "mongodb";
+import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 
 class PostsService {
   private postsRepository: PostsRepository;
@@ -26,33 +29,45 @@ class PostsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("blog is not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!");
     }
 
-    const newPost = PostDomain.createPost({
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId: new ObjectId(dto.blogId),
-      blogName: dto,
-      createdAt: new Date(),
-    });
+    const domainDto: CreatePostDtoDomain = {
+      ...dto,
+      blogName: blog.name,
+    };
 
-    const savedPost = await this.postsRepository.savePostRepo(newPost);
+    const newPost = PostDomain.createPost(domainDto);
+
+    const savedPost = await this.postsRepository.createPostRepo(newPost);
 
     return new ApplicationResult({ data: { id: savedPost._id!.toString() } });
   }
 
-  // async updatePost(
-  //   postId: string,
-  //   dto: PostInputDtoModel,
-  //   blogName: string
-  // ): Promise<void> {
-  //   return await postsRepository.updatePostRepo(postId, dto, blogName);
-  // }
-  // async deletePost(id: string): Promise<void> {
-  //   return await postsRepository.deletePostRepo(id);
-  // }
+  async updatePost(
+    command: WithMeta<UpdatePostDtoCommand>
+  ): Promise<ApplicationResult<null>> {
+    const { id, ...updateDto } = command.payload;
+
+    // ищем нужный нам пост
+    const existingPost = await this.postsRepository.getPostDomainById(id);
+
+    if (!existingPost) {
+      throw new RepositoryNotFoundError("Post does not exist!");
+    }
+
+    // обновляем доменную сущность
+    existingPost.updatePost(updateDto);
+
+    // сохраняем изменения
+    await this.postsRepository.updatePostRepo(existingPost);
+
+    return new ApplicationResult({ data: null });
+  }
+
+  async deletePost(id: string): Promise<void> {
+    return await this.postsRepository.deletePostRepo(id);
+  }
 }
 
 export const postsService = new PostsService();

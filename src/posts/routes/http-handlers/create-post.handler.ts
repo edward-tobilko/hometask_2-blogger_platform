@@ -13,12 +13,12 @@ export async function createPostHandler(
   next: NextFunction
 ) {
   try {
-    const sanitizedParam = matchedData<CreatePostRequestPayload>(req, {
+    const sanitizedBodyParam = matchedData<CreatePostRequestPayload>(req, {
       locations: ["body"],
       includeOptionals: true,
     });
 
-    const command = createCommand<CreatePostDtoCommand>(sanitizedParam);
+    const command = createCommand<CreatePostDtoCommand>(sanitizedBodyParam);
 
     const postOutput = await postsService.createPost(command);
 
