@@ -1,13 +1,15 @@
 import bcrypt from "bcrypt";
 
-const saltRounds = 10;
-
-export const passwordHasher = {
+class PasswordHasher {
   async generateHash(password: string): Promise<string> {
+    const saltRounds = await bcrypt.genSalt(10);
+
     return bcrypt.hash(password, saltRounds);
-  },
+  }
 
   async checkPassword(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
-  },
-};
+  }
+}
+
+export const passwordHasher = new PasswordHasher();

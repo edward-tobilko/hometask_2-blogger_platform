@@ -4,7 +4,7 @@ import { getPostListHandler } from "./http-handlers/get-post-list.handler";
 import { getPostHandler } from "./http-handlers/get-post.handler";
 import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.middleware";
+import { adminGuardMiddlewareAuth } from "../../auth/routes/guards/admin-guard.middleware";
 import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { deletePostHandler } from "./http-handlers/delete-post.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";

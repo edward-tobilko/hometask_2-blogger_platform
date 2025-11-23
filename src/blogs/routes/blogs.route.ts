@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { adminGuardMiddlewareAuth } from "../../auth/middlewares/admin-guard.middleware";
+import { adminGuardMiddlewareAuth } from "../../auth/routes/guards/admin-guard.middleware";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { getBlogListHandler } from "./http-handlers/get-blog-list.handler";
 import { getBlogByIdHandler } from "./http-handlers/get-blog.handler";
