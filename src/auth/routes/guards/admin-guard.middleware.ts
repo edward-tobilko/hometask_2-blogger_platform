@@ -11,18 +11,27 @@ export const adminGuardMiddlewareAuth = (
   const auth = req.headers.authorization;
 
   if (!auth?.startsWith("Basic ")) {
-    return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+    res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    return;
   }
 
   try {
     const base64Credentials = auth.split(" ")[1];
-    if (!base64Credentials)
-      return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+    if (!base64Credentials) {
+      res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+      return;
+    }
 
     const decoded = Buffer.from(base64Credentials, "base64").toString("utf-8");
 
     const sep = decoded.indexOf(":");
-    if (sep === -1) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+    if (sep === -1) {
+      res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+      return;
+    }
 
     const username = decoded.slice(0, sep);
     const password = decoded.slice(sep + 1);
@@ -31,12 +40,15 @@ export const adminGuardMiddlewareAuth = (
       username === SETTINGS_MONGO_DB.ADMIN_USERNAME &&
       password === SETTINGS_MONGO_DB.ADMIN_PASSWORD
     ) {
-      return next();
+      next();
+
+      return;
     }
 
     return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   } catch (error) {
     console.error("Auth decode error:", error);
-    return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   }
 };

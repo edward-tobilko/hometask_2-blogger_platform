@@ -5,24 +5,25 @@ import { UsersListRequestPayload } from "../request-payloads/get-users-list.requ
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { userQueryService } from "../../applications/users-query.service";
+import { UserSortField } from "../request-payloads/user-sort-field.request-payload";
 
-export const GetUsersListHandler = async (
-  req: Request<{}, {}, {}, UsersListRequestPayload>,
+export const getUsersListHandler = async (
+  req: Request<{}, {}, {}, {}>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const sanitizedQueryParam = matchedData<UsersListRequestPayload>(req, {
+    const sanitizedQueryParam = matchedData(req, {
       locations: ["query"],
       includeOptionals: true,
-    });
+    }) as UsersListRequestPayload;
 
     const queryParam =
-      setDefaultSortAndPaginationIfNotExist(sanitizedQueryParam);
+      setDefaultSortAndPaginationIfNotExist<UserSortField>(sanitizedQueryParam);
 
     const usersListOutput = await userQueryService.getUsersList(queryParam);
 
-    res.sendStatus(HTTP_STATUS_CODES.OK_200).json(usersListOutput);
+    res.status(HTTP_STATUS_CODES.OK_200).json(usersListOutput);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 

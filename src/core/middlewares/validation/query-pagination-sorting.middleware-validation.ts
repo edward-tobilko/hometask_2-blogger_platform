@@ -24,9 +24,9 @@ export function queryPaginationAndSortingValidation<T extends string>(
 
     query("sortDirection")
       .customSanitizer((value) => {
-        if (!value) return -1;
+        if (!value) return DEFAULT_SORT_DIRECTION;
 
-        return value ? DEFAULT_SORT_DIRECTION : String(value).toLowerCase();
+        return String(value).toLowerCase();
       })
       .isIn(Object.values(SortDirections))
       .withMessage(
