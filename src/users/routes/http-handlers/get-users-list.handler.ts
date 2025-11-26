@@ -20,7 +20,7 @@ export const GetUsersListHandler = async (
     const queryParam =
       setDefaultSortAndPaginationIfNotExist(sanitizedQueryParam);
 
-    const usersListOutput = await userQueryService(getUsersList(queryParam));
+    const usersListOutput = await userQueryService.getUsersList(queryParam);
 
     res.sendStatus(HTTP_STATUS_CODES.OK_200).json(usersListOutput);
   } catch (error: unknown) {

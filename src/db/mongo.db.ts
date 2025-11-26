@@ -3,17 +3,18 @@ import { Collection, Db, MongoClient } from "mongodb";
 import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo.db";
 import { BlogDomain } from "../blogs/domain/blog.domain";
 import { PostDomain } from "../posts/domain/post.domain";
+import { UserDomain } from "../users/domain/user.domain";
 
 let client: MongoClient;
 
-const AUTH_COLLECTION_NAME = "auth";
+// const AUTH_COLLECTION_NAME = "auth";
 const BLOG_COLLECTION_NAME = "blogs";
 const POST_COLLECTION_NAME = "posts";
 const USERS_COLLECTION_NAME = "users";
 
 export let blogCollection: Collection<BlogDomain>;
 export let postCollection: Collection<PostDomain>;
-export let userCollection: Collection<PostDomain>;
+export let userCollection: Collection<UserDomain>;
 
 // * Подключения к бд
 export async function runDB(url: string): Promise<void> {
@@ -26,6 +27,7 @@ export async function runDB(url: string): Promise<void> {
     // * Инициализация коллекций
     blogCollection = dataBase.collection<BlogDomain>(BLOG_COLLECTION_NAME);
     postCollection = dataBase.collection<PostDomain>(POST_COLLECTION_NAME);
+    userCollection = dataBase.collection<UserDomain>(USERS_COLLECTION_NAME);
 
     await dataBase.command({ ping: 1 });
 

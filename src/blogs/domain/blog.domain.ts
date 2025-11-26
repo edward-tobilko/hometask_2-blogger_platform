@@ -3,7 +3,7 @@ import { ObjectId, WithId } from "mongodb";
 import { FieldsOnly } from "../../core/types/fields-only.type";
 import { BlogDtoDomain } from "./blog-dto.domain";
 
-// * BLL - BlogDomain - наша бизнес модель
+// * BLL - BlogDomain - бизнес модель
 export class BlogDomain {
   _id?: ObjectId;
   name: string;
