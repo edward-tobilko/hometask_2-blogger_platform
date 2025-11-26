@@ -22,7 +22,7 @@ const formatValidationErrors = (
 };
 
 export const inputResultMiddlewareValidation = (
-  req: Request<{}, {}, {}, {}>,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {

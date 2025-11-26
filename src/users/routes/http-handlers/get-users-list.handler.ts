@@ -8,7 +8,7 @@ import { userQueryService } from "../../applications/users-query.service";
 import { UserSortField } from "../request-payloads/user-sort-field.request-payload";
 
 export const getUsersListHandler = async (
-  req: Request<{}, {}, {}, {}>,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {

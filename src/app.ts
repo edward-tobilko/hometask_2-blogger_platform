@@ -20,7 +20,7 @@ export const setupApp = (app: Express) => {
 
   // app.use(AUTH_PATH, authRoute);
 
-  app.get(ROOT_PATH, (_req: Request<{}, {}, {}, {}>, res: Response) => {
+  app.get(ROOT_PATH, (_req: Request, res: Response) => {
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");
   });
 

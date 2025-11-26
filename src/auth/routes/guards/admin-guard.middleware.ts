@@ -45,7 +45,9 @@ export const adminGuardMiddlewareAuth = (
       return;
     }
 
-    return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+    res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    return;
   } catch (error) {
     console.error("Auth decode error:", error);
 

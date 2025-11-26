@@ -18,10 +18,8 @@ export class UsersQueryRepository {
 
     const filter = {
       $or: [
-        {
-          login: { $regex: searchLoginTerm ?? "", $options: "i" },
-          email: { $regex: searchEmailTerm ?? "", $options: "i" },
-        },
+        { login: { $regex: searchLoginTerm ?? "", $options: "i" } },
+        { email: { $regex: searchEmailTerm ?? "", $options: "i" } },
       ],
     };
 
@@ -32,7 +30,7 @@ export class UsersQueryRepository {
       .limit(pageSize)
       .toArray();
 
-    const totalCount = await userCollection.countDocuments(items);
+    const totalCount = await userCollection.countDocuments(filter);
 
     const usersListOutput = mapToUsersListOutput(items, {
       pageNumber,
