@@ -5,9 +5,10 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { PostsListRequestPayload } from "../request-payloads/posts-list.request-payload";
 import { postQueryService } from "../../application/post-query-service";
+import { PostSortField } from "../request-payloads/post-sort-field.request-payload";
 
 export async function getPostListHandler(
-  req: Request<{}, {}, {}, PostsListRequestPayload>,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
@@ -18,7 +19,7 @@ export async function getPostListHandler(
     });
 
     const queryParam =
-      setDefaultSortAndPaginationIfNotExist(sanitizedQueryParam);
+      setDefaultSortAndPaginationIfNotExist<PostSortField>(sanitizedQueryParam);
 
     const postsListOutput = await postQueryService.getPosts(queryParam);
 

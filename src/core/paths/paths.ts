@@ -1,8 +1,16 @@
-export const AUTH_PATH = "/api/auth/login";
+export const routersPaths = {
+  auth: {
+    login: "api/auth/login",
+    registration: "api/registration",
+    me: "api/me",
+    registrationConfirmation: "api/auth/registration-confirmation",
+    registrationEmailResending: "api/auth/registration-email-resending",
+  },
 
-export const ROOT_PATH = "/";
-export const BLOGS_PATH = "/api/blogs";
-export const POSTS_PATH = "/api/posts";
-export const USERS_PATH = "/api/users";
+  root: "/",
+  users: "api/users",
+  blogs: "api/blogs",
+  posts: "api/posts",
 
-export const TESTING_PATH = "/api/testing/all-data";
+  testing: "api/testing/all-data",
+};

@@ -10,7 +10,7 @@ import { blogsQueryService } from "../../application/blog-query.service";
 import { PostsListPaginatedOutput } from "../../../posts/application/output/posts-list-type.output";
 
 export async function getPostListForBlogHandler(
-  req: Request<{ id: string }, {}, {}, BlogsListRequestPayload>,
+  req: Request<{ id: string }, {}, {}, {}>,
   res: Response<PostsListPaginatedOutput>,
   next: NextFunction
 ) {
