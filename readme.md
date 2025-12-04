@@ -1,115 +1,115 @@
-1. **Загальна ідея**
+1. **Общая идея**
 
-Запит від клієнта проходить такий шлях:
+Запрос от клиента проходит следующий путь:
 
-HTTP -> routes (request-payload + validation + http-handlers) -> application (services/handlers + commands/queries) -> repositories -> db -> назад через mappers + output types -> response.
+HTTP -> routes (request-payload + validation + http-handlers) -> application (services/handlers + commands/queries) -> repositories -> db -> обратно через mappers + output types -> response.
 
-Плюс зверху є спільне ядро core, де лежать помилки, загальні типи, utils, swagger, настройки БД тощо.
+Плюс сверху есть общее ядро core, где находятся ошибки, общие типы, utils, swagger, настройки БД и т. д.
 
 2. **core**
 
 2.1 core/errors/types:
 
-- validation-error.type.ts, validation-error.type-output.ts – типи, які описують, як виглядає помилка валідації всередині коду і у відповіді API.
+- validation-error.type.ts, validation-error.type-output.ts – типы, которые описывают, как выглядит ошибка валидации внутри кода и в ответе API.
 
   2.2 core/errors:
 
-- application.error.ts – базовий клас для бізнес-помилок (наприклад, NotFound, Forbidden і т.д.).
-- create-error-messages.error.ts – хелпери, які будують текст помилки (наприклад, “Driver is not found”).
-- errors.handler.ts – глобальний error-handler для Express: ловить усі помилки і перетворює їх у нормальний JSON-response.
-- repository-not-found.error.ts – помилка, коли репозиторій/ресурс не знайдений.
+- application.error.ts – базовый класс для бизнес-ошибок (например, NotFound, Forbidden и т.д.).
+- create-error-messages.error.ts – хелперы, которые строят текст ошибки (например, «Driver is not found»).
+- errors.handler.ts – глобальный error-handler для Express: ловит все ошибки и преобразует их в нормальный JSON-response.
+- repository-not-found.error.ts – ошибка, когда репозиторий/ресурс не найден.
 
   2.3 core/helpers:
 
-- create-command.helper.ts – базовий клас/хелпер для command об’єктів (CQRS стиль: команда на створення, оновлення тощо).
-- set-default-sort-and-pagination.helper.ts – виставляє дефолтну пагінацію/сортування (page, pageSize, sortBy, sortDirection), якщо клієнт їх не передав.
+- create-command.helper.ts – базовый класс/хелпер для command объектов (CQRS стиль: команда на создание, обновление и т.д.).
+- set-default-sort-and-pagination.helper.ts – выставляет дефолтную пагинацию/сортировку (page, pageSize, sortBy, sortDirection), если клиент их не передал.
 
   2.4 core/infrastructure/crypto:
 
-- password-hasher.ts – обгортка над, наприклад, bcrypt. В одному місці описано: як хешувати пароль, порівнювати пароль з хешем.
+- password-hasher.ts – обертка над, например, bcrypt. В одном месте описано: как хешировать пароль, сравнивать пароль с хешем.
 
-  2.5 core/middlewares/validation - Express-middlewares, які перевіряють вхідні дані до того, як вони потраплять у handler:
+  2.5 core/middlewares/validation - Express-middlewares, которые проверяют входные данные до того, как они попадут в handler:
 
-- input-result.middleware-validation.ts – збирає помилки з валідації і віддає 400 з красивим JSON-ом.
-- params-id.middleware-validation.ts – перевіряє :id (чи це валідний ObjectId і т.д.).
-- query-pagination-sorting.middlewarevalidation.ts – перевіряє query-параметри пагінації/сортування.
-- resources.middleware-validation.ts – перевіряє, що resources з resources-enum валідний.
+- input-result.middleware-validation.ts – собирает ошибки из валидации и отдает 400 с красивым JSON-ом.
+- params-id.middleware-validation.ts – проверяет :id (является ли это валидным ObjectId и т.д.).
+- query-pagination-sorting.middlewarevalidation.ts – проверяет query-параметры пагинации/сортировки.
+- resources.middleware-validation.ts – проверяет, что resources из resources-enum валиден.
 
   2.6 core/paths:
 
-- paths.ts – централізоване місце з усіма URL-шляхами (/drivers, /rides і т.п.), щоб не розкидати строки по всьому проекту.
+- paths.ts – централизованное место со всеми URL-путями (/drivers, /rides и т.п.), чтобы не разбрасывать строки по всему проекту.
 
   2.7 core/result:
 
-types/ -> application-result-body.type.ts, application-result-status.type.ts – типи, які описують статус виконання операції (success, not_found, bad_request тощо) та тіло результату.
+types/ -> application-result-body.type.ts, application-result-status.type.ts – типы, которые описывают статус выполнения операции (success, not_found, bad_request и т.д.) и тело результата.
 
-- application.result.ts – універсальний клас/обгортка/паттерн для результатів сервісів: success(data), notFound(message), error(message) тощо.
-- create-error-application.result.ts – хелпер, щоб легко створювати ApplicationResult з помилкою.
+- application.result.ts – универсальный класс/обертка/паттерн для результатов сервисов: success(data), notFound(message), error(message) и т.д.
+- create-error-application.result.ts – хелпер, чтобы легко создавать ApplicationResult с ошибкой.
 
-Тобто усі сервісні/аплікейшн-шари повертають не “голі” дані, а ApplicationResult. Потім http-handler дивиться на цей результат і вирішує, який статус коду віддати.
+То есть все сервисные/прикладные слои возвращают не «голые» данные, а ApplicationResult. Затем http-handler смотрит на этот результат и решает, какой статус кода отдать.
 
 2.8 core/settings-mongoDB:
 
-- settings-mongo.db.ts – налаштування Mongo: URI, ім’я бази, опції.
+- settings-mongo.db.ts – настройки Mongo: URI, имя базы, опции.
 
   2.9 core/swagger:
 
-- setup-swagger.ts – ініціалізація Swagger UI + підключення \*.swagger.yml файлів.
+- setup-swagger.ts – инициализация Swagger UI + подключение \*.swagger.yml файлов.
 
-  2.10 core/types - Це загальні generics/типи, які можна юзати в різних модулях:
+  2.10 core/types - Это общие generics/типы, которые можно использовать в разных модулях:
 
-- fields-only.type.ts – утиліта типів (наприклад, взяти тільки певні поля з типу).
-- paginator-output.type.ts – тип для пагінованої відповіді (total, page, pageSize).
-- pagination-sorting.type.ts – спільний тип для параметрів пагінації та сортування.
-- resources.enum.ts – enum ресурсів (blogs, users, і т.д.).
-- with-meta.type.ts – тип, який додає meta до відповіді.
+- fields-only.type.ts – утилита типов (например, взять только определенные поля из типа).
+- paginator-output.type.ts – тип для пагинационного ответа (total, page, pageSize).
+- pagination-sorting.type.ts – общий тип для параметров пагинации и сортировки.
+- resources.enum.ts – enum ресурсов (blogs, users, и т.д.).
+- with-meta.type.ts – тип, который добавляет meta к ответу.
 
   2.11 core/utils:
 
-- http-status-codes.util.ts – enum/об’єкт з HTTP статус-кодами (200, 201, 400, 404, 500…).
+- http-status-codes.util.ts – enum/объект с HTTP статус-кодами (200, 201, 400, 404, 500…).
 
 3. **db**
 
-- mongo.db.ts – функції для роботи з Mongo:
+- mongo.db.ts – функции для работы з Mongo:
 
 4. **blogs**
 
-Тут уже функціональний модуль (bounded context) – все про блоги.
+Здесь уже функциональный модуль (bounded context) – все о блогах.
 
-4.1 blogs/application - аплікейшн-шар – реалізація use-cases:
+4.1 blogs/application – прикладной слой – реализация use-cases:
 
 commands/:
 
-- blog-dto-type.commands.ts – DTO для команд що треба, щоб створити блог (name, description, websiteUrl), що треба, щоб оновити блог. Саме командні DTO описують вхід для use-case-ів “create / update / delete”.
+- blog-dto-type.commands.ts – DTO для команд, необходимых для создания блога (name, description, websiteUrl) и обновления блога. Именно командные DTO описывают вход для use-case-ов «create / update / delete».
 
 mappers/:
 
-- map-to-blog-output.mapper.ts – маппер домен → output type (що віддаємо клієнту).
-- map-to-blog-list-paginated.mapper.ts – маппер списку блогів + пагінаційної інформації → структура відповіді API.
+- map-to-blog-output.mapper.ts – маппер домен → output type (что отдаем клиенту).
+- map-to-blog-list-paginated.mapper.ts – маппер списка блогов + пагинационной информации → структура ответа API.
 
 output/:
 
-- blog-type.output.ts – як виглядає один блог у відповіді.
-- blog-list-paginated-type.output.ts – тип для пагінованого списку блогів, який вертає API.
+- blog-type.output.ts – как выглядит один блог в ответе.
+- blog-list-paginated-type.output.ts – тип для пагинационного списка блогов, который возвращает API.
 
 query-handlers/:
 
-- get-blogs-list-type.query-handler.ts – handler, який реалізує use-case: “отримати список блогів”; приймає DTO з фільтрами/пагінацією; викликає blog-query.repository; використовує маппери і повертає ApplicationResult з blogs-list-paginated-type.
+- get-blogs-list-type.query-handler.ts – handler, который реализует use-case: «получить список блогов»; принимает DTO с фильтрами/пагинацией; вызывает blog-query.repository; использует мапперы и возвращает ApplicationResult с blogs-list-paginated-type.
 
-- blog-query.service.ts – сервіс для читання (всі “get”).
-- blogs.service.ts – сервіс для запису: create/update/delete драйвера; всередині викликає domain (створити entity), репозиторії, маппери;завертає все в ApplicationResult. Тобто application = сценарії використання (“створи водія”, “онови”, “дай список”).
+- blog-query.service.ts – сервис для чтения (все «get»).
+- blogs.service.ts – сервис для записи: create/update/delete драйвера; внутри вызывает domain (создать entity), репозитории, мапперы; возвращает все в ApplicationResult. То есть application = сценарии использования («создай водителя», «обнови», «дай список»).
 
-  4.2 blogs/domain:
+4.2 blogs/domain:
 
-- blog.domain.ts – доменна-модель блога (entity): які поля є, які інваріанти, можливо методи типу updateBlog, deactivate, тощо.
-- blog-dto.domain.ts – DTO, з яким працює домен, напр. CreateBlogDomainDto, UpdateBlogDomainDto. Домейн не знає про HTTP, Mongo, Express - тільки бізнес-логіка.
+- blog.domain.ts – доменная модель блога (entity): какие поля есть, какие инварианты, возможно методы типа updateBlog, deactivate и т. д.
+- blog-dto.domain.ts – DTO, с которым работает домен, например CreateBlogDomainDto, UpdateBlogDomainDto. Домен не знает о HTTP, Mongo, Express – только бизнес-логика.
 
-  4.3 blogs/repositories - Це рівень доступу до даних:
+4.3 blogs/repositories - Это уровень доступа к данным:
 
-- drivers.repository.ts – основний репозиторій: працює напряму з Mongo-колекцією.
-- driver-query.repository.ts – окремий репозиторій для читання (CQRS): методи для отримання списків з фільтрами, пагінацією, join з іншими колекціями, агрегації, пошук.
+- drivers.repository.ts – основной репозиторий: работает напрямую с Mongo-коллекцией.
+- driver-query.repository.ts – отдельный репозиторий для чтения (CQRS): методы для получения списков с фильтрами, пагинацией, join с другими коллекциями, агрегации, поиск.
 
-  4.4 blogs/routes - Це HTTP-шар – тут уже Express. Кожен handler: Забирає дані з req(body, params, query). Перетворює їх у відповідний command/query DTO. Викликає application service / handler. Береться ApplicationResult і на його основі відправляється HTTP-response.
+  4.4 blogs/routes - Это HTTP-слой – здесь уже Express. Каждый handler: Забирает данные из req(body, params, query). Преобразует их в соответствующий command/query DTO. Вызывает application service / handler. Берется ApplicationResult и на его основе отправляется HTTP-response.
 
 http-handlers/:
 
@@ -119,44 +119,44 @@ http-handlers/:
 - get-blog.handler.ts – для GET /blog/:id.
 - update-blog.handler.ts – для PUT/PATCH /blog/:id.
 - delete-blog.handler.ts – для DELETE /blog/:id.
-- get-blog-posts-list.handler.ts – GET /blogs/:blogId/posts і т.п.
+- get-blog-posts-list.handler.ts – GET /blogs/:blogId/posts и т.п.
 
 request-payloads/:
 
-- create-blog.request-payload.ts – тип, який описує тіло запиту для POST /blogs: name, description, websiteUrl тощо – саме в тому вигляді, як приходить з клієнта.
-- update-blog.request-payload.ts – payload для оновлення блога.
-- blogs-list.request-payload.ts – payload (query) для списку блогів: page, pageSize, sortBy, search…
-- blog-errors.request-payload.ts – структура помилок для blog-запитів.
-- blog-sort-field.request-payload.ts – enum, які поля можна використовувати для сортування (name, createdAt і т.д.).
+- create-blog.request-payload.ts – тип, который описывает тело запроса для POST /blogs: name, description, websiteUrl и т.д. – именно в том виде, как приходит от клиента.
+- update-blog.request-payload.ts – payload для обновления блога.
+- blogs-list.request-payload.ts – payload (query) для списка блогов: page, pageSize, sortBy, search…
+- blog-errors.request-payload.ts – структура ошибок для blog-запросов.
+- blog-sort-field.request-payload.ts – enum, какие поля можно использовать для сортировки (name, createdAt и т.д.).
 
 Payload ≠ DTO.
-RequestPayload – це HTTP-рівень (як виглядають дані в запиті).
-Command / Query DTO – це вже чистий application-рівень (там можуть бути інші назви, перетворені типи тощо).
+RequestPayload – это HTTP-уровень (как выглядят данные в запросе).
+Command / Query DTO – это уже чистый application-уровень (там могут быть другие названия, преобразованные типы и т.д.).
 
 request-paload-validations/:
 
-- create-blog-dto.request-payload-validation.ts – схема валідації (наприклад, zod/class-validator/express-validator) для create/update/list payload’ів.
+- create-blog-dto.request-payload-validation.ts – схема валидации (например, zod/class-validator/express-validator) для create/update/list payload’ов.
 
-- blogs.route.ts - Тут створюється Router, підключаються всі http-handlers і middlewares:
+- blogs.route.ts - Здесь создается Router, подключаются все http-handlers и middlewares:
 
-- app.ts – створення і налаштування Express-додатку: підключення middleware, routes, swagger.
+- app.ts – создание и настройка Express-приложения: подключение middleware, routes, swagger.
 - server.ts – запуск HTTP-сервера (app.listen(...)).
 
-5. Як усе працює на прикладі одного запиту:
+5. Как все работает на примере одного запроса:
 
-Запит: POST /blogs (створити пост).
-Запит прилітає у blogs.route.ts → маршрут POST /blogs.
+Запрос: POST /blogs (создать пост).
+Запрос прилетает в blogs.route.ts → маршрут POST /blogs.
 
-Йдуть middleware: валідація create-blog-dto.request-payload-validation.ts → при помилці повертаємо 400. Якщо ок:
+Идут middleware: валидация create-blog-dto.request-payload-validation.ts → при ошибке возвращаем 400. Если ок:
 
-- create-blog.handler.ts отримує req.body, приводить до типу CreateBlogRequestPayload.
-- Handler створює Command DTO і викликає blogsService.createBlog(commandDto).
+- create-blog.handler.ts получает req.body, приводит к типу CreateBlogRequestPayload.
+- Handler создает Command DTO и вызывает blogsService.createBlog(commandDto).
 
 blogs.service:
 
-- створює domain-entity Blog,
-- використовує blogs.repository для збереження в Mongo,
-- через mapper перетворює на BlogOutput,
-- повертає ApplicationResult.success(data).
+- создает domain-entity Blog,
+- использует blogs.repository для сохранения в Mongo,
+- через mapper преобразует в BlogOutput,
+- возвращает ApplicationResult.success(data).
 
-Handler дивиться на ApplicationResult, дістає statusCode та body, і відправляє клієнту JSON-response.
+Handler смотрит на ApplicationResult, получает statusCode и body, и отправляет клиенту JSON-response.
