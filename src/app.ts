@@ -23,5 +23,12 @@ export const setupApp = (app: Express) => {
 
   app.use(routersPaths.testing, testingRoute);
 
+  // * для отлова путей
+  app.use((req, _res, next) => {
+    console.log("REQUEST:", req.method, req.url);
+
+    next();
+  });
+
   return app;
 };
