@@ -4,14 +4,11 @@ import { blogsRoute } from "./blogs/routes/blogs.route";
 import { HTTP_STATUS_CODES } from "./core/utils/http-status-codes.util";
 import { testingRoute } from "./testing/routes/testing.route";
 import { postsRoute } from "./posts/routes/posts.route";
-// import { authRoute } from "./auth/routes/auth.route";
 import { usersRoute } from "./users/routes/users.route";
 import { routersPaths } from "./core/paths/paths";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
-
-  // app.use(AUTH_PATH, authRoute);
 
   app.get(routersPaths.root, (_req: Request, res: Response) => {
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");

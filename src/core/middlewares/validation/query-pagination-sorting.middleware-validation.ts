@@ -50,5 +50,19 @@ export function queryPaginationAndSortingValidation<T extends string>(
       .isInt({ min: 1 })
       .toInt()
       .withMessage("Page size must be a positive integer"),
+
+    query("searchLoginTerm")
+      .optional()
+      .isString()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage("searchLoginTerm must be non empty string"),
+
+    query("searchEmailTerm")
+      .optional()
+      .isString()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage("searchEmailTerm must be non empty string"),
   ];
 }
