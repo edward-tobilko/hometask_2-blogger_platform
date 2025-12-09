@@ -4,7 +4,7 @@ import { ApplicationResultStatus } from "./types/application-result-status.enum"
 
 export class ApplicationResult<D> {
   status: ApplicationResultStatus;
-  data: D | null;
+  data?: D | null;
   errors?: ApplicationError[];
 
   constructor(args: ApplicationResultBody<D>) {

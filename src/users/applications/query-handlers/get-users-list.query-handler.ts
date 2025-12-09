@@ -2,4 +2,4 @@ import { UserSortField } from "./../../routes/request-payloads/user-sort-field.r
 import { PaginationSorting } from "../../../core/types/pagination-sorting.type";
 
 export type GetUsersListQueryHandler = PaginationSorting<UserSortField> &
-  Partial<{ searchLoginTerm: string; searchEmailTerm: string }>;
+  Partial<{ searchLoginTerm?: string; searchEmailTerm?: string }>;
