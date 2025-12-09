@@ -1,7 +1,10 @@
+import { ObjectId } from "mongodb";
+
 import { userCollection } from "../../db/mongo.db";
 import { mapToUsersListOutput } from "../applications/mappers/map-to-users-list-output.mapper";
 import { UsersListPaginatedOutput } from "../applications/output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "../applications/query-handlers/get-users-list.query-handler";
+import { UserDomain } from "../domain/user.domain";
 
 export class UsersQueryRepository {
   async getUsersListQueryRepo(
@@ -39,5 +42,18 @@ export class UsersQueryRepository {
     });
 
     return usersListOutput;
+  }
+
+  async findByLoginOrEmailQueryRepo(
+    login: string,
+    email: string
+  ): Promise<UserDomain | null> {
+    return userCollection.findOne({
+      $or: [{ login }, { email }],
+    });
+  }
+
+  async findByIdQueryRepo(id: string): Promise<UserDomain | null> {
+    return userCollection.findOne({ _id: new ObjectId(id) });
   }
 }
