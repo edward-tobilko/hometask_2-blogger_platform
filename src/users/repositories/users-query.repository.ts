@@ -5,9 +5,6 @@ import { mapToUsersListOutput } from "../applications/mappers/map-to-users-list-
 import { UsersListPaginatedOutput } from "../applications/output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "../applications/query-handlers/get-users-list.query-handler";
 import { UserDomain } from "../domain/user.domain";
-import { UserOutput } from "../applications/output/user.output";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
-import { mapToUserOutput } from "../applications/mappers/map-to-user-output.mapper";
 
 export class UsersQueryRepository {
   async getUsersListQueryRepo(
@@ -22,12 +19,25 @@ export class UsersQueryRepository {
       searchLoginTerm,
     } = queryParam;
 
-    const filter = {
-      $or: [
-        { login: { $regex: searchLoginTerm ?? "", $options: "i" } },
-        { email: { $regex: searchEmailTerm ?? "", $options: "i" } },
-      ],
-    };
+    const loginTerm = searchLoginTerm ? searchLoginTerm.trim() : null;
+    const emailTerm = searchEmailTerm ? searchEmailTerm.trim() : null;
+
+    let filter: Record<string, unknown> = {};
+
+    if (loginTerm && emailTerm) {
+      filter = {
+        $or: [
+          { login: { $regex: loginTerm, $options: "i" } },
+          { email: { $regex: emailTerm, $options: "i" } },
+        ],
+      };
+    } else if (loginTerm) {
+      filter = { login: { $regex: loginTerm, $options: "i" } };
+    } else if (emailTerm) {
+      filter = { email: { $regex: emailTerm, $options: "i" } };
+    } else {
+      filter = {};
+    }
 
     const items = await userCollection
       .find(filter)
