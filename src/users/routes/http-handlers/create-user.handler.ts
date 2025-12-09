@@ -1,0 +1,33 @@
+import { NextFunction, Request, Response } from "express";
+import { matchedData } from "express-validator";
+
+import { CreateUserRequestPayload } from "../request-payloads/create-user.request-payload";
+import { createCommand } from "../../../core/helpers/create-command.helper";
+import { CreateUserDtoCommand } from "../../applications/commands/user-dto.commands";
+import { userService } from "../../applications/user.service";
+import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+
+export const createUserHandler = async (
+  req: Request<{}, {}, CreateUserRequestPayload, {}>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const sanitizedBodyParam = matchedData<CreateUserRequestPayload>(req, {
+      locations: ["body"],
+      includeOptionals: true,
+    });
+
+    const command = createCommand<CreateUserDtoCommand>(sanitizedBodyParam);
+
+    const createdUserOutput = await userService.createUser(command);
+
+    res.status(HTTP_STATUS_CODES.CREATED_201).json(createdUserOutput);
+  } catch (error: unknown) {
+    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+
+    next(error);
+  }
+};
+
+// ? Request<Params, ResBody, ReqBody, Query>
