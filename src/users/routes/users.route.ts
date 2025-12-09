@@ -1,16 +1,14 @@
-import { NextFunction, Request, Response, Router } from "express";
-import { matchedData } from "express-validator";
+import { Router } from "express";
 
 import { getUsersListHandler } from "./http-handlers/get-users-list.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import { UserSortField } from "./request-payloads/user-sort-field.request-payload";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { adminGuardMiddlewareAuth } from "../../auth/routes/guards/admin-guard.middleware";
-import { CreateUserRequestPayload } from "./request-payloads/create-user.request-payload";
-import { HTTP_STATUS_CODES } from "../../core/utils/http-status-codes.util";
-import { createCommand } from "../../core/helpers/create-command.helper";
-import { CreateUserDtoCommand } from "../applications/commands/user-dto.commands";
-import { userService } from "../applications/user.service";
+import { createUserDtoRequestPayloadValidations } from "./request-payload-validations/create-user-dto.request-payload-validation";
+import { createUserHandler } from "./http-handlers/create-user.handler";
+import { deleteUserHandler } from "./http-handlers/delete-user.handler";
+import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
 
 export const usersRoute = Router({});
 
@@ -25,30 +23,15 @@ usersRoute.get(
 usersRoute.post(
   "",
   adminGuardMiddlewareAuth,
-  async (
-    req: Request<{}, {}, CreateUserRequestPayload, {}>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      // const { email, login, password } = req.body;
-
-      const sanitizedBodyParam = matchedData<CreateUserRequestPayload>(req, {
-        locations: ["body"],
-        includeOptionals: true,
-      });
-
-      const command = createCommand<CreateUserDtoCommand>(sanitizedBodyParam);
-
-      const createdUserOutput = await userService.createUser(command);
-
-      res.status(HTTP_STATUS_CODES.CREATED_201).json(createdUserOutput);
-    } catch (error: unknown) {
-      res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
-
-      next(error);
-    }
-  }
+  createUserDtoRequestPayloadValidations,
+  inputResultMiddlewareValidation,
+  createUserHandler
 );
 
-// ? Request<Params, ResBody, ReqBody, Query>
+usersRoute.delete(
+  "/:id",
+  adminGuardMiddlewareAuth,
+  paramIdValidation,
+  inputResultMiddlewareValidation,
+  deleteUserHandler
+);

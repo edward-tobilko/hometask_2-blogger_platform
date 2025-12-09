@@ -24,14 +24,16 @@ class UserService {
   ): Promise<ApplicationResult<{ id: string } | null>> {
     const dto = command.payload;
 
+    const { email, password, login } = dto;
+
     // * Проверка уникальности login / email в BLL
     const existedUser = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
-      dto.login,
-      dto.email
+      login,
+      email
     );
 
     if (existedUser) {
-      const field = existedUser.login === dto.login ? "login" : "email";
+      const field = existedUser.login === login ? "login" : "email";
 
       return new ApplicationResult<{ id: string } | null>({
         errors: [
@@ -45,12 +47,12 @@ class UserService {
     }
 
     // * Генерация хеша пароля
-    const hash = await this.passwordHasher.generateHash(dto.password);
+    const hash = await this.passwordHasher.generateHash(password);
 
     // * DTO для доменной модели
     const domainDto: UserDtoDomain = {
-      login: dto.login,
-      email: dto.email,
+      login,
+      email,
       password: hash,
     };
 
@@ -62,6 +64,34 @@ class UserService {
 
     // * Возвращаем id созданного пользователя
     return new ApplicationResult({ data: { id: savedUser._id!.toString() } });
+  }
+
+  async deleteUser(
+    command: WithMeta<{ id: string }>
+  ): Promise<ApplicationResult<null>> {
+    const id = command.payload.id;
+
+    const userId = await this.userQueryRepo.findUserByIdQueryRepo(id);
+
+    if (!userId) {
+      return new ApplicationResult<null>({
+        errors: [
+          new ApplicationError("User is not found", "id", "USER_NOT_FOUND"),
+        ],
+      });
+    }
+
+    const isDeleted = await this.userRepo.deleteUserRepo(id);
+
+    if (!isDeleted) {
+      return new ApplicationResult<null>({
+        errors: [
+          new ApplicationError("Deleting failed", "id", "DELETE_FAILED"),
+        ],
+      });
+    }
+
+    return new ApplicationResult<null>({ data: null });
   }
 }
 

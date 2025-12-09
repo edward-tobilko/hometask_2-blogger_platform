@@ -5,6 +5,9 @@ import { mapToUsersListOutput } from "../applications/mappers/map-to-users-list-
 import { UsersListPaginatedOutput } from "../applications/output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "../applications/query-handlers/get-users-list.query-handler";
 import { UserDomain } from "../domain/user.domain";
+import { UserOutput } from "../applications/output/user.output";
+import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
+import { mapToUserOutput } from "../applications/mappers/map-to-user-output.mapper";
 
 export class UsersQueryRepository {
   async getUsersListQueryRepo(
@@ -45,15 +48,15 @@ export class UsersQueryRepository {
   }
 
   async findByLoginOrEmailQueryRepo(
-    login: string,
-    email: string
+    login?: string,
+    email?: string
   ): Promise<UserDomain | null> {
     return userCollection.findOne({
       $or: [{ login }, { email }],
     });
   }
 
-  async findByIdQueryRepo(id: string): Promise<UserDomain | null> {
-    return userCollection.findOne({ _id: new ObjectId(id) });
+  async findUserByIdQueryRepo(id: string): Promise<UserDomain | null> {
+    return await userCollection.findOne({ _id: new ObjectId(id) });
   }
 }
