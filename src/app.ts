@@ -6,9 +6,12 @@ import { testingRoute } from "./testing/routes/testing.route";
 import { postsRoute } from "./posts/routes/posts.route";
 import { usersRoute } from "./users/routes/users.route";
 import { routersPaths } from "./core/paths/paths";
+import { authRoute } from "./auth/routes/auth.route";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
+
+  app.use(routersPaths.auth.login, authRoute);
 
   app.get(routersPaths.root, (_req: Request, res: Response) => {
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");
