@@ -4,15 +4,15 @@ import request from "supertest";
 import { setupApp } from "../../../app";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { clearDB } from "../../utils/clear-db";
-import { BLOGS_PATH } from "../../../core/paths/paths";
-import { BlogInputDtoModel } from "../../../blogs/types/blog.types";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
+import { routersPaths } from "../../../core/paths/paths";
+import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
 
-const testBlogDataDto: BlogInputDtoModel = getBlogDtoUtil();
+const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
 
 describe("Create (POST) blogs API body dto validation ", () => {
   const app = express();
@@ -86,7 +86,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
     "400 - should not create blog if the inputModel has incorrect values",
     async ({ name, payload, field }) => {
       const createBlogResponse = await request(app)
-        .post(BLOGS_PATH)
+        .post(routersPaths.blogs)
         .set("Authorization", generateBasicAuthToken())
         .send(payload)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
@@ -104,7 +104,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
 
   it("401 - when no Authorization header", async () => {
     await request(app)
-      .post(BLOGS_PATH)
+      .post(routersPaths.blogs)
       .send(testBlogDataDto)
       .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });

@@ -1,6 +1,6 @@
-import { BlogInputDtoModel } from "../../../blogs/types/blog.types";
+import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
 
-export function getBlogDtoUtil(): BlogInputDtoModel {
+export function getBlogDtoUtil(): BlogDtoDomain {
   return {
     name: "random name",
     description: "random description",

@@ -2,23 +2,21 @@ import { Express } from "express";
 import request from "supertest";
 
 import { getBlogDtoUtil } from "./get-blog-dto.util";
-import { BLOGS_PATH } from "../../../core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import {
-  BlogInputDtoModel,
-  BlogViewModel,
-} from "../../../blogs/types/blog.types";
+import { routersPaths } from "../../../core/paths/paths";
+import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
+import { BlogOutput } from "../../../blogs/application/output/blog-type.output";
 
 export async function createBlogUtil(
   app: Express,
-  blogInputDto?: Partial<BlogInputDtoModel>
-): Promise<BlogViewModel> {
-  const defaultBlogDataDto: BlogInputDtoModel = getBlogDtoUtil();
+  blogInputDto?: Partial<BlogDtoDomain>
+): Promise<BlogOutput> {
+  const defaultBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
   const blogDataDto = { ...defaultBlogDataDto, ...blogInputDto };
 
   const createdBlogResponse = await request(app)
-    .post(BLOGS_PATH)
+    .post(routersPaths.blogs)
     .set("Authorization", generateBasicAuthToken())
     .send(blogDataDto)
     .expect(HTTP_STATUS_CODES.CREATED_201);

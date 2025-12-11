@@ -3,16 +3,14 @@ import request from "supertest";
 
 import { setupApp } from "../app";
 import { clearDB } from "./utils/clear-db";
-import { BLOGS_PATH, POSTS_PATH } from "../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../core/utils/http-status-codes.util";
 import { runDB, stopDB } from "../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo.db";
-import { apiErrorResultUtil } from "../core/utils/api-error-result.util";
-import { FieldError } from "../core/types/fields-only.type";
+import { routersPaths } from "../core/paths/paths";
 
 describe.each([
-  { urlName: "blogs", path: BLOGS_PATH },
-  { urlName: "posts", path: POSTS_PATH },
+  { urlName: "blogs", path: routersPaths.blogs },
+  { urlName: "posts", path: routersPaths.posts },
 ])(
   "paramIdMiddlewareValidation on GET: /blogs/:id and /posts/:id",
   ({ urlName, path }) => {
@@ -47,11 +45,7 @@ describe.each([
         .get(`${path}/${id}`)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      const { errorsMessages } = apiErrorResultUtil(
-        resultError.body.errorMessages as FieldError[]
-      );
-
-      expect(errorsMessages).toEqual(
+      expect(resultError.body.errorMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             field: "id",

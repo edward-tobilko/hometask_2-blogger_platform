@@ -1,16 +1,16 @@
 import request from "supertest";
 import { Express } from "express";
 
-import { PostViewModel } from "../../../posts/types/post.types";
-import { POSTS_PATH } from "../../../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { PostOutput } from "../../../posts/application/output/post-type.output";
+import { routersPaths } from "../../../core/paths/paths";
 
 export async function getPostByIdBodyUtil(
   app: Express,
   postId: string
-): Promise<PostViewModel> {
+): Promise<PostOutput> {
   const fetchedPostById = await request(app)
-    .get(`${POSTS_PATH}/${postId}`)
+    .get(`${routersPaths.posts}/${postId}`)
     .expect(HTTP_STATUS_CODES.OK_200);
 
   return fetchedPostById.body;
@@ -20,5 +20,5 @@ export async function getPostByIdResponseCodeUtil(
   app: Express,
   postId: string
 ): Promise<request.Response> {
-  return await request(app).get(`${POSTS_PATH}/${postId}`);
+  return await request(app).get(`${routersPaths.posts}/${postId}`);
 }

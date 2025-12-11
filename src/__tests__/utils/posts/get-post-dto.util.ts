@@ -1,4 +1,4 @@
-import { PostInputDtoModel } from "../../../posts/types/post.types";
+import { CreatePostRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
 
 export const getPostDtoUtil = (blogId: string) =>
   ({
@@ -6,4 +6,4 @@ export const getPostDtoUtil = (blogId: string) =>
     shortDescription: "test short desc",
     content: "test content",
     blogId,
-  }) as PostInputDtoModel;
+  }) as CreatePostRequestPayload;

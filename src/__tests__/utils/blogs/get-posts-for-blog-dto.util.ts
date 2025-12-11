@@ -1,6 +1,6 @@
-import { BlogPostInputDtoModel } from "../../../blogs/types/blog.types";
+import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post-for-blog.request-payload";
 
-export function getPostsForBlogDtoUtil(): BlogPostInputDtoModel {
+export function getPostsForBlogDtoUtil(): CreatePostForBlogRequestPayload {
   return {
     title: "created new title",
     shortDescription: "created new short desc",

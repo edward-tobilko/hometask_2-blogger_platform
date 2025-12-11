@@ -4,13 +4,11 @@ import { PasswordHasher } from "../adapters/bcrypt-hasher-service.adapter";
 import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
 
 class AuthService {
-  private userQueryRepo: UsersQueryRepository;
-  private passwordHasher: PasswordHasher;
+  constructor(
+    private readonly userQueryRepo: UsersQueryRepository,
+    private readonly passwordHasher: PasswordHasher
+  ) {}
 
-  constructor() {
-    this.userQueryRepo = new UsersQueryRepository();
-    this.passwordHasher = new PasswordHasher();
-  }
   async checkUserCredentials(
     command: WithMeta<LoginAuthDtoCommand>
   ): Promise<boolean> {
@@ -37,4 +35,8 @@ class AuthService {
   }
 }
 
-export const authService = new AuthService();
+// * способ для production: легче писать тесты (можно подсунуть мок репозитория/хешера) и более гибко менять реализации (например, другой хэшер).
+export const authService = new AuthService(
+  new UsersQueryRepository(),
+  new PasswordHasher()
+);
