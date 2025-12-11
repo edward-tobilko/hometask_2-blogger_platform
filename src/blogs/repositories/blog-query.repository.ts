@@ -17,14 +17,20 @@ export class BlogQueryRepository {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } =
       queryDto;
 
-    const filter = {
+    const nameTerm = searchNameTerm ? searchNameTerm.trim() : null;
+
+    let filter: Record<string, unknown> = {};
+
+    if (nameTerm) {
       // * встроенные операторы mongodb $regex и $options, 'i' - для игнорирования регистра
-      $or: [
-        {
-          name: { $regex: searchNameTerm ?? "", $options: "i" },
-        },
-      ],
-    };
+      filter = {
+        name: { $regex: searchNameTerm ?? "", $options: "i" },
+      };
+    } else {
+      filter = {};
+    }
+
+    console.log("BLOG FILTER:", JSON.stringify(filter, null, 2));
 
     const items = await blogCollection
       .find(filter)

@@ -10,7 +10,7 @@ import { BlogsListRequestPayload } from "../request-payloads/blogs-list.request-
 import { BlogSortField } from "../request-payloads/blog-sort-field.request-payload";
 
 export async function getBlogListHandler(
-  req: Request,
+  req: Request<{}, {}, BlogsListRequestPayload, {}>,
   res: Response<BlogListPaginatedOutput>,
   next: NextFunction
 ) {
