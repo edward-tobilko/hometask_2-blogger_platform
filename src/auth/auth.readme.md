@@ -1,3 +1,4 @@
 - adapters -> все, что работает с «внешним миром» (шифрование, почта, токены).
-- routes -> HTTP-уровень: роутер, middleware/guard’ы, все, что напрямую видит Express.
-- domain -> бизнес-логика авторизации (login, logout, refresh и т.д.).
+- application -> BLL - бизнес логика, нашь сервис.
+- domain or repository -> DAL - бизнес-логика авторизации (login, logout, refresh и т.д.).
+- routes -> HTTP-уровень - роутер, middleware/guard’ы, все, что напрямую видит Express.
