@@ -3,20 +3,18 @@ import request from "supertest";
 
 import { setupApp } from "../../../app";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { BLOGS_PATH, POSTS_PATH } from "../../../core/paths/paths";
 import { clearDB } from "../../utils/clear-db";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
-import {
-  BlogInputDtoModel,
-  BlogPostInputDtoModel,
-} from "../../../blogs/types/blog.types";
 import { getBlogByIdUtil } from "../../utils/blogs/get-blog-by-id.util";
 import { getPostsForBlogDtoUtil } from "../../utils/blogs/get-posts-for-blog-dto.util";
 import { createPostForBlogUtil } from "../../utils/blogs/create-post-for-blog.util";
+import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
+import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post-for-blog.request-payload";
+import { routersPaths } from "../../../core/paths/paths";
 
 const adminToken = generateBasicAuthToken();
 
@@ -24,8 +22,8 @@ describe("E2E Blogs API tests", () => {
   const app = express();
   setupApp(app);
 
-  const testBlogDataDto: BlogInputDtoModel = getBlogDtoUtil();
-  const testPostsForBlogDataDto: BlogPostInputDtoModel =
+  const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
+  const testPostsForBlogDataDto: CreatePostForBlogRequestPayload =
     getPostsForBlogDtoUtil();
 
   beforeAll(async () => {
@@ -50,7 +48,7 @@ describe("E2E Blogs API tests", () => {
     ]);
 
     const blogListResponse = await request(app)
-      .get(BLOGS_PATH)
+      .get(routersPaths.blogs)
       .expect(HTTP_STATUS_CODES.OK_200);
 
     expect(Array.isArray(blogListResponse.body.items)).toBe(true);
@@ -74,7 +72,7 @@ describe("E2E Blogs API tests", () => {
     ]);
 
     const postListForBlogResponse = await request(app)
-      .get(`${BLOGS_PATH}`)
+      .get(`${routersPaths.blogs}`)
       .expect(HTTP_STATUS_CODES.OK_200);
 
     expect(Array.isArray(postListForBlogResponse.body.items)).toBe(true);
@@ -113,11 +111,11 @@ describe("E2E Blogs API tests", () => {
 
   it("GET: /blogs/:id -> should NOT return blog by id (If blog for passed id does not exist) - 404", async () => {
     await request(app)
-      .get(`${BLOGS_PATH}/507f1f77bcf86cd799439011`)
+      .get(`${routersPaths.blogs}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     await request(app)
-      .get(`${BLOGS_PATH}/507f1f77bcf86cd799439011`)
+      .get(`${routersPaths.blogs}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
@@ -130,7 +128,7 @@ describe("E2E Blogs API tests", () => {
     };
 
     await request(app)
-      .put(`${BLOGS_PATH}/${createdBlogResponse.id}`)
+      .put(`${routersPaths.blogs}/${createdBlogResponse.id}`)
       .set("Authorization", adminToken)
       .send(updatedDtoBlog)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
@@ -154,12 +152,12 @@ describe("E2E Blogs API tests", () => {
     expect(typeof createdBlogResponse.id).toBe("string");
 
     await request(app)
-      .delete(`${BLOGS_PATH}/${createdBlogResponse.id}`)
+      .delete(`${routersPaths.blogs}/${createdBlogResponse.id}`)
       .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
     await request(app)
-      .get(`${BLOGS_PATH}/${createdBlogResponse.id}`)
+      .get(`${routersPaths.blogs}/${createdBlogResponse.id}`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 });

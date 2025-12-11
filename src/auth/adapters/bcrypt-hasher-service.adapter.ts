@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 
+const SALT_ROUNDS = Number(process.env.SALT_ROUNDS ?? 10);
 export class PasswordHasher {
   async generateHash(password: string): Promise<string> {
-    const saltRounds = await bcrypt.genSalt(10);
+    const saltRounds = await bcrypt.genSalt(SALT_ROUNDS);
 
     return bcrypt.hash(password, saltRounds);
   }

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Request, Response, Router } from "express";
 import { matchedData } from "express-validator";
 
 import { HTTP_STATUS_CODES } from "../../core/utils/http-status-codes.util";
@@ -16,11 +16,7 @@ authRoute.post(
   loginOrEmailAuthValidation,
   inputResultMiddlewareValidation,
 
-  async (
-    req: Request<{}, {}, LoginAuthRequestPayload, {}>,
-    res: Response,
-    next: NextFunction
-  ) => {
+  async (req: Request<{}, {}, LoginAuthRequestPayload, {}>, res: Response) => {
     try {
       const sanitizedBodyParam = matchedData<LoginAuthRequestPayload>(req, {
         locations: ["body"],
@@ -36,9 +32,14 @@ authRoute.post(
 
       res.status(HTTP_STATUS_CODES.OK_200).json(accessToken);
     } catch (error: unknown) {
-      res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
-
-      next(error);
+      return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+        errorsMessages: [
+          {
+            message: "Internal Server Error",
+            field: "loginOrEmail or password",
+          },
+        ],
+      });
     }
   }
 );

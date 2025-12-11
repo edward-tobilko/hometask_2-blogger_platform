@@ -7,13 +7,12 @@ import { clearDB } from "../../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
 import { createPostUtil } from "../../utils/posts/create-post.util";
-import { PostInputDtoModel } from "../../../posts/types/post.types";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
-import { POSTS_PATH } from "../../../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { apiErrorResultUtil } from "../../../core/utils/api-error-result.util";
-import { FieldError } from "../../../core/types/fields-only.type";
+import { FieldsOnly } from "../../../core/types/fields-only.type";
+import { CreatePostRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
+import { routersPaths } from "../../../core/paths/paths";
 
 const adminToken = generateBasicAuthToken();
 
@@ -21,7 +20,7 @@ describe("Create (POST) posts API body validation ", () => {
   const app = express();
   setupApp(app);
 
-  let validPostDto: PostInputDtoModel; // ready valid DTO with correct blogId
+  let validPostDto: CreatePostRequestPayload; // ready valid DTO with correct blogId
   let blogName: string;
 
   beforeAll(async () => {
@@ -103,16 +102,12 @@ describe("Create (POST) posts API body validation ", () => {
     "400 - should not create post if the inputModel has incorrect values",
     async ({ name, payload, field }) => {
       const createPostResponse = await request(app)
-        .post(POSTS_PATH)
+        .post(routersPaths.posts)
         .set("Authorization", adminToken)
         .send({ ...validPostDto, ...payload })
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      const { errorsMessages } = apiErrorResultUtil(
-        createPostResponse.body.errorsMessages as FieldError[]
-      );
-
-      expect(errorsMessages).toEqual(
+      expect(createPostResponse.body.errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             message: expect.any(String),
@@ -127,16 +122,12 @@ describe("Create (POST) posts API body validation ", () => {
     const nonExistingBlogId = "507f1f77bcf86cd799439011";
 
     const result = await request(app)
-      .post(POSTS_PATH)
+      .post(routersPaths.posts)
       .set("Authorization", adminToken)
       .send({ ...validPostDto, blogId: nonExistingBlogId })
       .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-    const { errorsMessages } = apiErrorResultUtil(
-      result.body.errorsMessages as FieldError[]
-    );
-
-    expect(errorsMessages).toEqual(
+    expect(result.body.errorsMessages).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           message: expect.stringContaining("blogId is not exist"),
@@ -148,7 +139,7 @@ describe("Create (POST) posts API body validation ", () => {
 
   it("401 - when no Authorization header", async () => {
     await request(app)
-      .post(POSTS_PATH)
+      .post(routersPaths.posts)
       .send(validPostDto)
       .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });

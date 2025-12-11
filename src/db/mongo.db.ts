@@ -4,7 +4,7 @@ import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo.db";
 import { BlogDomain } from "../blogs/domain/blog.domain";
 import { PostDomain } from "../posts/domain/post.domain";
 import { UserDomain } from "../users/domain/user.domain";
-import { AuthDomain } from "../auth/domain/auth-service.domain";
+import { AuthDomain } from "../auth/domain/auth.domain";
 
 let client: MongoClient;
 

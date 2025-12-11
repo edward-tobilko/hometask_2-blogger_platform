@@ -1,22 +1,22 @@
 import { Express } from "express";
 import request from "supertest";
 
-import { BLOGS_PATH } from "../../../core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { getPostsForBlogDtoUtil } from "./get-posts-for-blog-dto.util";
-import { BlogPostInputDtoModel } from "../../../blogs/types/blog.types";
-import { PostViewModel } from "../../../posts/types/post.types";
+import { PostOutput } from "../../../posts/application/output/post-type.output";
+import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post-for-blog.request-payload";
+import { routersPaths } from "../../../core/paths/paths";
 
 export async function createPostForBlogUtil(
   app: Express,
   blogId: string
-): Promise<PostViewModel> {
-  const defaultPostForBlogDataDto: BlogPostInputDtoModel =
+): Promise<PostOutput> {
+  const defaultPostForBlogDataDto: CreatePostForBlogRequestPayload =
     getPostsForBlogDtoUtil();
 
   const createdPostForBlog = await request(app)
-    .post(`${BLOGS_PATH}/${blogId}/posts`)
+    .post(`${routersPaths.blogs}/${blogId}/posts`)
     .set("Authorization", generateBasicAuthToken())
     .send(defaultPostForBlogDataDto)
     .expect(HTTP_STATUS_CODES.CREATED_201);

@@ -7,7 +7,6 @@ import { clearDB } from "../../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { POSTS_PATH } from "../../../core/paths/paths";
 import { createPostUtil } from "../../utils/posts/create-post.util";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
@@ -15,7 +14,8 @@ import {
   getPostByIdBodyUtil,
   getPostByIdResponseCodeUtil,
 } from "../../utils/posts/get-post-by-id.util";
-import { PostInputDtoModel } from "../../../posts/types/post.types";
+import { routersPaths } from "../../../core/paths/paths";
+import { CreatePostRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
 
 const adminToken = generateBasicAuthToken();
 
@@ -25,7 +25,7 @@ describe("E2E Posts API tests", () => {
 
   // * prepare the base we need for the post
   let createdBlog: { id: string; name: string };
-  let postDataDto: PostInputDtoModel;
+  let postDataDto: CreatePostRequestPayload;
 
   beforeAll(async () => {
     await runDB(SETTINGS_MONGO_DB.MONGO_URL);
@@ -51,7 +51,7 @@ describe("E2E Posts API tests", () => {
     await createPostUtil(app, postDataDto);
 
     const postListResponse = await request(app)
-      .get(POSTS_PATH)
+      .get(routersPaths.posts)
       .expect(HTTP_STATUS_CODES.OK_200);
 
     expect(Array.isArray(postListResponse.body.items)).toBe(true);
@@ -84,25 +84,25 @@ describe("E2E Posts API tests", () => {
 
   it("GET: /posts/:id -> should NOT return post by id (If post for passed id does not exist) - 404", async () => {
     await request(app)
-      .get(`${POSTS_PATH}/507f1f77bcf86cd799439011`)
+      .get(`${routersPaths.posts}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
 
     await request(app)
-      .get(`${POSTS_PATH}/507f1f77bcf86cd799439011`)
+      .get(`${routersPaths.posts}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
   it("PUT: /posts/:id -> should update post by id - 204", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
-    const updatedDtoPost: PostInputDtoModel = {
+    const updatedDtoPost: CreatePostRequestPayload = {
       ...postDataDto,
       title: "updated title",
       blogId: createdBlog.id,
     };
 
     await request(app)
-      .put(`${POSTS_PATH}/${createdPostResponse.id}`)
+      .put(`${routersPaths.posts}/${createdPostResponse.id}`)
       .set("Authorization", adminToken)
       .send(updatedDtoPost)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
@@ -124,7 +124,7 @@ describe("E2E Posts API tests", () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
     await request(app)
-      .delete(`${POSTS_PATH}/${createdPostResponse.id}`)
+      .delete(`${routersPaths.posts}/${createdPostResponse.id}`)
       .set("Authorization", adminToken)
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 

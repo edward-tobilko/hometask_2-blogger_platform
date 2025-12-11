@@ -1,16 +1,16 @@
 import request from "supertest";
 import { Express } from "express";
 
-import { BLOGS_PATH } from "../../../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { BlogViewModel } from "../../../blogs/types/blog.types";
+import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
+import { routersPaths } from "../../../core/paths/paths";
 
 export async function getBlogByIdUtil(
   app: Express,
   blogId: string
-): Promise<BlogViewModel> {
+): Promise<BlogDtoDomain> {
   const blogByIdResponse = await request(app)
-    .get(`${BLOGS_PATH}/${blogId}`)
+    .get(`${routersPaths.blogs}/${blogId}`)
     .expect(HTTP_STATUS_CODES.OK_200);
 
   return blogByIdResponse.body;

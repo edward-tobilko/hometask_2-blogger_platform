@@ -1,30 +1,30 @@
 import request from "supertest";
 import { Express } from "express";
 
-import { POSTS_PATH } from "../../../core/paths/paths";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import {
-  PostInputDtoModel,
-  PostViewModel,
-} from "../../../posts/types/post.types";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { getPostDtoUtil } from "./get-post-dto.util";
 import { createBlogUtil } from "../blogs/create-blog.util";
+import { routersPaths } from "../../../core/paths/paths";
+import { PostOutput } from "../../../posts/application/output/post-type.output";
+import { CreatePostRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
 
 export const createPostUtil = async (
   app: Express,
-  postInputDto: Partial<PostInputDtoModel>
-): Promise<PostViewModel> => {
+  postInputDto: Partial<CreatePostRequestPayload>
+): Promise<PostOutput> => {
   const createBlog = await createBlogUtil(app);
 
-  const defaultPostDataDto: PostInputDtoModel = getPostDtoUtil(createBlog.id);
+  const defaultPostDataDto: CreatePostRequestPayload = getPostDtoUtil(
+    createBlog.id
+  );
   const postDataDto = { ...defaultPostDataDto, ...postInputDto };
 
   const createdPostResponse = await request(app)
-    .post(POSTS_PATH)
+    .post(routersPaths.posts)
     .set("Authorization", generateBasicAuthToken())
     .send(postDataDto)
     .expect(HTTP_STATUS_CODES.CREATED_201);
 
-  return createdPostResponse.body as PostViewModel;
+  return createdPostResponse.body as PostOutput;
 };
