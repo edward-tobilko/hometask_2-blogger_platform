@@ -11,6 +11,17 @@ export const paramIdValidation = param("id")
   .isMongoId()
   .withMessage("Incorrect format of ObjectId");
 
+export const paramIdForPostsValidation = param("id/posts")
+  .exists()
+  .withMessage("ID is required")
+  .isString()
+  .withMessage("ID must be a string")
+  .trim()
+  .notEmpty()
+  .withMessage("ID must not be empty")
+  .isMongoId()
+  .withMessage("Incorrect format of ObjectId");
+
 //   // * добавляем id валидацию на driverId в теле post
 // export const dataIdBodyValidation = body('data.id')
 //   .exists()

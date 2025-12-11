@@ -12,9 +12,9 @@ class BlogQueryService {
   }
 
   async getBlogsList(
-    queryDto: GetBlogsListQueryHandler
+    queryParam: GetBlogsListQueryHandler
   ): Promise<BlogListPaginatedOutput> {
-    return await this.blogQueryRepository.findAllBlogsQueryRepo(queryDto);
+    return await this.blogQueryRepository.findAllBlogsQueryRepo(queryParam);
   }
 
   async getBlogById(blogId: string): Promise<BlogOutput> {
@@ -22,10 +22,10 @@ class BlogQueryService {
   }
 
   async getPostsListByBlog(
-    queryDto: GetBlogsListQueryHandler
+    queryParam: GetBlogsListQueryHandler
   ): Promise<PostsListPaginatedOutput> {
     return await this.blogQueryRepository.findAllPostsForBlogQueryRepo(
-      queryDto
+      queryParam
     );
   }
 }

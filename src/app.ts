@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from "express";
 
-import { blogsRoute } from "./blogs/routes/blogs.route";
+import { blogsRoute } from "./core/helpers/blogs.route";
 import { HTTP_STATUS_CODES } from "./core/utils/http-status-codes.util";
 import { testingRoute } from "./testing/routes/testing.route";
 import { postsRoute } from "./posts/routes/posts.route";

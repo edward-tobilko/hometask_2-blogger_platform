@@ -3,28 +3,28 @@ import { ObjectId } from "mongodb";
 import { blogCollection, postCollection } from "../../db/mongo.db";
 import { mapToBlogListOutput } from "../application/mappers/map-to-blog-list-output.util";
 import { BlogListPaginatedOutput } from "../application/output/blog-list-paginated-type.output";
-import { BlogsListRequestPayload } from "../routes/request-payloads/blogs-list.request-payload";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { BlogOutput } from "../application/output/blog-type.output";
 import { mapToBlogOutput } from "../application/mappers/map-to-blog-output.mapper";
 import { mapToPostListOutput } from "../../posts/application/mappers/map-to-post-list-output.util";
 import { PostsListPaginatedOutput } from "../../posts/application/output/posts-list-type.output";
+import { GetBlogsListQueryHandler } from "../application/query-handlers/get-blogs-list-type.query-handler";
 
 export class BlogQueryRepository {
   async findAllBlogsQueryRepo(
-    queryDto: BlogsListRequestPayload
+    queryParam: GetBlogsListQueryHandler
   ): Promise<BlogListPaginatedOutput> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } =
-      queryDto;
+      queryParam;
 
     const nameTerm = searchNameTerm ? searchNameTerm.trim() : null;
 
     let filter: Record<string, unknown> = {};
 
     if (nameTerm) {
-      // * встроенные операторы mongodb $regex и $options, 'i' - для игнорирования регистра
       filter = {
-        name: { $regex: searchNameTerm ?? "", $options: "i" },
+        // * встроенные операторы mongodb $regex и $options, 'i' - для игнорирования регистра
+        name: { $regex: nameTerm, $options: "i" },
       };
     } else {
       filter = {};
@@ -68,11 +68,19 @@ export class BlogQueryRepository {
   }
 
   async findAllPostsForBlogQueryRepo(
-    queryDto: BlogsListRequestPayload
+    queryParam: GetBlogsListQueryHandler
   ): Promise<PostsListPaginatedOutput> {
-    const { pageNumber, pageSize, sortBy, sortDirection, blogId } = queryDto;
+    const { pageNumber, pageSize, sortBy, sortDirection, blogId } = queryParam;
 
-    const filter = { blogId: new ObjectId(blogId) };
+    const blogObjectId = new ObjectId(blogId);
+
+    const filter = { blogId: blogObjectId };
+
+    const blog = await blogCollection.findOne({ _id: blogObjectId });
+
+    if (!blog) {
+      throw new RepositoryNotFoundError("Blog is not exist!");
+    }
 
     const cursor = postCollection
       .find(filter)
