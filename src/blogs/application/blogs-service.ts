@@ -44,12 +44,13 @@ export class BlogsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog does not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!");
     }
 
     // добавляем blogName к доменному dto
     const domainDto: CreatePostDtoDomain = {
       ...command.payload,
+
       blogName: blog.name,
     };
 

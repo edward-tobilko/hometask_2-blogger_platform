@@ -4,6 +4,7 @@ export type CreatePostDtoDomain = {
   shortDescription: string;
   content: string;
   blogId: string;
+
   blogName: string;
 };
 

@@ -13,7 +13,10 @@ import { getPostListForBlogHandler } from "./http-handlers/get-post-list-for-blo
 import { BlogSortField } from "./request-payloads/blog-sort-field.request-payload";
 import { createBlogDtoRequestPayloadValidation } from "./request-payload-validations/create-blog-dto.request-payload-validation";
 import { createPostForBlogDtoRequestPayloadValidation } from "./request-payload-validations/create-post-for-blog-dto.request-payload-validation";
-import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
+import {
+  paramIdForPostsValidation,
+  paramIdValidation,
+} from "../../core/middlewares/validation/param-id.middleware-validation";
 import { updateBlogDtoRequestPayloadValidation } from "./request-payload-validations/update-blog-dto.request-payload-validation";
 import { PostSortField } from "../../posts/routes/request-payloads/post-sort-field.request-payload";
 
@@ -54,6 +57,7 @@ blogsRoute.post(
 blogsRoute.post(
   "/:id/posts",
   adminGuardMiddlewareAuth,
+  paramIdForPostsValidation,
   createPostForBlogDtoRequestPayloadValidation,
   inputResultMiddlewareValidation,
   createPostForBlogHandler

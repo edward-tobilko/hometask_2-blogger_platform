@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { log } from "node:console";
 
@@ -8,11 +8,11 @@ import { BlogsListRequestPayload } from "../request-payloads/blogs-list.request-
 import { BlogSortField } from "../request-payloads/blog-sort-field.request-payload";
 import { blogsQueryService } from "../../application/blog-query.service";
 import { PostsListPaginatedOutput } from "../../../posts/application/output/posts-list-type.output";
+import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
 
 export async function getPostListForBlogHandler(
-  req: Request<{ id: string }, {}, {}, {}>,
-  res: Response<PostsListPaginatedOutput>,
-  next: NextFunction
+  req: Request<{ id: string }, {}, BlogsListRequestPayload, {}>,
+  res: Response
 ) {
   try {
     const sanitizedQueryParam = matchedData<BlogsListRequestPayload>(req, {
@@ -36,9 +36,15 @@ export async function getPostListForBlogHandler(
 
     res.status(HTTP_STATUS_CODES.OK_200).json(postsListByBlogOutput);
   } catch (error: unknown) {
-    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+    if (error instanceof RepositoryNotFoundError) {
+      return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
+        errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория findAllPostsForBlogQueryRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
+      });
+    }
 
-    next(error);
+    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+      errorsMessages: [{ message: "Internal Server Error", field: "id" }],
+    });
   }
 }
 

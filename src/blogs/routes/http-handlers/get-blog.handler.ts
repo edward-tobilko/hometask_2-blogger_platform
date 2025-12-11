@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
@@ -6,8 +6,7 @@ import { blogsQueryService } from "../../application/blog-query.service";
 
 export async function getBlogByIdHandler(
   req: Request<{ id: string }>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) {
   try {
     const id = req.params.id;
@@ -17,10 +16,14 @@ export async function getBlogByIdHandler(
     res.status(HTTP_STATUS_CODES.OK_200).json(blogOutput);
   } catch (error: unknown) {
     if (error instanceof RepositoryNotFoundError) {
-      return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
+      return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
+        errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория findBlogByIdQueryRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
+      });
     }
 
-    return next();
+    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+      errorsMessages: [{ message: "Internal Server Error", field: "id" }],
+    });
   }
 }
 

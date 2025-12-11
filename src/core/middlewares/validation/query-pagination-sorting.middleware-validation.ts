@@ -56,13 +56,20 @@ export function queryPaginationAndSortingValidation<T extends string>(
       .isString()
       .trim()
       .isLength({ min: 1 })
-      .withMessage("searchLoginTerm must be non empty string"),
+      .withMessage("Search login term must be non empty string"),
 
     query("searchEmailTerm")
       .optional()
       .isString()
       .trim()
       .isLength({ min: 1 })
-      .withMessage("searchEmailTerm must be non empty string"),
+      .withMessage("Search email term must be non empty string"),
+
+    query("searchNameTerm")
+      .optional()
+      .isString()
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage("Search name term must be non empty string"),
   ];
 }
