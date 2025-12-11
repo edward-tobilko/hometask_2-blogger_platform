@@ -42,7 +42,7 @@ export async function getPostListForBlogHandler(
       });
     }
 
-    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+    return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
       errorsMessages: [{ message: "Internal Server Error", field: "id" }],
     });
   }

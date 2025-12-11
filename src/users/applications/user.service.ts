@@ -52,8 +52,8 @@ class UserService {
     // * DTO для доменной модели
     const domainDto: UserDtoDomain = {
       login,
-      email,
       password: hash,
+      email,
     };
 
     // * Создаем доменный обьект
