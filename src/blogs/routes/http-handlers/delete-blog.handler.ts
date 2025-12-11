@@ -1,13 +1,13 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
 import { createCommand } from "../../../core/helpers/create-command.helper";
+import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
 
 export async function deleteBlogHandler(
   req: Request<{ id: string }>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) {
   try {
     const command = createCommand({
@@ -18,9 +18,15 @@ export async function deleteBlogHandler(
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {
-    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+    if (error instanceof RepositoryNotFoundError) {
+      return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
+        errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория deleteBlogRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
+      });
+    }
 
-    next(error);
+    return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+      errorsMessages: [{ message: "Internal Server Error", field: "id" }],
+    });
   }
 }
 

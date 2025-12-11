@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { blogCollection, postCollection } from "../../db/mongo.db";
+import { postCollection } from "../../db/mongo.db";
 import { mapToPostListOutput } from "../application/mappers/map-to-post-list-output.util";
 import { PostOutput } from "../application/output/post-type.output";
 import { PostsListPaginatedOutput } from "../application/output/posts-list-type.output";

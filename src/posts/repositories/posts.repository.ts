@@ -52,7 +52,7 @@ export class PostsRepository {
     });
 
     if (deleteResult.deletedCount < 1) {
-      throw new Error("Post is not exist!");
+      throw new RepositoryNotFoundError("Post is not exist!");
     }
 
     return;

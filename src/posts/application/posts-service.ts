@@ -34,6 +34,7 @@ class PostsService {
 
     const domainDto: CreatePostDtoDomain = {
       ...dto,
+      blogName: blog.name,
     };
 
     const newPost = PostDomain.createPost(domainDto);

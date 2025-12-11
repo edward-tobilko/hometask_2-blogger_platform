@@ -1,4 +1,5 @@
 import { param } from "express-validator";
+import { ObjectId } from "mongodb";
 
 export const paramIdValidation = param("id")
   .exists()
@@ -8,19 +9,18 @@ export const paramIdValidation = param("id")
   .trim()
   .notEmpty()
   .withMessage("ID must not be empty")
-  .isMongoId()
-  .withMessage("Incorrect format of ObjectId");
+  .bail()
+  .custom((value) => {
+    if (!ObjectId.isValid(value)) {
+      throw new Error("Incorrect format of ObjectId");
+    }
+    return true;
+  })
+  .custom((value, { req }) => {
+    console.log("PARAM FROM VALIDATOR:", value); // show incorrect id
 
-export const paramIdForPostsValidation = param("id/posts")
-  .exists()
-  .withMessage("ID is required")
-  .isString()
-  .withMessage("ID must be a string")
-  .trim()
-  .notEmpty()
-  .withMessage("ID must not be empty")
-  .isMongoId()
-  .withMessage("Incorrect format of ObjectId");
+    return true;
+  });
 
 //   // * добавляем id валидацию на driverId в теле post
 // export const dataIdBodyValidation = body('data.id')
