@@ -11,6 +11,7 @@ import { PostDomain } from "../../posts/domain/post.domain";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/post-dto-type.commands";
 import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
+import { PostOutput } from "../../posts/application/output/post-type.output";
 
 export class BlogsService {
   private blogsRepository: BlogsRepository;
@@ -34,7 +35,7 @@ export class BlogsService {
         name: createdBlog.name,
         description: createdBlog.description,
         websiteUrl: createdBlog.websiteUrl,
-        createdAt: new Date(),
+        createdAt: createdBlog.createdAt,
         isMembership: createdBlog.isMembership,
       },
     });
@@ -42,7 +43,7 @@ export class BlogsService {
 
   async createPostForBlog(
     command: WithMeta<CreatePostForBlogDtoCommand>
-  ): Promise<ApplicationResult<{ id: string } | null>> {
+  ): Promise<ApplicationResult<PostOutput>> {
     // ищеи блог
     const blog = await this.blogQueryRepository.findBlogByIdQueryRepo(
       command.payload.blogId
@@ -66,9 +67,19 @@ export class BlogsService {
     const createdPostForBlog =
       await this.blogsRepository.savePostForBlogRepo(newPost);
 
+    const postViewModel: PostOutput = {
+      id: createdPostForBlog._id!.toString(),
+      title: createdPostForBlog.title,
+      shortDescription: createdPostForBlog.shortDescription,
+      content: createdPostForBlog.content,
+      blogId: createdPostForBlog.blogId.toString(),
+      blogName: createdPostForBlog.blogName,
+      createdAt: createdPostForBlog.createdAt.toISOString(),
+    };
+
     // возвращаем output
     return new ApplicationResult({
-      data: { id: createdPostForBlog._id!.toString() },
+      data: postViewModel,
     });
   }
 
