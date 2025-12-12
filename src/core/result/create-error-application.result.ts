@@ -3,10 +3,9 @@ import { ApplicationResult } from "./application.result";
 
 export const createErrorApplicationResult = (
   message: string,
-  statusCode: string,
   throwError: boolean = true
 ) => {
-  const applicationError = new ApplicationError(message, undefined, statusCode);
+  const applicationError = new ApplicationError(message, undefined);
 
   if (throwError) {
     throw applicationError;
