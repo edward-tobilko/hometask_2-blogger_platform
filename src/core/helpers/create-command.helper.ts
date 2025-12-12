@@ -1,6 +1,6 @@
 import { uuid } from "../infrastructure/crypto/random-uuid.crypto";
 
-interface CommandMeta {
+interface ICommandMeta {
   throwError: boolean;
   transaction: boolean;
   timestamp: number;
@@ -12,8 +12,8 @@ interface CommandMeta {
 
 export const createCommand = <T>(
   payload: T,
-  options?: Partial<CommandMeta>
-): { meta: CommandMeta; payload: T } => {
+  options?: Partial<ICommandMeta>
+): { meta: ICommandMeta; payload: T } => {
   return {
     meta: {
       throwError: options?.throwError ?? true, // Если что-то пойдет не так — бросить ошибку, а не просто вернуть результат.

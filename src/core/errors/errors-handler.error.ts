@@ -6,7 +6,7 @@ import { createErrorMessages } from "./create-error-messages.error";
 
 export const errorsHandler = (
   err: unknown,
-  req: Request,
+  _req: Request,
   res: Response
 ): void => {
   if (err instanceof ApplicationError) {

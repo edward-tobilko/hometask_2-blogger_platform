@@ -1,12 +1,12 @@
 import express, { Express, Request, Response } from "express";
 
-import { blogsRoute } from "./core/helpers/blogs.route";
 import { HTTP_STATUS_CODES } from "./core/utils/http-status-codes.util";
 import { testingRoute } from "./testing/routes/testing.route";
 import { postsRoute } from "./posts/routes/posts.route";
 import { usersRoute } from "./users/routes/users.route";
 import { routersPaths } from "./core/paths/paths";
 import { authRoute } from "./auth/routes/auth.route";
+import { blogsRoute } from "./blogs/routes/blogs.route";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());

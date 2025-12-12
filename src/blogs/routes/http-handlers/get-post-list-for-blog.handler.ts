@@ -7,7 +7,6 @@ import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set
 import { BlogsListRequestPayload } from "../request-payloads/blogs-list.request-payload";
 import { BlogSortField } from "../request-payloads/blog-sort-field.request-payload";
 import { blogsQueryService } from "../../application/blog-query.service";
-import { PostsListPaginatedOutput } from "../../../posts/application/output/posts-list-type.output";
 import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
 
 export async function getPostListForBlogHandler(

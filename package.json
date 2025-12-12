@@ -7,6 +7,7 @@
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "start": "cross-env NODE_ENV=production node dist/server.js",
+    "prod": "yarn build && yarn start",
     "dev": "cross-env NODE_ENV=development tsx watch --inspect src/server.ts",
     "jest": "jest -i",
     "test:e2e": "jest -i src/__tests__/e2e",

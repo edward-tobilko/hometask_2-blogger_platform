@@ -16,7 +16,7 @@ export const paramIdValidation = param("id")
     }
     return true;
   })
-  .custom((value, { req }) => {
+  .custom((value, _req) => {
     console.log("PARAM FROM VALIDATOR:", value); // show incorrect id
 
     return true;
