@@ -23,9 +23,9 @@ export async function createNewBlogHandler(
 
     const createdBlogOutput = await blogsService.createBlog(command);
 
-    log("createdBlogOutput ->", createdBlogOutput);
+    log("createdBlogOutput ->", createdBlogOutput.data);
 
-    res.status(HTTP_STATUS_CODES.CREATED_201).json(createdBlogOutput);
+    res.status(HTTP_STATUS_CODES.CREATED_201).json(createdBlogOutput.data);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 

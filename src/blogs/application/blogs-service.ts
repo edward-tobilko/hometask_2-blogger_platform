@@ -31,6 +31,11 @@ export class BlogsService {
     return new ApplicationResult({
       data: {
         id: createdBlog._id!.toString(),
+        name: createdBlog.name,
+        description: createdBlog.description,
+        websiteUrl: createdBlog.websiteUrl,
+        createdAt: new Date(),
+        isMembership: createdBlog.isMembership,
       },
     });
   }
