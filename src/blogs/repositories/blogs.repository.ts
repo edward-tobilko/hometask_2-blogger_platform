@@ -35,7 +35,10 @@ export class BlogsRepository {
         },
         {
           $set: {
-            ...dtoToUpdate,
+            name: dtoToUpdate.name,
+            description: dtoToUpdate.description,
+            websiteUrl: dtoToUpdate.websiteUrl,
+            isMembership: dtoToUpdate.isMembership,
           },
         }
       );

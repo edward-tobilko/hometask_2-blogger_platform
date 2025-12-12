@@ -1,10 +1,9 @@
 export class ApplicationError extends Error {
   constructor(
-    detail: string, // описание ошибки
-    public readonly source?: string, // откуда ошибка
-    public readonly code?: string // код ошибки
+    message: string, // описание ошибки
+    public readonly field?: string
   ) {
-    super(detail);
+    super(message);
   }
 }
 

@@ -15,8 +15,8 @@ export const errorsHandler = (
     res.status(httpStatus_404).json(
       createErrorMessages([
         {
-          status: httpStatus_404,
-          detail: err.message,
+          message: err.message,
+          field: err.field!,
         },
       ])
     );
@@ -29,10 +29,8 @@ export const errorsHandler = (
 
     const errorBody = createErrorMessages([
       {
-        status: httpStatus_422,
-        detail: err.message,
-        source: err.source,
-        code: err.code,
+        message: err.message,
+        field: err.field!,
       },
     ]);
 

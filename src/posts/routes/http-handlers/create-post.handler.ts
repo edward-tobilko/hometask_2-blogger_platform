@@ -22,7 +22,7 @@ export async function createPostHandler(
 
     const postOutput = await postsService.createPost(command);
 
-    res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput);
+    res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 

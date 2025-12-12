@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { query } from "express-validator";
 
 import { getUsersListHandler } from "./http-handlers/get-users-list.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
@@ -16,6 +17,20 @@ usersRoute.get(
   "",
   adminGuardMiddlewareAuth,
   queryPaginationAndSortingValidation(UserSortField),
+  query("searchLoginTerm")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Search login term must be non empty string"),
+
+  query("searchEmailTerm")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Search email term must be non empty string"),
+
   inputResultMiddlewareValidation,
   getUsersListHandler
 );

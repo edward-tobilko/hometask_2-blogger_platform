@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { query } from "express-validator";
 
 import { adminGuardMiddlewareAuth } from "../../auth/routes/guards/admin-guard.middleware";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
@@ -23,6 +24,13 @@ export const blogsRoute = Router({});
 blogsRoute.get(
   "",
   queryPaginationAndSortingValidation(BlogSortField),
+  query("searchNameTerm")
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage("Search name term must be non empty string"),
+
   inputResultMiddlewareValidation,
   getBlogListHandler
 );

@@ -9,6 +9,7 @@ import {
 import { BlogQueryRepository } from "../../blogs/repositories/blog-query.repository";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
+import { PostOutput } from "./output/post-type.output";
 
 class PostsService {
   private postsRepository: PostsRepository;
@@ -21,7 +22,7 @@ class PostsService {
 
   async createPost(
     command: WithMeta<CreatePostDtoCommand>
-  ): Promise<ApplicationResult<{ id: string } | null>> {
+  ): Promise<ApplicationResult<PostOutput>> {
     const dto = command.payload;
 
     const blog = await this.blogQueryRepository.findBlogByIdQueryRepo(
@@ -41,7 +42,22 @@ class PostsService {
 
     const savedPost = await this.postsRepository.createPostRepo(newPost);
 
-    return new ApplicationResult({ data: { id: savedPost._id!.toString() } });
+    if (!savedPost._id)
+      throw new RepositoryNotFoundError(
+        `Post was not saved correctly: ${savedPost._id} is missing`
+      );
+
+    return new ApplicationResult({
+      data: {
+        id: savedPost._id?.toString(),
+        title: savedPost.title,
+        shortDescription: savedPost.shortDescription,
+        content: savedPost.content,
+        blogId: blog.id.toString(),
+        blogName: blog.name,
+        createdAt: savedPost.createdAt.toISOString(),
+      },
+    });
   }
 
   async updatePost(

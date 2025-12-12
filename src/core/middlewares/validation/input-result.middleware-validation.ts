@@ -12,12 +12,11 @@ import { createErrorMessages } from "../../errors/create-error-messages.error";
 const formatValidationErrors = (
   error: ValidationError
 ): ValidationErrorType => {
-  const expressError = error as unknown as FieldValidationError;
+  const expressError = error as FieldValidationError;
 
   return {
-    status: HTTP_STATUS_CODES.BAD_REQUEST_400,
-    source: expressError.path, // Поле с ошибкой
-    detail: expressError.msg, // Сообщение ошибки
+    message: expressError.msg, // Сообщение ошибки
+    field: expressError.path, // Поле с ошибкой
   };
 };
 
@@ -26,14 +25,14 @@ export const inputResultMiddlewareValidation = (
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req)
+  const errorsMessages = validationResult(req)
     .formatWith(formatValidationErrors)
     .array({ onlyFirstError: true });
 
-  if (errors.length > 0) {
+  if (errorsMessages.length > 0) {
     return res
       .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
-      .json(createErrorMessages(errors));
+      .json(createErrorMessages(errorsMessages));
   }
 
   next(); // Если ошибок нет, передаём управление дальше

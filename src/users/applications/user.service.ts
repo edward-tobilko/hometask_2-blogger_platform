@@ -38,9 +38,8 @@ class UserService {
       return new ApplicationResult<{ id: string } | null>({
         errors: [
           new ApplicationError(
-            `${field} should be unique`, // detail (message)
-            field, // source (поле: login або email)
-            "USER_NOT_UNIQUE" // code (можно любой свой)
+            `${field} should be unique`, // message
+            field // field (поле: login або email)
           ),
         ],
       });
@@ -75,9 +74,7 @@ class UserService {
 
     if (!userId) {
       return new ApplicationResult<null>({
-        errors: [
-          new ApplicationError("User is not found", "id", "USER_NOT_FOUND"),
-        ],
+        errors: [new ApplicationError("User is not found", "id")],
       });
     }
 
@@ -85,9 +82,7 @@ class UserService {
 
     if (!isDeleted) {
       return new ApplicationResult<null>({
-        errors: [
-          new ApplicationError("Deleting failed", "id", "DELETE_FAILED"),
-        ],
+        errors: [new ApplicationError("Deleting failed", "id")],
       });
     }
 
