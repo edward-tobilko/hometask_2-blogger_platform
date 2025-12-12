@@ -1,7 +1,10 @@
+import { log } from "node:console";
+
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
 import { PasswordHasher } from "../adapters/bcrypt-hasher-service.adapter";
 import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
+import { createToken } from "../../core/infrastructure/crypto/random-uuid.crypto";
 
 class AuthService {
   constructor(
@@ -31,7 +34,9 @@ class AuthService {
 
     if (!isCorrectCredentials) return null;
 
-    return { accessToken: "token" };
+    log("token ->", createToken());
+
+    return { accessToken: createToken() };
   }
 }
 

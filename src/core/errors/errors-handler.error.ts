@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 
 import { ApplicationError } from "./application.error";
 import { HTTP_STATUS_CODES } from "../utils/http-status-codes.util";
@@ -7,8 +7,7 @@ import { createErrorMessages } from "./create-error-messages.error";
 export const errorsHandler = (
   err: unknown,
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ): void => {
   if (err instanceof ApplicationError) {
     const httpStatus_404 = HTTP_STATUS_CODES.NOT_FOUND_404;

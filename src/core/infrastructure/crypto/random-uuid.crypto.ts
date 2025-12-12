@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID, createHash } from "node:crypto";
 
-const token = randomBytes(32).toString("hex");
+export const createToken = () => randomBytes(32).toString("hex");
 
 export const uuid = randomUUID();
 
