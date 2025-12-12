@@ -9,10 +9,7 @@ export const mapToBlogOutput = (blogDb: WithId<BlogDomain>): BlogOutput => {
     name: blogDb.name,
     description: blogDb.description,
     websiteUrl: blogDb.websiteUrl,
-    createdAt:
-      blogDb.createdAt instanceof Date
-        ? blogDb.createdAt.toISOString()
-        : blogDb.createdAt,
+    createdAt: blogDb.createdAt.toISOString(),
     isMembership: blogDb.isMembership,
   };
 };

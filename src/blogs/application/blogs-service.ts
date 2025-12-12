@@ -35,10 +35,7 @@ export class BlogsService {
         name: createdBlog.name,
         description: createdBlog.description,
         websiteUrl: createdBlog.websiteUrl,
-        createdAt:
-          createdBlog.createdAt instanceof Date
-            ? createdBlog.createdAt.toISOString()
-            : createdBlog.createdAt,
+        createdAt: createdBlog.createdAt.toISOString(),
         isMembership: createdBlog.isMembership,
       },
     });
