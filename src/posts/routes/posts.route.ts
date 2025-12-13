@@ -17,7 +17,7 @@ export const postsRoute = Router({});
 // * GET methods
 postsRoute.get(
   "",
-  queryPaginationAndSortingValidation(PostSortField),
+  queryPaginationAndSortingValidation<PostSortField>(PostSortField),
   inputResultMiddlewareValidation,
   getPostListHandler
 );

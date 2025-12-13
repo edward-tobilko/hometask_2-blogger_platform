@@ -27,7 +27,7 @@ export const inputResultMiddlewareValidation = (
 ) => {
   const errorsMessages = validationResult(req)
     .formatWith(formatValidationErrors)
-    .array({ onlyFirstError: true });
+    .array({ onlyFirstError: true }); // покажет нам первую ошибку филда, а не все сразу
 
   if (errorsMessages.length > 0) {
     return res
@@ -37,5 +37,3 @@ export const inputResultMiddlewareValidation = (
 
   next(); // Если ошибок нет, передаём управление дальше
 };
-
-// ? { onlyFirstError: true } - покажет нам первую ошибку филда, а не все сразу

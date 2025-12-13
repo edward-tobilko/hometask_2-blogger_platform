@@ -10,14 +10,14 @@ export const paramIdValidation = param("id")
   .notEmpty()
   .withMessage("ID must not be empty")
   .bail()
-  .custom((value) => {
-    if (!ObjectId.isValid(value)) {
+  .custom((id) => {
+    if (!ObjectId.isValid(id)) {
       throw new Error("Incorrect format of ObjectId");
     }
     return true;
   })
-  .custom((value, _req) => {
-    console.log("PARAM FROM VALIDATOR:", value); // show incorrect id
+  .custom((id, _req) => {
+    console.log("PARAM ID FROM VALIDATOR:", id); // show incorrect id
 
     return true;
   });

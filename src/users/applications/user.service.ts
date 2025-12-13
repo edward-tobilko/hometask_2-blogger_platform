@@ -7,6 +7,7 @@ import { UsersQueryRepository } from "../repositories/users-query.repository";
 import { CreateUserDtoCommand } from "./commands/user-dto.commands";
 import { UserDtoDomain } from "../domain/user-dto.domain";
 import { UserDomain } from "../domain/user.domain";
+import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 
 class UserService {
   private userRepo: UserRepository;
@@ -65,28 +66,22 @@ class UserService {
     return new ApplicationResult({ data: { id: savedUser._id!.toString() } });
   }
 
-  async deleteUser(
-    command: WithMeta<{ id: string }>
-  ): Promise<ApplicationResult<null>> {
+  async deleteUser(command: WithMeta<{ id: string }>): Promise<void> {
     const id = command.payload.id;
 
     const userId = await this.userQueryRepo.findUserByIdQueryRepo(id);
 
     if (!userId) {
-      return new ApplicationResult<null>({
-        errors: [new ApplicationError("User is not found", "id")],
-      });
+      throw new RepositoryNotFoundError("User is not found!");
     }
 
     const isDeleted = await this.userRepo.deleteUserRepo(id);
 
     if (!isDeleted) {
-      return new ApplicationResult<null>({
-        errors: [new ApplicationError("Deleting failed", "id")],
-      });
+      throw new RepositoryNotFoundError("User is not exist!");
     }
 
-    return new ApplicationResult<null>({ data: null });
+    return;
   }
 }
 

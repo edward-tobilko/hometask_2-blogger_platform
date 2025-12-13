@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
+import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { postsService } from "../../application/posts-service";
@@ -21,6 +22,8 @@ export async function createPostHandler(
     const command = createCommand<CreatePostDtoCommand>(sanitizedBodyParam);
 
     const postOutput = await postsService.createPost(command);
+
+    log(postOutput.data);
 
     res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
   } catch (error: unknown) {

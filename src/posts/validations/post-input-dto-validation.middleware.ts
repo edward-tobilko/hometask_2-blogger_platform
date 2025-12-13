@@ -57,7 +57,7 @@ const blogId = body("blogId")
   .notEmpty()
   .withMessage("Blog id is required")
   .bail()
-  .custom((value) => ObjectId.isValid(value))
+  .custom((id) => ObjectId.isValid(id))
   .withMessage("Blog id must be a valid Mongo ObjectId")
   .bail()
   .custom(async (id: string) => {

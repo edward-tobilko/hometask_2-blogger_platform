@@ -3,7 +3,7 @@ import { UsersQueryRepository } from "../../repositories/users-query.repository"
 
 const userQueryRepo = new UsersQueryRepository();
 
-export const createUserDtoRequestPayloadValidations = [
+export const createUserDtoMiddlewareValidations = [
   body("login")
     .exists()
     .withMessage("Login is required")

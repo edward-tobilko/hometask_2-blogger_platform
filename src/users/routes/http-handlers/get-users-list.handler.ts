@@ -23,7 +23,7 @@ export const getUsersListHandler = async (
 
     const usersListOutput = await userQueryService.getUsersList(queryParam);
 
-    res.status(HTTP_STATUS_CODES.OK_200).json(usersListOutput);
+    res.status(HTTP_STATUS_CODES.OK_200).json(usersListOutput.items);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 

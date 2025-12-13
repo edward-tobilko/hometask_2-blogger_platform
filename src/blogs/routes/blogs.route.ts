@@ -23,7 +23,7 @@ export const blogsRoute = Router({});
 // * GET methods
 blogsRoute.get(
   "",
-  queryPaginationAndSortingValidation(BlogSortField),
+  queryPaginationAndSortingValidation<BlogSortField>(BlogSortField),
   query("searchNameTerm")
     .optional()
     .isString()
@@ -45,7 +45,7 @@ blogsRoute.get(
 blogsRoute.get(
   "/:id/posts",
   paramIdValidation,
-  queryPaginationAndSortingValidation(PostSortField),
+  queryPaginationAndSortingValidation<PostSortField>(PostSortField),
   inputResultMiddlewareValidation,
   getPostListForBlogHandler
 );

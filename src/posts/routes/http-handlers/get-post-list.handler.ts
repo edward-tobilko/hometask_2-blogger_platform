@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
+import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
@@ -8,7 +9,7 @@ import { postQueryService } from "../../application/post-query-service";
 import { PostSortField } from "../request-payloads/post-sort-field.request-payload";
 
 export async function getPostListHandler(
-  req: Request,
+  req: Request<{}, {}, {}, {}>,
   res: Response,
   next: NextFunction
 ) {
@@ -23,7 +24,9 @@ export async function getPostListHandler(
 
     const postsListOutput = await postQueryService.getPosts(queryParam);
 
-    res.status(HTTP_STATUS_CODES.OK_200).json(postsListOutput);
+    log(postsListOutput.items);
+
+    res.status(HTTP_STATUS_CODES.OK_200).json(postsListOutput.items);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 

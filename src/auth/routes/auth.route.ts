@@ -1,8 +1,9 @@
 import { Request, Response, Router } from "express";
 import { matchedData } from "express-validator";
+import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../core/utils/http-status-codes.util";
-import { loginOrEmailAuthValidation } from "./middleware-validations/login-auth.validation";
+import { loginOrEmailAuthMiddlewareValidation } from "./middleware-validations/login-auth.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { authService } from "../application/auth.service";
 import { LoginAuthRequestPayload } from "./request-payloads/login-auth.request-payload";
@@ -13,10 +14,10 @@ export const authRoute = Router();
 
 authRoute.post(
   "",
-  loginOrEmailAuthValidation,
+  loginOrEmailAuthMiddlewareValidation,
   inputResultMiddlewareValidation,
 
-  async (req: Request<{}, {}, LoginAuthRequestPayload, {}>, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const sanitizedBodyParam = matchedData<LoginAuthRequestPayload>(req, {
         locations: ["body"],
@@ -28,7 +29,16 @@ authRoute.post(
       const accessToken = await authService.loginUser(command);
 
       if (!accessToken)
-        return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+        return res.status(HTTP_STATUS_CODES.UNAUTHORIZED_401).json({
+          errorsMessages: [
+            {
+              message: "Not Unauthorized",
+              field: "loginOrEmail or password",
+            },
+          ],
+        });
+
+      log(accessToken);
 
       res.status(HTTP_STATUS_CODES.OK_200).json(accessToken);
     } catch (error: unknown) {

@@ -9,6 +9,7 @@ import { mapToBlogOutput } from "../application/mappers/map-to-blog-output.mappe
 import { mapToPostListOutput } from "../../posts/application/mappers/map-to-post-list-output.util";
 import { PostsListPaginatedOutput } from "../../posts/application/output/posts-list-type.output";
 import { GetBlogsListQueryHandler } from "../application/query-handlers/get-blogs-list-type.query-handler";
+import { GetPostsListQueryHandler } from "../../posts/application/query-handlers/get-posts-list.query-handler";
 
 export class BlogQueryRepository {
   async findAllBlogsQueryRepo(
@@ -68,7 +69,7 @@ export class BlogQueryRepository {
   }
 
   async findAllPostsForBlogQueryRepo(
-    queryParam: GetBlogsListQueryHandler
+    queryParam: GetPostsListQueryHandler
   ): Promise<PostsListPaginatedOutput> {
     const { pageNumber, pageSize, sortBy, sortDirection, blogId } = queryParam;
 
