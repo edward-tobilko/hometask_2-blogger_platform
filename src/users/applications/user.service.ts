@@ -8,6 +8,7 @@ import { CreateUserDtoCommand } from "./commands/user-dto.commands";
 import { UserDtoDomain } from "../domain/user-dto.domain";
 import { UserDomain } from "../domain/user.domain";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
+import { UserOutput } from "./output/user.output";
 
 class UserService {
   private userRepo: UserRepository;
@@ -22,7 +23,7 @@ class UserService {
 
   async createUser(
     command: WithMeta<CreateUserDtoCommand>
-  ): Promise<ApplicationResult<{ id: string } | null>> {
+  ): Promise<ApplicationResult<UserOutput | null>> {
     const dto = command.payload;
 
     const { email, password, login } = dto;
@@ -36,7 +37,7 @@ class UserService {
     if (existedUser) {
       const field = existedUser.login === login ? "login" : "email";
 
-      return new ApplicationResult<{ id: string } | null>({
+      return new ApplicationResult<UserOutput | null>({
         errors: [
           new ApplicationError(
             `${field} should be unique`, // message
@@ -62,8 +63,17 @@ class UserService {
     // * Сохраняем в репозитории
     const savedUser = await this.userRepo.createUserRepo(newUser);
 
+    const userOutput: UserOutput = {
+      id: savedUser._id!.toString(),
+      login: savedUser.login,
+      email: savedUser.email,
+      createdAt: savedUser.createdAt.toISOString(),
+    };
+
     // * Возвращаем id созданного пользователя
-    return new ApplicationResult({ data: { id: savedUser._id!.toString() } });
+    return new ApplicationResult({
+      data: userOutput,
+    });
   }
 
   async deleteUser(command: WithMeta<{ id: string }>): Promise<void> {

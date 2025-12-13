@@ -34,9 +34,11 @@ class AuthService {
 
     if (!isCorrectCredentials) return null;
 
-    log("token ->", createToken()); // c0a18733823b37e21e26c80ebc43dd7c29fad02861286f88bacdc0faa4daaf84
+    const token = createToken();
 
-    return { accessToken: createToken() };
+    log("token from service (loginUser) ->", token); // b6c12d943338c4ad242ba2ee06af45a03dfda0aa0a6a335dd8d88c5d43fbfa70
+
+    return { accessToken: token };
   }
 }
 
