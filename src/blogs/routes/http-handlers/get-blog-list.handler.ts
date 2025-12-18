@@ -16,7 +16,7 @@ export async function getBlogListHandler(
   try {
     const sanitizedQueryParam = matchedData<BlogsListRequestPayload>(req, {
       locations: ["query"],
-      // includeOptionals: true,
+      includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
     });
 
     const queryParamInput =

@@ -15,7 +15,7 @@ export async function getPostListHandler(
   try {
     const sanitizedQueryParam = matchedData<PostsListRequestPayload>(req, {
       locations: ["query"],
-      // includeOptionals: true,
+      includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
     });
 
     const queryParam =

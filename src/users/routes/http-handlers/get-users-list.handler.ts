@@ -15,7 +15,7 @@ export const getUsersListHandler = async (
   try {
     const sanitizedQueryParam = matchedData(req, {
       locations: ["query"],
-      // includeOptionals: true,
+      includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
     }) as UsersListRequestPayload;
 
     const queryParamData =
