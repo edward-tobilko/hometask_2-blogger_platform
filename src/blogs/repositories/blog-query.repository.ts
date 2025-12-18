@@ -31,8 +31,6 @@ export class BlogQueryRepository {
       filter = {};
     }
 
-    console.log("BLOG FILTER:", JSON.stringify(filter, null, 2));
-
     const items = await blogCollection
       .find(filter)
 

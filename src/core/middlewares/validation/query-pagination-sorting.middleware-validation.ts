@@ -14,7 +14,7 @@ export function queryPaginationAndSortingValidation<T extends string>(
     query("sortBy")
       .customSanitizer((value) => {
         return !value
-          ? Object.values(sortFieldEnum)[0] // Дефолтное значение - первое поле
+          ? Object.values(sortFieldEnum)[0] // Дэфолтное значение - первое поле
           : value;
       })
       .isIn(Object.values(sortFieldEnum))
@@ -41,7 +41,7 @@ export function queryPaginationAndSortingValidation<T extends string>(
       .default(DEFAULT_PAGE_NUMBER),
 
     query("pageSize")
-      .optional({ checkFalsy: true })
+      .optional({ checkFalsy: true }) // "", undefined → по дэфолту
       .isInt({ min: 1 })
       .withMessage("Page size must be a positive integer")
       .toInt()

@@ -32,6 +32,8 @@ export async function getBlogListHandler(
 
     res.status(HTTP_STATUS_CODES.OK_200).json(blogsListOutput);
   } catch (error: unknown) {
+    console.error("GET /blogs ERROR:", error);
+
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 
     next(error);
