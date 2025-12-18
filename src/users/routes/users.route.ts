@@ -17,19 +17,8 @@ usersRoute.get(
   "",
   adminGuardMiddlewareAuth,
   queryPaginationAndSortingValidation<UserSortField>(UserSortField),
-  query("searchLoginTerm")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("Search login term must be non empty string"),
-
-  query("searchEmailTerm")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("Search email term must be non empty string"),
+  query("searchLoginTerm").optional({ checkFalsy: true }).isString().trim(),
+  query("searchEmailTerm").optional({ checkFalsy: true }).isString().trim(),
 
   inputResultMiddlewareValidation,
   getUsersListHandler

@@ -4,20 +4,19 @@ import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
-import { BlogListPaginatedOutput } from "../../application/output/blog-list-paginated-type.output";
 import { blogsQueryService } from "../../application/blog-query.service";
 import { BlogsListRequestPayload } from "../request-payloads/blogs-list.request-payload";
 import { BlogSortField } from "../request-payloads/blog-sort-field.request-payload";
 
 export async function getBlogListHandler(
   req: Request<{}, {}, {}, {}>,
-  res: Response<BlogListPaginatedOutput>,
+  res: Response,
   next: NextFunction
 ) {
   try {
     const sanitizedQueryParam = matchedData<BlogsListRequestPayload>(req, {
       locations: ["query"],
-      includeOptionals: true,
+      // includeOptionals: true,
     });
 
     const queryParamInput =
@@ -32,9 +31,11 @@ export async function getBlogListHandler(
 
     res.status(HTTP_STATUS_CODES.OK_200).json(blogsListOutput);
   } catch (error: unknown) {
-    console.error("GET /blogs ERROR:", error);
-
-    res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+    res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+      errorsMessages: [
+        { message: "Internal Server Error", field: "query params" },
+      ],
+    });
 
     next(error);
   }

@@ -16,7 +16,7 @@ export async function getPostListForBlogHandler(
   try {
     const sanitizedQueryParam = matchedData<PostsListRequestPayload>(req, {
       locations: ["query"],
-      includeOptionals: true,
+      // includeOptionals: true,
     });
 
     const queryParamInput = {
@@ -42,7 +42,9 @@ export async function getPostListForBlogHandler(
     }
 
     return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-      errorsMessages: [{ message: "Internal Server Error", field: "id" }],
+      errorsMessages: [
+        { message: "Internal Server Error", field: "query params" },
+      ],
     });
   }
 }

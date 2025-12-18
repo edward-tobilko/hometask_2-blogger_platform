@@ -24,7 +24,7 @@ export const blogsRoute = Router({});
 blogsRoute.get(
   "",
   queryPaginationAndSortingValidation<BlogSortField>(BlogSortField),
-  query("searchNameTerm").optional().isString().trim(),
+  query("searchNameTerm").optional({ checkFalsy: true }).isString().trim(),
 
   inputResultMiddlewareValidation,
   getBlogListHandler

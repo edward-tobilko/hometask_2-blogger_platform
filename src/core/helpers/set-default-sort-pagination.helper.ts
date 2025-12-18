@@ -17,6 +17,7 @@ export function setDefaultSortAndPaginationIfNotExist<S = string>(
   queryParam: PaginationSorting<S>
 ): PaginationSorting<S> {
   return {
+    ...queryParam,
     sortBy: (queryParam.sortBy ?? paginationAndSortingDefault.sortBy) as S,
     sortDirection:
       queryParam.sortDirection ??
