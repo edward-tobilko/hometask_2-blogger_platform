@@ -1,4 +1,4 @@
-import { param } from "express-validator";
+import { param, body } from "express-validator";
 import { ObjectId } from "mongodb";
 
 export const paramIdValidation = param("id")
@@ -22,21 +22,21 @@ export const paramIdValidation = param("id")
     return true;
   });
 
-//   // * добавляем id валидацию на driverId в теле post
-// export const dataIdBodyValidation = body('data.id')
-//   .exists()
-//   .withMessage('ID in body is required')
-//   .custom((value, { req }) => {
-//     if (value !== req?.params?.id) {
-//       throw new Error('ID in URL param and data body must match');
-//     }
+// * добавляем id валидацию на blogId в теле post
+export const bodyIdValidation = body("blogId")
+  .exists()
+  .withMessage("Blog ID in body is required")
+  .custom((value, { req }) => {
+    if (String(value) !== String(req?.params?.id)) {
+      throw new Error("ID in URL param and data body must match");
+    }
 
-//     return true;
-//   });
+    return true;
+  });
 
 // ? exists() - существует в запросе
 // ? isString() - является строкой
 // ? isNumeric() - состоит только из цифр
 
-// ? value — это значение data.id
+// ? id — это значение data.id
 // ? req — это объект запроса

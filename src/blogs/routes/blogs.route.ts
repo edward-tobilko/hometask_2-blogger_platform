@@ -24,12 +24,7 @@ export const blogsRoute = Router({});
 blogsRoute.get(
   "",
   queryPaginationAndSortingValidation<BlogSortField>(BlogSortField),
-  query("searchNameTerm")
-    .optional()
-    .isString()
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage("Search name term must be non empty string"),
+  query("searchNameTerm").optional().isString().trim(),
 
   inputResultMiddlewareValidation,
   getBlogListHandler

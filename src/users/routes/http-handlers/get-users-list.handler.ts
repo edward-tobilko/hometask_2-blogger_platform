@@ -18,12 +18,12 @@ export const getUsersListHandler = async (
       includeOptionals: true,
     }) as UsersListRequestPayload;
 
-    const queryParam =
+    const queryParamData =
       setDefaultSortAndPaginationIfNotExist<UserSortField>(sanitizedQueryParam);
 
-    const usersListOutput = await userQueryService.getUsersList(queryParam);
+    const usersListOutput = await userQueryService.getUsersList(queryParamData);
 
-    res.status(HTTP_STATUS_CODES.OK_200).json(usersListOutput.items);
+    res.status(HTTP_STATUS_CODES.OK_200).json(usersListOutput);
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 
