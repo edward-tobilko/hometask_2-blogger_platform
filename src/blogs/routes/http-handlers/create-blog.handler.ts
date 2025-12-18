@@ -23,7 +23,7 @@ export async function createNewBlogHandler(
 
     const createdBlogOutput = await blogsService.createBlog(command);
 
-    log("createdBlogOutput ->", createdBlogOutput.data);
+    // log("createdBlogOutput ->", createdBlogOutput.data);
 
     res.status(HTTP_STATUS_CODES.CREATED_201).json(createdBlogOutput.data);
   } catch (error: unknown) {
