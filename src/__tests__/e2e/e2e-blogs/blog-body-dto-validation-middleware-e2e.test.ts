@@ -36,7 +36,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
       websiteUrl: testBlogDataDto.websiteUrl,
     });
 
-    // * Перевіряємо поля, які генерує сервер
+    // * Проверяем поля, которые генерирует сервер
     expect(createBlogResponse).toHaveProperty("id", expect.any(String));
     expect(createBlogResponse).toHaveProperty("createdAt", expect.any(String));
   });
@@ -84,7 +84,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
     },
   ] as const)(
     "400 - should not create blog if the inputModel has incorrect values",
-    async ({ name, payload, field }) => {
+    async ({ payload, field }) => {
       const createBlogResponse = await request(app)
         .post(routersPaths.blogs)
         .set("Authorization", generateBasicAuthToken())

@@ -10,7 +10,6 @@ import { createPostUtil } from "../../utils/posts/create-post.util";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { FieldsOnly } from "../../../core/types/fields-only.type";
 import { CreatePostRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
 import { routersPaths } from "../../../core/paths/paths";
 
@@ -100,7 +99,7 @@ describe("Create (POST) posts API body validation ", () => {
     },
   ] as const)(
     "400 - should not create post if the inputModel has incorrect values",
-    async ({ name, payload, field }) => {
+    async ({ payload, field }) => {
       const createPostResponse = await request(app)
         .post(routersPaths.posts)
         .set("Authorization", adminToken)
@@ -130,7 +129,7 @@ describe("Create (POST) posts API body validation ", () => {
     expect(result.body.errorsMessages).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          message: expect.stringContaining("blogId is not exist"),
+          message: expect.stringContaining("Blog is not exist"),
           field: "blogId",
         }),
       ])

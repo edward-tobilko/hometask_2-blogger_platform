@@ -51,7 +51,9 @@ describe("E2E Posts API tests", () => {
     await createPostUtil(app, postDataDto);
 
     const postListResponse = await request(app)
-      .get(routersPaths.posts)
+      .get(
+        `${routersPaths.posts}?pageNumber=1&pageSize=5&sortBy=content&sortDirection=asc`
+      )
       .expect(HTTP_STATUS_CODES.OK_200);
 
     expect(Array.isArray(postListResponse.body.items)).toBe(true);
