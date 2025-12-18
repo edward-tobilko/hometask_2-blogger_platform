@@ -25,15 +25,13 @@ export const inputResultMiddlewareValidation = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("REQ:", req.method, req.originalUrl);
+  console.log("RAW QUERY:", req.query);
 
   const errorsMessages = validationResult(req)
     .formatWith(formatValidationErrors)
     .array({ onlyFirstError: true }); // покажет нам первую ошибку филда, а не все сразу
 
   if (errorsMessages.length > 0) {
-    console.log("VALIDATION ERRORS:", errorsMessages);
-
     return res
       .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
       .json(createErrorMessages(errorsMessages));
