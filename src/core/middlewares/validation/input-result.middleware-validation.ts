@@ -31,6 +31,8 @@ export const inputResultMiddlewareValidation = (
     .formatWith(formatValidationErrors)
     .array({ onlyFirstError: true }); // покажет нам первую ошибку филда, а не все сразу
 
+  console.log("VALIDATION ERRORS:", errorsMessages);
+
   if (errorsMessages.length > 0) {
     return res
       .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
