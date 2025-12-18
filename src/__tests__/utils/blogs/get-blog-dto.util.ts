@@ -2,8 +2,9 @@ import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
 
 export function getBlogDtoUtil(): BlogDtoDomain {
   return {
-    name: "random name",
-    description: "random description",
-    websiteUrl: "https://random-example.com",
+    name: "Sam",
+    description:
+      "A curated list of tools and best practices for modern back-end engineers.",
+    websiteUrl: "https://back-end.org",
   };
 }
