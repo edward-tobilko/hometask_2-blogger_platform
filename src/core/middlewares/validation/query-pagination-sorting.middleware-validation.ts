@@ -9,13 +9,17 @@ export function queryPaginationAndSortingValidation<T extends string>(
   sortFieldEnum: Record<string, T> // Record<string, T> - тип объекта, где ключи типа string, значения типа Т
 ) {
   const allowedSortFields = Object.values(sortFieldEnum);
-  const allowedDirections = Object.values(SortDirections);
+  const allowedDirections = Object.values(SortDirections).map((v) =>
+    String(v).toLowerCase()
+  );
 
   return [
     query("sortBy")
       // * trim ДО optional
       .customSanitizer(trimString)
       .optional({ checkFalsy: true })
+      .isString()
+      .bail()
       .isIn(allowedSortFields)
       .withMessage(`Allowed sort fields: ${allowedSortFields.join(", ")}`),
 
@@ -29,6 +33,8 @@ export function queryPaginationAndSortingValidation<T extends string>(
           : typeQuery;
       })
       .optional({ checkFalsy: true })
+      .isString()
+      .bail()
       .isIn(allowedDirections)
       .withMessage(
         `Sort direction must be one of: ${allowedDirections.join(", ")}`

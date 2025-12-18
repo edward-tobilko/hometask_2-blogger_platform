@@ -25,6 +25,8 @@ export const inputResultMiddlewareValidation = (
   res: Response,
   next: NextFunction
 ) => {
+  console.log("REQ:", req.method, req.originalUrl);
+
   const errorsMessages = validationResult(req)
     .formatWith(formatValidationErrors)
     .array({ onlyFirstError: true }); // покажет нам первую ошибку филда, а не все сразу
