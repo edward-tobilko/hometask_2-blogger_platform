@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { log } from "node:console";
+// import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { createCommand } from "../../../core/helpers/create-command.helper";
