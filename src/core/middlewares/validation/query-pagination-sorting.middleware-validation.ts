@@ -34,23 +34,17 @@ export function queryPaginationAndSortingValidation<T extends string>(
       ),
 
     query("pageNumber")
-      .customSanitizer((value) =>
-        value === undefined || value === ""
-          ? String(DEFAULT_PAGE_NUMBER)
-          : String(value)
-      )
+      .optional({ checkFalsy: true }) // "", undefined → по дэфолту
       .isInt({ min: 1 })
+      .withMessage("Page number must be a positive integer")
       .toInt()
-      .withMessage("Page number must be a positive integer"),
+      .default(DEFAULT_PAGE_NUMBER),
 
     query("pageSize")
-      .customSanitizer((value) =>
-        value === undefined || value === ""
-          ? String(DEFAULT_PAGE_SIZE)
-          : String(value)
-      )
+      .optional({ checkFalsy: true })
       .isInt({ min: 1 })
+      .withMessage("Page size must be a positive integer")
       .toInt()
-      .withMessage("Page size must be a positive integer"),
+      .default(DEFAULT_PAGE_SIZE),
   ];
 }
