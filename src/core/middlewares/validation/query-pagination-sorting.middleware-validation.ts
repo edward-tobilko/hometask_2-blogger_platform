@@ -36,8 +36,8 @@ export function queryPaginationAndSortingValidation<T extends string>(
     query("pageNumber")
       .customSanitizer((value) =>
         value === undefined || value === ""
-          ? DEFAULT_PAGE_NUMBER
-          : Number(value)
+          ? String(DEFAULT_PAGE_NUMBER)
+          : String(value)
       )
       .isInt({ min: 1 })
       .toInt()
@@ -45,7 +45,9 @@ export function queryPaginationAndSortingValidation<T extends string>(
 
     query("pageSize")
       .customSanitizer((value) =>
-        value === undefined || value === "" ? DEFAULT_PAGE_SIZE : Number(value)
+        value === undefined || value === ""
+          ? String(DEFAULT_PAGE_SIZE)
+          : String(value)
       )
       .isInt({ min: 1 })
       .toInt()
