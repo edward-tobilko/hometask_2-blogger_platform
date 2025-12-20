@@ -69,7 +69,7 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ---
 
-**+**
+## Дополнительно реализовано, расширение предыдущей функциональности
 
 - Добавлен новые энд-поинты api/users: GET / POST / DELETE.
 - Розделения BLL service и repository на получения ( query ).
