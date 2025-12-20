@@ -1,6 +1,6 @@
+import { ApplicationError } from "./application.error";
 import { Request, Response } from "express";
 
-import { ApplicationError } from "./application.error";
 import { HTTP_STATUS_CODES } from "../utils/http-status-codes.util";
 import { createErrorMessages } from "./create-error-messages.error";
 
@@ -10,9 +10,9 @@ export const errorsHandler = (
   res: Response
 ): void => {
   if (err instanceof ApplicationError) {
-    const httpStatus_404 = HTTP_STATUS_CODES.NOT_FOUND_404;
+    const status = err.statusCode ?? HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY_422;
 
-    res.status(httpStatus_404).json(
+    res.status(status).json(
       createErrorMessages([
         {
           message: err.message,
@@ -24,24 +24,9 @@ export const errorsHandler = (
     return;
   }
 
-  if (err instanceof ApplicationError) {
-    const httpStatus_422 = HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY_422;
-
-    const errorBody = createErrorMessages([
-      {
-        message: err.message,
-        field: err.field!,
-      },
-    ]);
-
-    res.status(httpStatus_422).json(errorBody);
-
-    return;
-  }
-
-  const httpStatus_500 = HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500;
-
-  res.status(httpStatus_500).json({ message: "Internal server error" });
+  res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+    errorsMessages: [{ message: "Internal Server Error", field: err }],
+  });
 
   return;
 };

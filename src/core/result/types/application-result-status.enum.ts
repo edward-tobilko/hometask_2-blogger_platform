@@ -1,4 +1,7 @@
 export enum ApplicationResultStatus {
-  Success = "success",
-  Error = "error",
+  Success = "Success",
+  NotFound = "NotFound",
+  Forbidden = "Forbidden",
+  Unauthorized = "Unauthorized",
+  BadRequest = "BadRequest",
 }

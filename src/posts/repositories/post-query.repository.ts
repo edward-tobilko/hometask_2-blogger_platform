@@ -36,7 +36,7 @@ export class PostQueryRepository {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
     if (!result) {
-      throw new RepositoryNotFoundError("Post is not exist!");
+      throw new RepositoryNotFoundError("Post is not exist!", "id");
     }
 
     return mapToPostOutput(result);
