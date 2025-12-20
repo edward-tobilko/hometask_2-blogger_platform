@@ -6,7 +6,7 @@ import { postsService } from "../../application/posts-service";
 import { UpdatePostRequestPayload } from "../request-payloads/update-post.request-payload";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { UpdatePostDtoCommand } from "../../application/commands/post-dto-type.commands";
-import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
+import { errorsHandler } from "../../../core/errors/errors-handler.error";
 
 export async function updatePostHandler(
   req: Request<{ id: string }, {}, UpdatePostRequestPayload, {}>,
@@ -27,15 +27,7 @@ export async function updatePostHandler(
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {
-    if (error instanceof RepositoryNotFoundError) {
-      return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-        errorsMessages: [{ message: (error as Error).message, field: "id" }],
-      });
-    }
-
-    return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-      errorsMessages: [{ message: "Internal Server Error", field: "id" }],
-    });
+    errorsHandler(error, req, res);
   }
 }
 

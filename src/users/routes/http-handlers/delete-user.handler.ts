@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { userService } from "../../applications/user.service";
-import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
+import { errorsHandler } from "../../../core/errors/errors-handler.error";
 
 export const deleteUserHandler = async (
   req: Request<{ id: string }>,
@@ -16,15 +16,7 @@ export const deleteUserHandler = async (
 
     res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {
-    if (error instanceof RepositoryNotFoundError) {
-      return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-        errorsMessages: [{ message: (error as Error).message, field: "id" }],
-      });
-    }
-
-    return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-      errorsMessages: [{ message: "Internal Server Error", field: "id" }],
-    });
+    errorsHandler(error, req, res);
   }
 };
 

@@ -1,5 +1,4 @@
 import { PasswordHasher } from "./../../auth/adapters/bcrypt-hasher-service.adapter";
-import { ApplicationError } from "../../core/errors/application.error";
 import { ApplicationResult } from "../../core/result/application.result";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UserRepository } from "../repositories/user.repository";
@@ -9,6 +8,8 @@ import { UserDtoDomain } from "../domain/user-dto.domain";
 import { UserDomain } from "../domain/user.domain";
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { UserOutput } from "./output/user.output";
+import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
+import { ValidationError } from "../../core/errors/application.error";
 
 class UserService {
   private userRepo: UserRepository;
@@ -23,7 +24,7 @@ class UserService {
 
   async createUser(
     command: WithMeta<CreateUserDtoCommand>
-  ): Promise<ApplicationResult<UserOutput | null>> {
+  ): Promise<ApplicationResult<UserOutput>> {
     const dto = command.payload;
 
     const { email, password, login } = dto;
@@ -37,14 +38,10 @@ class UserService {
     if (existedUser) {
       const field = existedUser.login === login ? "login" : "email";
 
-      return new ApplicationResult<UserOutput | null>({
-        errors: [
-          new ApplicationError(
-            `${field} should be unique`, // message
-            field // field (поле: login або email)
-          ),
-        ],
-      });
+      throw new ValidationError(
+        `${field} should be unique`, // message
+        field // field (поле: login або email)
+      );
     }
 
     // * Генерация хеша пароля
@@ -72,26 +69,21 @@ class UserService {
 
     // * Возвращаем id созданного пользователя
     return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
       data: userOutput,
     });
   }
 
-  async deleteUser(command: WithMeta<{ id: string }>): Promise<void> {
+  async deleteUser(command: WithMeta<{ id: string }>): Promise<boolean> {
     const id = command.payload.id;
 
     const userId = await this.userQueryRepo.findUserByIdQueryRepo(id);
 
     if (!userId) {
-      throw new RepositoryNotFoundError("User is not found!");
+      throw new RepositoryNotFoundError("User is not found!", "userId");
     }
 
-    const isDeleted = await this.userRepo.deleteUserRepo(id);
-
-    if (!isDeleted) {
-      throw new RepositoryNotFoundError("User is not exist!");
-    }
-
-    return;
+    return await this.userRepo.deleteUserRepo(id);
   }
 }
 

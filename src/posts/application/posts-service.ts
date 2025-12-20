@@ -10,6 +10,7 @@ import { BlogQueryRepository } from "../../blogs/repositories/blog-query.reposit
 import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 import { PostOutput } from "./output/post-type.output";
+import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 
 class PostsService {
   private postsRepository: PostsRepository;
@@ -30,7 +31,7 @@ class PostsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
     const domainDto: CreatePostDtoDomain = {
@@ -48,6 +49,7 @@ class PostsService {
       );
 
     return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
       data: {
         id: savedPost._id?.toString(),
         title: savedPost.title,
@@ -57,6 +59,7 @@ class PostsService {
         blogName: blog.name,
         createdAt: savedPost.createdAt.toISOString(),
       },
+      extensions: [],
     });
   }
 
@@ -69,7 +72,7 @@ class PostsService {
     const existingPost = await this.postsRepository.getPostDomainById(id);
 
     if (!existingPost) {
-      throw new RepositoryNotFoundError("Post does not exist!");
+      throw new RepositoryNotFoundError("Post does not exist!", "postId");
     }
 
     // обновляем доменную сущность
@@ -78,7 +81,11 @@ class PostsService {
     // сохраняем изменения
     await this.postsRepository.updatePostRepo(existingPost);
 
-    return new ApplicationResult({ data: null });
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
+      extensions: [],
+    });
   }
 
   async deletePost(id: string): Promise<void> {

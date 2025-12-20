@@ -1,9 +1,8 @@
-export class RepositoryNotFoundError extends Error {
-  constructor(message: string) {
-    super(message);
+import { HTTP_STATUS_CODES } from "../utils/http-status-codes.util";
+import { ApplicationError } from "./application.error";
 
-    this.name = new.target.name;
-
-    Object.setPrototypeOf(this, new.target.prototype); // перехвачиваем ошибки в handler с repo or service
+export class RepositoryNotFoundError extends ApplicationError {
+  constructor(message = "Not found", field: string | null = null) {
+    super(field, message, HTTP_STATUS_CODES.NOT_FOUND_404);
   }
 }

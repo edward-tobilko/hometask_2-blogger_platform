@@ -5,6 +5,9 @@ import { UsersQueryRepository } from "../../users/repositories/users-query.repos
 import { PasswordHasher } from "../adapters/bcrypt-hasher-service.adapter";
 import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
 import { createToken } from "../../core/infrastructure/crypto/random-uuid.crypto";
+import { ApplicationResult } from "../../core/result/application.result";
+import { UserDomain } from "../../users/domain/user.domain";
+import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 
 class AuthService {
   constructor(
@@ -14,7 +17,7 @@ class AuthService {
 
   async checkUserCredentials(
     command: WithMeta<LoginAuthDtoCommand>
-  ): Promise<boolean> {
+  ): Promise<ApplicationResult<UserDomain>> {
     const { loginOrEmail, password } = command.payload;
 
     const user = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
@@ -22,9 +25,32 @@ class AuthService {
       loginOrEmail
     );
 
-    if (!user) return false;
+    if (!user) {
+      return new ApplicationResult<UserDomain>({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [{ field: "loginOrEmail", message: "Not found" }],
+        errorMessage: "User not found",
+      });
+    }
 
-    return this.passwordHasher.checkPassword(password, user.passwordHash);
+    const isPassCorrect = await this.passwordHasher.checkPassword(
+      password,
+      user.passwordHash
+    );
+
+    if (!isPassCorrect) {
+      return new ApplicationResult<UserDomain>({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [{ field: "password", message: "Invalid credentials" }],
+      });
+    }
+
+    return new ApplicationResult<UserDomain>({
+      status: ApplicationResultStatus.Success,
+      data: user,
+    });
   }
 
   async loginUser(

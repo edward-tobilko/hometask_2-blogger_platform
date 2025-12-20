@@ -1,6 +1,9 @@
 import { ApplicationError } from "../../errors/application.error";
+import { ApplicationResultStatus } from "./application-result-status.enum";
 
 export type ApplicationResultBody<D> = {
-  data?: D;
-  errors?: ApplicationError[];
+  status: ApplicationResultStatus;
+  data: D | null;
+  errorMessage?: string;
+  extensions: ApplicationError[];
 };
