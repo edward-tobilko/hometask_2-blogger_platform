@@ -3,21 +3,20 @@ import { ApplicationResultBody } from "./types/application-result-body.type";
 import { ApplicationResultStatus } from "./types/application-result-status.enum";
 
 export class ApplicationResult<D = null> {
-  status: ApplicationResultStatus;
-  data: D | null;
-  extensions: ApplicationError[];
-  errorMessage?: string;
+  public readonly status: ApplicationResultStatus;
+  public readonly data: D | null = null;
+  public readonly extensions: ApplicationError[] = [];
+  public readonly errorMessage?: string;
 
-  constructor(args: ApplicationResultBody<D>) {
-    if (args.extensions && args.extensions.length) {
-      this.status = ApplicationResultStatus.BadRequest;
-      this.data = null;
-      this.extensions = args.extensions;
-    } else {
-      this.status = ApplicationResultStatus.Success;
-      this.data = args.data;
-      this.extensions = args.extensions;
-    }
+  constructor(body: ApplicationResultBody<D>) {
+    this.status = body.status;
+    this.data = body.data;
+    this.extensions = body.extensions ?? [];
+    this.errorMessage = body.errorMessage;
+  }
+
+  isSuccess() {
+    return this.status === ApplicationResultStatus.Success;
   }
 
   hasError() {
