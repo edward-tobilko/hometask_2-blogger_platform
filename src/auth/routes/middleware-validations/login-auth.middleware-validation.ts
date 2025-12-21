@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 
-export const loginOrEmailAuthMiddlewareValidation = [
+export const loginOrEmailAuthValidation = [
   body("loginOrEmail")
     .isString()
     .withMessage("loginOrEmail must be a string")

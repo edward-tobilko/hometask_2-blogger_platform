@@ -5,7 +5,7 @@ import { getUsersListHandler } from "./http-handlers/get-users-list.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import { UserSortField } from "./request-payloads/user-sort-field.request-payload";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { adminGuardMiddlewareAuth } from "../../auth/routes/guards/admin-guard.middleware";
+import { baseAuthGuard } from "../../auth/api/guards/base.guard";
 import { createUserDtoMiddlewareValidations } from "./middleware-validations/create-user-dto.middleware-validation";
 import { createUserHandler } from "./http-handlers/create-user.handler";
 import { deleteUserHandler } from "./http-handlers/delete-user.handler";
@@ -15,7 +15,7 @@ export const usersRoute = Router({});
 
 usersRoute.get(
   "",
-  adminGuardMiddlewareAuth,
+  baseAuthGuard,
   queryPaginationAndSortingValidation<UserSortField>(UserSortField),
   query("searchLoginTerm").optional({ checkFalsy: true }).isString().trim(),
   query("searchEmailTerm").optional({ checkFalsy: true }).isString().trim(),
@@ -26,7 +26,7 @@ usersRoute.get(
 
 usersRoute.post(
   "",
-  adminGuardMiddlewareAuth,
+  baseAuthGuard,
   createUserDtoMiddlewareValidations,
   inputResultMiddlewareValidation,
   createUserHandler
@@ -34,7 +34,7 @@ usersRoute.post(
 
 usersRoute.delete(
   "/:id",
-  adminGuardMiddlewareAuth,
+  baseAuthGuard,
   paramIdValidation,
   inputResultMiddlewareValidation,
   deleteUserHandler

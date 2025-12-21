@@ -12,6 +12,7 @@ import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.
 import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/post-dto-type.commands";
 import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
 import { PostOutput } from "../../posts/application/output/post-type.output";
+import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 
 export class BlogsService {
   private blogsRepository: BlogsRepository;
@@ -30,6 +31,7 @@ export class BlogsService {
     const createdBlog = await this.blogsRepository.saveBlogRepo(newBlog);
 
     return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
       data: {
         id: createdBlog._id!.toString(),
         name: createdBlog.name,
@@ -38,6 +40,7 @@ export class BlogsService {
         createdAt: createdBlog.createdAt.toISOString(),
         isMembership: createdBlog.isMembership,
       },
+      extensions: [],
     });
   }
 
@@ -50,7 +53,7 @@ export class BlogsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
     // добавляем blogName к доменному dto
@@ -79,7 +82,9 @@ export class BlogsService {
 
     // возвращаем output
     return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
       data: postViewModel,
+      extensions: [],
     });
   }
 
@@ -94,7 +99,11 @@ export class BlogsService {
 
     await this.blogsRepository.saveBlogRepo(blog);
 
-    return new ApplicationResult({ data: null });
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
+      extensions: [],
+    });
   }
 
   async deleteBlog(
@@ -102,7 +111,11 @@ export class BlogsService {
   ): Promise<ApplicationResult<null>> {
     await this.blogsRepository.deleteBlogRepo(command.payload.id);
 
-    return new ApplicationResult({ data: null });
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
+      extensions: [],
+    });
   }
 }
 
