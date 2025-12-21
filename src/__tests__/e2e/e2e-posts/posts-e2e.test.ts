@@ -5,7 +5,7 @@ import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { setupApp } from "../../../app";
 import { clearDB } from "../../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { createPostUtil } from "../../utils/posts/create-post.util";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";

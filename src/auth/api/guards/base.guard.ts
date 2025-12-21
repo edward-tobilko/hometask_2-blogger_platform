@@ -1,4 +1,4 @@
-import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { NextFunction, Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";

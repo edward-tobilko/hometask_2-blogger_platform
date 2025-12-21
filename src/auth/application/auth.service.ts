@@ -4,7 +4,6 @@ import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
 import { BcryptPasswordHasher } from "../adapters/bcrypt-hasher-service.adapter";
 import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
-import { createToken } from "../../core/infrastructure/crypto/random-uuid.crypto";
 import { ApplicationResult } from "../../core/result/application.result";
 import { UserDomain } from "../../users/domain/user.domain";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
@@ -12,6 +11,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../../core/errors/application.error";
+import { jwtService } from "../adapters/jwt-service.adapter";
 
 class AuthService {
   constructor(
@@ -60,23 +60,25 @@ class AuthService {
   async loginUser(
     command: WithMeta<LoginAuthDtoCommand>
   ): Promise<ApplicationResult<{ accessToken: string } | null>> {
-    const isCorrectCredentials = await this.checkUserCredentials(command);
+    const result = await this.checkUserCredentials(command);
 
-    if (isCorrectCredentials.status !== ApplicationResultStatus.Success) {
+    if (result.status !== ApplicationResultStatus.Success) {
       return new ApplicationResult<{ accessToken: string } | null>({
-        status: isCorrectCredentials.status, // NotFound or Unauthorized
+        status: result.status, // NotFound or Unauthorized
         data: null,
-        extensions: isCorrectCredentials.extensions, // loginOrEmail or password
+        extensions: result.extensions, // loginOrEmail or password
       });
     }
 
-    const token = createToken();
+    const accessToken = await jwtService.createAccessToken(
+      result.data!._id.toString()
+    );
 
-    log("token from service (loginUser) ->", token); // b6c12d943338c4ad242ba2ee06af45a03dfda0aa0a6a335dd8d88c5d43fbfa70
+    log("token from service (loginUser) ->", accessToken); // b6c12d943338c4ad242ba2ee06af45a03dfda0aa0a6a335dd8d88c5d43fbfa70
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: { accessToken: token },
+      data: { accessToken },
       extensions: [],
     });
   }

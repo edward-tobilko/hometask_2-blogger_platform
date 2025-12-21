@@ -1,4 +1,4 @@
-import { uuid } from "../infrastructure/crypto/random-uuid.crypto";
+import { uuid } from "../infrastructure/crypto/uuid.crypto";
 
 interface ICommandMeta {
   throwError: boolean;

@@ -6,7 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { clearDB } from "../../utils/clear-db";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { routersPaths } from "../../../core/paths/paths";
