@@ -75,6 +75,13 @@ class PostsService {
       throw new RepositoryNotFoundError("Post does not exist!", "postId");
     }
 
+    if (existingPost.blogId.toString() !== updateDto.blogId) {
+      throw new RepositoryNotFoundError(
+        "Post does not exist in this blog",
+        "postId"
+      );
+    }
+
     // обновляем доменную сущность
     existingPost.updatePost(updateDto);
 

@@ -31,7 +31,7 @@ export class PostsRepository {
   async updatePostRepo(post: PostDomain): Promise<PostDomain> {
     if (!post._id) {
       throw new RepositoryNotFoundError(
-        "Post id is not provided for update",
+        "PostID is not provided for update",
         "postId"
       );
     }
@@ -43,7 +43,10 @@ export class PostsRepository {
     );
 
     if (updateResult.matchedCount < 1) {
-      throw new RepositoryNotFoundError("Post is not exist!", "postId");
+      throw new RepositoryNotFoundError(
+        "Post is not found in this blog",
+        "postId"
+      );
     }
 
     return post;

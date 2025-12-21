@@ -7,7 +7,9 @@ export type CreatePostDtoCommand = {
   blogId: string;
 };
 
-export type UpdatePostDtoCommand = UpdatePostDtoDomain & { id: string };
+export type UpdatePostDtoCommand = UpdatePostDtoDomain & {
+  id: string;
+};
 
 export type CreatePostForBlogDtoCommand = {
   title: string;
