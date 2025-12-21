@@ -12,6 +12,7 @@ export const setupApp = (app: Express) => {
   app.use(express.json());
 
   app.use(routersPaths.auth.login, authRoute);
+  app.use(routersPaths.auth.me, authRoute);
 
   app.get(routersPaths.root, (_req: Request, res: Response) => {
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");

@@ -1,10 +1,10 @@
 import { Collection, Db, MongoClient } from "mongodb";
 
-import { SETTINGS_MONGO_DB } from "../core/settings/setting-mongo.db";
 import { BlogDomain } from "../blogs/domain/blog.domain";
 import { PostDomain } from "../posts/domain/post.domain";
 import { UserDomain } from "../users/domain/user.domain";
 import { AuthDomain } from "../auth/domain/auth.domain";
+import { appConfig } from "../core/settings/config";
 
 let client: MongoClient;
 
@@ -24,7 +24,7 @@ export async function runDB(url: string): Promise<void> {
 
   try {
     await client.connect();
-    const dataBase: Db = client.db(SETTINGS_MONGO_DB.DB_NAME);
+    const dataBase: Db = client.db(appConfig.DB_NAME);
 
     // * Инициализация коллекций
     authCollection = dataBase.collection<AuthDomain>(AUTH_COLLECTION_NAME);
@@ -34,7 +34,7 @@ export async function runDB(url: string): Promise<void> {
 
     await dataBase.command({ ping: 1 });
 
-    console.log(`✅ Connected to the database: ${SETTINGS_MONGO_DB.DB_NAME}`);
+    console.log(`✅ Connected to the database: ${appConfig.DB_NAME}`);
   } catch (e) {
     await client.close();
 

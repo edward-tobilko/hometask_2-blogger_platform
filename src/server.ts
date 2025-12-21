@@ -1,8 +1,8 @@
 import express from "express";
 
 import { setupApp } from "./app";
-import { SETTINGS_MONGO_DB } from "./core/settings/setting-mongo.db";
 import { runDB } from "./db/mongo.db";
+import { appConfig } from "./core/settings/config";
 
 const bootstrap = async () => {
   const app = express();
@@ -12,7 +12,7 @@ const bootstrap = async () => {
   const PORT = Number(process.env.PORT ?? 5001);
 
   try {
-    await runDB(SETTINGS_MONGO_DB.MONGO_URL);
+    await runDB(appConfig.MONGO_URL);
 
     const server = app.listen(PORT, () => {
       console.log(`✅ Server running on http://localhost:${PORT}`);

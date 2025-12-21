@@ -7,7 +7,7 @@ import { clearDB } from "../../utils/clear-db";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/setting-mongo.db";
+import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import { getBlogByIdUtil } from "../../utils/blogs/get-blog-by-id.util";
 import { getPostsForBlogDtoUtil } from "../../utils/blogs/get-posts-for-blog-dto.util";

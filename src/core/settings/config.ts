@@ -1,0 +1,24 @@
+import { config } from "dotenv";
+import { Secret } from "jsonwebtoken";
+import { StringValue } from "ms";
+
+import { defaultDbName } from "./mongo-db.setting";
+
+config();
+
+export const appConfig = {
+  PORT: process.env.PORT,
+  MONGO_URL: process.env.MONGO_URL ?? "mongodb://127.0.0.1:27017",
+  DB_NAME: process.env.DB_NAME ?? defaultDbName,
+
+  AC_SECRET: process.env.AC_SECRET as Secret,
+  AC_TIME: process.env.AC_TIME as StringValue | undefined,
+  RT_SECRET: process.env.RT_SECRET,
+  DB_TYPE: process.env.DB_TYPE,
+
+  EMAIL: process.env.EMAIL as string,
+  EMAIL_PASS: process.env.EMAIL_PASS as string,
+
+  ADMIN_USERNAME: process.env.ADMIN_USERNAME ?? "",
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD ?? "",
+};
