@@ -4,4 +4,5 @@ export enum ApplicationResultStatus {
   Forbidden = "Forbidden",
   Unauthorized = "Unauthorized",
   BadRequest = "BadRequest",
+  Error = "Error",
 }

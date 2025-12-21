@@ -33,8 +33,7 @@ class AuthService {
       return new ApplicationResult<UserDomain>({
         status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [new NotFoundError("loginOrEmail")],
-        errorMessage: "User is not found!",
+        extensions: [new NotFoundError("loginOrEmail", "User is not found!")],
       });
     }
 
@@ -47,7 +46,7 @@ class AuthService {
       return new ApplicationResult<UserDomain>({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
-        extensions: [new UnauthorizedError("password", "Invalid credentials")],
+        extensions: [new UnauthorizedError("password", "Wrong password!")],
       });
     }
 
@@ -60,16 +59,26 @@ class AuthService {
 
   async loginUser(
     command: WithMeta<LoginAuthDtoCommand>
-  ): Promise<{ accessToken: string } | null> {
+  ): Promise<ApplicationResult<{ accessToken: string } | null>> {
     const isCorrectCredentials = await this.checkUserCredentials(command);
 
-    if (!isCorrectCredentials) return null;
+    if (isCorrectCredentials.status !== ApplicationResultStatus.Success) {
+      return new ApplicationResult<{ accessToken: string } | null>({
+        status: isCorrectCredentials.status, // NotFound or Unauthorized
+        data: null,
+        extensions: isCorrectCredentials.extensions, // loginOrEmail or password
+      });
+    }
 
     const token = createToken();
 
     log("token from service (loginUser) ->", token); // b6c12d943338c4ad242ba2ee06af45a03dfda0aa0a6a335dd8d88c5d43fbfa70
 
-    return { accessToken: token };
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: { accessToken: token },
+      extensions: [],
+    });
   }
 }
 

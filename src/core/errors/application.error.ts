@@ -1,31 +1,43 @@
 export class ApplicationError extends Error {
   public readonly field: string | null;
+  public readonly message: string;
   public readonly statusCode: number;
 
   constructor(field: string | null, message: string, statusCode: number) {
-    super(message);
+    super();
 
     this.field = field;
+    this.message = message;
     this.statusCode = statusCode;
+
     this.name = this.constructor.name; // только для логов
   }
 }
 
 export class ValidationError extends ApplicationError {
-  constructor(field: string | null, message: string) {
-    super(field, message, 422);
+  constructor(field: string | null, statusCode: number = 422, message: string) {
+    super(field, message, statusCode);
   }
 }
 
 export class NotFoundError extends ApplicationError {
-  constructor(message = "Not found", field: string | null = null) {
-    super(field, message, 404);
+  constructor(
+    field: string | null = null,
+
+    message: string = "Not found",
+    statusCode: number = 404
+  ) {
+    super(field, message, statusCode);
   }
 }
 
 export class UnauthorizedError extends ApplicationError {
-  constructor(message = "Unauthorized", field: string | null = null) {
-    super(field, message, 401);
+  constructor(
+    field: string | null = null,
+    message: string = "Unauthorized",
+    statusCode: number = 401
+  ) {
+    super(field, message, statusCode);
   }
 }
 
