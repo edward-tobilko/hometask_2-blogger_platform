@@ -1,4 +1,4 @@
-import { PasswordHasher } from "./../../auth/adapters/bcrypt-hasher-service.adapter";
+import { BcryptPasswordHasher } from "./../../auth/adapters/bcrypt-hasher-service.adapter";
 import { ApplicationResult } from "../../core/result/application.result";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UserRepository } from "../repositories/user.repository";
@@ -14,12 +14,12 @@ import { ValidationError } from "../../core/errors/application.error";
 class UserService {
   private userRepo: UserRepository;
   private userQueryRepo: UsersQueryRepository;
-  private passwordHasher: PasswordHasher;
+  private passwordHasher: BcryptPasswordHasher;
 
   constructor() {
     this.userRepo = new UserRepository();
     this.userQueryRepo = new UsersQueryRepository();
-    this.passwordHasher = new PasswordHasher();
+    this.passwordHasher = new BcryptPasswordHasher();
   }
 
   async createUser(
@@ -71,6 +71,7 @@ class UserService {
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
       data: userOutput,
+      extensions: [],
     });
   }
 

@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 
-export const adminGuardMiddlewareAuth = (
+export const baseAuthGuard = (
   req: Request,
   res: Response,
   next: NextFunction

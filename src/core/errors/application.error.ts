@@ -1,11 +1,13 @@
 export class ApplicationError extends Error {
-  constructor(
-    public readonly field: string | null,
-    message: string,
-    public readonly statusCode: number = 422 // default
-  ) {
+  public readonly field: string | null;
+  public readonly statusCode: number;
+
+  constructor(field: string | null, message: string, statusCode: number) {
     super(message);
-    this.name = this.constructor.name;
+
+    this.field = field;
+    this.statusCode = statusCode;
+    this.name = this.constructor.name; // только для логов
   }
 }
 

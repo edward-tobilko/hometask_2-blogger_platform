@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { query } from "express-validator";
 
-import { adminGuardMiddlewareAuth } from "../../auth/routes/guards/admin-guard.middleware";
+import { baseAuthGuard } from "../../auth/api/guards/base.guard";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { getBlogListHandler } from "./http-handlers/get-blog-list.handler";
 import { getBlogByIdHandler } from "./http-handlers/get-blog.handler";
@@ -53,7 +53,7 @@ blogsRoute.get(
 // * POST methods
 blogsRoute.post(
   "",
-  adminGuardMiddlewareAuth,
+  baseAuthGuard,
   createBlogDtoRequestPayloadValidation,
   inputResultMiddlewareValidation,
   createNewBlogHandler
@@ -61,7 +61,7 @@ blogsRoute.post(
 
 blogsRoute.post(
   "/:id/posts",
-  adminGuardMiddlewareAuth,
+  baseAuthGuard,
   createPostForBlogDtoRequestPayloadValidation,
   inputResultMiddlewareValidation,
   createPostForBlogHandler
@@ -70,7 +70,7 @@ blogsRoute.post(
 // * PUT methods
 blogsRoute.put(
   "/:id",
-  adminGuardMiddlewareAuth,
+  baseAuthGuard,
   paramIdValidation,
   updateBlogDtoRequestPayloadValidation,
   inputResultMiddlewareValidation,
@@ -80,7 +80,7 @@ blogsRoute.put(
 // * DELETE methods
 blogsRoute.delete(
   "/:id",
-  adminGuardMiddlewareAuth,
+  baseAuthGuard,
   paramIdValidation,
   inputResultMiddlewareValidation,
   deleteBlogHandler

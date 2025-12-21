@@ -2,17 +2,21 @@ import { log } from "node:console";
 
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
-import { PasswordHasher } from "../adapters/bcrypt-hasher-service.adapter";
+import { BcryptPasswordHasher } from "../adapters/bcrypt-hasher-service.adapter";
 import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
 import { createToken } from "../../core/infrastructure/crypto/random-uuid.crypto";
 import { ApplicationResult } from "../../core/result/application.result";
 import { UserDomain } from "../../users/domain/user.domain";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
+import {
+  NotFoundError,
+  UnauthorizedError,
+} from "../../core/errors/application.error";
 
 class AuthService {
   constructor(
     private readonly userQueryRepo: UsersQueryRepository,
-    private readonly passwordHasher: PasswordHasher
+    private readonly passwordHasher: BcryptPasswordHasher
   ) {}
 
   async checkUserCredentials(
@@ -29,8 +33,8 @@ class AuthService {
       return new ApplicationResult<UserDomain>({
         status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [{ field: "loginOrEmail", message: "Not found" }],
-        errorMessage: "User not found",
+        extensions: [new NotFoundError("loginOrEmail")],
+        errorMessage: "User is not found!",
       });
     }
 
@@ -43,13 +47,14 @@ class AuthService {
       return new ApplicationResult<UserDomain>({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
-        extensions: [{ field: "password", message: "Invalid credentials" }],
+        extensions: [new UnauthorizedError("password", "Invalid credentials")],
       });
     }
 
     return new ApplicationResult<UserDomain>({
       status: ApplicationResultStatus.Success,
       data: user,
+      extensions: [],
     });
   }
 
@@ -71,5 +76,5 @@ class AuthService {
 // * способ для production: легче писать тесты (можно подсунуть мок репозитория/хешера) и более гибко менять реализации (например, другой хэшер).
 export const authService = new AuthService(
   new UsersQueryRepository(),
-  new PasswordHasher()
+  new BcryptPasswordHasher()
 );
