@@ -2,7 +2,7 @@ import { body } from "express-validator";
 import { ObjectId } from "mongodb";
 
 import { blogsQueryService } from "../../blogs/application/blog-query.service";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
+import { RepositoryNotFoundError } from "../../core/errors/application.error";
 
 const titleValidation = body("title")
   .exists()

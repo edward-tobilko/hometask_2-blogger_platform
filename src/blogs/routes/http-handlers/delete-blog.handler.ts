@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
 import { createCommand } from "../../../core/helpers/create-command.helper";
-import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
+import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
 export async function deleteBlogHandler(
   req: Request<{ id: string }>,

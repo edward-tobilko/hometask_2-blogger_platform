@@ -1,4 +1,5 @@
 - adapters -> все, что работает с «внешним миром» (шифрование, почта, токены).
-- application -> BLL - бизнес логика, нашь сервис.
-- domain or repository -> DAL - бизнес-логика авторизации (login, logout, refresh и т.д.).
-- routes -> HTTP-уровень - роутер, middleware/guard’ы, все, что напрямую видит Express.
+- DTO / Command -> input от клиента.
+- Repository -> достает обьект с БД.
+- Domain -> работает только с валидными данными.
+- Controller -> отдает response.
