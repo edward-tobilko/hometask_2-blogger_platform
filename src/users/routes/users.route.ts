@@ -5,7 +5,7 @@ import { getUsersListHandler } from "./http-handlers/get-users-list.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import { UserSortField } from "./request-payloads/user-sort-field.request-payload";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { baseAuthGuard } from "../../auth/api/guards/base.guard";
+import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
 import { createUserDtoMiddlewareValidations } from "./middleware-validations/create-user-dto.middleware-validation";
 import { createUserHandler } from "./http-handlers/create-user.handler";
 import { deleteUserHandler } from "./http-handlers/delete-user.handler";

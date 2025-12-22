@@ -39,8 +39,9 @@ class UserService {
       const field = existedUser.login === login ? "login" : "email";
 
       throw new ValidationError(
+        field, // login or email
         `${field} should be unique`, // message
-        field // field (поле: login або email)
+        422 // status code
       );
     }
 

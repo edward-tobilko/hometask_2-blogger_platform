@@ -1,7 +1,7 @@
-import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { NextFunction, Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { appConfig } from "../../../core/settings/config";
 
 export const baseAuthGuard = (
   req: Request,
@@ -18,6 +18,7 @@ export const baseAuthGuard = (
 
   try {
     const base64Credentials = auth.split(" ")[1];
+
     if (!base64Credentials) {
       res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
@@ -27,6 +28,7 @@ export const baseAuthGuard = (
     const decoded = Buffer.from(base64Credentials, "base64").toString("utf-8");
 
     const sep = decoded.indexOf(":");
+
     if (sep === -1) {
       res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
@@ -37,8 +39,8 @@ export const baseAuthGuard = (
     const password = decoded.slice(sep + 1);
 
     if (
-      username === SETTINGS_MONGO_DB.ADMIN_USERNAME &&
-      password === SETTINGS_MONGO_DB.ADMIN_PASSWORD
+      username === appConfig.ADMIN_USERNAME &&
+      password === appConfig.ADMIN_PASSWORD
     ) {
       next();
 

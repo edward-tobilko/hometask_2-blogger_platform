@@ -3,13 +3,13 @@ import { ObjectId } from "mongodb";
 import { blogCollection, postCollection } from "../../db/mongo.db";
 import { mapToBlogListOutput } from "../application/mappers/map-to-blog-list-output.util";
 import { BlogListPaginatedOutput } from "../application/output/blog-list-paginated-type.output";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { BlogOutput } from "../application/output/blog-type.output";
 import { mapToBlogOutput } from "../application/mappers/map-to-blog-output.mapper";
 import { mapToPostListOutput } from "../../posts/application/mappers/map-to-post-list-output.util";
 import { PostsListPaginatedOutput } from "../../posts/application/output/posts-list-type.output";
 import { GetBlogsListQueryHandler } from "../application/query-handlers/get-blogs-list-type.query-handler";
 import { GetPostsListQueryHandler } from "../../posts/application/query-handlers/get-posts-list.query-handler";
+import { RepositoryNotFoundError } from "../../core/errors/application.error";
 
 export class BlogQueryRepository {
   async findAllBlogsQueryRepo(
