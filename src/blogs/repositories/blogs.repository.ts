@@ -1,9 +1,9 @@
 import { InsertOneResult, ObjectId, WithId } from "mongodb";
 
 import { blogCollection, postCollection } from "../../db/mongo.db";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { BlogDomain } from "../domain/blog.domain";
 import { PostDomain } from "../../posts/domain/post.domain";
+import { RepositoryNotFoundError } from "../../core/errors/application.error";
 
 export class BlogsRepository {
   async findBlogByIdReconstituteRepo(
@@ -12,7 +12,7 @@ export class BlogsRepository {
     const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
     }
 
     return BlogDomain.reconstitute(blog);
@@ -45,7 +45,7 @@ export class BlogsRepository {
 
       // * проверяем, если блог не найден, то выбрасываем ошибку
       if (updateResult.matchedCount < 1) {
-        throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+        throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
       }
 
       return newBlog;
@@ -89,7 +89,7 @@ export class BlogsRepository {
     });
 
     if (deleteResult.deletedCount < 1) {
-      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
     }
 
     return;

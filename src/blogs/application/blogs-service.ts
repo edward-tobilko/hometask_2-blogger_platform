@@ -8,11 +8,11 @@ import { ApplicationResult } from "../../core/result/application.result";
 import { BlogDomain } from "../domain/blog.domain";
 import { BlogQueryRepository } from "../repositories/blog-query.repository";
 import { PostDomain } from "../../posts/domain/post.domain";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/post-dto-type.commands";
 import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
 import { PostOutput } from "../../posts/application/output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
+import { RepositoryNotFoundError } from "../../core/errors/application.error";
 
 export class BlogsService {
   private blogsRepository: BlogsRepository;
@@ -53,7 +53,7 @@ export class BlogsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
     }
 
     // добавляем blogName к доменному dto

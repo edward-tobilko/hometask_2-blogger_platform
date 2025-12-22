@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
 import { blogsQueryService } from "../../application/blog-query.service";
+import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
 export async function getBlogByIdHandler(
   req: Request<{ id: string }>,

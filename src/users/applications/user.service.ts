@@ -6,10 +6,12 @@ import { UsersQueryRepository } from "../repositories/users-query.repository";
 import { CreateUserDtoCommand } from "./commands/user-dto.commands";
 import { UserDtoDomain } from "../domain/user-dto.domain";
 import { UserDomain } from "../domain/user.domain";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { UserOutput } from "./output/user.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
-import { ValidationError } from "../../core/errors/application.error";
+import {
+  RepositoryNotFoundError,
+  ValidationError,
+} from "../../core/errors/application.error";
 
 class UserService {
   private userRepo: UserRepository;
@@ -82,7 +84,7 @@ class UserService {
     const userId = await this.userQueryRepo.findUserByIdQueryRepo(id);
 
     if (!userId) {
-      throw new RepositoryNotFoundError("User is not found!", "userId");
+      throw new RepositoryNotFoundError("userId", "User is not found!");
     }
 
     return await this.userRepo.deleteUserRepo(id);

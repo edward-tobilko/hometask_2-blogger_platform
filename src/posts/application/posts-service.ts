@@ -7,10 +7,10 @@ import {
   UpdatePostDtoCommand,
 } from "./commands/post-dto-type.commands";
 import { BlogQueryRepository } from "../../blogs/repositories/blog-query.repository";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 import { PostOutput } from "./output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
+import { RepositoryNotFoundError } from "../../core/errors/application.error";
 
 class PostsService {
   private postsRepository: PostsRepository;
@@ -31,7 +31,7 @@ class PostsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
     }
 
     const domainDto: CreatePostDtoDomain = {
@@ -72,13 +72,13 @@ class PostsService {
     const existingPost = await this.postsRepository.getPostDomainById(id);
 
     if (!existingPost) {
-      throw new RepositoryNotFoundError("Post does not exist!", "postId");
+      throw new RepositoryNotFoundError("postId", "Post does not exist!");
     }
 
     if (existingPost.blogId.toString() !== updateDto.blogId) {
       throw new RepositoryNotFoundError(
-        "Post does not exist in this blog",
-        "postId"
+        "postId",
+        "Post does not exist in this blog"
       );
     }
 

@@ -5,9 +5,9 @@ import { log } from "node:console";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { blogsQueryService } from "../../application/blog-query.service";
-import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
 import { PostSortField } from "../../../posts/routes/request-payloads/post-sort-field.request-payload";
 import { PostsListRequestPayload } from "../../../posts/routes/request-payloads/posts-list.request-payload";
+import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
 export async function getPostListForBlogHandler(
   req: Request<{ id: string }, {}, {}, {}>,

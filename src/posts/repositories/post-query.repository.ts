@@ -5,8 +5,8 @@ import { mapToPostListOutput } from "../application/mappers/map-to-post-list-out
 import { PostOutput } from "../application/output/post-type.output";
 import { PostsListPaginatedOutput } from "../application/output/posts-list-type.output";
 import { GetPostsListQueryHandler } from "../application/query-handlers/get-posts-list.query-handler";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { mapToPostOutput } from "../application/mappers/map-to-post-output.util";
+import { RepositoryNotFoundError } from "../../core/errors/application.error";
 
 export class PostQueryRepository {
   async getPostsQueryRepo(
@@ -36,7 +36,7 @@ export class PostQueryRepository {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
     if (!result) {
-      throw new RepositoryNotFoundError("Post is not exist!", "id");
+      throw new RepositoryNotFoundError("id", "Post is not exist!");
     }
 
     return mapToPostOutput(result);

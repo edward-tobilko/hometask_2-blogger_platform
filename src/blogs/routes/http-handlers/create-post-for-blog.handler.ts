@@ -7,7 +7,7 @@ import { blogsService } from "../../application/blogs-service";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post-for-blog.request-payload";
 import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/post-dto-type.commands";
-import { RepositoryNotFoundError } from "../../../core/errors/repository-not-found.error";
+import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
 export async function createPostForBlogHandler(
   req: Request<{ id: string }, {}, CreatePostForBlogRequestPayload, {}>,

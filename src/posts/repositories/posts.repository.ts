@@ -1,15 +1,15 @@
 import { ObjectId } from "mongodb";
 
 import { postCollection } from "../../db/mongo.db";
-import { RepositoryNotFoundError } from "../../core/errors/repository-not-found.error";
 import { PostDomain } from "../domain/post.domain";
+import { RepositoryNotFoundError } from "../../core/errors/application.error";
 
 export class PostsRepository {
   async getPostDomainById(postId: string): Promise<PostDomain> {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
     if (!result) {
-      throw new RepositoryNotFoundError("Post is not exist!", "postId");
+      throw new RepositoryNotFoundError("postId", "Post is not exist!");
     }
 
     return PostDomain.reconstitute({
