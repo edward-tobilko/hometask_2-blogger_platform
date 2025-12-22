@@ -1,3 +1,5 @@
+import { HTTP_STATUS_CODES } from "../utils/http-status-codes.util";
+
 export class ApplicationError extends Error {
   public readonly field: string | null;
   public readonly message: string;
@@ -15,7 +17,7 @@ export class ApplicationError extends Error {
 }
 
 export class ValidationError extends ApplicationError {
-  constructor(field: string | null, statusCode: number = 422, message: string) {
+  constructor(field: string | null, message: string, statusCode: number) {
     super(field, message, statusCode);
   }
 }
@@ -23,7 +25,6 @@ export class ValidationError extends ApplicationError {
 export class NotFoundError extends ApplicationError {
   constructor(
     field: string | null = null,
-
     message: string = "Not found",
     statusCode: number = 404
   ) {
@@ -36,6 +37,16 @@ export class UnauthorizedError extends ApplicationError {
     field: string | null = null,
     message: string = "Unauthorized",
     statusCode: number = 401
+  ) {
+    super(field, message, statusCode);
+  }
+}
+
+export class RepositoryNotFoundError extends ApplicationError {
+  constructor(
+    field: string | null = null,
+    message = "Not found",
+    statusCode: number = 404
   ) {
     super(field, message, statusCode);
   }

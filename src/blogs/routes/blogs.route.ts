@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { query } from "express-validator";
 
-import { baseAuthGuard } from "../../auth/api/guards/base.guard";
+import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { getBlogListHandler } from "./http-handlers/get-blog-list.handler";
 import { getBlogByIdHandler } from "./http-handlers/get-blog.handler";

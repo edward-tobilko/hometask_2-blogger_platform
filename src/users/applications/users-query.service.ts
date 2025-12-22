@@ -1,4 +1,5 @@
 import { UsersQueryRepository } from "../repositories/users-query.repository";
+import { UserOutput } from "./output/user.output";
 import { UsersListPaginatedOutput } from "./output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "./query-handlers/get-users-list.query-handler";
 
@@ -9,6 +10,10 @@ class UserQueryService {
     queryParam: GetUsersListQueryHandler
   ): Promise<UsersListPaginatedOutput> {
     return await this.usersQueryRepository.getUsersListQueryRepo(queryParam);
+  }
+
+  async getUserById(userId: string): Promise<UserOutput | null> {
+    return await this.usersQueryRepository.findUserByIdQueryRepo(userId);
   }
 }
 

@@ -71,7 +71,7 @@ class AuthService {
     }
 
     const accessToken = await jwtService.createAccessToken(
-      result.data!._id.toString()
+      result.data!._id!.toString()
     );
 
     log("token from service (loginUser) ->", accessToken); // b6c12d943338c4ad242ba2ee06af45a03dfda0aa0a6a335dd8d88c5d43fbfa70
