@@ -5,8 +5,8 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { postsService } from "../../application/posts-service";
 import { UpdatePostRequestPayload } from "../request-payloads/update-post.request-payload";
 import { createCommand } from "../../../core/helpers/create-command.helper";
-import { UpdatePostDtoCommand } from "../../application/commands/post-dto-type.commands";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
+import { UpdatePostDtoCommand } from "../../application/commands/update-post-dto.command";
 
 export async function updatePostHandler(
   req: Request<{ id: string }, {}, UpdatePostRequestPayload, {}>,

@@ -11,6 +11,9 @@ import { queryPaginationAndSortingValidation } from "../../core/middlewares/vali
 import { PostSortField } from "./request-payloads/post-sort-field.request-payload";
 import { createPostHandler } from "./http-handlers/create-post.handler";
 import { updatePostHandler } from "./http-handlers/update-post.handler";
+import { createCommentHandler } from "./http-handlers/create-comment.handler";
+import { createCommentDtoValidation } from "../validations/create-comment-dto.validation";
+import { jwtAuthGuard } from "../../auth/api/guards/jwt-auth.guard";
 
 export const postsRoute = Router({});
 
@@ -21,6 +24,7 @@ postsRoute.get(
   inputResultMiddlewareValidation,
   getPostListHandler
 );
+
 postsRoute.get(
   "/:id",
   paramIdValidation,
@@ -35,6 +39,14 @@ postsRoute.post(
   postBodyInputValidationMiddleware,
   inputResultMiddlewareValidation,
   createPostHandler
+);
+
+postsRoute.post(
+  "/:postId/comments",
+  jwtAuthGuard,
+  createCommentDtoValidation,
+  inputResultMiddlewareValidation,
+  createCommentHandler
 );
 
 // * PUT methods

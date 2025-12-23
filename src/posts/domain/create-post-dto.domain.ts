@@ -1,9 +1,11 @@
-// * DTO model
+import { ObjectId } from "mongodb";
+
+// * DTO model - response for db
 export type CreatePostDtoDomain = {
   title: string;
   shortDescription: string;
   content: string;
-  blogId: string;
+  blogId: ObjectId | string;
 
   blogName: string;
 };

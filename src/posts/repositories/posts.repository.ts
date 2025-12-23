@@ -1,10 +1,12 @@
 import { ObjectId } from "mongodb";
 
-import { postCollection } from "../../db/mongo.db";
+import { commentsCollection, postCollection } from "../../db/mongo.db";
 import { PostDomain } from "../domain/post.domain";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import { PostCommentDomain } from "../domain/post-comment.domain";
 
 export class PostsRepository {
+  // * GET
   async getPostDomainById(postId: string): Promise<PostDomain> {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
@@ -20,6 +22,7 @@ export class PostsRepository {
     });
   }
 
+  // * CREATE
   async createPostRepo(newPost: PostDomain): Promise<PostDomain> {
     const insertResult = await postCollection.insertOne(newPost);
 
@@ -28,6 +31,20 @@ export class PostsRepository {
     return newPost;
   }
 
+  async createPostCommentRepo(
+    newPostComment: PostCommentDomain
+  ): Promise<ObjectId> {
+    const result = await commentsCollection.insertOne({
+      _id: new ObjectId(),
+      content: newPostComment.content,
+      commentatorInfo: newPostComment.commentatorInfo,
+      createdAt: newPostComment.createdAt,
+    });
+
+    return result.insertedId;
+  }
+
+  // * UPDATE
   async updatePostRepo(post: PostDomain): Promise<PostDomain> {
     if (!post._id) {
       throw new RepositoryNotFoundError(
@@ -52,6 +69,7 @@ export class PostsRepository {
     return post;
   }
 
+  // * DELETE
   async deletePostRepo(id: string): Promise<void> {
     const deleteResult = await postCollection.deleteOne({
       _id: new ObjectId(id),
