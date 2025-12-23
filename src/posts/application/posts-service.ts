@@ -6,17 +6,27 @@ import { BlogQueryRepository } from "../../blogs/repositories/blog-query.reposit
 import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 import { PostOutput } from "./output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
-import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import {
+  NotFoundError,
+  RepositoryNotFoundError,
+} from "../../core/errors/application.error";
 import { CreatePostDtoCommand } from "./commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "./commands/update-post-dto.command";
+import { CreateCommentForPostDtoCommand } from "./commands/create-comment-for-post-dto.command";
+import { PostCommentOutput } from "./output/post-comment-type.output";
+import { PostQueryRepository } from "../repositories/post-query.repository";
+import { PostCommentDomain } from "../domain/post-comment.domain";
+import { ObjectId } from "mongodb";
 
 class PostsService {
   private postsRepository: PostsRepository;
   private blogQueryRepository: BlogQueryRepository;
+  private postQueryRepository: PostQueryRepository;
 
   constructor() {
     this.postsRepository = new PostsRepository();
     this.blogQueryRepository = new BlogQueryRepository();
+    this.postQueryRepository = new PostQueryRepository();
   }
 
   // * CREATE
@@ -58,6 +68,54 @@ class PostsService {
         blogId: blog.id.toString(),
         blogName: blog.name,
         createdAt: savedPost.createdAt.toISOString(),
+      },
+      extensions: [],
+    });
+  }
+
+  async createPostComment(
+    command: WithMeta<CreateCommentForPostDtoCommand>
+  ): Promise<ApplicationResult<PostCommentOutput | null>> {
+    const { content, postId } = command.payload;
+
+    const isPostExists =
+      await this.postQueryRepository.getPostByIdQueryRepo(postId);
+
+    if (!isPostExists) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new NotFoundError("postId", "Post is not found!")],
+      });
+    }
+
+    const newPostComment = PostCommentDomain.createCommentForPost({
+      postId: new ObjectId(postId),
+      content,
+      commentatorInfo: {
+        userId: new ObjectId("1"),
+        userLogin: "lol",
+      },
+    });
+
+    const savedPostComment =
+      await this.postsRepository.createPostCommentRepo(newPostComment);
+
+    if (!savedPostComment.id)
+      throw new RepositoryNotFoundError(
+        `Comment was not saved correctly: ${savedPostComment.id} is missing`
+      );
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: {
+        id: newPostComment._id!.toString(),
+        content: newPostComment.content,
+        commentatorInfo: {
+          userId: newPostComment.commentatorInfo.userId.toString(),
+          userLogin: newPostComment.commentatorInfo.userLogin,
+        },
+        createdAt: newPostComment.createdAt.toISOString(),
       },
       extensions: [],
     });

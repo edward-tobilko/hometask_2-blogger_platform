@@ -6,6 +6,7 @@ import { CreatePostCommentDtoDomain } from "./create-post-comment-dto.domain";
 export class PostCommentDomain {
   _id?: ObjectId;
   content: string;
+  postId: ObjectId;
 
   commentatorInfo: {
     userId: ObjectId;
@@ -16,6 +17,7 @@ export class PostCommentDomain {
 
   constructor(dto: FieldsOnly<PostCommentDomain>) {
     this.content = dto.content;
+    this.postId = dto.postId;
     this.commentatorInfo = dto.commentatorInfo;
     this.createdAt = dto.createdAt;
 
@@ -27,10 +29,13 @@ export class PostCommentDomain {
   ): PostCommentDomain {
     return new PostCommentDomain({
       content: dto.content,
+      postId: new ObjectId(dto.postId),
+
       commentatorInfo: {
         userId: new ObjectId(dto.commentatorInfo.userId),
         userLogin: dto.commentatorInfo.userLogin,
       },
+
       createdAt: new Date(),
     });
   }
