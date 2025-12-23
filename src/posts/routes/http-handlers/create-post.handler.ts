@@ -6,7 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { postsService } from "../../application/posts-service";
 import { CreatePostRequestPayload } from "../request-payloads/create-post.request-payload";
 import { createCommand } from "../../../core/helpers/create-command.helper";
-import { CreatePostDtoCommand } from "../../application/commands/post-dto-type.commands";
+import { CreatePostDtoCommand } from "../../application/commands/create-post-dto.command";
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostRequestPayload, {}>,

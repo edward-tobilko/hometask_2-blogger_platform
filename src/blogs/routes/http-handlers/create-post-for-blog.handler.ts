@@ -6,8 +6,8 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post-for-blog.request-payload";
-import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/post-dto-type.commands";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
+import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/create-post-for-blog-dto.command";
 
 export async function createPostForBlogHandler(
   req: Request<{ id: string }, {}, CreatePostForBlogRequestPayload, {}>,

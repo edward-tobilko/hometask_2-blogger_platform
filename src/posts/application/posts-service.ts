@@ -2,15 +2,13 @@ import { PostDomain } from "../domain/post.domain";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { ApplicationResult } from "../../core/result/application.result";
 import { PostsRepository } from "../repositories/posts.repository";
-import {
-  CreatePostDtoCommand,
-  UpdatePostDtoCommand,
-} from "./commands/post-dto-type.commands";
 import { BlogQueryRepository } from "../../blogs/repositories/blog-query.repository";
 import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 import { PostOutput } from "./output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import { CreatePostDtoCommand } from "./commands/create-post-dto.command";
+import { UpdatePostDtoCommand } from "./commands/update-post-dto.command";
 
 class PostsService {
   private postsRepository: PostsRepository;
@@ -21,6 +19,7 @@ class PostsService {
     this.blogQueryRepository = new BlogQueryRepository();
   }
 
+  // * CREATE
   async createPost(
     command: WithMeta<CreatePostDtoCommand>
   ): Promise<ApplicationResult<PostOutput>> {
@@ -36,6 +35,7 @@ class PostsService {
 
     const domainDto: CreatePostDtoDomain = {
       ...dto,
+      blogId: dto.blogId.toString(),
       blogName: blog.name,
     };
 
@@ -63,6 +63,7 @@ class PostsService {
     });
   }
 
+  // * UPDATE
   async updatePost(
     command: WithMeta<UpdatePostDtoCommand>
   ): Promise<ApplicationResult<null>> {
@@ -95,6 +96,7 @@ class PostsService {
     });
   }
 
+  // * DELETE
   async deletePost(id: string): Promise<void> {
     return await this.postsRepository.deletePostRepo(id);
   }

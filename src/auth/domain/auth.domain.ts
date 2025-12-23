@@ -8,7 +8,7 @@ export class AuthDomain {
   _id?: ObjectId;
   email: string;
   login: string;
-  userId: string;
+  userId: ObjectId;
 
   constructor(dto: FieldsOnly<AuthDomain>) {
     this.email = dto.email;
@@ -24,7 +24,7 @@ export class AuthDomain {
     return new AuthDomain({
       email: user.email,
       login: user.login,
-      userId: user._id!.toString(),
+      userId: user._id!,
     });
   }
 }
