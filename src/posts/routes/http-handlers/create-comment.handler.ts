@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
@@ -6,7 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { CreateCommentRequestPayload } from "../request-payloads/create-comment.request-payload";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { CreateCommentForPostDtoCommand } from "../../application/commands/create-comment-for-post-dto.command";
-import { log } from "node:console";
+import { postsService } from "../../application/posts-service";
 
 type ReqParams = { postId: string };
 
@@ -15,8 +15,7 @@ type ReqParams = { postId: string };
 
 export const createCommentHandler = async (
   req: Request<ReqParams, {}, CreateCommentRequestPayload, {}>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   try {
     const sanitizedBodyData = matchedData<CreateCommentRequestPayload>(req, {
@@ -31,13 +30,11 @@ export const createCommentHandler = async (
       content: sanitizedBodyData.content,
     });
 
-    log(command);
+    const postCommentOutput = await postsService.createPostComment(command);
 
-    res.sendStatus(HTTP_STATUS_CODES.CREATED_201);
+    res.status(HTTP_STATUS_CODES.CREATED_201).json(postCommentOutput);
   } catch (error: unknown) {
     errorsHandler(error, req, res);
-
-    next();
   }
 };
 

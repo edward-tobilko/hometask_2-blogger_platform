@@ -36,6 +36,7 @@ export class PostsRepository {
   ): Promise<ObjectId> {
     const result = await commentsCollection.insertOne({
       _id: new ObjectId(),
+      postId: newPostComment.postId,
       content: newPostComment.content,
       commentatorInfo: newPostComment.commentatorInfo,
       createdAt: newPostComment.createdAt,
