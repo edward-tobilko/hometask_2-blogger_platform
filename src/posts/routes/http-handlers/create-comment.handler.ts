@@ -3,7 +3,7 @@ import { matchedData } from "express-validator";
 
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { CreateCommentRequestPayload } from "../request-payloads/create-comment.request-payload";
+import { CreatePostCommentRequestPayload } from "../request-payloads/create-post-comment.request-payload";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { CreateCommentForPostDtoCommand } from "../../application/commands/create-comment-for-post-dto.command";
 import { postsService } from "../../application/posts-service";
@@ -13,7 +13,7 @@ type ReqParams = { postId: string };
 type ReqUser = { id: string };
 
 export const createCommentHandler = async (
-  req: Request<ReqParams, {}, CreateCommentRequestPayload, {}>,
+  req: Request<ReqParams, {}, CreatePostCommentRequestPayload, {}>,
   res: Response
 ) => {
   try {
@@ -22,10 +22,13 @@ export const createCommentHandler = async (
       includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
     });
 
-    const sanitizedBodyData = matchedData<CreateCommentRequestPayload>(req, {
-      locations: ["body"],
-      includeOptionals: false,
-    });
+    const sanitizedBodyData = matchedData<CreatePostCommentRequestPayload>(
+      req,
+      {
+        locations: ["body"],
+        includeOptionals: false,
+      }
+    );
 
     const user = req.user as ReqUser; // from auth -> api/guards -> JWT guard
 

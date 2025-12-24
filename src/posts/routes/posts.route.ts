@@ -8,12 +8,13 @@ import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
 import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { deletePostHandler } from "./http-handlers/delete-post.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
-import { PostSortField } from "./request-payloads/post-sort-field.request-payload";
+import { PostSortField } from "./request-payloads/post-sort-fields.request-payload";
 import { createPostHandler } from "./http-handlers/create-post.handler";
 import { updatePostHandler } from "./http-handlers/update-post.handler";
 import { createCommentHandler } from "./http-handlers/create-comment.handler";
 import { createCommentDtoValidation } from "../validations/create-comment-dto.validation";
 import { jwtAuthGuard } from "../../auth/api/guards/jwt-auth.guard";
+import { getPostCommentsHandler } from "./http-handlers/get-post-comments.handler";
 
 export const postsRoute = Router({});
 
@@ -31,6 +32,8 @@ postsRoute.get(
   inputResultMiddlewareValidation,
   getPostHandler
 );
+
+postsRoute.get("/:postId/comments", getPostCommentsHandler);
 
 // * POST methods
 postsRoute.post(
