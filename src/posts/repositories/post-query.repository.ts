@@ -13,8 +13,6 @@ import {
 import { GetPostCommentsListQueryHandler } from "../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../application/output/post-comments-list-type.output";
 import { mapToPostCommentsListOutput } from "../application/mappers/map-to-post-comments-list-output.mapper";
-import { ApplicationResult } from "../../core/result/application.result";
-import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 
 export class PostQueryRepository {
   async getPostsQueryRepo(

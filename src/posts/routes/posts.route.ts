@@ -8,7 +8,10 @@ import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
 import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { deletePostHandler } from "./http-handlers/delete-post.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
-import { PostSortField } from "./request-payloads/post-sort-fields.request-payload";
+import {
+  PostCommentsSortField,
+  PostSortField,
+} from "./request-payloads/post-sort-fields.request-payload";
 import { createPostHandler } from "./http-handlers/create-post.handler";
 import { updatePostHandler } from "./http-handlers/update-post.handler";
 import { createCommentHandler } from "./http-handlers/create-comment.handler";
@@ -33,7 +36,14 @@ postsRoute.get(
   getPostHandler
 );
 
-postsRoute.get("/:postId/comments", getPostCommentsHandler);
+postsRoute.get(
+  "/:postId/comments",
+  queryPaginationAndSortingValidation<PostCommentsSortField>(
+    PostCommentsSortField
+  ),
+  inputResultMiddlewareValidation,
+  getPostCommentsHandler
+);
 
 // * POST methods
 postsRoute.post(
