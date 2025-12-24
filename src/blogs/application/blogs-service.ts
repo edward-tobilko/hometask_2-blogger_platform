@@ -8,11 +8,11 @@ import { ApplicationResult } from "../../core/result/application.result";
 import { BlogDomain } from "../domain/blog.domain";
 import { BlogQueryRepository } from "../repositories/blog-query.repository";
 import { PostDomain } from "../../posts/domain/post.domain";
-import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/post-dto-type.commands";
 import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
 import { PostOutput } from "../../posts/application/output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/create-post-for-blog-dto.command";
 
 export class BlogsService {
   private blogsRepository: BlogsRepository;

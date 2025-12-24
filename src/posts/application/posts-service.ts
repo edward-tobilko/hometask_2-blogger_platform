@@ -60,6 +60,7 @@ class PostsService {
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
+
       data: {
         id: savedPost._id?.toString(),
         title: savedPost.title,
@@ -69,6 +70,7 @@ class PostsService {
         blogName: blog.name,
         createdAt: savedPost.createdAt.toISOString(),
       },
+
       extensions: [],
     });
   }
@@ -76,7 +78,7 @@ class PostsService {
   async createPostComment(
     command: WithMeta<CreateCommentForPostDtoCommand>
   ): Promise<ApplicationResult<PostCommentOutput | null>> {
-    const { content, postId } = command.payload;
+    const { postId, content, userId, userLogin } = command.payload;
 
     const isPostExists =
       await this.postQueryRepository.getPostByIdQueryRepo(postId);
@@ -92,31 +94,38 @@ class PostsService {
     const newPostComment = PostCommentDomain.createCommentForPost({
       postId: new ObjectId(postId),
       content,
+
       commentatorInfo: {
-        userId: new ObjectId("1"),
-        userLogin: "lol",
+        userId: new ObjectId(userId),
+        userLogin,
       },
     });
 
-    const savedPostComment =
+    const insertedId =
       await this.postsRepository.createPostCommentRepo(newPostComment);
 
-    if (!savedPostComment.id)
+    newPostComment._id = insertedId;
+
+    if (!insertedId.id)
       throw new RepositoryNotFoundError(
-        `Comment was not saved correctly: ${savedPostComment.id} is missing`
+        `Comment was not saved correctly: ${insertedId.id} is missing`
       );
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
+
       data: {
         id: newPostComment._id!.toString(),
         content: newPostComment.content,
+
         commentatorInfo: {
           userId: newPostComment.commentatorInfo.userId.toString(),
           userLogin: newPostComment.commentatorInfo.userLogin,
         },
+
         createdAt: newPostComment.createdAt.toISOString(),
       },
+
       extensions: [],
     });
   }
