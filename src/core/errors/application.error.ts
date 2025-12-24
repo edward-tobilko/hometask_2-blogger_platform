@@ -1,5 +1,3 @@
-import { HTTP_STATUS_CODES } from "../utils/http-status-codes.util";
-
 export class ApplicationError extends Error {
   public readonly field: string | null;
   public readonly message: string;

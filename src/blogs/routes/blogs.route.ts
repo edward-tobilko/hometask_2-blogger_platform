@@ -16,7 +16,7 @@ import { createBlogDtoRequestPayloadValidation } from "./request-payload-validat
 import { createPostForBlogDtoRequestPayloadValidation } from "./request-payload-validations/create-post-for-blog-dto.request-payload-validation";
 import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
 import { updateBlogDtoRequestPayloadValidation } from "./request-payload-validations/update-blog-dto.request-payload-validation";
-import { PostSortField } from "../../posts/routes/request-payloads/post-sort-field.request-payload";
+import { PostSortField } from "../../posts/routes/request-payloads/post-sort-fields.request-payload";
 
 export const blogsRoute = Router({});
 

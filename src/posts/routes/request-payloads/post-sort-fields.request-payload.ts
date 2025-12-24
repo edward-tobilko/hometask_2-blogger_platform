@@ -5,3 +5,7 @@ export enum PostSortField {
   Content = "content",
   BlogName = "blogName",
 }
+
+export enum PostCommentsSortField {
+  CreatedAt = "createdAt",
+}

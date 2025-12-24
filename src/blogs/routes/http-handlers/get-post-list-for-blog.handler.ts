@@ -5,7 +5,7 @@ import { log } from "node:console";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { blogsQueryService } from "../../application/blog-query.service";
-import { PostSortField } from "../../../posts/routes/request-payloads/post-sort-field.request-payload";
+import { PostSortField } from "../../../posts/routes/request-payloads/post-sort-fields.request-payload";
 import { PostsListRequestPayload } from "../../../posts/routes/request-payloads/posts-list.request-payload";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
