@@ -28,11 +28,11 @@ export class PostCommentDomain {
     dto: CreatePostCommentDtoDomain
   ): PostCommentDomain {
     return new PostCommentDomain({
+      postId: dto.postId,
       content: dto.content,
-      postId: new ObjectId(dto.postId),
 
       commentatorInfo: {
-        userId: new ObjectId(dto.commentatorInfo.userId),
+        userId: dto.commentatorInfo.userId,
         userLogin: dto.commentatorInfo.userLogin,
       },
 
@@ -40,3 +40,5 @@ export class PostCommentDomain {
     });
   }
 }
+
+// ? PostCommentDomain — бизнес-объект (комментарий), который: хранит инварианты / правила (если ты их добавишь), отвечает за «правильное создание» сущности (createCommentForPost), ничего не знает о HTTP / Express / DB.

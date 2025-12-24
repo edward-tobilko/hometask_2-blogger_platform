@@ -23,7 +23,7 @@ export const jwtAuthGuard = async (
   if (payload) {
     const { userId } = payload; // userId достаем с метода createAccessToken в который мы положили как props
 
-    req.user = { id: userId } as IdType;
+    req.user = { id: userId } as IdType; // req.user adding from express.d.ts
 
     next();
 

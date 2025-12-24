@@ -1,5 +1,5 @@
 export type CreateCommentRequestPayload = {
   content: string;
-
-  postId: string; // adding from query params
 };
+
+// ? CreateCommentRequestPayload - то, что клиент прислал (body/query/params). Это то, что валидируешь через express-validator и получаешь через matchedData().

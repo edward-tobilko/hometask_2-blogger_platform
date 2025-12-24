@@ -2,8 +2,8 @@ export type CreateCommentForPostDtoCommand = {
   postId: string; // adding from query params
   content: string; // adding from body
 
-  //   userId: string;      // с auth (строка)
-  //   userLogin: string;   // с auth
+  userId: string; // adding form auth (string) = extra
+  userLogin: string; // adding from auth = extra
 };
 
-// ? dto (Data Transfer Object) - то, что присылает клиент.
+// ? CreateCommentForPostDtoCommand — готовый пакет данных для бизнес-операции, собранный из: params (postId), body (content), auth (userId, иногда какие-то другие поля). То есть DTO/Command — это уже «все, что нужно для выполнения действия», без Express.
