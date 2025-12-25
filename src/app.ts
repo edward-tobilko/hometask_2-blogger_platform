@@ -7,6 +7,7 @@ import { usersRoute } from "./users/routes/users.route";
 import { routersPaths } from "./core/paths/paths";
 import { authRoute } from "./auth/routes/auth.route";
 import { blogsRoute } from "./blogs/routes/blogs.route";
+import { commentsRoute } from "./comments/routes/comments.route";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
@@ -21,6 +22,7 @@ export const setupApp = (app: Express) => {
   app.use(routersPaths.blogs, blogsRoute);
   app.use(routersPaths.posts, postsRoute);
   app.use(routersPaths.users, usersRoute);
+  app.use(routersPaths.comments, commentsRoute);
 
   app.use(routersPaths.testing, testingRoute);
 

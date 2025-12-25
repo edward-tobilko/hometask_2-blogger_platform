@@ -37,7 +37,8 @@ postsRoute.get(
 );
 
 postsRoute.get(
-  "/:postId/comments",
+  "/:id/comments",
+  paramIdValidation,
   queryPaginationAndSortingValidation<PostCommentsSortField>(
     PostCommentsSortField
   ),

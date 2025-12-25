@@ -1,4 +1,4 @@
-export type PostCommentOutput = {
+export interface IPostCommentOutput {
   id: string;
   content: string;
 
@@ -8,4 +8,4 @@ export type PostCommentOutput = {
   };
 
   createdAt: string;
-};
+}

@@ -13,13 +13,13 @@ const AUTH_COLLECTION_NAME = "auth";
 const BLOG_COLLECTION_NAME = "blogs";
 const POST_COLLECTION_NAME = "posts";
 const USERS_COLLECTION_NAME = "users";
-const COMMENTS_COLLECTION_NAME = "comments";
+const POST_COMMENTS_COLLECTION_NAME = "post-comments";
 
 export let authCollection: Collection<AuthDomain>;
 export let blogCollection: Collection<BlogDomain>;
 export let postCollection: Collection<PostDomain>;
 export let userCollection: Collection<UserDomain>;
-export let commentsCollection: Collection<PostCommentDomain>;
+export let postCommentsCollection: Collection<PostCommentDomain>;
 
 // * Подключения к бд
 export async function runDB(url: string): Promise<void> {
@@ -34,8 +34,8 @@ export async function runDB(url: string): Promise<void> {
     blogCollection = dataBase.collection<BlogDomain>(BLOG_COLLECTION_NAME);
     postCollection = dataBase.collection<PostDomain>(POST_COLLECTION_NAME);
     userCollection = dataBase.collection<UserDomain>(USERS_COLLECTION_NAME);
-    commentsCollection = dataBase.collection<PostCommentDomain>(
-      COMMENTS_COLLECTION_NAME
+    postCommentsCollection = dataBase.collection<PostCommentDomain>(
+      POST_COMMENTS_COLLECTION_NAME
     );
 
     await dataBase.command({ ping: 1 });

@@ -23,7 +23,7 @@ export const paramIdValidation = param("id")
   });
 
 // * добавляем id валидацию на blogId в теле post
-export const bodyIdValidation = body("blogId")
+export const blogIdValidation = body("blogId")
   .exists()
   .withMessage("Blog ID in body is required")
   .custom((value, { req }) => {

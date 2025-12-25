@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { commentsCollection, postCollection } from "../../db/mongo.db";
+import { postCommentsCollection, postCollection } from "../../db/mongo.db";
 import { PostDomain } from "../domain/post.domain";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { PostCommentDomain } from "../domain/post-comment.domain";
@@ -34,7 +34,7 @@ export class PostsRepository {
   async createPostCommentRepo(
     newPostComment: PostCommentDomain
   ): Promise<ObjectId> {
-    const result = await commentsCollection.insertOne({
+    const result = await postCommentsCollection.insertOne({
       _id: new ObjectId(),
       postId: newPostComment.postId,
       content: newPostComment.content,

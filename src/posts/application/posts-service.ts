@@ -13,7 +13,7 @@ import {
 import { CreatePostDtoCommand } from "./commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "./commands/update-post-dto.command";
 import { CreateCommentForPostDtoCommand } from "./commands/create-comment-for-post-dto.command";
-import { PostCommentOutput } from "./output/post-comment-type.output";
+import { IPostCommentOutput } from "./output/post-comment.output";
 import { PostQueryRepository } from "../repositories/post-query.repository";
 import { PostCommentDomain } from "../domain/post-comment.domain";
 import { ObjectId } from "mongodb";
@@ -77,7 +77,7 @@ class PostsService {
 
   async createPostComment(
     command: WithMeta<CreateCommentForPostDtoCommand>
-  ): Promise<ApplicationResult<PostCommentOutput | null>> {
+  ): Promise<ApplicationResult<IPostCommentOutput | null>> {
     const { postId, content, userId, userLogin } = command.payload;
 
     const isPostExists =
