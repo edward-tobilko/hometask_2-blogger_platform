@@ -2,7 +2,7 @@ import { WithId } from "mongodb";
 
 import { PostCommentDomain } from "../../domain/post-comment.domain";
 import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
-import { PostCommentOutput } from "../output/post-comment-type.output";
+import { IPostCommentOutput } from "../output/post-comment.output";
 
 export const mapToPostCommentsListOutput = (
   postCommentsDomain: WithId<PostCommentDomain>[],
@@ -15,7 +15,7 @@ export const mapToPostCommentsListOutput = (
     totalCount: meta.totalCount,
 
     items: postCommentsDomain.map(
-      (postComment): PostCommentOutput => ({
+      (postComment): IPostCommentOutput => ({
         id: postComment._id.toString(),
         content: postComment.content,
 

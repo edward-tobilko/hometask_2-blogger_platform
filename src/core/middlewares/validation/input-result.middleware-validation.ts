@@ -15,8 +15,8 @@ const formatValidationErrors = (
   const expressError = error as FieldValidationError;
 
   return {
-    message: expressError.msg, // Сообщение ошибки
     field: expressError.path, // Поле с ошибкой
+    message: expressError.msg, // Сообщение ошибки
   };
 };
 

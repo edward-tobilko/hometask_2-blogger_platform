@@ -7,8 +7,9 @@ export const createErrorMessages = (
   return {
     errorsMessages: errors.map((error) => {
       return {
-        message: error.message,
         field: error.field,
+        message: error.message,
+        statusCode: error.statusCode,
       };
     }),
   };

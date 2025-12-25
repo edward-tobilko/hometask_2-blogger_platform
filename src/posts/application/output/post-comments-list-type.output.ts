@@ -1,4 +1,4 @@
-import { PostCommentOutput } from "./post-comment-type.output";
+import { IPostCommentOutput } from "./post-comment.output";
 
 export type PostCommentsListPaginatedOutput = {
   pagesCount: number;
@@ -6,5 +6,5 @@ export type PostCommentsListPaginatedOutput = {
   pageSize: number;
   totalCount: number;
 
-  items: PostCommentOutput[];
+  items: IPostCommentOutput[];
 };
