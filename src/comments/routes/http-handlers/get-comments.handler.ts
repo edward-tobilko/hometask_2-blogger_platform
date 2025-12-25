@@ -18,3 +18,5 @@ export const getCommentsHandler = async (
     errorsHandler(error, req, res);
   }
 };
+
+// ? Request<Params, ResBody, ReqBody, Query>

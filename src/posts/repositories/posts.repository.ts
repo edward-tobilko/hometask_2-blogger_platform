@@ -77,7 +77,7 @@ export class PostsRepository {
     });
 
     if (deleteResult.deletedCount < 1) {
-      throw new RepositoryNotFoundError("Post is not exist!", "postId");
+      throw new RepositoryNotFoundError("postId", "Post is not exist!");
     }
 
     return;
