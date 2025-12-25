@@ -5,7 +5,7 @@ import { appConfig } from "../../core/settings/config";
 const JWT_SECRET: Secret = appConfig.AC_SECRET; // type Secret - проверяет, чтобы не было JWT_SECRET = null
 
 const AC_TIME: SignOptions["expiresIn"] = (appConfig.AC_TIME ??
-  "2d") as SignOptions["expiresIn"]; // SignOptions["expiresIn"] - что бы TS не ругался
+  "10d") as SignOptions["expiresIn"]; // SignOptions["expiresIn"] - что бы TS не ругался
 
 export const jwtService = {
   async createAccessToken(userId: string): Promise<string> {

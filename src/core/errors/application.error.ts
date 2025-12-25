@@ -50,4 +50,14 @@ export class RepositoryNotFoundError extends ApplicationError {
   }
 }
 
+export class ForbiddenError extends ApplicationError {
+  constructor(
+    field: string | null = null,
+    message = "Forbidden",
+    statusCode: number = 403
+  ) {
+    super(field, message, statusCode);
+  }
+}
+
 // ? class ApplicationError extends Error - можно бросать: throw new ApplicationError(...); можно ловить: catch (e) { ... }; будет стандартный стек (.stack); instanceof ApplicationError будет работать и можно другим кодом отличать бизнес-ошибки от технических.
