@@ -5,6 +5,7 @@ import { createCommand } from "../../../core/helpers/create-command.helper";
 import { blogsService } from "../../application/blogs-service";
 import { matchedData } from "express-validator";
 import { CreateBlogDtoCommand } from "../../application/commands/blog-dto-type.commands";
+import { CreateBlogRP } from "../request-payload-types/create-blog.request-payload-type";
 
 export async function createNewBlogHandler(
   req: Request<{}, {}, CreateBlogRP, {}>,

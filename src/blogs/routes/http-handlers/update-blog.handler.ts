@@ -7,7 +7,7 @@ import { createCommand } from "../../../core/helpers/create-command.helper";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
 export async function updateBlogHandler(
-  req: Request<{ id: string }, {}, UpdateBlogRP, {}>,
+  req: Request<{ id: string }>,
   res: Response
 ) {
   try {

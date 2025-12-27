@@ -21,9 +21,6 @@
 
   "files": ["src/types/express.d.ts"],
 
-  "include": [
-    "src",
-    "src/blogs/routes/request-payload-types/create-blog.request-payload-type/.ts"
-  ],
-  "exclude": ["dist", "node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

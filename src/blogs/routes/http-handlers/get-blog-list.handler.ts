@@ -6,6 +6,7 @@ import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { blogsQueryService } from "../../application/blog-query.service";
 import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.request-payload-type";
+import { BlogsListRP } from "../request-payload-types/blogs-list.request-payload-type";
 
 export async function getBlogListHandler(
   req: Request<{}, {}, {}, {}>,
