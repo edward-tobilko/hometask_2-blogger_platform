@@ -13,7 +13,7 @@ export const createLoginHandler = async (req: Request, res: Response) => {
   try {
     const sanitizedBodyParam = matchedData<LoginAuthRP>(req, {
       locations: ["body"],
-      includeOptionals: true,
+      includeOptionals: false,
     });
 
     const command = createCommand<LoginAuthDtoCommand>(sanitizedBodyParam);
@@ -32,3 +32,5 @@ export const createLoginHandler = async (req: Request, res: Response) => {
     errorsHandler(error, req, res);
   }
 };
+
+// ? Request<Params, ResBody, ReqBody, Query>

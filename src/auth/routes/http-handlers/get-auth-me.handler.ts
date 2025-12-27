@@ -28,3 +28,5 @@ export async function getAuthMeHandler(req: Request, res: Response) {
     errorsHandler(error, req, res);
   }
 }
+
+// ? Request<Params, ResBody, ReqBody, Query>

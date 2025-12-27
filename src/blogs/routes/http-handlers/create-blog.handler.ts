@@ -15,7 +15,7 @@ export async function createNewBlogHandler(
   try {
     const sanitizedParam = matchedData<CreateBlogRP>(req, {
       locations: ["body"],
-      includeOptionals: true,
+      includeOptionals: false,
     });
 
     const command = createCommand<CreateBlogDtoCommand>(sanitizedParam);
