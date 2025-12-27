@@ -1,9 +1,9 @@
 import { WithId } from "mongodb";
 
-import { UserDomain } from "../../domain/user.domain";
 import { UserOutput } from "../output/user.output";
+import { UserDB } from "../../../db/types.db";
 
-export const mapToUserOutput = (userDB: WithId<UserDomain>): UserOutput => {
+export const mapToUserOutput = (userDB: WithId<UserDB>): UserOutput => {
   return {
     id: userDB._id.toString(),
     login: userDB.login,

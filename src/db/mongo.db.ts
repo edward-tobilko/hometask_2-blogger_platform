@@ -1,25 +1,22 @@
 import { Collection, Db, MongoClient } from "mongodb";
 
-import { BlogDomain } from "../blogs/domain/blog.domain";
-import { PostDomain } from "../posts/domain/post.domain";
-import { UserDomain } from "../users/domain/user.domain";
-import { AuthDomain } from "../auth/domain/auth.domain";
 import { appConfig } from "../core/settings/config";
-import { PostCommentDomain } from "../posts/domain/post-comment.domain";
+import {
+  AUTH_COLLECTION_NAME,
+  BLOG_COLLECTION_NAME,
+  POST_COLLECTION_NAME,
+  POST_COMMENTS_COLLECTION_NAME,
+  USERS_COLLECTION_NAME,
+} from "./collection-names.db";
+import { AuthDB, BlogDB, PostCommentDB, PostDB, UserDB } from "./types.db";
 
 let client: MongoClient;
 
-const AUTH_COLLECTION_NAME = "auth";
-const BLOG_COLLECTION_NAME = "blogs";
-const POST_COLLECTION_NAME = "posts";
-const USERS_COLLECTION_NAME = "users";
-const POST_COMMENTS_COLLECTION_NAME = "post-comments";
-
-export let authCollection: Collection<AuthDomain>;
-export let blogCollection: Collection<BlogDomain>;
-export let postCollection: Collection<PostDomain>;
-export let userCollection: Collection<UserDomain>;
-export let postCommentsCollection: Collection<PostCommentDomain>;
+export let authCollection: Collection<AuthDB>;
+export let blogCollection: Collection<BlogDB>;
+export let postCollection: Collection<PostDB>;
+export let userCollection: Collection<UserDB>;
+export let postCommentsCollection: Collection<PostCommentDB>;
 
 // * Подключения к бд
 export async function runDB(url: string): Promise<void> {
@@ -30,11 +27,11 @@ export async function runDB(url: string): Promise<void> {
     const dataBase: Db = client.db(appConfig.DB_NAME);
 
     // * Инициализация коллекций
-    authCollection = dataBase.collection<AuthDomain>(AUTH_COLLECTION_NAME);
-    blogCollection = dataBase.collection<BlogDomain>(BLOG_COLLECTION_NAME);
-    postCollection = dataBase.collection<PostDomain>(POST_COLLECTION_NAME);
-    userCollection = dataBase.collection<UserDomain>(USERS_COLLECTION_NAME);
-    postCommentsCollection = dataBase.collection<PostCommentDomain>(
+    authCollection = dataBase.collection<AuthDB>(AUTH_COLLECTION_NAME);
+    blogCollection = dataBase.collection<BlogDB>(BLOG_COLLECTION_NAME);
+    postCollection = dataBase.collection<PostDB>(POST_COLLECTION_NAME);
+    userCollection = dataBase.collection<UserDB>(USERS_COLLECTION_NAME);
+    postCommentsCollection = dataBase.collection<PostCommentDB>(
       POST_COMMENTS_COLLECTION_NAME
     );
 

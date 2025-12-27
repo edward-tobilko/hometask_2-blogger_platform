@@ -1,4 +1,4 @@
-export type CreatePostRequestPayload = {
+export type CreatePostRP = {
   title: string;
   shortDescription: string;
   content: string;

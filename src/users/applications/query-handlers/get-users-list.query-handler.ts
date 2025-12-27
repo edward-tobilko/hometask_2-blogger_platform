@@ -1,5 +1,5 @@
-import { UserSortField } from "./../../routes/request-payloads/user-sort-field.request-payload";
+import { UserSortFieldRP } from "../../routes/request-payload-types/user-sort-field.request-payload-types";
 import { PaginationSorting } from "../../../core/types/pagination-sorting.type";
 
-export type GetUsersListQueryHandler = PaginationSorting<UserSortField> &
+export type GetUsersListQueryHandler = PaginationSorting<UserSortFieldRP> &
   Partial<{ searchLoginTerm?: string; searchEmailTerm?: string }>;

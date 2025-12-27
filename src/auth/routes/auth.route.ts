@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { loginOrEmailAuthValidation } from "./middleware-validations/login-auth.middleware-validation";
+import { loginOrEmailAuthRPValidation } from "./request-payload-validations/login-auth.request-payload-types";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { createLoginHandler } from "./http-handlers/create-login.handler";
 import { getAuthMeHandler } from "./http-handlers/get-auth-me.handler";
@@ -14,7 +14,7 @@ authRoute.get("", jwtAuthGuard, getAuthMeHandler);
 // * POST
 authRoute.post(
   "",
-  loginOrEmailAuthValidation,
+  loginOrEmailAuthRPValidation,
   inputResultMiddlewareValidation,
   createLoginHandler
 );

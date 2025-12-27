@@ -8,6 +8,8 @@ import {
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { deleteCommentHandler } from "./http-handlers/delete-comment.handler";
 import { jwtAuthGuard } from "../../auth/api/guards/jwt-auth.guard";
+import { updateCommentHandler } from "./http-handlers/update-comment.handler";
+import { updateCommentDtoRPValidation } from "./request-payload-validations/update-comment.request-payload-validation";
 
 export const commentsRoute = Router({});
 
@@ -17,6 +19,16 @@ commentsRoute.get(
   paramIdValidation,
   inputResultMiddlewareValidation,
   getCommentsHandler
+);
+
+// * PUT
+commentsRoute.put(
+  "/:commentId",
+  jwtAuthGuard,
+  paramCommentIdValidation,
+  updateCommentDtoRPValidation,
+  inputResultMiddlewareValidation,
+  updateCommentHandler
 );
 
 // * DELETE

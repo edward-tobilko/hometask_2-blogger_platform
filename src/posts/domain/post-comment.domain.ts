@@ -1,7 +1,8 @@
-import { ObjectId } from "mongodb";
+import { ObjectId, WithId } from "mongodb";
 
 import { FieldsOnly } from "../../core/types/fields-only.type";
 import { CreatePostCommentDtoDomain } from "./create-post-comment-dto.domain";
+import { UpdateCommentDtoDomain } from "../../comments/domain/update-comment-dto.domain";
 
 export class PostCommentDomain {
   _id?: ObjectId;
@@ -28,8 +29,8 @@ export class PostCommentDomain {
     dto: CreatePostCommentDtoDomain
   ): PostCommentDomain {
     return new PostCommentDomain({
-      postId: dto.postId,
       content: dto.content,
+      postId: dto.postId,
 
       commentatorInfo: {
         userId: dto.commentatorInfo.userId,
@@ -38,6 +39,16 @@ export class PostCommentDomain {
 
       createdAt: new Date(),
     });
+  }
+
+  updateComment(dto: UpdateCommentDtoDomain) {
+    this.content = dto.content;
+  }
+
+  static reconstitute(
+    dto: FieldsOnly<PostCommentDomain>
+  ): WithId<PostCommentDomain> {
+    return new PostCommentDomain(dto) as WithId<PostCommentDomain>;
   }
 }
 

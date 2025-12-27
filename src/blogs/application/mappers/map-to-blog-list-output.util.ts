@@ -1,11 +1,11 @@
 import { WithId } from "mongodb";
 
-import { BlogDomain } from "../../domain/blog.domain";
 import { BlogListPaginatedOutput } from "../output/blog-list-paginated-type.output";
 import { BlogOutput } from "../output/blog-type.output";
+import { BlogDB } from "../../../db/types.db";
 
 export function mapToBlogListOutput(
-  blogDb: WithId<BlogDomain>[],
+  blogDb: WithId<BlogDB>[],
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): BlogListPaginatedOutput {
   return {

@@ -3,17 +3,17 @@ import { matchedData } from "express-validator";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { postsService } from "../../application/posts-service";
-import { UpdatePostRequestPayload } from "../request-payloads/update-post.request-payload";
+import { UpdatePostRP } from "../request-payload-types/update-post.request-payload-types";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { UpdatePostDtoCommand } from "../../application/commands/update-post-dto.command";
 
 export async function updatePostHandler(
-  req: Request<{ id: string }, {}, UpdatePostRequestPayload, {}>,
+  req: Request<{ id: string }, {}, UpdatePostRP, {}>,
   res: Response
 ) {
   try {
-    const sanitizedBody = matchedData<UpdatePostRequestPayload>(req, {
+    const sanitizedBody = matchedData<UpdatePostRP>(req, {
       locations: ["body"],
       includeOptionals: true,
     });

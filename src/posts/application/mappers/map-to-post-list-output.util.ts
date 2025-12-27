@@ -2,10 +2,10 @@ import { WithId } from "mongodb";
 
 import { PostOutput } from "../output/post-type.output";
 import { PostsListPaginatedOutput } from "../output/posts-list-type.output";
-import { PostDomain } from "../../domain/post.domain";
+import { PostDB } from "../../../db/types.db";
 
 export function mapToPostListOutput(
-  postsDb: WithId<PostDomain>[],
+  postsDb: WithId<PostDB>[],
   meta: { page: number; pageSize: number; totalCount: number }
 ): PostsListPaginatedOutput {
   return {

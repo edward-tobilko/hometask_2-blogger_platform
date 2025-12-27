@@ -5,26 +5,26 @@ import { getPostHandler } from "./http-handlers/get-post.handler";
 import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
-import { postBodyInputValidationMiddleware } from "../validations/post-input-dto-validation.middleware";
 import { deletePostHandler } from "./http-handlers/delete-post.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import {
-  PostCommentsSortField,
-  PostSortField,
-} from "./request-payloads/post-sort-fields.request-payload";
+  PostCommentsSortFieldRP,
+  PostSortFieldRP,
+} from "./request-payload-types/post-sort-field.request-payload-types";
 import { createPostHandler } from "./http-handlers/create-post.handler";
 import { updatePostHandler } from "./http-handlers/update-post.handler";
 import { createCommentHandler } from "./http-handlers/create-comment.handler";
-import { createCommentDtoValidation } from "../validations/create-comment-dto.validation";
 import { jwtAuthGuard } from "../../auth/api/guards/jwt-auth.guard";
 import { getPostCommentsHandler } from "./http-handlers/get-post-comments.handler";
+import { createCommentDtoRPValidation } from "./request-payload-validations/create-comment-dto.validation";
+import { postBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
 
 export const postsRoute = Router({});
 
 // * GET methods
 postsRoute.get(
   "",
-  queryPaginationAndSortingValidation<PostSortField>(PostSortField),
+  queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
   inputResultMiddlewareValidation,
   getPostListHandler
 );
@@ -39,8 +39,8 @@ postsRoute.get(
 postsRoute.get(
   "/:id/comments",
   paramIdValidation,
-  queryPaginationAndSortingValidation<PostCommentsSortField>(
-    PostCommentsSortField
+  queryPaginationAndSortingValidation<PostCommentsSortFieldRP>(
+    PostCommentsSortFieldRP
   ),
   inputResultMiddlewareValidation,
   getPostCommentsHandler
@@ -50,7 +50,7 @@ postsRoute.get(
 postsRoute.post(
   "",
   baseAuthGuard,
-  postBodyInputValidationMiddleware,
+  postBodyInputRPValidation,
   inputResultMiddlewareValidation,
   createPostHandler
 );
@@ -58,7 +58,7 @@ postsRoute.post(
 postsRoute.post(
   "/:postId/comments",
   jwtAuthGuard,
-  createCommentDtoValidation,
+  createCommentDtoRPValidation,
   inputResultMiddlewareValidation,
   createCommentHandler
 );
@@ -68,7 +68,7 @@ postsRoute.put(
   "/:id",
   baseAuthGuard,
   paramIdValidation,
-  postBodyInputValidationMiddleware,
+  postBodyInputRPValidation,
   inputResultMiddlewareValidation,
   updatePostHandler
 );

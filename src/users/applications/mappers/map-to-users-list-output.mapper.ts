@@ -1,11 +1,11 @@
 import { WithId } from "mongodb";
 
-import { UserDomain } from "../../domain/user.domain";
 import { UsersListPaginatedOutput } from "../output/users-list-paginated.output";
 import { UserOutput } from "../output/user.output";
+import { UserDB } from "../../../db/types.db";
 
 export const mapToUsersListOutput = (
-  usersDB: WithId<UserDomain>[],
+  usersDB: WithId<UserDB>[],
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): UsersListPaginatedOutput => {
   return {

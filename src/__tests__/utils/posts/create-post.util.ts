@@ -7,7 +7,7 @@ import { getPostDtoUtil } from "./get-post-dto.util";
 import { createBlogUtil } from "../blogs/create-blog.util";
 import { routersPaths } from "../../../core/paths/paths";
 import { PostOutput } from "../../../posts/application/output/post-type.output";
-import { CreatePostRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
+import { CreatePostRequestPayload } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
 
 export const createPostUtil = async (
   app: Express,
