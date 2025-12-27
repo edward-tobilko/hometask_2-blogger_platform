@@ -16,7 +16,7 @@ import { createBlogDtoRPValidation } from "./request-payload-validations/create-
 import { createPostForBlogDtoRPValidation } from "./request-payload-validations/create-post-for-blog-dto.request-payload-validation";
 import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
 import { updateBlogDtoRPValidation } from "./request-payload-validations/update-blog-dto.request-payload-validation";
-import { PostSortField } from "../../posts/routes/request-payload-types/post-sort-field.request-payload-types";
+import { PostSortFieldRP } from "../../posts/routes/request-payload-types/post-sort-field.request-payload-types";
 
 export const blogsRoute = Router({});
 
@@ -45,7 +45,7 @@ blogsRoute.get(
 blogsRoute.get(
   "/:id/posts",
   paramIdValidation,
-  queryPaginationAndSortingValidation<PostSortField>(PostSortField),
+  queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
   inputResultMiddlewareValidation,
   getPostListForBlogHandler
 );

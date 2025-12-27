@@ -20,6 +20,27 @@ export class ApplicationResult<D = null> {
   }
 
   hasError() {
-    return this.status !== ApplicationResultStatus.Success;
+    return !this.isSuccess;
+  }
+
+  static ok<D>(data: D): ApplicationResult<D> {
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data,
+      extensions: [],
+    });
+  }
+
+  static fail(
+    message: string,
+    field: string | null = null,
+    statusCode = 400
+  ): ApplicationResult<null> {
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Error,
+      data: null,
+      extensions: [new ApplicationError(message, field!, statusCode)],
+      errorMessage: message,
+    });
   }
 }

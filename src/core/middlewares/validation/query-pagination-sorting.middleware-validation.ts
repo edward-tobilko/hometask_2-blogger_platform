@@ -1,7 +1,5 @@
 import { query } from "express-validator";
 
-// import { SortDirections } from "../../types/sort-directions.enum";
-
 const normalizeQuery = (valueQuery: unknown) => {
   const first = Array.isArray(valueQuery) ? valueQuery[0] : valueQuery;
 
