@@ -11,19 +11,19 @@ import { deleteBlogHandler } from "./http-handlers/delete-blog.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import { createPostForBlogHandler } from "./http-handlers/create-post-for-blog.handler";
 import { getPostListForBlogHandler } from "./http-handlers/get-post-list-for-blog.handler";
-import { BlogSortField } from "./request-payloads/blog-sort-field.request-payload";
-import { createBlogDtoRequestPayloadValidation } from "./request-payload-validations/create-blog-dto.request-payload-validation";
-import { createPostForBlogDtoRequestPayloadValidation } from "./request-payload-validations/create-post-for-blog-dto.request-payload-validation";
+import { BlogSortFieldRP } from "./request-payload-types/blog-sort-field.request-payload-type";
+import { createBlogDtoRPValidation } from "./request-payload-validations/create-blog-dto.request-payload-validation";
+import { createPostForBlogDtoRPValidation } from "./request-payload-validations/create-post-for-blog-dto.request-payload-validation";
 import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
-import { updateBlogDtoRequestPayloadValidation } from "./request-payload-validations/update-blog-dto.request-payload-validation";
-import { PostSortField } from "../../posts/routes/request-payloads/post-sort-fields.request-payload";
+import { updateBlogDtoRPValidation } from "./request-payload-validations/update-blog-dto.request-payload-validation";
+import { PostSortField } from "../../posts/routes/request-payload-types/post-sort-field.request-payload-types";
 
 export const blogsRoute = Router({});
 
 // * GET methods
 blogsRoute.get(
   "",
-  queryPaginationAndSortingValidation<BlogSortField>(BlogSortField),
+  queryPaginationAndSortingValidation<BlogSortFieldRP>(BlogSortFieldRP),
   query("searchNameTerm")
     .customSanitizer((queryValue: unknown) =>
       typeof queryValue === "string" ? queryValue.trim() : queryValue
@@ -54,7 +54,7 @@ blogsRoute.get(
 blogsRoute.post(
   "",
   baseAuthGuard,
-  createBlogDtoRequestPayloadValidation,
+  createBlogDtoRPValidation,
   inputResultMiddlewareValidation,
   createNewBlogHandler
 );
@@ -62,7 +62,7 @@ blogsRoute.post(
 blogsRoute.post(
   "/:id/posts",
   baseAuthGuard,
-  createPostForBlogDtoRequestPayloadValidation,
+  createPostForBlogDtoRPValidation,
   inputResultMiddlewareValidation,
   createPostForBlogHandler
 );
@@ -72,7 +72,7 @@ blogsRoute.put(
   "/:id",
   baseAuthGuard,
   paramIdValidation,
-  updateBlogDtoRequestPayloadValidation,
+  updateBlogDtoRPValidation,
   inputResultMiddlewareValidation,
   updateBlogHandler
 );

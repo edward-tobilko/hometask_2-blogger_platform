@@ -3,9 +3,9 @@ import { matchedData } from "express-validator";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
-import { PostsListRequestPayload } from "../request-payloads/posts-list.request-payload";
+import { PostsListRP } from "../request-payload-types/posts-list.request-payload-types";
 import { postQueryService } from "../../application/post-query-service";
-import { PostSortField } from "../request-payloads/post-sort-fields.request-payload";
+import { PostSortFieldRP } from "../request-payload-types/post-sort-field.request-payload-types";
 
 export async function getPostListHandler(
   req: Request<{}, {}, {}, {}>,
@@ -13,13 +13,15 @@ export async function getPostListHandler(
   next: NextFunction
 ) {
   try {
-    const sanitizedQueryParam = matchedData<PostsListRequestPayload>(req, {
+    const sanitizedQueryParam = matchedData<PostsListRP>(req, {
       locations: ["query"],
       includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
     });
 
     const queryParam =
-      setDefaultSortAndPaginationIfNotExist<PostSortField>(sanitizedQueryParam);
+      setDefaultSortAndPaginationIfNotExist<PostSortFieldRP>(
+        sanitizedQueryParam
+      );
 
     const postsListOutput = await postQueryService.getPosts(queryParam);
 

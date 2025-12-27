@@ -1,4 +1,4 @@
-export enum PostSortField {
+export enum PostSortFieldRP {
   CreatedAt = "createdAt",
   Title = "title",
   ShortDescription = "shortDescription",
@@ -6,6 +6,6 @@ export enum PostSortField {
   BlogName = "blogName",
 }
 
-export enum PostCommentsSortField {
+export enum PostCommentsSortFieldRP {
   CreatedAt = "createdAt",
 }

@@ -5,22 +5,22 @@ import { log } from "node:console";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { blogsQueryService } from "../../application/blog-query.service";
-import { PostSortField } from "../../../posts/routes/request-payloads/post-sort-fields.request-payload";
-import { PostsListRequestPayload } from "../../../posts/routes/request-payloads/posts-list.request-payload";
+import { PostSortFieldRP } from "../../../posts/routes/request-payload-types/post-sort-field.request-payload-types";
+import { PostsListRP } from "../../../posts/routes/request-payload-types/posts-list.request-payload-types";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
 export async function getPostListForBlogHandler(
-  req: Request<{ id: string }, {}, {}, {}>,
+  req: Request<{ id: string }, {}, PostsListRP, {}>,
   res: Response
 ) {
   try {
-    const sanitizedQueryParam = matchedData<PostsListRequestPayload>(req, {
+    const sanitizedQueryParam = matchedData<PostsListRP>(req, {
       locations: ["query"],
       includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
     });
 
     const queryParamInput = {
-      ...setDefaultSortAndPaginationIfNotExist<PostSortField>(
+      ...setDefaultSortAndPaginationIfNotExist<PostSortFieldRP>(
         sanitizedQueryParam
       ),
       blogId: req.params.id,

@@ -2,16 +2,16 @@ import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
-import { UpdateBlogRequestPayload } from "../request-payloads/update-blog.request-payload";
+import { UpdateBlogRP } from "../request-payload-types/update-blog.request-payload";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 
 export async function updateBlogHandler(
-  req: Request<{ id: string }, {}, UpdateBlogRequestPayload, {}>,
+  req: Request<{ id: string }, {}, UpdateBlogRP, {}>,
   res: Response
 ) {
   try {
-    const payload: UpdateBlogRequestPayload = req.body;
+    const payload: UpdateBlogRP = req.body;
 
     const command = createCommand({
       id: req.params.id,

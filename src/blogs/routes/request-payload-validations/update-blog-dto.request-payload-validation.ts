@@ -1,4 +1,3 @@
-import { createBlogDtoRequestPayloadValidation } from "./create-blog-dto.request-payload-validation";
+import { createBlogDtoRPValidation } from "./create-blog-dto.request-payload-validation";
 
-export const updateBlogDtoRequestPayloadValidation =
-  createBlogDtoRequestPayloadValidation;
+export const updateBlogDtoRPValidation = createBlogDtoRPValidation;

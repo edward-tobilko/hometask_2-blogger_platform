@@ -1,5 +1,5 @@
 import { PaginationSorting } from "../../../core/types/pagination-sorting.type";
-import { PostSortField } from "../../routes/request-payloads/post-sort-fields.request-payload";
+import { PostSortFieldRP } from "../../routes/request-payload-types/post-sort-field.request-payload-types";
 
-export type GetPostsListQueryHandler = PaginationSorting<PostSortField> &
+export type GetPostsListQueryHandler = PaginationSorting<PostSortFieldRP> &
   Partial<{ blogId: string }>;

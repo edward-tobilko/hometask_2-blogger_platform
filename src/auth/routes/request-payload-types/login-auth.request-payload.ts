@@ -1,4 +1,4 @@
-export type LoginAuthRequestPayload = {
+export type LoginAuthRP = {
   loginOrEmail: string;
   password: string;
 };

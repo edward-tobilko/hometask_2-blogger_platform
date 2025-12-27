@@ -9,7 +9,7 @@ export const deleteCommentHandler = async (
   res: Response
 ) => {
   try {
-    const userId = req.user.id; // from express.d.ts (именно через middleware jwtAuthGuard мы пропускаем, так как мы создали и передали токен юзера).
+    const userId = req.user.id; // from express.d.ts (именно через middleware jwtAuthGuard мы пропускаем правильного юзера с токеном).
 
     await commentsService.deleteCommentById(req.params.commentId, userId);
 

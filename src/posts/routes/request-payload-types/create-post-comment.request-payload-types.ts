@@ -1,4 +1,4 @@
-export type CreatePostCommentRequestPayload = {
+export type CreatePostCommentRP = {
   content: string;
 };
 

@@ -1,6 +1,13 @@
-import { ForbiddenError } from "../../core/errors/application.error";
+import { WithMeta } from "./../../core/types/with-meta.type";
+import {
+  ForbiddenError,
+  NotFoundError,
+} from "../../core/errors/application.error";
 import { CommentQueryRepo } from "../repositories/comment-query.repository";
 import { CommentsRepository } from "../repositories/comments.repository";
+import { ApplicationResult } from "../../core/result/application.result";
+import { UpdateCommentDtoCommand } from "./commands/update-comment-dto.command";
+import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 
 class CommentsService {
   constructor(
@@ -19,7 +26,39 @@ class CommentsService {
       ); // 403
     }
 
-    return await this.commentsRepo.deleteComment(commentId); // 204
+    return await this.commentsRepo.deleteCommentRepo(commentId); // 204
+  }
+
+  async updateComment(
+    command: WithMeta<UpdateCommentDtoCommand>,
+    userId: string
+  ): Promise<ApplicationResult<null>> {
+    const dto = command.payload;
+
+    // * ищем нужный нам коммент
+    const existingComment = await this.commentsRepo.getCommentDomainById(
+      dto.commentId
+    );
+
+    if (!existingComment)
+      throw new NotFoundError("commentId", "Comment ID is not exist"); // 404
+
+    if (existingComment.commentatorInfo.userId.toString() !== userId)
+      throw new ForbiddenError(
+        "userId",
+        "You can't change someone else's content"
+      ); // 403
+
+    // * обновляем доменную сущность
+    existingComment.content = dto.content;
+
+    await this.commentsRepo.updateCommentRepo(existingComment);
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
+      extensions: [],
+    });
   }
 }
 

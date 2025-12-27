@@ -2,7 +2,7 @@ import { matchedData } from "express-validator";
 import { Request, Response } from "express";
 
 import { createCommand } from "../../../core/helpers/create-command.helper";
-import { LoginAuthRequestPayload } from "../request-payloads/login-auth.request-payload";
+import { LoginAuthRP } from "../request-payload-types/login-auth.request-payload";
 import { LoginAuthDtoCommand } from "../../application/commands/login-auth-dto.command";
 import { authService } from "../../application/auth.service";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
@@ -11,7 +11,7 @@ import { ApplicationResultStatus } from "../../../core/result/types/application-
 
 export const createLoginHandler = async (req: Request, res: Response) => {
   try {
-    const sanitizedBodyParam = matchedData<LoginAuthRequestPayload>(req, {
+    const sanitizedBodyParam = matchedData<LoginAuthRP>(req, {
       locations: ["body"],
       includeOptionals: true,
     });

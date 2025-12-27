@@ -1,16 +1,15 @@
 import { Request, Response } from "express";
-import { log } from "console";
 import { ObjectId } from "mongodb";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { blogsService } from "../../application/blogs-service";
 import { createCommand } from "../../../core/helpers/create-command.helper";
-import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payloads/create-post-for-blog.request-payload";
+import { CreatePostForBlogRP } from "../../../posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/create-post-for-blog-dto.command";
 
 export async function createPostForBlogHandler(
-  req: Request<{ id: string }, {}, CreatePostForBlogRequestPayload, {}>,
+  req: Request<{ id: string }, {}, CreatePostForBlogRP, {}>,
   res: Response
 ) {
   try {
@@ -33,8 +32,6 @@ export async function createPostForBlogHandler(
 
     const createdPostForBlogOutput =
       await blogsService.createPostForBlog(command);
-
-    log("New post for blog ->", createdPostForBlogOutput.data);
 
     res
       .status(HTTP_STATUS_CODES.CREATED_201)

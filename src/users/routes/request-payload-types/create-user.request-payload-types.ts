@@ -1,4 +1,4 @@
-export type CreateUserRequestPayload = {
+export type CreateUserRP = {
   login: string;
   password: string;
   email: string;

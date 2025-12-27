@@ -1,8 +1,7 @@
 import { body } from "express-validator";
 import { ObjectId } from "mongodb";
-
-import { blogsQueryService } from "../../blogs/application/blog-query.service";
-import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import { RepositoryNotFoundError } from "../../../core/errors/application.error";
+import { blogsQueryService } from "../../../blogs/application/blog-query.service";
 
 const titleValidation = body("title")
   .exists()
@@ -69,7 +68,7 @@ const blogId = body("blogId")
     return true;
   });
 
-export const postBodyInputValidationMiddleware = [
+export const postBodyInputRPValidation = [
   titleValidation,
   shortDescription,
   content,

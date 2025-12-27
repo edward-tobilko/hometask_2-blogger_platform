@@ -4,6 +4,7 @@ import { postCommentsCollection, postCollection } from "../../db/mongo.db";
 import { PostDomain } from "../domain/post.domain";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { PostCommentDomain } from "../domain/post-comment.domain";
+import { PostCommentDB } from "../../db/types.db";
 
 export class PostsRepository {
   // * GET
@@ -34,26 +35,28 @@ export class PostsRepository {
   async createPostCommentRepo(
     newPostComment: PostCommentDomain
   ): Promise<ObjectId> {
-    const result = await postCommentsCollection.insertOne({
+    const dbDocument: PostCommentDB = {
       _id: new ObjectId(),
       postId: newPostComment.postId,
       content: newPostComment.content,
       commentatorInfo: newPostComment.commentatorInfo,
       createdAt: newPostComment.createdAt,
-    });
+    };
 
-    return result.insertedId;
+    const createResult = await postCommentsCollection.insertOne(dbDocument);
+
+    return createResult.insertedId;
   }
 
   // * UPDATE
-  async updatePostRepo(post: PostDomain): Promise<PostDomain> {
-    if (!post._id) {
+  async updatePostRepo(postDomain: PostDomain): Promise<PostDomain> {
+    if (!postDomain._id) {
       throw new RepositoryNotFoundError(
-        "PostID is not provided for update",
-        "postId"
+        "postId",
+        "Post ID is not provided for update"
       );
     }
-    const { _id, ...dtoToUpdate } = post;
+    const { _id, ...dtoToUpdate } = postDomain;
 
     const updateResult = await postCollection.updateOne(
       { _id },
@@ -62,12 +65,12 @@ export class PostsRepository {
 
     if (updateResult.matchedCount < 1) {
       throw new RepositoryNotFoundError(
-        "Post is not found in this blog",
-        "postId"
+        "postId",
+        "Post is not found in this blog"
       );
     }
 
-    return post;
+    return postDomain;
   }
 
   // * DELETE

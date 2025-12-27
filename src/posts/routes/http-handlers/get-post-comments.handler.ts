@@ -5,7 +5,7 @@ import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { postQueryService } from "../../application/post-query-service";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
-import { PostCommentsSortField } from "../request-payloads/post-sort-fields.request-payload";
+import { PostCommentsSortFieldRP } from "../request-payload-types/post-sort-field.request-payload-types";
 import { GetPostCommentsListQueryHandler } from "../../application/query-handlers/get-post-comments-list.query-handler";
 
 export const getPostCommentsHandler = async (
@@ -24,7 +24,7 @@ export const getPostCommentsHandler = async (
     );
 
     const queryParamInput = {
-      ...setDefaultSortAndPaginationIfNotExist<PostCommentsSortField>(
+      ...setDefaultSortAndPaginationIfNotExist<PostCommentsSortFieldRP>(
         sanitizedQueryParam
       ),
 

@@ -4,17 +4,17 @@ import { log } from "node:console";
 
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { postsService } from "../../application/posts-service";
-import { CreatePostRequestPayload } from "../request-payloads/create-post.request-payload";
+import { CreatePostRP } from "../request-payload-types/create-post.request-payload-types";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { CreatePostDtoCommand } from "../../application/commands/create-post-dto.command";
 
 export async function createPostHandler(
-  req: Request<{}, {}, CreatePostRequestPayload, {}>,
+  req: Request<{}, {}, CreatePostRP, {}>,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const sanitizedBodyParam = matchedData<CreatePostRequestPayload>(req, {
+    const sanitizedBodyParam = matchedData<CreatePostRP>(req, {
       locations: ["body"],
       includeOptionals: true,
     });

@@ -5,8 +5,7 @@ import { log } from "node:console";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { blogsQueryService } from "../../application/blog-query.service";
-import { BlogsListRequestPayload } from "../request-payloads/blogs-list.request-payload";
-import { BlogSortField } from "../request-payloads/blog-sort-field.request-payload";
+import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.request-payload-type";
 
 export async function getBlogListHandler(
   req: Request<{}, {}, {}, {}>,
@@ -14,13 +13,15 @@ export async function getBlogListHandler(
   next: NextFunction
 ) {
   try {
-    const sanitizedQueryParam = matchedData<BlogsListRequestPayload>(req, {
+    const sanitizedQueryParam = matchedData<BlogsListRP>(req, {
       locations: ["query"],
       includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
     });
 
     const queryParamInput =
-      setDefaultSortAndPaginationIfNotExist<BlogSortField>(sanitizedQueryParam);
+      setDefaultSortAndPaginationIfNotExist<BlogSortFieldRP>(
+        sanitizedQueryParam
+      );
 
     const blogsListOutput =
       await blogsQueryService.getBlogsList(queryParamInput);

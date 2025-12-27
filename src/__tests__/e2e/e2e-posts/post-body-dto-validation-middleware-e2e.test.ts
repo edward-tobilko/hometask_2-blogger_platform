@@ -10,7 +10,7 @@ import { createPostUtil } from "../../utils/posts/create-post.util";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
-import { CreatePostRequestPayload } from "../../../posts/routes/request-payloads/create-post.request-payload";
+import { CreatePostRequestPayload } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
 import { routersPaths } from "../../../core/paths/paths";
 
 const adminToken = generateBasicAuthToken();

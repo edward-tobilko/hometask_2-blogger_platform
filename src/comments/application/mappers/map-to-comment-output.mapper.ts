@@ -1,8 +1,8 @@
+import { PostCommentDB } from "../../../db/types.db";
 import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
-import { PostCommentDomain } from "../../../posts/domain/post-comment.domain";
 
 export const mapToCommentOutput = (
-  commentDomain: PostCommentDomain
+  commentDomain: PostCommentDB
 ): IPostCommentOutput => {
   return {
     id: commentDomain._id!.toString(),

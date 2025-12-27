@@ -1,11 +1,11 @@
 import { WithId } from "mongodb";
 
-import { PostCommentDomain } from "../../domain/post-comment.domain";
 import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
 import { IPostCommentOutput } from "../output/post-comment.output";
+import { PostCommentDB } from "../../../db/types.db";
 
 export const mapToPostCommentsListOutput = (
-  postCommentsDomain: WithId<PostCommentDomain>[],
+  postCommentsDomain: WithId<PostCommentDB>[],
   meta: { page: number; pageSize: number; totalCount: number }
 ): PostCommentsListPaginatedOutput => {
   return {

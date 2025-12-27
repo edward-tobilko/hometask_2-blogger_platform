@@ -1,7 +1,7 @@
 import { body, param } from "express-validator";
 import { ObjectId } from "mongodb";
 
-export const createCommentDtoValidation = [
+export const createCommentDtoRPValidation = [
   param("postId")
     .exists()
     .withMessage("Post ID is required")
