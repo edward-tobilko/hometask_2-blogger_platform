@@ -11,7 +11,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../../core/errors/application.error";
-import { jwtService } from "../adapters/jwt-service.adapter";
+import { JWTService } from "../adapters/jwt-service.adapter";
 import { AuthRepository } from "../repositories/auth.repository";
 import { AuthDomain } from "../domain/auth.domain";
 
@@ -75,7 +75,7 @@ class AuthService {
       });
     }
 
-    const accessToken = await jwtService.createAccessToken(
+    const accessToken = await JWTService.createAccessToken(
       result.data!._id!.toString()
     );
 

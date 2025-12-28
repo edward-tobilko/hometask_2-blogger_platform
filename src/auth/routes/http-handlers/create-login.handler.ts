@@ -5,9 +5,10 @@ import { createCommand } from "../../../core/helpers/create-command.helper";
 import { LoginAuthRP } from "../request-payload-types/login-auth.request-payload";
 import { LoginAuthDtoCommand } from "../../application/commands/login-auth-dto.command";
 import { authService } from "../../application/auth.service";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+import { resultCodeToHttpException } from "../../../core/result/result-code-to-http.result";
 
 export const createLoginHandler = async (req: Request, res: Response) => {
   try {
@@ -22,7 +23,7 @@ export const createLoginHandler = async (req: Request, res: Response) => {
 
     if (result.status !== ApplicationResultStatus.Success)
       return res
-        .status(HTTP_STATUS_CODES.UNAUTHORIZED_401)
+        .status(resultCodeToHttpException(result.status))
         .json(result.extensions);
 
     return res

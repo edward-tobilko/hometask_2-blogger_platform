@@ -6,8 +6,8 @@ import {
 } from "express-validator";
 
 import { ValidationErrorType } from "../../errors/types/validation-error.type";
-import { HTTP_STATUS_CODES } from "../../utils/http-status-codes.util";
 import { createErrorMessages } from "../../errors/create-error-messages.error";
+import { HTTP_STATUS_CODES } from "../../result/types/http-status-codes.enum";
 
 const formatValidationErrors = (
   error: ValidationError

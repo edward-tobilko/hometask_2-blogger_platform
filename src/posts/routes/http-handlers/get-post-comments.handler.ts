@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { postQueryService } from "../../application/post-query-service";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { PostCommentsSortFieldRP } from "../request-payload-types/post-sort-field.request-payload-types";

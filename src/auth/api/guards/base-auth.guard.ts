@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
 import { appConfig } from "../../../core/settings/config";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 export const baseAuthGuard = (
   req: Request,

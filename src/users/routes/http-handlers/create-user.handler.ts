@@ -4,7 +4,7 @@ import { matchedData } from "express-validator";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { CreateUserDtoCommand } from "../../applications/commands/user-dto.commands";
 import { userService } from "../../applications/user.service";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { CreateUserRP } from "../request-payload-types/create-user.request-payload-types";
 

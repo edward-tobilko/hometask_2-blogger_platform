@@ -1,8 +1,8 @@
 import { ApplicationError } from "./application.error";
 import { Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../utils/http-status-codes.util";
 import { createErrorMessages } from "./create-error-messages.error";
+import { HTTP_STATUS_CODES } from "../result/types/http-status-codes.enum";
 
 export const errorsHandler = (
   err: unknown,

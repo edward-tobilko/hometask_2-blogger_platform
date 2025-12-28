@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 
 import { UsersListRP } from "../request-payload-types/get-users-list.request-payload-types";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { userQueryService } from "../../applications/users-query.service";
 import { UserSortFieldRP } from "../request-payload-types/user-sort-field.request-payload-types";

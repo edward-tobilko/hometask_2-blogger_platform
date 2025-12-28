@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+
 import { userQueryService } from "../../../users/applications/users-query.service";
 import { AuthMeOutput } from "../../application/output/auth-me.output";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 export async function getAuthMeHandler(req: Request, res: Response) {
   try {

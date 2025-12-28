@@ -16,7 +16,12 @@
 
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "baseUrl": "src",
+    "paths": {
+      "@core/*": ["core/*"] // для удобного импорта файлов
+    }
   },
 
   "files": ["src/types/express.d.ts"],

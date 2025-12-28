@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { postsService } from "../../application/posts-service";
 import { UpdatePostRP } from "../request-payload-types/update-post.request-payload-types";
 import { createCommand } from "../../../core/helpers/create-command.helper";

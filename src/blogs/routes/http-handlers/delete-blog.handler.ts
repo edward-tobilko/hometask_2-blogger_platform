@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { blogsService } from "../../application/blogs-service";
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { PostsListRP } from "../request-payload-types/posts-list.request-payload-types";
 import { postQueryService } from "../../application/post-query-service";
