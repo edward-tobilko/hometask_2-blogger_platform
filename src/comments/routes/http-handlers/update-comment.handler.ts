@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { matchedData } from "express-validator";
 
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { commentsService } from "../../application/comments.service";
 import { UpdateCommentRequestPayload } from "../request-payload-types/update-comment.request-payload-types";
 import { createCommand } from "../../../core/helpers/create-command.helper";

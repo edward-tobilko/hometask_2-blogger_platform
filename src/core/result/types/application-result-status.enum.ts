@@ -1,8 +1,14 @@
 export enum ApplicationResultStatus {
   Success = "Success",
+  Created = "Created",
+  NoContent = "NoContent",
+
   NotFound = "NotFound",
   Forbidden = "Forbidden",
   Unauthorized = "Unauthorized",
   BadRequest = "BadRequest",
-  Error = "Error",
+  NotAllowed = "NotAllowed",
+  UnprocessableEntity = "UnprocessableEntity",
+
+  InternalServerError = "InternalServerError",
 }

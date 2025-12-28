@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { postQueryService } from "../../application/post-query-service";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 

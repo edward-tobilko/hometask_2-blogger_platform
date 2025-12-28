@@ -2,7 +2,7 @@ import { Express } from "express";
 import request from "supertest";
 
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getPostsForBlogDtoUtil } from "./get-posts-for-blog-dto.util";
 import { PostOutput } from "../../../posts/application/output/post-type.output";
 import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payload-types/create-post-for-blog.request-payload-types";

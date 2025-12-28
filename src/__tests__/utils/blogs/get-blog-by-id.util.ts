@@ -1,7 +1,7 @@
 import request from "supertest";
 import { Express } from "express";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
 import { routersPaths } from "../../../core/paths/paths";
 

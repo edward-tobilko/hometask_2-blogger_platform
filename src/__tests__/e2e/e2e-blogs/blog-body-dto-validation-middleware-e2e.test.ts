@@ -2,7 +2,7 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "../../../app";
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { clearDB } from "../../utils/clear-db";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import { runDB, stopDB } from "../../../db/mongo.db";

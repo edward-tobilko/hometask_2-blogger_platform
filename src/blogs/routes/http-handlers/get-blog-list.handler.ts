@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { log } from "node:console";
 
-import { HTTP_STATUS_CODES } from "../../../core/utils/http-status-codes.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { blogsQueryService } from "../../application/blog-query.service";
 import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.request-payload-type";
