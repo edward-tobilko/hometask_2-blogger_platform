@@ -37,10 +37,12 @@ export class ApplicationResult<D = null> {
     statusCode = 400
   ): ApplicationResult<null> {
     return new ApplicationResult({
-      status: ApplicationResultStatus.Error,
+      status: ApplicationResultStatus.BadRequest,
       data: null,
       extensions: [new ApplicationError(message, field!, statusCode)],
       errorMessage: message,
     });
   }
 }
+
+// ? static - методы не существуют на экземпляре, только на самом классе.
