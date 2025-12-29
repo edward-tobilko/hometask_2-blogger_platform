@@ -2,7 +2,10 @@ import { Router } from "express";
 
 import { getPostListHandler } from "./http-handlers/get-post-list.handler";
 import { getPostHandler } from "./http-handlers/get-post.handler";
-import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
+import {
+  paramIdValidation,
+  paramPostIdValidation,
+} from "../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
 import { deletePostHandler } from "./http-handlers/delete-post.handler";
@@ -37,8 +40,8 @@ postsRoute.get(
 );
 
 postsRoute.get(
-  "/:id/comments",
-  paramIdValidation,
+  "/:postId/comments",
+  paramPostIdValidation,
   queryPaginationAndSortingValidation<PostCommentsSortFieldRP>(
     PostCommentsSortFieldRP
   ),

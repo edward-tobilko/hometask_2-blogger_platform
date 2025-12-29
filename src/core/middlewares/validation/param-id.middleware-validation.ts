@@ -1,26 +1,31 @@
 import { param, body } from "express-validator";
 import { ObjectId } from "mongodb";
 
-export const paramIdValidation = param("id")
-  .exists()
-  .withMessage("ID is required")
-  .isString()
-  .withMessage("ID must be a string")
-  .trim()
-  .notEmpty()
-  .withMessage("ID must not be empty")
-  .bail()
-  .custom((id) => {
-    if (!ObjectId.isValid(id)) {
-      throw new Error("Incorrect format of ObjectId");
-    }
-    return true;
-  })
-  .custom((id, _req) => {
-    console.log("PARAM ID FROM VALIDATOR:", id); // show incorrect id
+const objectIdParamValidation = (paramIdName: string) => {
+  return param(paramIdName)
+    .exists()
+    .withMessage(`${paramIdName} is required`)
+    .isString()
+    .withMessage(`${paramIdName} must be a string`)
+    .trim()
+    .notEmpty()
+    .withMessage(`${paramIdName} must not be empty`)
+    .bail()
+    .custom((id) => {
+      if (!ObjectId.isValid(id)) {
+        throw new Error("Incorrect format of ObjectId");
+      }
+      return true;
+    })
+    .custom((id, _req) => {
+      console.log("PARAM ID FROM VALIDATOR:", id); // show incorrect id
 
-    return true;
-  });
+      return true;
+    });
+};
+
+export const paramIdValidation = objectIdParamValidation("id");
+export const paramPostIdValidation = objectIdParamValidation("postId");
 
 export const paramCommentIdValidation = param("commentId")
   .exists()

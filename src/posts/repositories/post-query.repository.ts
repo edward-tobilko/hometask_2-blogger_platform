@@ -71,7 +71,7 @@ export class PostQueryRepository {
 
     const [postComments, totalCount] = await Promise.all([
       items.toArray(),
-      postCollection.countDocuments(filter),
+      postCommentsCollection.countDocuments(filter),
     ]);
 
     const postCommentsOutput = mapToPostCommentsListOutput(postComments, {
