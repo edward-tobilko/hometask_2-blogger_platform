@@ -1,4 +1,4 @@
-# Sprint 2 / Week 1 — Query repository, password hash, bcrypt
+# Sprint-2 / Week-1 — Query repository, password hash, bcrypt
 
 Учебный backend-проект на **Node.js + Express + TypeScript**
 
@@ -69,7 +69,7 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ---
 
-## Дополнительно реализовано, расширение предыдущей функциональности
+### + дополнительно реализовано, расширение предыдущей функциональности from sprint-1 / week-4
 
 - Добавлен новые энд-поинты api/users: GET / POST / DELETE.
 - Розделения BLL service и repository на получения ( query ).
