@@ -8,7 +8,7 @@ const bootstrap = async () => {
   const app = express();
   setupApp(app);
 
-  // * Render підставляє свій порт, локально — дефолт 5001
+  // * Render подставляет свой порт, локально — дефолт 5001
   const PORT = Number(process.env.PORT ?? 5001);
 
   try {

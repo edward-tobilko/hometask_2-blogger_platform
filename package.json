@@ -5,10 +5,10 @@
   "author": "eduard.tobilko",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "build": "rimraf dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "cross-env NODE_ENV=production node dist/server.js",
     "prod": "yarn build && yarn start",
-    "dev": "cross-env NODE_ENV=development tsx watch --inspect src/server.ts",
+    "dev": "cross-env NODE_ENV=development tsx watch --inspect -r tsconfig-paths/register src/server.ts",
     "jest": "jest -i",
     "test:e2e": "jest -i src/__tests__/e2e",
     "lint": "eslint --fix .",
@@ -20,7 +20,8 @@
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^6.20.0",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -40,6 +41,7 @@
     "supertest": "^7.1.4",
     "swagger-jsdoc": "^6.2.8",
     "ts-jest": "29.2.5",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2"
   }

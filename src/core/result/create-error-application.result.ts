@@ -11,7 +11,7 @@ export const createErrorApplicationResult = (
   if (throwError) throw applicationError;
 
   return new ApplicationResult({
-    status: ApplicationResultStatus.Error,
+    status: ApplicationResultStatus.BadRequest,
     data: null,
     extensions: [applicationError],
   });
