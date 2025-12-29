@@ -8,7 +8,8 @@ import { authService } from "../../application/auth.service";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { resultCodeToHttpException } from "../../../core/result/result-code-to-http.result";
+import { mapResultCodeToHttpException } from "../../../core/result/map-result-code-to-http.result";
+import { ApplicationError } from "@core/errors/application.error";
 
 export const createLoginHandler = async (req: Request, res: Response) => {
   try {
@@ -22,9 +23,13 @@ export const createLoginHandler = async (req: Request, res: Response) => {
     const result = await authService.loginUser(command);
 
     if (result.status !== ApplicationResultStatus.Success)
-      return res
-        .status(resultCodeToHttpException(result.status))
-        .json(result.extensions);
+      return res.status(mapResultCodeToHttpException(result.status)).json(
+        result.extensions.map((err: ApplicationError) => ({
+          field: err.field,
+          message: err.message,
+          statusCode: err.statusCode,
+        }))
+      );
 
     return res
       .status(HTTP_STATUS_CODES.OK_200)

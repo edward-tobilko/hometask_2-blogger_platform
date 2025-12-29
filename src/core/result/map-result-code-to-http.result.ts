@@ -1,7 +1,7 @@
 import { ApplicationResultStatus } from "./types/application-result-status.enum";
 import { HTTP_STATUS_CODES } from "./types/http-status-codes.enum";
 
-export function resultCodeToHttpException(
+export function mapResultCodeToHttpException(
   resultCode: ApplicationResultStatus
 ): number {
   switch (resultCode) {

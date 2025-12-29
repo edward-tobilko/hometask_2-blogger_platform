@@ -4,22 +4,23 @@ import { matchedData } from "express-validator";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { commentsService } from "../../application/comments.service";
-import { UpdateCommentRequestPayload } from "../request-payload-types/update-comment.request-payload-types";
+import { UpdateCommentRP } from "../request-payload-types/update-comment.request-payload-types";
 import { createCommand } from "../../../core/helpers/create-command.helper";
+import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 
 export const updateCommentHandler = async (
-  req: Request<{ commentId: string }, {}, UpdateCommentRequestPayload, {}>,
+  req: Request<{ commentId: string }, {}, UpdateCommentRP, {}>,
   res: Response
 ) => {
   try {
     const userId = req.user.id; // from express.d.ts (именно через middleware jwtAuthGuard мы пропускаем правильного юзера с токеном).
 
-    const sanitizedBody = matchedData<UpdateCommentRequestPayload>(req, {
+    const sanitizedBody = matchedData<UpdateCommentRP>(req, {
       locations: ["body"],
       includeOptionals: false,
     });
 
-    const command = createCommand({
+    const command = createCommand<UpdateCommentDtoCommand>({
       commentId: req.params.commentId,
       ...sanitizedBody,
     });

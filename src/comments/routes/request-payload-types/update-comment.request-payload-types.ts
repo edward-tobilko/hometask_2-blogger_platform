@@ -1,3 +1,3 @@
-export type UpdateCommentRequestPayload = {
+export type UpdateCommentRP = {
   content: string;
 };

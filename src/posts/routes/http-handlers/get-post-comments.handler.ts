@@ -7,7 +7,6 @@ import { postQueryService } from "../../application/post-query-service";
 import { setDefaultSortAndPaginationIfNotExist } from "../../../core/helpers/set-default-sort-pagination.helper";
 import { PostCommentsSortFieldRP } from "../request-payload-types/post-sort-field.request-payload-types";
 import { GetPostCommentsListQueryHandler } from "../../application/query-handlers/get-post-comments-list.query-handler";
-import { log } from "node:console";
 
 export const getPostCommentsHandler = async (
   req: Request<{ postId: string }>,
@@ -34,11 +33,6 @@ export const getPostCommentsHandler = async (
 
     const postCommentsListOutput =
       await postQueryService.getPostCommentsList(queryParamInput);
-
-    log(
-      "postCommentsListOutput.totalCount.length ->",
-      postCommentsListOutput.totalCount
-    );
 
     res.status(HTTP_STATUS_CODES.OK_200).json(postCommentsListOutput);
   } catch (error: unknown) {

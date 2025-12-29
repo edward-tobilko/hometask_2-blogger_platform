@@ -7,10 +7,7 @@ import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
 import { ApplicationResult } from "../../core/result/application.result";
 import { UserDomain } from "../../users/domain/user.domain";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
-import {
-  NotFoundError,
-  UnauthorizedError,
-} from "../../core/errors/application.error";
+import { UnauthorizedError } from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
 import { AuthRepository } from "../repositories/auth.repository";
 import { AuthDomain } from "../domain/auth.domain";
@@ -34,9 +31,11 @@ class AuthService {
 
     if (!user) {
       return new ApplicationResult<UserDomain>({
-        status: ApplicationResultStatus.NotFound,
+        status: ApplicationResultStatus.Unauthorized,
         data: null,
-        extensions: [new NotFoundError("loginOrEmail", "User is not found!")],
+        extensions: [
+          new UnauthorizedError("loginOrEmail", "Wrong credentials!"),
+        ],
       });
     }
 

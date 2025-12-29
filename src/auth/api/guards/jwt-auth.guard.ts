@@ -21,15 +21,15 @@ export const jwtAuthGuard = async (
 
     const payload = await JWTService.verifyAccessToken(token);
 
-    if (payload) {
-      const { userId } = payload; // userId достаем с метода createAccessToken в который мы положили как props
-
-      req.user = { id: userId } as IdType; // req.user adding from express.d.ts
-
-      next();
-
-      return;
+    if (!payload) {
+      return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
     }
+
+    const { userId } = payload; // userId достаем с метода createAccessToken в который мы положили как props
+
+    req.user = { id: userId } as IdType; // req.user adding from express.d.ts
+
+    return next();
   } catch (error: unknown) {
     res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
