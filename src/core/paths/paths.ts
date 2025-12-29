@@ -7,7 +7,7 @@ export const routersPaths = {
     registrationEmailResending: "/api/auth/registration-email-resending",
   },
 
-  root: "/",
+  root: "/api",
   users: "/api/users",
   blogs: "/api/blogs",
   posts: "/api/posts",
