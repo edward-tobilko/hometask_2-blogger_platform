@@ -1,4 +1,4 @@
-# Sprint 2 / Week 2 — JWT-token and headers-authorization
+# Sprint-2 / Week-2 — JWT-token and headers-authorization
 
 Учебный backend-проект на **Node.js + Express + TypeScript**
 
