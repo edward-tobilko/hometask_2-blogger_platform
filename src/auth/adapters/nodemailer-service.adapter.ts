@@ -1,0 +1,31 @@
+import nodemailer from "nodemailer";
+
+import { appConfig } from "@core/settings/config";
+
+export const nodeMailerService = {
+  async sendMail(
+    email: string, // куда отправляем
+    code: string, // код подтверджения
+    template: (code: string) => string // ф-я которая принимает код и отправляет html строку
+  ): Promise<boolean> {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: appConfig.EMAIL,
+        pass: appConfig.EMAIL_PASS,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: '"Kek 👻" <codeSender>',
+      to: email,
+      subject: "Your code is here",
+      html: template(code), // html body
+    });
+
+    // return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
+    return !!info;
+  },
+};
+
+// ? "!!info" - превращает значения в true or false

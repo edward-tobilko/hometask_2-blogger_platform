@@ -1,6 +1,7 @@
 import { body } from "express-validator";
 
 import { UsersQueryRepository } from "users/repositories/users-query.repository";
+import { ValidationError } from "@core/errors/application.error";
 
 const userQueryRepo = new UsersQueryRepository();
 
@@ -17,10 +18,13 @@ export const registrationAuthRPValidation = [
     .matches(/^[a-zA-Z0-9_-]*$/)
     .withMessage("Login must contain only letters, numbers, _ or -")
     .custom(async (login: string) => {
-      const user = await userQueryRepo.findByLoginOrEmailQueryRepo(login);
+      const userByLogin = await userQueryRepo.findByLoginOrEmailQueryRepo(
+        login,
+        undefined
+      );
 
-      if (user) {
-        throw new Error("Login already is exist");
+      if (userByLogin) {
+        throw new ValidationError("login", "Login already is exist", 400);
       }
 
       return true;
@@ -46,10 +50,13 @@ export const registrationAuthRPValidation = [
     .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)
     .withMessage("Email must be a valid email")
     .custom(async (email: string) => {
-      const user = await userQueryRepo.findByLoginOrEmailQueryRepo(email);
+      const userByEmail = await userQueryRepo.findByLoginOrEmailQueryRepo(
+        undefined,
+        email
+      );
 
-      if (user) {
-        throw new Error("Email already is exist");
+      if (userByEmail) {
+        throw new ValidationError("email", "Email already is exist", 400);
       }
 
       return true;

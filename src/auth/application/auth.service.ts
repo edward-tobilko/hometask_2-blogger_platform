@@ -9,12 +9,17 @@ import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
 import { ApplicationResult } from "../../core/result/application.result";
 import { UserDomain } from "../../users/domain/user.domain";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
-import { UnauthorizedError } from "../../core/errors/application.error";
+import {
+  ApplicationError,
+  UnauthorizedError,
+} from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
 import { AuthRepository } from "../repositories/auth.repository";
 import { AuthDomain } from "../domain/auth.domain";
 import { UserDB } from "db/types.db";
 import { UserRepository } from "users/repositories/user.repository";
+import { nodeMailerService } from "auth/adapters/nodemailer-service.adapter";
+import { emailExamples } from "auth/adapters/email-examples.adapter";
 
 class AuthService {
   constructor(
@@ -99,24 +104,33 @@ class AuthService {
 
   async registerUser(
     login: string,
-    email: string,
-    password: string
-  ): Promise<ApplicationResult<UserDB> | null> {
+    password: string,
+    email: string
+  ): Promise<ApplicationResult<UserDB>> {
     const user = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
       login,
       email
     );
 
-    if (user) return null; // проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
+    // проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
+    if (user) {
+      throw new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [
+          new ApplicationError("email", "Email already exists", 400),
+        ],
+      });
+    }
 
     const passwordHash = await this.passwordHasher.generateHash(password); // создать хэш пароля
 
-    const newUser: UserDB = {
+    let newUser: UserDB = {
       login: login,
       email: email,
-      createdAt: new Date(),
-
       passwordHash,
+
+      createdAt: new Date(),
 
       emailConfirmation: {
         confirmationCode: randomUUID(),
@@ -132,10 +146,13 @@ class AuthService {
 
     try {
       // отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
+      await nodeMailerService.sendMail(
+        newUser.email,
+        newUser.emailConfirmation.confirmationCode,
+        emailExamples.registrationEmail
+      );
     } catch (error: unknown) {
       console.error("Send Email Error", error);
-
-      return null;
     }
 
     return new ApplicationResult({
