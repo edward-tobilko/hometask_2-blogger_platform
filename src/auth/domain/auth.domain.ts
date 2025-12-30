@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { FieldsOnly } from "../../core/types/fields-only.type";
-import { UserDomain } from "../../users/domain/user.domain";
+import { UserDB } from "db/types.db";
 
 // * BLL - AuthDomain - бизнес модель
 export class AuthDomain {
@@ -20,7 +20,7 @@ export class AuthDomain {
     }
   }
 
-  static createMe(user: UserDomain): AuthDomain {
+  static createMe(user: UserDB): AuthDomain {
     return new AuthDomain({
       email: user.email,
       login: user.login,

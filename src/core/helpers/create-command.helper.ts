@@ -1,4 +1,4 @@
-import { uuid } from "../infrastructure/crypto/uuid.crypto";
+import { randomUUID } from "node:crypto";
 
 interface ICommandMeta {
   throwError: boolean;
@@ -18,7 +18,7 @@ export const createCommand = <T>(
     meta: {
       throwError: options?.throwError ?? true, // Если что-то пойдет не так — бросить ошибку, а не просто вернуть результат.
       transaction: options?.transaction ?? true, // Команда должна выполняться в пределах транзакции (например, в БД).
-      commandId: options?.commandId ?? uuid, // Рандомно-сгенерированный id
+      commandId: options?.commandId ?? randomUUID(), // Рандомно-сгенерированный id
       timestamp: options?.timestamp ?? Date.now(), // Время создания
 
       userId: options?.userId,

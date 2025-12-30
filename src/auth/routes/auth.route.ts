@@ -6,21 +6,27 @@ import { createLoginHandler } from "./http-handlers/create-login.handler";
 import { getAuthMeHandler } from "./http-handlers/get-auth-me.handler";
 import { jwtAuthGuard } from "../api/guards/jwt-auth.guard";
 import { createRegistrationHandler } from "./http-handlers/create-registration.handler";
+import { registrationAuthRPValidation } from "./request-payload-validations/registration-auth.request-payload-validation";
 
 export const authRoute = Router();
 
 // * GET
 // Get info about current user
-authRoute.get("", jwtAuthGuard, getAuthMeHandler);
+authRoute.get("/me", jwtAuthGuard, getAuthMeHandler);
 
 // * POST
 // Try login user to the system
 authRoute.post(
-  "",
+  "/login",
   loginOrEmailAuthRPValidation,
   inputResultMiddlewareValidation,
   createLoginHandler
 );
 
 // Registration in the system. Email with confirmation code will be send to passed email address.
-authRoute.post("", createRegistrationHandler);
+authRoute.post(
+  "/registration",
+  registrationAuthRPValidation,
+  inputResultMiddlewareValidation,
+  createRegistrationHandler
+);

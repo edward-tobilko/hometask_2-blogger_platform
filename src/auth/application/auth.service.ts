@@ -1,4 +1,6 @@
 import { log } from "node:console";
+import { add } from "date-fns";
+import { randomUUID } from "node:crypto";
 
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
@@ -11,12 +13,15 @@ import { UnauthorizedError } from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
 import { AuthRepository } from "../repositories/auth.repository";
 import { AuthDomain } from "../domain/auth.domain";
+import { UserDB } from "db/types.db";
+import { UserRepository } from "users/repositories/user.repository";
 
 class AuthService {
   constructor(
     private readonly userQueryRepo: UsersQueryRepository,
     private readonly passwordHasher: BcryptPasswordHasher,
-    private readonly authRepo: AuthRepository
+    private readonly authRepo: AuthRepository,
+    private readonly userRepo: UserRepository
   ) {}
 
   async checkUserCredentials(
@@ -91,11 +96,60 @@ class AuthService {
       extensions: [],
     });
   }
+
+  async registerUser(
+    login: string,
+    email: string,
+    password: string
+  ): Promise<ApplicationResult<UserDB> | null> {
+    const user = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
+      login,
+      email
+    );
+
+    if (user) return null; // проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
+
+    const passwordHash = await this.passwordHasher.generateHash(password); // создать хэш пароля
+
+    const newUser: UserDB = {
+      login: login,
+      email: email,
+      createdAt: new Date(),
+
+      passwordHash,
+
+      emailConfirmation: {
+        confirmationCode: randomUUID(),
+        expirationDate: add(new Date(), {
+          hours: 1,
+          minutes: 3,
+        }),
+        isConfirmed: false,
+      },
+    };
+
+    await this.userRepo.createUserRepo(newUser);
+
+    try {
+      // отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
+    } catch (error: unknown) {
+      console.error("Send Email Error", error);
+
+      return null;
+    }
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: newUser,
+      extensions: [],
+    });
+  }
 }
 
 // * способ для production: легче писать тесты (можно подсунуть мок репозитория/хешера) и более гибко менять реализации (например, другой хэшер).
 export const authService = new AuthService(
   new UsersQueryRepository(),
   new BcryptPasswordHasher(),
-  new AuthRepository()
+  new AuthRepository(),
+  new UserRepository()
 );

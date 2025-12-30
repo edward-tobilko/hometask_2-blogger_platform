@@ -1,10 +1,10 @@
 import { body } from "express-validator";
 
-import { UsersQueryRepository } from "../../repositories/users-query.repository";
+import { UsersQueryRepository } from "users/repositories/users-query.repository";
 
 const userQueryRepo = new UsersQueryRepository();
 
-export const createUserDtoMiddlewareValidations = [
+export const registrationAuthRPValidation = [
   body("login")
     .exists()
     .withMessage("Login is required")

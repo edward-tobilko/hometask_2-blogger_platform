@@ -4,10 +4,10 @@ import { userCollection } from "../../db/mongo.db";
 import { mapToUsersListOutput } from "../applications/mappers/map-to-users-list-output.mapper";
 import { UsersListPaginatedOutput } from "../applications/output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "../applications/query-handlers/get-users-list.query-handler";
-import { UserDomain } from "../domain/user.domain";
 import { UserOutput } from "../applications/output/user.output";
 import { mapToUserOutput } from "../applications/mappers/map-to-user-output.mapper";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import { UserDB } from "db/types.db";
 
 export class UsersQueryRepository {
   async getUsersListQueryRepo(
@@ -63,10 +63,12 @@ export class UsersQueryRepository {
   async findByLoginOrEmailQueryRepo(
     login?: string,
     email?: string
-  ): Promise<UserDomain | null> {
-    return userCollection.findOne({
+  ): Promise<UserDB | null> {
+    const user = await userCollection.findOne({
       $or: [{ login }, { email }],
     });
+
+    return user;
   }
 
   async findUserByIdQueryRepo(userId: string): Promise<UserOutput | null> {

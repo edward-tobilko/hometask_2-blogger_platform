@@ -20,6 +20,12 @@ export type UserDB = {
   createdAt: Date;
 
   passwordHash: string;
+
+  emailConfirmation: {
+    confirmationCode: string;
+    expirationDate: Date;
+    isConfirmed: boolean;
+  };
 };
 
 export type PostDB = {

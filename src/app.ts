@@ -12,8 +12,14 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 export const setupApp = (app: Express) => {
   app.use(express.json());
 
-  app.use(routersPaths.auth.login, authRoute);
-  app.use(routersPaths.auth.me, authRoute);
+  // * для отлова путей
+  app.use((req, _res, next) => {
+    console.log("REQUEST:", req.method, req.url);
+
+    next();
+  });
+
+  app.use(routersPaths.auth, authRoute);
 
   app.get(routersPaths.root, (_req: Request, res: Response) => {
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");
@@ -25,13 +31,6 @@ export const setupApp = (app: Express) => {
   app.use(routersPaths.comments, commentsRoute);
 
   app.use(routersPaths.testing, testingRoute);
-
-  // * для отлова путей
-  app.use((req, _res, next) => {
-    console.log("REQUEST:", req.method, req.url);
-
-    next();
-  });
 
   return app;
 };

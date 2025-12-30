@@ -1,10 +1,10 @@
 import { ObjectId } from "mongodb";
 
 import { userCollection } from "../../db/mongo.db";
-import { UserDomain } from "../domain/user.domain";
+import { UserDB } from "db/types.db";
 
 export class UserRepository {
-  async createUserRepo(user: UserDomain): Promise<UserDomain> {
+  async createUserRepo(user: UserDB): Promise<UserDB> {
     const insertResult = await userCollection.insertOne(user);
 
     user._id = insertResult.insertedId;

@@ -15,7 +15,7 @@ export const createUserHandler = async (
   try {
     const sanitizedBodyParam = matchedData<CreateUserRP>(req, {
       locations: ["body"],
-      includeOptionals: true,
+      includeOptionals: false,
     });
 
     const command = createCommand<CreateUserDtoCommand>(sanitizedBodyParam);
