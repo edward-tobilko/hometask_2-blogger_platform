@@ -197,7 +197,7 @@ class AuthService {
       });
 
     const updatedConfirmStatusResult =
-      await this.userRepo.updateConfirmUserEmail(userAccount._id!);
+      await this.userRepo.updateEmailUserConfirmation(userAccount._id!);
 
     if (!updatedConfirmStatusResult) {
       return new ApplicationResult({
@@ -210,6 +210,74 @@ class AuthService {
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
       data: true,
+      extensions: [],
+    });
+  }
+
+  async resendRegistrationEmail(
+    email: string
+  ): Promise<ApplicationResult<null>> {
+    const userAccount = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
+      undefined,
+      email
+    );
+
+    if (!userAccount)
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new NotFoundError("code", "This user does not exist")],
+      });
+
+    if (userAccount.emailConfirmation.isConfirmed)
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [new ApplicationError("code", "Email is confirmed")],
+      });
+
+    // * Генерируем новый код и новый дедлайн
+    const newCode = randomUUID();
+    const newExp = add(new Date(), { hours: 1, minutes: 3 });
+
+    const updated = await this.userRepo.updateEmailUserConfirmation(
+      userAccount._id!,
+      {
+        confirmationCode: newCode,
+        expirationDate: newExp,
+        isConfirmed: false,
+      }
+    );
+
+    if (!updated) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.InternalServerError,
+        data: null,
+        extensions: [
+          new ApplicationError("email", "Cannot update confirmation data", 500),
+        ],
+      });
+    }
+
+    const isSent = await nodeMailerService.sendRegistrationConfirmationEmail(
+      email,
+      newCode,
+      emailExamples.registrationEmail
+    );
+
+    if (!isSent) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.InternalServerError,
+        data: null,
+        extensions: [new ApplicationError("email", "Cannot send email")],
+      });
+    }
+
+    log("userAccount ->", userAccount);
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
       extensions: [],
     });
   }

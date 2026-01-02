@@ -17,14 +17,14 @@ export const nodeMailerService = {
     template: (code: string) => string // ф-я которая принимает код и отправляет html строку
   ): Promise<boolean> {
     const info = await transporter.sendMail({
-      from: `"👻" ${appConfig.EMAIL}`,
+      from: `"👻" <${appConfig.EMAIL}>`,
       to: email,
       subject: "Your code is here",
       html: template(code), // html body
     });
 
-    // return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
-    return !!info;
+    return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
+    // return !!info;
   },
 };
 

@@ -10,7 +10,6 @@ import { registrationHandler } from "./http-handlers/registration.handler";
 import { registrationAuthRPValidation } from "./request-payload-validations/registration-auth.request-payload-validation";
 import { confirmRegistrationHandler } from "./http-handlers/confirm-registration.handler";
 import { registrationEmailResending } from "./http-handlers/registration-email-resending.handler";
-import { UsersQueryRepository } from "users/repositories/users-query.repository";
 
 export const authRoute = Router();
 

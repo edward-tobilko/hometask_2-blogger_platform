@@ -3,6 +3,12 @@ import { ObjectId } from "mongodb";
 import { userCollection } from "../../db/mongo.db";
 import { UserDB } from "db/types.db";
 
+interface IEmailConfirmationUpdate {
+  confirmationCode: string;
+  expirationDate: Date;
+  isConfirmed: boolean;
+}
+
 export class UserRepository {
   async createUserRepo(user: UserDB): Promise<UserDB> {
     const insertResult = await userCollection.insertOne(user);
@@ -18,12 +24,23 @@ export class UserRepository {
     return isDeleted.deletedCount === 1;
   }
 
-  async updateConfirmUserEmail(_id: ObjectId) {
-    const resultUserConfirmStatus = await userCollection.updateOne(
-      { _id },
-      { $set: { "emailConfirmation.isConfirmed": true } }
+  async updateEmailUserConfirmation(
+    userId: ObjectId,
+    emailConfirmation?: IEmailConfirmationUpdate
+  ) {
+    const resultEmailUserConfirm = await userCollection.updateOne(
+      { _id: userId },
+
+      {
+        $set: {
+          "emailConfirmation.confirmationCode":
+            emailConfirmation!.confirmationCode,
+          "emailConfirmation.expirationDate": emailConfirmation!.expirationDate,
+          "emailConfirmation.isConfirmed": true,
+        },
+      }
     );
 
-    return resultUserConfirmStatus.modifiedCount === 1;
+    return resultEmailUserConfirm.modifiedCount === 1;
   }
 }
