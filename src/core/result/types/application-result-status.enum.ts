@@ -8,6 +8,7 @@ export enum ApplicationResultStatus {
   Unauthorized = "Unauthorized",
   BadRequest = "BadRequest",
   NotAllowed = "NotAllowed",
+  Conflict = "Conflict",
   UnprocessableEntity = "UnprocessableEntity",
 
   InternalServerError = "InternalServerError",

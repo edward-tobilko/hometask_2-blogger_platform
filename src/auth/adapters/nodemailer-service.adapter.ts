@@ -2,22 +2,22 @@ import nodemailer from "nodemailer";
 
 import { appConfig } from "@core/settings/config";
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: appConfig.EMAIL,
+    pass: appConfig.EMAIL_PASS,
+  },
+});
+
 export const nodeMailerService = {
-  async sendMail(
+  async sendRegistrationConfirmationEmail(
     email: string, // куда отправляем
     code: string, // код подтверджения
     template: (code: string) => string // ф-я которая принимает код и отправляет html строку
   ): Promise<boolean> {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: appConfig.EMAIL,
-        pass: appConfig.EMAIL_PASS,
-      },
-    });
-
     const info = await transporter.sendMail({
-      from: '"Kek 👻" <codeSender>',
+      from: `"👻" ${appConfig.EMAIL}`,
       to: email,
       subject: "Your code is here",
       html: template(code), // html body

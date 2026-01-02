@@ -2,7 +2,7 @@ export class ApplicationError extends Error {
   constructor(
     public readonly field: string | null,
     public readonly message: string,
-    public readonly statusCode: number
+    public readonly statusCode?: number
   ) {
     super(message);
 

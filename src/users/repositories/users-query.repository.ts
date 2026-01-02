@@ -71,11 +71,12 @@ export class UsersQueryRepository {
     return user;
   }
 
-  async findByConfirmCodeQueryRepo(
+  async findUserByEmailConfirmCodeQueryRepo(
     emailConfirmCode: string
   ): Promise<UserDB | null> {
     const userAccount = await userCollection.findOne({
-      "emailConfirmation.isConfirmed": emailConfirmCode,
+      "emailConfirmation.confirmationCode": emailConfirmCode,
+      "emailConfirmation.isConfirmed": false, // сразу фильтровем только тех, кто еще не подтвержден
     });
 
     return userAccount;

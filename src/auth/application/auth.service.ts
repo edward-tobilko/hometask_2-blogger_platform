@@ -150,7 +150,7 @@ class AuthService {
 
     // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
     try {
-      await nodeMailerService.sendMail(
+      await nodeMailerService.sendRegistrationConfirmationEmail(
         newUser.email,
         newUser.emailConfirmation.confirmationCode,
         emailExamples.registrationEmail
@@ -166,39 +166,46 @@ class AuthService {
     });
   }
 
-  async registrEmailConfirm(code: string): Promise<ApplicationResult<boolean>> {
+  async confirmRegistration(code: string): Promise<ApplicationResult<boolean>> {
     const userAccount =
-      await this.userQueryRepo.findByConfirmCodeQueryRepo(code);
+      await this.userQueryRepo.findUserByEmailConfirmCodeQueryRepo(code);
 
     if (!userAccount)
-      throw new ApplicationResult({
+      return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: false,
-        extensions: [new NotFoundError("code", "Incorrect code", 404)],
+        extensions: [new NotFoundError("code", "This user does not exist")],
       });
 
     if (userAccount.emailConfirmation.isConfirmed)
-      throw new ApplicationResult({
-        status: ApplicationResultStatus.NotAllowed,
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
         data: false,
-        extensions: [new ApplicationError("code", "Is confirmed", 405)],
+        extensions: [new ApplicationError("code", "Email is confirmed")],
       });
 
     if (userAccount.emailConfirmation.expirationDate < new Date())
-      throw new ApplicationResult({
+      return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: false,
-        extensions: [new ApplicationError("code", "tratata", 400)],
+        extensions: [
+          new ApplicationError(
+            "code",
+            "Expiration date of confirmation code is ended"
+          ),
+        ],
       });
 
-    if (userAccount.emailConfirmation.confirmationCode !== code)
-      throw new ApplicationResult({
-        status: ApplicationResultStatus.Forbidden,
+    const updatedConfirmStatusResult =
+      await this.userRepo.updateConfirmUserEmail(userAccount._id!);
+
+    if (!updatedConfirmStatusResult) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.InternalServerError,
         data: false,
-        extensions: [new ApplicationError("code", "", 403)],
+        extensions: [new ApplicationError("code", "Cannot confirm user")],
       });
-
-    await this.userRepo.updateConfirmStatus(userAccount._id!);
+    }
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
