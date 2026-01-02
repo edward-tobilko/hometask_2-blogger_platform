@@ -11,6 +11,7 @@ import { UserDomain } from "../../users/domain/user.domain";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import {
   ApplicationError,
+  NotFoundError,
   UnauthorizedError,
 } from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
@@ -48,6 +49,9 @@ class AuthService {
         ],
       });
     }
+
+    if (!user.emailConfirmation.isConfirmed)
+      throw new ApplicationError("code", "Your profile is not verified", 400);
 
     const isPassCorrect = await this.passwordHasher.checkPassword(
       password,
@@ -112,7 +116,7 @@ class AuthService {
       email
     );
 
-    // проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
+    // * проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
     if (user) {
       throw new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
@@ -144,8 +148,8 @@ class AuthService {
 
     await this.userRepo.createUserRepo(newUser);
 
+    // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
     try {
-      // отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
       await nodeMailerService.sendMail(
         newUser.email,
         newUser.emailConfirmation.confirmationCode,
@@ -158,6 +162,47 @@ class AuthService {
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
       data: newUser,
+      extensions: [],
+    });
+  }
+
+  async registrEmailConfirm(code: string): Promise<ApplicationResult<boolean>> {
+    const userAccount =
+      await this.userQueryRepo.findByConfirmCodeQueryRepo(code);
+
+    if (!userAccount)
+      throw new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: false,
+        extensions: [new NotFoundError("code", "Incorrect code", 404)],
+      });
+
+    if (userAccount.emailConfirmation.isConfirmed)
+      throw new ApplicationResult({
+        status: ApplicationResultStatus.NotAllowed,
+        data: false,
+        extensions: [new ApplicationError("code", "Is confirmed", 405)],
+      });
+
+    if (userAccount.emailConfirmation.expirationDate < new Date())
+      throw new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: false,
+        extensions: [new ApplicationError("code", "tratata", 400)],
+      });
+
+    if (userAccount.emailConfirmation.confirmationCode !== code)
+      throw new ApplicationResult({
+        status: ApplicationResultStatus.Forbidden,
+        data: false,
+        extensions: [new ApplicationError("code", "", 403)],
+      });
+
+    await this.userRepo.updateConfirmStatus(userAccount._id!);
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: true,
       extensions: [],
     });
   }

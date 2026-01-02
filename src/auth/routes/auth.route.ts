@@ -7,6 +7,8 @@ import { getAuthMeHandler } from "./http-handlers/get-auth-me.handler";
 import { jwtAuthGuard } from "../api/guards/jwt-auth.guard";
 import { createRegistrationHandler } from "./http-handlers/create-registration.handler";
 import { registrationAuthRPValidation } from "./request-payload-validations/registration-auth.request-payload-validation";
+import { body } from "express-validator";
+import { createRegistrConfirmHandler } from "./http-handlers/create-registr-confirm.handler";
 
 export const authRoute = Router();
 
@@ -29,4 +31,16 @@ authRoute.post(
   registrationAuthRPValidation,
   inputResultMiddlewareValidation,
   createRegistrationHandler
+);
+
+authRoute.post(
+  "/registration-confirmation",
+  body("code")
+    .exists()
+    .withMessage("Code is required")
+    .bail()
+    .isString()
+    .withMessage("Code must be a string"),
+  inputResultMiddlewareValidation,
+  createRegistrConfirmHandler
 );

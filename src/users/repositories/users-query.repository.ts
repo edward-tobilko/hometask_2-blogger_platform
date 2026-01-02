@@ -71,6 +71,16 @@ export class UsersQueryRepository {
     return user;
   }
 
+  async findByConfirmCodeQueryRepo(
+    emailConfirmCode: string
+  ): Promise<UserDB | null> {
+    const userAccount = await userCollection.findOne({
+      "emailConfirmation.isConfirmed": emailConfirmCode,
+    });
+
+    return userAccount;
+  }
+
   async findUserByIdQueryRepo(userId: string): Promise<UserOutput | null> {
     const userDomain = await userCollection.findOne({
       _id: new ObjectId(userId),

@@ -17,4 +17,13 @@ export class UserRepository {
 
     return isDeleted.deletedCount === 1;
   }
+
+  async updateConfirmStatus(_id: ObjectId) {
+    const resultUserConfirmStatus = await userCollection.updateOne(
+      { _id },
+      { $set: { "emailConfirmation.isConfirmed": true } }
+    );
+
+    return resultUserConfirmStatus.modifiedCount === 1;
+  }
 }
