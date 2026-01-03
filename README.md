@@ -1,4 +1,4 @@
-# Sprint-2 / Week-3 — Nodemailer / SMTP / Registration
+# Sprint-2 / Week-3 — Nodemailer / SMTP-протокол / Registration
 
 Учебный backend-проект на **Node.js + Express + TypeScript**
 
@@ -7,11 +7,11 @@
 ## Реализованные концепции
 
 ### Service Layer (BLL)
-- Бизнес-логика вынесена из HTTP-уровня в отдельный Service Layer
-- Сервисы не зависят от Express (`req`, `res`, `statusCode`)
-- Взаимодействие с базой данных происходит через Repository layer
-- Сервисы возвращают результат выполнения, а не HTTP-ответ
-- Базовая авторизация ( base64 ).
+- Бизнес-логика вынесена из HTTP-уровня в отдельный Service Layer.
+- Сервисы не зависят от Express (`req`, `res`, `statusCode`).
+- Взаимодействие с базой данных происходит через Repository layer.
+- Сервисы возвращают результат выполнения, а не HTTP-ответ.
+- JWT-авторизация.
 - Реализованы E2E тесты.
 
 **Поток выполнения:**
@@ -69,19 +69,19 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ---
 
-### + дополнительно реализовано, расширение предыдущей функциональности from sprint-1 / week-4
+### + дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг
 
 - Добавлен новые энд-поинты: api/users -> GET / POST / DELETE.
 - Розделения BLL service и repository на получения ( query ).
 - Шифрование паролей с пом. bcrypt библиотеки.
 
-### + дополнительно реализовано, расширение предыдущей функциональности from sprint-2 / week-1
+### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-1 + рефакторинг
 
 - Добавлен новые энд-поинты: api/auth -> GET, api/comments -> GET / PUT / DELETE, api/posts/{postId}/comments -> GET / POST.
-- Создания и получения JWT token пользователя.
+- Создания и получения JWT-token пользователя.
 - Создания и получения коментариев к постам под определенным jwt-токеном.
 
-### + дополнительно реализовано, расширение предыдущей функциональности from sprint-2 / week-2
+### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-2 + рефакторинг
 
-- Добавлен новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
-- 
+- Добавлены новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
+- Реализована логика отправки письма (nodemailer через smtp-протокол).
