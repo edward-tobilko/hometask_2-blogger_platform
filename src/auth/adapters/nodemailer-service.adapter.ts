@@ -7,7 +7,7 @@ const transporter = nodemailer.createTransport({
   host: appConfig.SMTP_HOST,
   port: Number(appConfig.SMTP_PORT),
   secure: appConfig.SMTP_SECURE === "false",
-  // service: "gmail",
+  service: "gmail",
   auth: {
     user: appConfig.EMAIL, // нашь email
     pass: appConfig.EMAIL_PASS, // получаем сгенерированный код в настройках гугл аккаунта (https://myaccount.google.com/security )
