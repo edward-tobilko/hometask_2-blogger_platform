@@ -29,25 +29,19 @@ export const nodeMailerService = {
     code: string, // код подтверджения
     template: (code: string) => string // ф-я которая принимает код и отправляет html строку
   ): Promise<boolean> {
-    try {
-      log("SENDING EMAIL TO:", email);
+    log("SENDING EMAIL TO:", email);
 
-      const info = await transporter.sendMail({
-        from: `"eddie" <${appConfig.EMAIL}>`,
-        to: email,
-        subject: "Your code is here",
-        html: template(code), // html body
-      });
+    const info = await transporter.sendMail({
+      from: `"eddie" <${appConfig.EMAIL}>`,
+      to: email,
+      subject: "Your code is here",
+      html: template(code), // html body
+    });
 
-      log("SENT:", info);
+    log("SENT:", info);
 
-      return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
-      // return !!info;
-    } catch (error) {
-      console.error("EMAIL_SEND_ERROR", error);
-
-      return false;
-    }
+    // return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
+    return !!info;
   },
 };
 
