@@ -78,7 +78,7 @@ class AuthService {
   ): Promise<ApplicationResult<{ accessToken: string } | null>> {
     const result = await this.checkUserCredentials(command);
 
-    log("result ->", result);
+    log("resultttttttt ->", result);
 
     if (result.status !== ApplicationResultStatus.Success) {
       return new ApplicationResult<{ accessToken: string } | null>({
@@ -111,7 +111,22 @@ class AuthService {
     password: string,
     email: string
   ): Promise<ApplicationResult<UserDB | null>> {
-    await this.userQueryRepo.findByLoginOrEmailQueryRepo(login, email);
+    const existingUser = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
+      login,
+      email
+    );
+
+    // * проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
+    if (existingUser) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [
+          new ApplicationError("login", "Login already exists", 400),
+          new ApplicationError("email", "Email already exists", 400),
+        ],
+      });
+    }
 
     const passwordHash = await this.passwordHasher.generateHash(password); // создать хэш пароля
 
@@ -134,18 +149,14 @@ class AuthService {
 
     await this.userRepo.createUserRepo(newUser);
 
-    const sent = await nodeMailerService.sendRegistrationConfirmationEmail(
-      newUser.email,
-      newUser.emailConfirmation.confirmationCode,
-      emailExamples.registrationEmail
-    );
-
-    if (!sent) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.InternalServerError,
-        data: null,
-        extensions: [new ApplicationError("email", "Email was not sent", 500)],
-      });
+    try {
+      await nodeMailerService.sendRegistrationConfirmationEmail(
+        newUser.email,
+        newUser.emailConfirmation.confirmationCode,
+        emailExamples.registrationEmail
+      );
+    } catch (error: unknown) {
+      console.error("EMAIL_SEND_ERROR", error);
     }
 
     return new ApplicationResult({
@@ -248,21 +259,15 @@ class AuthService {
       });
     }
 
-    const isSent = await nodeMailerService.sendRegistrationConfirmationEmail(
-      email,
-      newCode,
-      emailExamples.registrationEmail
-    );
-
-    if (!isSent) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.InternalServerError,
-        data: null,
-        extensions: [new ApplicationError("email", "Cannot send email")],
-      });
+    try {
+      await nodeMailerService.sendRegistrationConfirmationEmail(
+        email,
+        newCode,
+        emailExamples.registrationEmail
+      );
+    } catch (error: unknown) {
+      console.error("EMAIL_SEND_ERROR", error);
     }
-
-    log("userAccount ->", userAccount);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

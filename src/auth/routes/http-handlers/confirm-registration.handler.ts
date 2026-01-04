@@ -18,13 +18,12 @@ export const confirmRegistrationHandler = async (
     const result = await authService.confirmRegistration(code);
 
     if (result.status !== ApplicationResultStatus.Success) {
-      return res.status(mapApplicationStatusToHttpStatus(result.status)).json(
-        result.extensions.map((err: ApplicationError) => ({
+      return res.status(mapApplicationStatusToHttpStatus(result.status)).json({
+        errorsMessages: result.extensions.map((err: ApplicationError) => ({
           field: err.field,
           message: err.message,
-          statusCode: err.statusCode,
-        }))
-      );
+        })),
+      });
     }
 
     log("result ->", result);

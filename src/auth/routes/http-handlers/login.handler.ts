@@ -23,13 +23,12 @@ export const loginHandler = async (req: Request, res: Response) => {
     const result = await authService.loginUser(command);
 
     if (result.status !== ApplicationResultStatus.Success)
-      return res.status(mapApplicationStatusToHttpStatus(result.status)).json(
-        result.extensions.map((err: ApplicationError) => ({
+      return res.status(mapApplicationStatusToHttpStatus(result.status)).json({
+        errorsMessages: result.extensions.map((err: ApplicationError) => ({
           field: err.field,
           message: err.message,
-          statusCode: err.statusCode,
-        }))
-      );
+        })),
+      });
 
     return res
       .status(HTTP_STATUS_CODES.OK_200)

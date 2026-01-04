@@ -25,7 +25,6 @@ export const registrationHandler = async (
             (err: ApplicationError) => ({
               field: err.field,
               message: err.message,
-              statusCode: err.statusCode,
             })
           ),
         });

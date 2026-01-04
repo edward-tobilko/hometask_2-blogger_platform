@@ -17,13 +17,12 @@ export async function registrationEmailResending(
     const result = await authService.resendRegistrationEmail(email);
 
     if (result.status !== ApplicationResultStatus.Success) {
-      return res.status(mapApplicationStatusToHttpStatus(result.status)).json(
-        result.extensions.map((err: ApplicationError) => ({
+      return res.status(mapApplicationStatusToHttpStatus(result.status)).json({
+        errorsMessages: result.extensions.map((err: ApplicationError) => ({
           field: err.field,
           message: err.message,
-          statusCode: err.statusCode,
-        }))
-      );
+        })),
+      });
     }
 
     return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
