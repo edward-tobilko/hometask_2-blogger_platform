@@ -15,7 +15,9 @@ export const confirmRegistrationHandler = async (
   try {
     const { code } = req.body;
 
+    log("CODE:", code);
     const result = await authService.confirmRegistration(code);
+    log("RESULT:", result);
 
     if (result.status !== ApplicationResultStatus.Success) {
       return res.status(mapApplicationStatusToHttpStatus(result.status)).json({
@@ -26,11 +28,11 @@ export const confirmRegistrationHandler = async (
       });
     }
 
-    log("result ->", result);
-
     return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {
     errorsHandler(error, req, res);
+
+    console.error("ERROR:", error);
   }
 };
 
