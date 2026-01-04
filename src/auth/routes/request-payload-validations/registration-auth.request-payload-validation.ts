@@ -18,6 +18,7 @@ export const registrationAuthRPValidation = [
     .matches(/^[a-zA-Z0-9_-]*$/)
     .withMessage("Login must contain only letters, numbers, _ or -")
     .custom(async (login: string) => {
+      // * проверяем существует ли уже юзер с таким логином и если да - не регистрировать
       const userByLogin = await userQueryRepo.findByLoginOrEmailQueryRepo(
         login,
         undefined
@@ -50,6 +51,7 @@ export const registrationAuthRPValidation = [
     .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)
     .withMessage("Email must be a valid email")
     .custom(async (email: string) => {
+      // * проверяем существует ли уже юзер с такой почтой и если да - не регистрировать
       const userByEmail = await userQueryRepo.findByLoginOrEmailQueryRepo(
         undefined,
         email

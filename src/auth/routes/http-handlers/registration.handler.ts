@@ -17,17 +17,21 @@ export const registrationHandler = async (
 
     const resultUser = await authService.registerUser(login, password, email);
 
-    if (resultUser.status === ApplicationResultStatus.Success) {
-      return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+    if (resultUser.status !== ApplicationResultStatus.Success) {
+      return res
+        .status(mapApplicationStatusToHttpStatus(resultUser.status))
+        .json({
+          errorsMessages: resultUser.extensions.map(
+            (err: ApplicationError) => ({
+              field: err.field,
+              message: err.message,
+              statusCode: err.statusCode,
+            })
+          ),
+        });
     }
 
-    return res.status(mapApplicationStatusToHttpStatus(resultUser.status)).json(
-      resultUser.extensions.map((err: ApplicationError) => ({
-        field: err.field,
-        message: err.message,
-        statusCode: err.statusCode,
-      }))
-    );
+    return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {
     errorsHandler(error, req, res);
   }

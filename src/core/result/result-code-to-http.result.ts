@@ -10,7 +10,7 @@ export function mapResultCodeToHttpException(
     case ApplicationResultStatus.Forbidden:
       return HTTP_STATUS_CODES.FORBIDDEN_403;
     case ApplicationResultStatus.NotAllowed:
-      return HTTP_STATUS_CODES.NOT_ALLOWED;
+      return HTTP_STATUS_CODES.NOT_ALLOWED_405;
     case ApplicationResultStatus.Unauthorized:
       return HTTP_STATUS_CODES.UNAUTHORIZED_401;
     case ApplicationResultStatus.UnprocessableEntity:

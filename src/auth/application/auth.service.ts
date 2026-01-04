@@ -110,22 +110,8 @@ class AuthService {
     login: string,
     password: string,
     email: string
-  ): Promise<ApplicationResult<UserDB>> {
-    const user = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
-      login,
-      email
-    );
-
-    // * проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
-    if (user) {
-      throw new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
-        data: null,
-        extensions: [
-          new ApplicationError("email", "Email already exists", 400),
-        ],
-      });
-    }
+  ): Promise<ApplicationResult<UserDB | null>> {
+    await this.userQueryRepo.findByLoginOrEmailQueryRepo(login, email);
 
     const passwordHash = await this.passwordHasher.generateHash(password); // создать хэш пароля
 
@@ -148,15 +134,18 @@ class AuthService {
 
     await this.userRepo.createUserRepo(newUser);
 
-    // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
-    try {
-      await nodeMailerService.sendRegistrationConfirmationEmail(
-        newUser.email,
-        newUser.emailConfirmation.confirmationCode,
-        emailExamples.registrationEmail
-      );
-    } catch (error: unknown) {
-      console.error("Send Email Error", error);
+    const sent = await nodeMailerService.sendRegistrationConfirmationEmail(
+      newUser.email,
+      newUser.emailConfirmation.confirmationCode,
+      emailExamples.registrationEmail
+    );
+
+    if (!sent) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.InternalServerError,
+        data: null,
+        extensions: [new ApplicationError("email", "Email was not sent", 500)],
+      });
     }
 
     return new ApplicationResult({
