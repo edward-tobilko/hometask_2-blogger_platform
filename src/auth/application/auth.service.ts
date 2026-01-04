@@ -135,6 +135,7 @@ class AuthService {
 
     await this.userRepo.createUserRepo(newUser);
 
+    // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
     try {
       await nodeMailerService.sendRegistrationConfirmationEmail(
         newUser.email,

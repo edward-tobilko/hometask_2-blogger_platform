@@ -4,7 +4,10 @@ import { log } from "console";
 import { appConfig } from "@core/settings/config";
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: appConfig.SMTP_HOST,
+  port: Number(appConfig.SMTP_PORT),
+  secure: appConfig.SMTP_SECURE === "true",
+  // service: "gmail",
   auth: {
     user: appConfig.EMAIL, // нашь email
     pass: appConfig.EMAIL_PASS, // получаем сгенерированный код в настройках гугл аккаунта (https://myaccount.google.com/security )
@@ -20,7 +23,6 @@ export const nodeMailerService = {
     code: string, // код подтверджения
     template: (code: string) => string // ф-я которая принимает код и отправляет html строку
   ): Promise<boolean> {
-    // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
     try {
       log("SENDING EMAIL TO:", email);
 
@@ -35,7 +37,7 @@ export const nodeMailerService = {
 
       return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
       // return !!info;
-    } catch (error: unknown) {
+    } catch (error) {
       console.error("EMAIL_SEND_ERROR", error);
 
       return false;
