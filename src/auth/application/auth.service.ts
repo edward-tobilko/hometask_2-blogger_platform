@@ -1,6 +1,6 @@
 import { log } from "node:console";
-import { add } from "date-fns";
 import { randomUUID } from "node:crypto";
+import { add } from "date-fns";
 
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
@@ -78,8 +78,6 @@ class AuthService {
   ): Promise<ApplicationResult<{ accessToken: string } | null>> {
     const result = await this.checkUserCredentials(command);
 
-    log("resultttttttt ->", result);
-
     if (result.status !== ApplicationResultStatus.Success) {
       return new ApplicationResult<{ accessToken: string } | null>({
         status: result.status, // NotFound or Unauthorized
@@ -122,30 +120,18 @@ class AuthService {
         status: ApplicationResultStatus.BadRequest,
         data: null,
         extensions: [
-          new ApplicationError("login", "Login already exists", 400),
-          new ApplicationError("email", "Email already exists", 400),
+          new ApplicationError("loginOrEmail", "Already Registered", 400),
         ],
       });
     }
 
     const passwordHash = await this.passwordHasher.generateHash(password); // создать хэш пароля
 
-    let newUser: UserDB = {
-      login: login,
-      email: email,
-      passwordHash,
-
-      createdAt: new Date(),
-
-      emailConfirmation: {
-        confirmationCode: randomUUID(),
-        expirationDate: add(new Date(), {
-          hours: 1,
-          minutes: 3,
-        }),
-        isConfirmed: false,
-      },
-    };
+    let newUser = UserDomain.createUser({
+      login,
+      password: passwordHash,
+      email,
+    });
 
     await this.userRepo.createUserRepo(newUser);
 
@@ -170,13 +156,6 @@ class AuthService {
     const userAccount =
       await this.userQueryRepo.findUserByEmailConfirmCodeQueryRepo(code);
 
-    if (!userAccount)
-      return new ApplicationResult({
-        status: ApplicationResultStatus.NotFound,
-        data: false,
-        extensions: [new NotFoundError("code", "This user does not exist")],
-      });
-
     if (userAccount.emailConfirmation.isConfirmed)
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
@@ -196,10 +175,10 @@ class AuthService {
         ],
       });
 
-    const updatedConfirmStatusResult =
-      await this.userRepo.updateEmailUserConfirmation(userAccount._id!);
+    const updatedResultConfirmStatus =
+      await this.userRepo.updateEmailUserConfirmationStatus(userAccount._id!);
 
-    if (!updatedConfirmStatusResult) {
+    if (!updatedResultConfirmStatus) {
       return new ApplicationResult({
         status: ApplicationResultStatus.InternalServerError,
         data: false,
