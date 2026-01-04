@@ -13,6 +13,7 @@
 - Сервисы возвращают результат выполнения, а не HTTP-ответ.
 - JWT-авторизация.
 - Реализованы E2E тесты.
+- Работа с почтой с пом. SMTP-протокола.
 
 **Поток выполнения:**
 
@@ -84,4 +85,4 @@ Handler (Controller) → Service (BLL) → Repository → Database
 ### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-2 + рефакторинг
 
 - Добавлены новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
-- Реализована логика отправки письма (nodemailer через smtp-протокол).
+- Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
