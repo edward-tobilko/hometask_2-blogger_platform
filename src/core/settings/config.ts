@@ -21,4 +21,8 @@ export const appConfig = {
 
   ADMIN_USERNAME: process.env.ADMIN_USERNAME ?? "",
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD ?? "",
+
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined,
+  SMTP_SECURE: process.env.SMTP_SECURE === "true",
 };
