@@ -11,6 +11,7 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 export const testingRoute = Router({});
 
+// Clear database: delete all data from all tables/collections
 testingRoute.delete("", async (_req: Request, res: Response) => {
   await Promise.all([
     authCollection.deleteMany(),

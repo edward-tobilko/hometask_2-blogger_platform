@@ -13,6 +13,8 @@ import { paramIdValidation } from "../../core/middlewares/validation/param-id.mi
 
 export const usersRoute = Router({});
 
+// * GET methods
+// Returns all users
 usersRoute.get(
   "",
   baseAuthGuard,
@@ -24,6 +26,8 @@ usersRoute.get(
   getUsersListHandler
 );
 
+// * Create methods
+// Add new user to the system
 usersRoute.post(
   "",
   baseAuthGuard,
@@ -32,6 +36,8 @@ usersRoute.post(
   createUserHandler
 );
 
+// * Delete methods
+// Delete user specified by id
 usersRoute.delete(
   "/:id",
   baseAuthGuard,
