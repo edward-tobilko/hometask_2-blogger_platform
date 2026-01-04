@@ -9,11 +9,9 @@ const transporter = nodemailer.createTransport({
     user: appConfig.EMAIL, // нашь email
     pass: appConfig.EMAIL_PASS, // получаем сгенерированный код в настройках гугл аккаунта (https://myaccount.google.com/security )
   },
-
-  // 👇 ОЦЕ ВАЖЛИВО
-  connectionTimeout: 5_000, // встановлення TCP
-  greetingTimeout: 5_000, // очікування привітання SMTP
-  socketTimeout: 10_000, // загальний таймаут сокета
+  connectionTimeout: 5_000, // установка TCP
+  greetingTimeout: 5_000, // ожидание SMTP
+  socketTimeout: 10_000, // общий таймаут сокета
 });
 
 export const nodeMailerService = {
