@@ -6,12 +6,18 @@ import { appConfig } from "@core/settings/config";
 const transporter = nodemailer.createTransport({
   host: appConfig.SMTP_HOST,
   port: Number(appConfig.SMTP_PORT),
-  secure: appConfig.SMTP_SECURE === "true",
+  secure: appConfig.SMTP_SECURE === "false",
   // service: "gmail",
   auth: {
     user: appConfig.EMAIL, // нашь email
     pass: appConfig.EMAIL_PASS, // получаем сгенерированный код в настройках гугл аккаунта (https://myaccount.google.com/security )
   },
+
+  requireTLS: true,
+  tls: {
+    servername: appConfig.SMTP_HOST,
+  },
+
   connectionTimeout: 5_000, // установка TCP
   greetingTimeout: 5_000, // ожидание SMTP
   socketTimeout: 10_000, // общий таймаут сокета
