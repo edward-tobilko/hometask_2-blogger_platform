@@ -1,5 +1,6 @@
 import { ObjectId, WithId } from "mongodb";
 import { randomUUID } from "crypto";
+import { add } from "date-fns";
 
 import { FieldsOnly } from "../../core/types/fields-only.type";
 import { UserDtoDomain } from "./user-dto.domain";
@@ -47,7 +48,10 @@ export class UserDomain {
 
       emailConfirmation: {
         confirmationCode: randomUUID(),
-        expirationDate: new Date(),
+        expirationDate: add(new Date(), {
+          hours: 1,
+          minutes: 3,
+        }),
         isConfirmed: false,
       },
     });

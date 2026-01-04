@@ -24,23 +24,37 @@ export class UserRepository {
     return isDeleted.deletedCount === 1;
   }
 
-  async updateEmailUserConfirmation(
-    userId: ObjectId,
-    emailConfirmation?: IEmailConfirmationUpdate
-  ) {
-    const resultEmailUserConfirm = await userCollection.updateOne(
+  async updateEmailUserConfirmationStatus(userId: ObjectId) {
+    const result = await userCollection.updateOne(
       { _id: userId },
 
       {
         $set: {
-          "emailConfirmation.confirmationCode":
-            emailConfirmation!.confirmationCode,
-          "emailConfirmation.expirationDate": emailConfirmation!.expirationDate,
           "emailConfirmation.isConfirmed": true,
         },
       }
     );
 
-    return resultEmailUserConfirm.modifiedCount === 1;
+    return result.modifiedCount === 1;
+  }
+
+  async updateEmailUserConfirmation(
+    userId: ObjectId,
+    emailConfirmation: IEmailConfirmationUpdate
+  ) {
+    const result = await userCollection.updateOne(
+      { _id: userId },
+
+      {
+        $set: {
+          "emailConfirmation.confirmationCode":
+            emailConfirmation.confirmationCode,
+          "emailConfirmation.expirationDate": emailConfirmation.expirationDate,
+          "emailConfirmation.isConfirmed": true,
+        },
+      }
+    );
+
+    return result.modifiedCount === 1;
   }
 }

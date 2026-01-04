@@ -73,11 +73,13 @@ export class UsersQueryRepository {
 
   async findUserByEmailConfirmCodeQueryRepo(
     emailConfirmCode: string
-  ): Promise<UserDB | null> {
+  ): Promise<UserDB> {
     const userAccount = await userCollection.findOne({
       "emailConfirmation.confirmationCode": emailConfirmCode,
-      "emailConfirmation.isConfirmed": false, // сразу фильтровем только тех, кто еще не подтвержден
     });
+
+    if (!userAccount)
+      throw new RepositoryNotFoundError("code", "This user does not exist");
 
     return userAccount;
   }

@@ -31,7 +31,7 @@ export const nodeMailerService = {
         html: template(code), // html body
       });
 
-      log("SENT:", info.messageId, info.accepted, info.rejected);
+      log("SENT:", info);
 
       return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
       // return !!info;
