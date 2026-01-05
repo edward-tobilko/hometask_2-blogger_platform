@@ -6,19 +6,18 @@ import { appConfig } from "./core/settings/config";
 
 const bootstrap = async () => {
   const app = express();
-  setupApp(app);
 
-  // * Render подставляет свой порт, локально — дефолт 5001
-  const PORT = Number(process.env.PORT ?? 5001);
+  // * Render подставляет свой порт, локально — дефолт 8080
+  const PORT = Number(process.env.PORT) || 8080;
 
   try {
     await runDB(appConfig.MONGO_URL);
 
-    const server = app.listen(PORT, () => {
-      console.log(`✅ Server running on http://localhost:${PORT}`);
-      console.log(
-        `NODE_ENV=${process.env.NODE_ENV} PORT=${process.env.PORT ?? 5001}`
-      );
+    setupApp(app);
+
+    const server = app.listen(PORT, "0.0.0.0", () => {
+      console.log(`✅ Server running on ${PORT}`);
+      console.log(`NODE_ENV=${process.env.NODE_ENV}`);
       console.log("✅ ENTRY:", __filename);
     });
 
