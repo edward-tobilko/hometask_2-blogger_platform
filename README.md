@@ -86,3 +86,4 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 - Добавлены новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
+- Миграция хостинга from Render to Fly.io.
