@@ -12,7 +12,6 @@ import { ApplicationResultStatus } from "../../core/result/types/application-res
 import {
   ApplicationError,
   BadRequest,
-  NotFoundError,
   UnauthorizedError,
 } from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
@@ -36,10 +35,11 @@ class AuthService {
   ): Promise<ApplicationResult<UserDomain>> {
     const { loginOrEmail, password } = command.payload;
 
-    const user = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
-      loginOrEmail,
-      loginOrEmail
-    );
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginOrEmail);
+
+    const user = isEmail
+      ? await this.userQueryRepo.findByEmailQueryRepo(loginOrEmail)
+      : await this.userQueryRepo.findByLoginQueryRepo(loginOrEmail);
 
     if (!user) {
       return new ApplicationResult<UserDomain>({
@@ -51,8 +51,15 @@ class AuthService {
       });
     }
 
-    if (!user.emailConfirmation.isConfirmed)
-      throw new ApplicationError("Your profile is not verified", "code", 400);
+    if (!user.emailConfirmation.isConfirmed) {
+      return new ApplicationResult<UserDomain>({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [
+          new UnauthorizedError("Your profile is not verified", "loginOrEmail"),
+        ],
+      });
+    }
 
     const isPassCorrect = await this.passwordHasher.checkPassword(
       password,
@@ -110,13 +117,22 @@ class AuthService {
     password: string,
     email: string
   ): Promise<ApplicationResult<UserDB | null>> {
-    const existingUser = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
-      login,
-      email
-    );
+    const existingUserByLogin =
+      await this.userQueryRepo.findByLoginQueryRepo(login);
+
+    const existingUserByEmail =
+      await this.userQueryRepo.findByEmailQueryRepo(email);
 
     // * проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
-    if (existingUser) {
+    if (existingUserByLogin) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [new ApplicationError("Already Registered", "login", 400)],
+      });
+    }
+
+    if (existingUserByEmail) {
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: null,
@@ -135,9 +151,8 @@ class AuthService {
     await this.userRepo.createUserRepo(newUser);
 
     // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
-
     try {
-      nodeMailerService.sendRegistrationConfirmationEmail(
+      await nodeMailerService.sendRegistrationConfirmationEmail(
         newUser.email,
         newUser.emailConfirmation.confirmationCode,
         emailExamples.registrationEmail
@@ -164,14 +179,17 @@ class AuthService {
         extensions: [new BadRequest("Incorrect code", "code")],
       });
 
-    if (userAccount.emailConfirmation.isConfirmed)
+    if (userAccount.emailConfirmation.isConfirmed === true)
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: false,
         extensions: [new BadRequest("Email is confirmed", "code")],
       });
 
-    if (userAccount.emailConfirmation.expirationDate < new Date())
+    if (
+      userAccount.emailConfirmation.expirationDate &&
+      userAccount.emailConfirmation.expirationDate < new Date()
+    )
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: false,
@@ -204,23 +222,20 @@ class AuthService {
   async resendRegistrationEmail(
     email: string
   ): Promise<ApplicationResult<null>> {
-    const userAccount = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
-      undefined,
-      email
-    );
+    const userAccount = await this.userQueryRepo.findByEmailQueryRepo(email);
 
     if (!userAccount)
       return new ApplicationResult({
-        status: ApplicationResultStatus.NotFound,
+        status: ApplicationResultStatus.BadRequest,
         data: null,
-        extensions: [new NotFoundError("This user does not exist", "code")],
+        extensions: [new ApplicationError("This user does not exist", "email")],
       });
 
     if (userAccount.emailConfirmation.isConfirmed)
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: null,
-        extensions: [new ApplicationError("Email is confirmed", "code")],
+        extensions: [new ApplicationError("Email is confirmed", "email")],
       });
 
     // * Генерируем новый код и новый дедлайн
@@ -246,15 +261,13 @@ class AuthService {
       });
     }
 
-    try {
-      await nodeMailerService.sendRegistrationConfirmationEmail(
+    nodeMailerService
+      .sendRegistrationConfirmationEmail(
         email,
         newCode,
         emailExamples.registrationEmail
-      );
-    } catch (error: unknown) {
-      console.error("EMAIL_SEND_ERROR", error);
-    }
+      )
+      .catch((error: unknown) => console.error("EMAIL_SEND_ERROR", error));
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

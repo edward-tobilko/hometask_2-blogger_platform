@@ -50,7 +50,7 @@ export class UserRepository {
           "emailConfirmation.confirmationCode":
             emailConfirmation.confirmationCode,
           "emailConfirmation.expirationDate": emailConfirmation.expirationDate,
-          "emailConfirmation.isConfirmed": true,
+          // "emailConfirmation.isConfirmed": true,
         },
       }
     );

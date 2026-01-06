@@ -41,12 +41,12 @@ class CommentsService {
     );
 
     if (!existingComment)
-      throw new NotFoundError("commentId", "Comment ID is not exist"); // 404
+      throw new NotFoundError("Comment ID is not exist", "commentId"); // 404
 
     if (existingComment.commentatorInfo.userId.toString() !== userId)
       throw new ForbiddenError(
-        "userId",
-        "You can't change someone else's content"
+        "You can't change someone else's content",
+        "userId"
       ); // 403
 
     // * обновляем доменную сущность

@@ -17,7 +17,7 @@ export const createUserDtoMiddlewareValidations = [
     .matches(/^[a-zA-Z0-9_-]*$/)
     .withMessage("Login must contain only letters, numbers, _ or -")
     .custom(async (login: string) => {
-      const user = await userQueryRepo.findByLoginOrEmailQueryRepo(login);
+      const user = await userQueryRepo.findByLoginQueryRepo(login);
 
       if (user) {
         throw new Error("Login already is exist");
@@ -46,7 +46,7 @@ export const createUserDtoMiddlewareValidations = [
     .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)
     .withMessage("Email must be a valid email")
     .custom(async (email: string) => {
-      const user = await userQueryRepo.findByLoginOrEmailQueryRepo(email);
+      const user = await userQueryRepo.findByEmailQueryRepo(email);
 
       if (user) {
         throw new Error("Email already is exist");

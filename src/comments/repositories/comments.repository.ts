@@ -11,7 +11,7 @@ export class CommentsRepository {
     });
 
     if (!result) {
-      throw new RepositoryNotFoundError("commentId", "Comment is not exist!");
+      throw new RepositoryNotFoundError("Comment is not exist!", "commentId");
     }
 
     return PostCommentDomain.reconstitute({
@@ -26,8 +26,8 @@ export class CommentsRepository {
 
     if (comment.deletedCount < 1) {
       throw new RepositoryNotFoundError(
-        "commentId",
-        "Comment ID is not exist!"
+        "Comment ID is not exist!",
+        "commentId"
       );
     }
 
@@ -39,8 +39,8 @@ export class CommentsRepository {
   ): Promise<PostCommentDomain> {
     if (!commentDomain._id) {
       throw new RepositoryNotFoundError(
-        "commentId",
-        "Comment ID is not provided for update"
+        "Comment ID is not provided for update",
+        "commentId"
       );
     }
 
@@ -53,8 +53,8 @@ export class CommentsRepository {
 
     if (updateResult.matchedCount < 1) {
       throw new RepositoryNotFoundError(
-        "commentId",
-        "Comment is not found in this post"
+        "Comment is not found in this post",
+        "commentId"
       );
     }
 
