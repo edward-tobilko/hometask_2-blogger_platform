@@ -40,7 +40,7 @@ class PostsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
     const domainDto: CreatePostDtoDomain = {
@@ -87,7 +87,7 @@ class PostsService {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [new NotFoundError("postId", "Post is not found!")],
+        extensions: [new NotFoundError("Post is not found!", "postId")],
       });
     }
 
@@ -140,13 +140,13 @@ class PostsService {
     const existingPost = await this.postsRepository.getPostDomainById(id);
 
     if (!existingPost) {
-      throw new RepositoryNotFoundError("postId", "Post does not exist!");
+      throw new RepositoryNotFoundError("Post does not exist!", "postId");
     }
 
     if (existingPost.blogId.toString() !== updateDto.blogId) {
       throw new RepositoryNotFoundError(
-        "postId",
-        "Post does not exist in this blog"
+        "Post does not exist in this blog",
+        "postId"
       );
     }
 

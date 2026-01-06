@@ -11,6 +11,7 @@ import { UserDomain } from "../../users/domain/user.domain";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import {
   ApplicationError,
+  BadRequest,
   NotFoundError,
   UnauthorizedError,
 } from "../../core/errors/application.error";
@@ -45,13 +46,13 @@ class AuthService {
         status: ApplicationResultStatus.Unauthorized,
         data: null,
         extensions: [
-          new UnauthorizedError("loginOrEmail", "Wrong credentials!"),
+          new UnauthorizedError("Wrong credentials!", "loginOrEmail"),
         ],
       });
     }
 
     if (!user.emailConfirmation.isConfirmed)
-      throw new ApplicationError("code", "Your profile is not verified", 400);
+      throw new ApplicationError("Your profile is not verified", "code", 400);
 
     const isPassCorrect = await this.passwordHasher.checkPassword(
       password,
@@ -62,7 +63,7 @@ class AuthService {
       return new ApplicationResult<UserDomain>({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
-        extensions: [new UnauthorizedError("password", "Wrong password!")],
+        extensions: [new UnauthorizedError("Wrong password!", "password")],
       });
     }
 
@@ -119,9 +120,7 @@ class AuthService {
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: null,
-        extensions: [
-          new ApplicationError("loginOrEmail", "Already Registered", 400),
-        ],
+        extensions: [new ApplicationError("Already Registered", "email", 400)],
       });
     }
 
@@ -136,13 +135,16 @@ class AuthService {
     await this.userRepo.createUserRepo(newUser);
 
     // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
-    nodeMailerService
-      .sendRegistrationConfirmationEmail(
+
+    try {
+      nodeMailerService.sendRegistrationConfirmationEmail(
         newUser.email,
         newUser.emailConfirmation.confirmationCode,
         emailExamples.registrationEmail
-      )
-      .catch((error: unknown) => console.error("EMAIL_SEND_ERROR", error));
+      );
+    } catch (error: unknown) {
+      console.error("EMAIL_SEND_ERROR", error);
+    }
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
@@ -153,13 +155,20 @@ class AuthService {
 
   async confirmRegistration(code: string): Promise<ApplicationResult<boolean>> {
     const userAccount =
-      await this.userQueryRepo.findUserByEmailConfirmCodeQueryRepo(code);
+      await this.userQueryRepo.findUserByEmailAndNotConfirmCodeQueryRepo(code);
+
+    if (!userAccount)
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: false,
+        extensions: [new BadRequest("Incorrect code", "code")],
+      });
 
     if (userAccount.emailConfirmation.isConfirmed)
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: false,
-        extensions: [new ApplicationError("code", "Email is confirmed")],
+        extensions: [new BadRequest("Email is confirmed", "code")],
       });
 
     if (userAccount.emailConfirmation.expirationDate < new Date())
@@ -167,9 +176,9 @@ class AuthService {
         status: ApplicationResultStatus.BadRequest,
         data: false,
         extensions: [
-          new ApplicationError(
-            "code",
-            "Expiration date of confirmation code is ended"
+          new BadRequest(
+            "Expiration date of confirmation code is ended",
+            "code"
           ),
         ],
       });
@@ -181,7 +190,7 @@ class AuthService {
       return new ApplicationResult({
         status: ApplicationResultStatus.InternalServerError,
         data: false,
-        extensions: [new ApplicationError("code", "Cannot confirm user")],
+        extensions: [new ApplicationError("Cannot confirm user", "code")],
       });
     }
 
@@ -204,14 +213,14 @@ class AuthService {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [new NotFoundError("code", "This user does not exist")],
+        extensions: [new NotFoundError("This user does not exist", "code")],
       });
 
     if (userAccount.emailConfirmation.isConfirmed)
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: null,
-        extensions: [new ApplicationError("code", "Email is confirmed")],
+        extensions: [new ApplicationError("Email is confirmed", "code")],
       });
 
     // * Генерируем новый код и новый дедлайн
@@ -232,7 +241,7 @@ class AuthService {
         status: ApplicationResultStatus.InternalServerError,
         data: null,
         extensions: [
-          new ApplicationError("email", "Cannot update confirmation data", 500),
+          new ApplicationError("Cannot update confirmation data", "email", 500),
         ],
       });
     }

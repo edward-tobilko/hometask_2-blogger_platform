@@ -12,7 +12,7 @@ export class PostsRepository {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
     if (!result) {
-      throw new RepositoryNotFoundError("postId", "Post is not exist!");
+      throw new RepositoryNotFoundError("Post is not exist!", "postId");
     }
 
     return PostDomain.reconstitute({
@@ -52,8 +52,8 @@ export class PostsRepository {
   async updatePostRepo(postDomain: PostDomain): Promise<PostDomain> {
     if (!postDomain._id) {
       throw new RepositoryNotFoundError(
-        "postId",
-        "Post ID is not provided for update"
+        "Post ID is not provided for update",
+        "postId"
       );
     }
     const { _id, ...dtoToUpdate } = postDomain;
@@ -65,8 +65,8 @@ export class PostsRepository {
 
     if (updateResult.matchedCount < 1) {
       throw new RepositoryNotFoundError(
-        "postId",
-        "Post is not found in this blog"
+        "Post is not found in this blog",
+        "postId"
       );
     }
 
@@ -80,7 +80,7 @@ export class PostsRepository {
     });
 
     if (deleteResult.deletedCount < 1) {
-      throw new RepositoryNotFoundError("postId", "Post is not exist!");
+      throw new RepositoryNotFoundError("Post is not exist!", "postId");
     }
 
     return;

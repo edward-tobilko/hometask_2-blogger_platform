@@ -42,7 +42,7 @@ export class PostQueryRepository {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
     if (!result) {
-      throw new RepositoryNotFoundError("id", "Post is not exist!");
+      throw new RepositoryNotFoundError("Post is not exist!", "id");
     }
 
     return mapToPostOutput(result);
@@ -60,7 +60,7 @@ export class PostQueryRepository {
     const post = await postCollection.findOne({ _id: postObjectId });
 
     if (!post) {
-      throw new NotFoundError("postId", "PostID is not exist", 404);
+      throw new NotFoundError("PostID is not exist", "postId", 404);
     }
 
     const items = postCommentsCollection

@@ -23,8 +23,8 @@ export const registrationHandler = async (
         .json({
           errorsMessages: resultUser.extensions.map(
             (err: ApplicationError) => ({
-              field: err.field,
               message: err.message,
+              field: err.field,
             })
           ),
         });

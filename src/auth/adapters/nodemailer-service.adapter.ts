@@ -40,8 +40,8 @@ export const nodeMailerService = {
 
     log("SENT:", info);
 
-    // return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
-    return !!info;
+    return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
+    // return !!info;
   },
 };
 

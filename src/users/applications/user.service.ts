@@ -41,8 +41,8 @@ class UserService {
       const field = existedUser.login === login ? "login" : "email";
 
       throw new ValidationError(
-        field, // login or email
         `${field} should be unique`, // message
+        field, // login or email
         422 // status code
       );
     }
@@ -84,7 +84,7 @@ class UserService {
     const userId = await this.userQueryRepo.findUserByIdQueryRepo(id);
 
     if (!userId) {
-      throw new RepositoryNotFoundError("userId", "User is not found!");
+      throw new RepositoryNotFoundError("User is not found!", "userId");
     }
 
     return await this.userRepo.deleteUserRepo(id);
