@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { log } from "node:console";
 
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
@@ -15,9 +14,7 @@ export const confirmRegistrationHandler = async (
   try {
     const { code } = req.body;
 
-    log("CODE:", code);
     const result = await authService.confirmRegistration(code);
-    log("RESULT:", result);
 
     if (result.status !== ApplicationResultStatus.Success) {
       return res.status(mapApplicationStatusToHttpStatus(result.status)).json({

@@ -15,7 +15,7 @@ export class UserDomain {
 
   emailConfirmation: {
     confirmationCode: string;
-    expirationDate: Date;
+    expirationDate: Date | null;
     isConfirmed: boolean;
   };
 
@@ -53,6 +53,23 @@ export class UserDomain {
           minutes: 3,
         }),
         isConfirmed: false,
+      },
+    });
+  }
+
+  // * для POST / users ( админ создал — сразу emailConfirmation -> isConfirmed = true )
+  static createAdminUser(dto: UserDtoDomain): UserDomain {
+    return new UserDomain({
+      login: dto.login,
+      email: dto.email,
+      createdAt: new Date(),
+
+      passwordHash: dto.password,
+
+      emailConfirmation: {
+        confirmationCode: "",
+        expirationDate: null,
+        isConfirmed: true,
       },
     });
   }

@@ -60,15 +60,12 @@ export class UsersQueryRepository {
     return usersListOutput;
   }
 
-  async findByLoginOrEmailQueryRepo(
-    login?: string,
-    email?: string
-  ): Promise<UserDB | null> {
-    const user = await userCollection.findOne({
-      $or: [{ login }, { email }],
-    });
+  async findByLoginQueryRepo(login: string): Promise<UserDB | null> {
+    return userCollection.findOne({ login });
+  }
 
-    return user;
+  async findByEmailQueryRepo(email: string): Promise<UserDB | null> {
+    return userCollection.findOne({ email });
   }
 
   async findUserByEmailAndNotConfirmCodeQueryRepo(
@@ -76,7 +73,6 @@ export class UsersQueryRepository {
   ): Promise<UserDB | null> {
     const userAccount = await userCollection.findOne({
       "emailConfirmation.confirmationCode": emailConfirmCode,
-      "emailConfirmation.isConfirmed": false,
     });
 
     return userAccount;

@@ -32,20 +32,30 @@ class UserService {
     const { email, password, login } = dto;
 
     // * Проверка уникальности login / email в BLL
-    const existedUser = await this.userQueryRepo.findByLoginOrEmailQueryRepo(
-      login,
-      email
-    );
+    const existedUserByEmail =
+      await this.userQueryRepo.findByEmailQueryRepo(email);
 
-    if (existedUser) {
-      const field = existedUser.login === login ? "login" : "email";
+    if (existedUserByEmail)
+      throw new ValidationError("Email should be unique", "email", 422);
 
-      throw new ValidationError(
-        `${field} should be unique`, // message
-        field, // login or email
-        422 // status code
-      );
-    }
+    const existedUserByLogin =
+      await this.userQueryRepo.findByLoginQueryRepo(login);
+
+    if (existedUserByLogin)
+      throw new ValidationError("Login should be unique", "login", 422);
+
+    // // * Если нужно возвращать обе ошибки сразу
+    // const errors: ValidationError[] = [];
+
+    // if (await this.userQueryRepo.findByLoginQueryRepo(login)) {
+    //   errors.push(new ValidationError("Login should be unique", "login", 422));
+    // }
+
+    // if (await this.userQueryRepo.findByEmailQueryRepo(email)) {
+    //   errors.push(new ValidationError("Email should be unique", "email", 422));
+    // }
+
+    // if (errors.length) throw errors;
 
     // * Генерация хеша пароля
     const hash = await this.passwordHasher.generateHash(password);
@@ -58,7 +68,7 @@ class UserService {
     };
 
     // * Создаем доменный обьект
-    const newUser = UserDomain.createUser(domainDto);
+    const newUser = UserDomain.createAdminUser(domainDto);
 
     // * Сохраняем в репозитории
     const savedUser = await this.userRepo.createUserRepo(newUser);

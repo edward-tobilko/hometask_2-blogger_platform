@@ -23,7 +23,7 @@ export type UserDB = {
 
   emailConfirmation: {
     confirmationCode: string;
-    expirationDate: Date;
+    expirationDate: Date | null;
     isConfirmed: boolean;
   };
 };

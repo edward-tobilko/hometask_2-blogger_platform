@@ -8,7 +8,7 @@ export const errorsHandler = (
   err: unknown,
   _req: Request,
   res: Response
-): void => {
+): void | Response => {
   if (err instanceof ApplicationError) {
     const status = err.statusCode ?? HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY_422;
 
@@ -16,8 +16,8 @@ export const errorsHandler = (
       createErrorMessages([
         {
           message: err.message,
-          field: err.field!,
-          statusCode: err.statusCode,
+          field: err.field ?? "server",
+          statusCode: status,
         },
       ])
     );
@@ -25,11 +25,32 @@ export const errorsHandler = (
     return;
   }
 
+  // * Если бросить ApplicationResult
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    "status" in err &&
+    "extensions" in err
+  ) {
+    const anyErr = err as any;
+
+    return res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json(
+      createErrorMessages(
+        (anyErr.extensions ?? []).map((e: any) => ({
+          message: e.message ?? "Error",
+          field: e.field ?? "server",
+          statusCode: e.statusCode ?? 400,
+        }))
+      )
+    );
+  }
+
   res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
     errorsMessages: [
       {
-        message: "500 = internal server error from errorsHandler",
-        field: err,
+        message: "Internal server error from errorsHandler",
+        field: "server",
+        status: 500,
       },
     ],
   });
