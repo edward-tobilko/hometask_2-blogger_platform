@@ -6,7 +6,7 @@ export const createErrorApplicationResult = (
   message: string,
   throwError: boolean = true
 ) => {
-  const applicationError = new ApplicationError(null, message, 400);
+  const applicationError = new ApplicationError(message, null, 400);
 
   if (throwError) throw applicationError;
 

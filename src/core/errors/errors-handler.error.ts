@@ -15,8 +15,8 @@ export const errorsHandler = (
     res.status(status).json(
       createErrorMessages([
         {
-          field: err.field!,
           message: err.message,
+          field: err.field!,
           statusCode: err.statusCode,
         },
       ])
@@ -28,8 +28,8 @@ export const errorsHandler = (
   res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
     errorsMessages: [
       {
-        field: err,
         message: "500 = internal server error from errorsHandler",
+        field: err,
       },
     ],
   });

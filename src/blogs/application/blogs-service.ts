@@ -53,7 +53,7 @@ export class BlogsService {
     );
 
     if (!blog) {
-      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
     // добавляем blogName к доменному dto

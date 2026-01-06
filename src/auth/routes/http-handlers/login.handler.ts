@@ -25,8 +25,8 @@ export const loginHandler = async (req: Request, res: Response) => {
     if (result.status !== ApplicationResultStatus.Success)
       return res.status(mapApplicationStatusToHttpStatus(result.status)).json({
         errorsMessages: result.extensions.map((err: ApplicationError) => ({
-          field: err.field,
           message: err.message,
+          field: err.field,
         })),
       });
 

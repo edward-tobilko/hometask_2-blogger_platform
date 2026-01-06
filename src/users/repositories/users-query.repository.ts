@@ -71,15 +71,13 @@ export class UsersQueryRepository {
     return user;
   }
 
-  async findUserByEmailConfirmCodeQueryRepo(
+  async findUserByEmailAndNotConfirmCodeQueryRepo(
     emailConfirmCode: string
-  ): Promise<UserDB> {
+  ): Promise<UserDB | null> {
     const userAccount = await userCollection.findOne({
       "emailConfirmation.confirmationCode": emailConfirmCode,
+      "emailConfirmation.isConfirmed": false,
     });
-
-    if (!userAccount)
-      throw new RepositoryNotFoundError("code", "This user does not exist");
 
     return userAccount;
   }
@@ -90,7 +88,7 @@ export class UsersQueryRepository {
     });
 
     if (!userDomain)
-      throw new RepositoryNotFoundError("userId", "User is not found!");
+      throw new RepositoryNotFoundError("User is not found!", "userId");
 
     return mapToUserOutput(userDomain);
   }

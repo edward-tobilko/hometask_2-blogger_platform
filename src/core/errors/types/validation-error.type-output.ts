@@ -1,6 +1,6 @@
 export type ValidationErrorOutput = {
-  field: string;
   message: string;
+  field: string;
   statusCode?: number;
 };
 

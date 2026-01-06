@@ -12,7 +12,7 @@ export class BlogsRepository {
     const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!blog) {
-      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
     return BlogDomain.reconstitute(blog);
@@ -45,7 +45,7 @@ export class BlogsRepository {
 
       // * проверяем, если блог не найден, то выбрасываем ошибку
       if (updateResult.matchedCount < 1) {
-        throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
+        throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
       }
 
       return newBlog;
@@ -75,7 +75,7 @@ export class BlogsRepository {
       if (updateResult.matchedCount < 1) {
         throw new RepositoryNotFoundError(
           "Post for blog does't exist!",
-          "post for blogId"
+          "postForBlogId"
         );
       }
 
@@ -89,7 +89,7 @@ export class BlogsRepository {
     });
 
     if (deleteResult.deletedCount < 1) {
-      throw new RepositoryNotFoundError("blogId", "Blog is not exist!");
+      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
     return;
