@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from "express";
+import cookieParser from "cookie-parser";
 
 import { testingRoute } from "./testing/routes/testing.route";
 import { postsRoute } from "./posts/routes/posts.route";
@@ -11,6 +12,7 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 export const setupApp = (app: Express) => {
   app.use(express.json());
+  app.use(cookieParser());
 
   // * для отлова путей
   app.use((req, _res, next) => {
@@ -21,7 +23,9 @@ export const setupApp = (app: Express) => {
 
   app.use(routersPaths.auth, authRoute);
 
-  app.get(routersPaths.root, (_req: Request, res: Response) => {
+  app.get(routersPaths.root, (req: Request, res: Response) => {
+    const cookie_name = req.cookies.cookie_name; // cookie-parser
+
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");
   });
 
