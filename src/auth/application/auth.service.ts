@@ -83,31 +83,42 @@ class AuthService {
 
   async loginUser(
     command: WithMeta<LoginAuthDtoCommand>
-  ): Promise<ApplicationResult<{ accessToken: string } | null>> {
+  ): Promise<
+    ApplicationResult<{ accessToken: string; refreshToken: string } | null>
+  > {
     const result = await this.checkUserCredentials(command);
 
     if (result.status !== ApplicationResultStatus.Success) {
-      return new ApplicationResult<{ accessToken: string } | null>({
+      return new ApplicationResult<{
+        accessToken: string;
+        refreshToken: string;
+      } | null>({
         status: result.status, // NotFound or Unauthorized
         data: null,
         extensions: result.extensions, // loginOrEmail or password
       });
     }
 
-    const accessToken = await JWTService.createAccessToken(
-      result.data!._id!.toString()
-    );
+    const userId = result.data!._id!.toString();
+    const deviceId = randomUUID();
 
-    // * создаём authMe из user и сохраняем
-    const authMe = AuthDomain.createMe(result.data!);
+    const accessToken = await JWTService.createAccessToken(userId);
+    const refreshToken = await JWTService.createRefreshToken(userId, deviceId);
+
+    // * создаём authMe из user и сохраняем в БД
+    const authMe = AuthDomain.createMe(result.data!, deviceId, refreshToken);
+
+    // // бажано, щоб authMe містив deviceId + lastActiveDate + refreshTokenIssuedAt etc
+    // authMe.setDeviceId?.(deviceId); // якщо є метод — ок
 
     await this.authRepo.saveAuthMe(authMe);
 
-    log("token from service (loginUser) ->", accessToken); // b6c12d943338c4ad242ba2ee06af45a03dfda0aa0a6a335dd8d88c5d43fbfa70
+    log("accessToken from service (loginUser) ->", accessToken);
+    log("refreshToken from service (loginUser) ->", refreshToken);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: { accessToken },
+      data: { accessToken, refreshToken },
       extensions: [],
     });
   }

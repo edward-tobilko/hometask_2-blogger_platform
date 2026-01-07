@@ -11,9 +11,12 @@ export const appConfig = {
   MONGO_URL: process.env.MONGO_URL ?? "mongodb://127.0.0.1:27017",
   DB_NAME: process.env.DB_NAME ?? defaultDbName,
 
-  AC_SECRET: process.env.AC_SECRET as Secret,
-  AC_TIME: process.env.AC_TIME as StringValue | undefined,
-  RT_SECRET: process.env.RT_SECRET as string,
+  AT_SECRET: process.env.AT_SECRET as Secret, // Access token secret
+  AT_TIME: process.env.AT_TIME as StringValue | undefined, // Access token time
+
+  RT_SECRET: process.env.RT_SECRET as string, // Refresh token secret
+  RT_TIME: process.env.RT_TIME as StringValue | undefined, // Refresh token time
+
   DB_TYPE: process.env.DB_TYPE,
 
   EMAIL: process.env.EMAIL as string,

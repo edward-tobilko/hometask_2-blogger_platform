@@ -51,5 +51,10 @@ export type AuthDB = {
   _id?: ObjectId;
   email: string;
   login: string;
+
   userId: ObjectId;
+  deviceId: string;
+
+  refreshToken: string;
+  lastActiveDate: Date;
 };

@@ -24,8 +24,6 @@ export const setupApp = (app: Express) => {
   app.use(routersPaths.auth, authRoute);
 
   app.get(routersPaths.root, (req: Request, res: Response) => {
-    const cookie_name = req.cookies.cookie_name; // cookie-parser
-
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");
   });
 
