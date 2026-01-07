@@ -45,4 +45,10 @@ export class AuthRepository {
       }
     );
   }
+
+  static async deleteAuthMe(userId: ObjectId, deviceId: string): Promise<void> {
+    await authCollection.deleteOne({ userId, deviceId });
+  }
 }
+
+// ? upsert = update + insert

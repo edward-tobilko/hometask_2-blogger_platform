@@ -54,7 +54,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
       sameSite: "lax",
     });
 
-    log(session);
+    log("new auth for DB ->", session);
 
     // * возвращаем новый accessToken
     res.status(HTTP_STATUS_CODES.OK_200).json({ accessToken: newAccessToken });

@@ -8,6 +8,7 @@ export class AuthDomain {
   _id?: ObjectId;
   email: string;
   login: string;
+
   userId: ObjectId;
   deviceId: string; // UUID
   refreshToken: string; // cookie

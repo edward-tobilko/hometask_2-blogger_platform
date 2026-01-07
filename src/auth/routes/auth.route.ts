@@ -11,6 +11,7 @@ import { registrationAuthRPValidation } from "./request-payload-validations/regi
 import { confirmRegistrationHandler } from "./http-handlers/confirm-registration.handler";
 import { registrationEmailResendingHandler } from "./http-handlers/registration-email-resending.handler";
 import { refreshTokenHandler } from "./http-handlers/refresh-token.handler";
+import { logoutHandler } from "./http-handlers/logout.handler";
 
 export const authRoute = Router();
 
@@ -68,5 +69,8 @@ authRoute.post(
 
 // Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing)
 authRoute.post("/refresh-token", refreshTokenHandler);
+
+// In cookie client must send correct refresh token that will be revoked
+authRoute.post("/logout", logoutHandler);
 
 // ? POST /auth/refresh-token что делает: берет refreshToken из cookie -> verify refreshToken (RT_SECRET) -> получает userId, deviceId -> ищет сессию по deviceId и сверяет refreshToken (чтобы не подсунули чужой/старый) -> генерирует новый access + новый refresh -> обновляет refreshToken в БД (ротация) -> ставит refresh cookie + возвращает accessToken в body.
