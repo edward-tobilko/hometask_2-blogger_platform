@@ -9,25 +9,46 @@ import { AuthRepository } from "auth/repositories/auth.repository";
 
 export const refreshTokenHandler = async (req: Request, res: Response) => {
   try {
-    const refreshTokenFromCookie = req.cookies.refreshToken;
-    if (!refreshTokenFromCookie)
+    const oldRefreshTokenFromCookie = req.cookies.refreshToken;
+    if (!oldRefreshTokenFromCookie)
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-    const payload = await JWTService.verifyRefreshToken(refreshTokenFromCookie);
+    // * Если токен уже в черном списке — это либо повтор, либо атака
+    const isBlackList = await AuthRepository.isBlackListed(
+      oldRefreshTokenFromCookie
+    );
+    if (isBlackList) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    const payload = await JWTService.verifyRefreshToken(
+      oldRefreshTokenFromCookie
+    );
     if (!payload) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
     const { userId, deviceId } = payload;
 
-    // * проверка сессии в БД
+    // * проверка активной сессии (смотреть в browser -> application -> cookie -> session (the firth row)) в БД
     const session = await AuthRepository.findSession(
       new ObjectId(userId),
       deviceId
     );
     if (!session) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-    // * если в БД другой refreshToken → значит этот токен уже ротирован / украден / старый
-    if (session.refreshToken !== refreshTokenFromCookie)
+    // * если в БД другой refreshToken → значит этот токен уже ротирован / украден / старый - базовый «reuse protection» через single valid token per session.
+    if (session.refreshToken !== oldRefreshTokenFromCookie)
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    // * заносим старый refresh в blacklist
+    const expiredDate =
+      JWTService.getRefreshTokenExpiresDate(oldRefreshTokenFromCookie) ??
+      new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await AuthRepository.addTokenToBlackList({
+      refreshToken: oldRefreshTokenFromCookie,
+      userId: new ObjectId(userId),
+      deviceId,
+      expiresAt: expiredDate,
+      reason: "rotated",
+    });
 
     // * создаем новую пару токенов
     const newAccessToken = await JWTService.createAccessToken(userId);
@@ -51,7 +72,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
       path: "/",
       secure: false, // if https -> true
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "lax", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
     });
 
     log("new auth for DB ->", session);

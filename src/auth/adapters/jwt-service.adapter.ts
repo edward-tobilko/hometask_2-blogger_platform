@@ -81,9 +81,22 @@ export class JWTService {
       return null;
     }
   }
+
+  // * получаем expiresAt из старого refresh. Чтобы правильно установить TTL, нужно знать exp из JWT.
+  static getRefreshTokenExpiresDate(refreshToken: string): Date | null {
+    const decode = jwt.decode(refreshToken) as null | { exp: number };
+
+    if (!decode?.exp) return null;
+
+    const newExpDate = new Date(decode.exp * 1000);
+
+    return newExpDate;
+  }
 }
 
 // ? static - методы не существуют на экземпляре, только на самом классе.
+
 // ? Зачем нужен deviceId ? В HW обычно нужно привязать refresh к сессии / девайсу (чтобы можно было делать logout / blacklist / multi-devices).
+
 // ? as — это каст: «Поверь мне, я знаю, что делаю».
 // ? satisfies — это проверка: «Проверь, что это соответствует типу».

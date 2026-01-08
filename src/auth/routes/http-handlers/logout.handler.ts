@@ -23,7 +23,7 @@ export const logoutHandler = async (req: Request, res: Response) => {
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: false, // для https = true
-      sameSite: "lax",
+      sameSite: "lax", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
       path: "/",
     });
 

@@ -58,3 +58,16 @@ export type AuthDB = {
   refreshToken: string;
   lastActiveDate: Date;
 };
+
+export type BlackListRefreshTokenDB = {
+  _id?: ObjectId;
+  userId: ObjectId;
+  deviceId: string;
+
+  tokenHash: string; // sha256 (refresh token)
+
+  expiresAt: Date; // когда этот токен и так протухнет (TTL)
+  createdAt: Date;
+
+  reason: "rotated" | "logout" | "reuse_detected";
+};

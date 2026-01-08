@@ -37,9 +37,9 @@ export async function getAuthMeHandler(req: Request, res: Response) {
 
       // * Устанавлеваем cookie с новым refresh
       res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
+        httpOnly: true, // нету доступа для JS
         secure: false, // для https = true
-        sameSite: "strict",
+        sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук
         path: "/",
         // maxAge: 20 * 1000, // 20s как в swagger (но лучше брать с appConfig.RT_TIME)
       });

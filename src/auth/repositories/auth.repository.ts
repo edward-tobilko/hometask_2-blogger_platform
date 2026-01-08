@@ -1,8 +1,12 @@
 import { ObjectId } from "mongodb";
 
-import { authCollection } from "../../db/mongo.db";
+import {
+  authCollection,
+  blackListRefreshTokensCollection,
+} from "../../db/mongo.db";
 import { AuthDomain } from "../domain/auth.domain";
 import { AuthDB } from "db/types.db";
+import { CryptoHasher } from "auth/adapters/crypto-hasher-service.adapter";
 
 export class AuthRepository {
   async saveAuthMe(authMe: AuthDomain): Promise<void> {
@@ -48,6 +52,39 @@ export class AuthRepository {
 
   static async deleteAuthMe(userId: ObjectId, deviceId: string): Promise<void> {
     await authCollection.deleteOne({ userId, deviceId });
+  }
+
+  static async addTokenToBlackList(dto: {
+    refreshToken: string;
+    userId: ObjectId;
+    deviceId: string;
+    expiresAt: Date;
+    reason: "rotated" | "logout" | "reuse_detected";
+  }): Promise<void> {
+    await blackListRefreshTokensCollection.updateOne(
+      {
+        tokenHash: CryptoHasher.generateTokenHash(dto.refreshToken),
+      },
+      {
+        $setOnInsert: {
+          tokenHash: CryptoHasher.generateTokenHash(dto.refreshToken),
+          userId: dto.userId,
+          deviceId: dto.deviceId,
+          expiresAt: dto.expiresAt,
+          createdAt: new Date(),
+          reason: dto.reason,
+        },
+      },
+      { upsert: true }
+    );
+  }
+
+  static async isBlackListed(refreshToken: string): Promise<boolean> {
+    const tokenHash = CryptoHasher.generateTokenHash(refreshToken);
+
+    const found = await blackListRefreshTokensCollection.findOne({ tokenHash });
+
+    return !!found;
   }
 }
 

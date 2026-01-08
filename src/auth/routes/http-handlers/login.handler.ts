@@ -35,8 +35,8 @@ export const loginHandler = async (req: Request, res: Response) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false, // для https = true
-      // secure: appConfig.NODE_ENV === "production", // або просто false локально
-      sameSite: "strict",
+      // secure: appConfig.NODE_ENV === "production", // или просто false - локально
+      sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук
       path: "/",
       // maxAge: 20 * 1000, // 20s как в swagger (но лучше брать с appConfig.RT_TIME)
     });
