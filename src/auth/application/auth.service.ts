@@ -1,6 +1,7 @@
 import { log } from "node:console";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns";
+import { ObjectId } from "mongodb";
 
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
@@ -283,6 +284,90 @@ class AuthService {
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
       data: null,
+      extensions: [],
+    });
+  }
+
+  async getRefreshTokens(
+    oldRefreshToken: string
+  ): Promise<
+    ApplicationResult<{ accessToken: string; refreshToken: string } | null>
+  > {
+    // * Если токен уже в черном списке — это либо повтор, либо атака
+    const isBlackList = await AuthRepository.isBlackListed(oldRefreshToken);
+    if (isBlackList) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
+      });
+    }
+
+    const payload = await JWTService.verifyRefreshToken(oldRefreshToken);
+    if (!payload) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
+      });
+    }
+
+    const { userId, deviceId } = payload;
+
+    // * проверка активной сессии (смотреть в browser -> application -> cookie -> session (the firth row)) в БД
+    const session = await AuthRepository.findSession(
+      new ObjectId(userId),
+      deviceId
+    );
+    if (!session) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "session")],
+      });
+    }
+
+    // * если в БД другой refreshToken → значит этот токен уже ротирован / украден / старый - базовый «reuse protection» через single valid token per session.
+    if (session.refreshToken !== oldRefreshToken)
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
+      });
+
+    // * заносим старый refresh в blacklist
+    const expiredDate =
+      JWTService.getRefreshTokenExpiresDate(oldRefreshToken) ??
+      new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await AuthRepository.addTokenToBlackList({
+      refreshToken: oldRefreshToken,
+      userId: new ObjectId(userId),
+      deviceId,
+      expiresAt: expiredDate,
+      reason: "rotated",
+    });
+
+    // * создаем новую пару токенов
+    const newAccessToken = await JWTService.createAccessToken(userId);
+    const newRefreshToken = await JWTService.createRefreshToken(
+      userId,
+      deviceId
+    );
+
+    // * обновляем сессию в БД
+    await AuthRepository.updateSessionRefreshToken(
+      new ObjectId(userId),
+      deviceId,
+      {
+        refreshToken: newRefreshToken,
+        lastActiveDate: new Date(),
+      }
+    );
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: { accessToken: newAccessToken, refreshToken: newRefreshToken },
       extensions: [],
     });
   }

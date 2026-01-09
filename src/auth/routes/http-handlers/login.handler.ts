@@ -34,7 +34,7 @@ export const loginHandler = async (req: Request, res: Response) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // для https = true
+      secure: true, // для https = true
       // secure: appConfig.NODE_ENV === "production", // или просто false - локально
       sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук
       path: "/",

@@ -27,23 +27,13 @@ export let userCollection: Collection<UserDB>;
 export let postCommentsCollection: Collection<PostCommentDB>;
 export let blackListRefreshTokensCollection: Collection<BlackListRefreshTokenDB>;
 
-// * Подключения к бд
+// * Подключения к БД
 export async function runDB(url: string): Promise<void> {
   client = new MongoClient(url);
 
   try {
     await client.connect();
     const dataBase: Db = client.db(appConfig.DB_NAME);
-
-    // * Инициализация индексов
-    blackListRefreshTokensCollection.createIndex(
-      { expiresAt: 1 },
-      { expireAfterSeconds: 0 }
-    );
-    blackListRefreshTokensCollection.createIndex(
-      { tokenHash: 1 },
-      { unique: true }
-    );
 
     // * Инициализация коллекций
     authCollection = dataBase.collection<AuthDB>(AUTH_COLLECTION_NAME);
@@ -57,6 +47,16 @@ export async function runDB(url: string): Promise<void> {
       dataBase.collection<BlackListRefreshTokenDB>(
         BLACK_LIST_FOR_REFRESH_TOKENS_COLLECTION_NAME
       );
+
+    // * Инициализация индексов
+    blackListRefreshTokensCollection.createIndex(
+      { expiresAt: 1 },
+      { expireAfterSeconds: 0 }
+    );
+    blackListRefreshTokensCollection.createIndex(
+      { tokenHash: 1 },
+      { unique: true }
+    );
 
     await dataBase.command({ ping: 1 });
 
