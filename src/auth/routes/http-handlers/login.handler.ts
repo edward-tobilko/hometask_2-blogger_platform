@@ -30,9 +30,18 @@ export const loginHandler = async (req: Request, res: Response) => {
         })),
       });
 
-    return res
-      .status(HTTP_STATUS_CODES.OK_200)
-      .json({ accessToken: result.data!.accessToken });
+    const { accessToken, refreshToken } = result.data!;
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true, // для https = true
+      // secure: appConfig.NODE_ENV === "production", // или просто false - локально
+      sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук
+      path: "/",
+      // maxAge: 20 * 1000, // 20s как в swagger (но лучше брать с appConfig.RT_TIME)
+    });
+
+    return res.status(HTTP_STATUS_CODES.OK_200).json({ accessToken });
   } catch (error: unknown) {
     errorsHandler(error, req, res);
   }

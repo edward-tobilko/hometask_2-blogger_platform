@@ -7,7 +7,7 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { authService } from "auth/application/auth.service";
 
-export async function registrationEmailResending(
+export async function registrationEmailResendingHandler(
   req: Request<{}, {}, { email: string }>,
   res: Response
 ) {

@@ -2,22 +2,36 @@ import jwt, { Secret, SignOptions } from "jsonwebtoken";
 
 import { appConfig } from "../../core/settings/config";
 
-const JWT_SECRET: Secret = appConfig.AC_SECRET; // type Secret - проверяет, чтобы не было JWT_SECRET = null
-const AC_TIME: SignOptions["expiresIn"] = (appConfig.AC_TIME ??
-  "10d") as SignOptions["expiresIn"]; // SignOptions["expiresIn"] - что бы TS не ругался
+const AT_SECRET: Secret = appConfig.AT_SECRET; // type Secret - проверяет, чтобы не было AT_SECRET = null
+const RT_SECRET: Secret = appConfig.RT_SECRET as unknown as Secret;
 
-type JWTPayload = {
+const AT_TIME: SignOptions["expiresIn"] = (appConfig.AT_TIME ??
+  "10m") as SignOptions["expiresIn"]; // SignOptions["expiresIn"] - что бы TS не ругался
+
+const RT_TIME: SignOptions["expiresIn"] = (appConfig.RT_TIME ??
+  "20m") as SignOptions["expiresIn"];
+
+type JWTAccessPayload = {
   userId: string;
 };
 
+type JWTRefreshPayload = {
+  userId: string;
+  deviceId: string;
+};
 export class JWTService {
+  // * Access token
   static async createAccessToken(userId: string): Promise<string> {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: AC_TIME });
+    return jwt.sign({ userId } satisfies JWTAccessPayload, AT_SECRET, {
+      expiresIn: AT_TIME,
+    });
   }
 
-  static async verifyAccessToken(token: string): Promise<JWTPayload | null> {
+  static async verifyAccessToken(
+    token: string
+  ): Promise<JWTAccessPayload | null> {
     try {
-      const result = jwt.verify(token, JWT_SECRET) as JWTPayload;
+      const result = jwt.verify(token, AT_SECRET) as JWTAccessPayload;
 
       return {
         userId: result.userId,
@@ -38,6 +52,51 @@ export class JWTService {
       return null;
     }
   }
+
+  // * Refresh token
+  static async createRefreshToken(
+    userId: string,
+    deviceId: string
+  ): Promise<string> {
+    return jwt.sign(
+      { userId, deviceId } satisfies JWTRefreshPayload,
+      RT_SECRET,
+      { expiresIn: RT_TIME }
+    );
+  }
+
+  static async verifyRefreshToken(
+    token: string
+  ): Promise<JWTRefreshPayload | null> {
+    try {
+      const result = jwt.verify(token, RT_SECRET) as JWTRefreshPayload;
+
+      return {
+        userId: result.userId,
+        deviceId: result.deviceId,
+      };
+    } catch (error: unknown) {
+      console.error("Token verify some error!");
+
+      return null;
+    }
+  }
+
+  // * получаем expiresAt из старого refresh. Чтобы правильно установить TTL, нужно знать exp из JWT.
+  static getRefreshTokenExpiresDate(refreshToken: string): Date | null {
+    const decode = jwt.decode(refreshToken) as null | { exp: number };
+
+    if (!decode?.exp) return null;
+
+    const newExpDate = new Date(decode.exp * 1000);
+
+    return newExpDate;
+  }
 }
 
 // ? static - методы не существуют на экземпляре, только на самом классе.
+
+// ? Зачем нужен deviceId ? В HW обычно нужно привязать refresh к сессии / девайсу (чтобы можно было делать logout / blacklist / multi-devices).
+
+// ? as — это каст: «Поверь мне, я знаю, что делаю».
+// ? satisfies — это проверка: «Проверь, что это соответствует типу».

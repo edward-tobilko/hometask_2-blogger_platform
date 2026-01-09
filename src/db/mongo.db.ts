@@ -3,12 +3,20 @@ import { Collection, Db, MongoClient } from "mongodb";
 import { appConfig } from "../core/settings/config";
 import {
   AUTH_COLLECTION_NAME,
+  BLACK_LIST_FOR_REFRESH_TOKENS_COLLECTION_NAME,
   BLOG_COLLECTION_NAME,
   POST_COLLECTION_NAME,
   POST_COMMENTS_COLLECTION_NAME,
   USERS_COLLECTION_NAME,
 } from "./collection-names.db";
-import { AuthDB, BlogDB, PostCommentDB, PostDB, UserDB } from "./types.db";
+import {
+  AuthDB,
+  BlackListRefreshTokenDB,
+  BlogDB,
+  PostCommentDB,
+  PostDB,
+  UserDB,
+} from "./types.db";
 
 let client: MongoClient;
 
@@ -17,8 +25,9 @@ export let blogCollection: Collection<BlogDB>;
 export let postCollection: Collection<PostDB>;
 export let userCollection: Collection<UserDB>;
 export let postCommentsCollection: Collection<PostCommentDB>;
+export let blackListRefreshTokensCollection: Collection<BlackListRefreshTokenDB>;
 
-// * Подключения к бд
+// * Подключения к БД
 export async function runDB(url: string): Promise<void> {
   client = new MongoClient(url);
 
@@ -33,6 +42,20 @@ export async function runDB(url: string): Promise<void> {
     userCollection = dataBase.collection<UserDB>(USERS_COLLECTION_NAME);
     postCommentsCollection = dataBase.collection<PostCommentDB>(
       POST_COMMENTS_COLLECTION_NAME
+    );
+    blackListRefreshTokensCollection =
+      dataBase.collection<BlackListRefreshTokenDB>(
+        BLACK_LIST_FOR_REFRESH_TOKENS_COLLECTION_NAME
+      );
+
+    // * Инициализация индексов
+    blackListRefreshTokensCollection.createIndex(
+      { expiresAt: 1 },
+      { expireAfterSeconds: 0 }
+    );
+    blackListRefreshTokensCollection.createIndex(
+      { tokenHash: 1 },
+      { unique: true }
     );
 
     await dataBase.command({ ping: 1 });
@@ -53,3 +76,5 @@ export async function stopDB() {
 
   await client.close();
 }
+
+// ? expiresAt / expireAfterSeconds / tokenHash / unique — это название полей в документе MongoDB.
