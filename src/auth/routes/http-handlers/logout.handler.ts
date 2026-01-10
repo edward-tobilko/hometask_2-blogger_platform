@@ -5,6 +5,7 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { JWTService } from "auth/adapters/jwt-service.adapter";
 import { AuthRepository } from "auth/repositories/auth.repository";
 import { ObjectId } from "mongodb";
+import { authService } from "auth/application/auth.service";
 
 export const logoutHandler = async (req: Request, res: Response) => {
   try {
@@ -14,6 +15,17 @@ export const logoutHandler = async (req: Request, res: Response) => {
 
     const payload = await JWTService.verifyRefreshToken(refreshToken);
     if (!payload) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    const session = await authService.getSession(
+      payload.userId,
+      payload.deviceId
+    );
+
+    if (!session) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    // * проверяем, что токен актуален (rotation guard)
+    if (session.refreshToken !== refreshToken)
+      return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
     await AuthRepository.deleteAuthMe(
       new ObjectId(payload.userId),

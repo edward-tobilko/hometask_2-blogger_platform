@@ -378,6 +378,15 @@ class AuthService {
       extensions: [],
     });
   }
+
+  async getSession(userId: string, deviceId: string) {
+    const session = await AuthRepository.findSession(
+      new ObjectId(userId),
+      deviceId
+    );
+
+    return session;
+  }
 }
 
 // * способ для production: легче писать тесты (можно подсунуть мок репозитория/хешера) и более гибко менять реализации (например, другой хэшер).
