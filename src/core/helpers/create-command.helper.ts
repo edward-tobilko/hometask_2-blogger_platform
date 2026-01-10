@@ -1,6 +1,7 @@
+import { WithMeta } from "@core/types/with-meta.type";
 import { randomUUID } from "node:crypto";
 
-interface ICommandMeta {
+export interface ICommandMeta {
   throwError: boolean;
   transaction: boolean;
   timestamp: number;
@@ -8,12 +9,14 @@ interface ICommandMeta {
 
   userId?: string;
   requestId?: string;
+  userAgent: string | undefined;
+  ip: string | undefined;
 }
 
 export const createCommand = <T>(
   payload: T,
   options?: Partial<ICommandMeta>
-): { meta: ICommandMeta; payload: T } => {
+): WithMeta<T> => {
   return {
     meta: {
       throwError: options?.throwError ?? true, // Если что-то пойдет не так — бросить ошибку, а не просто вернуть результат.
@@ -23,6 +26,8 @@ export const createCommand = <T>(
 
       userId: options?.userId,
       requestId: options?.requestId,
+      userAgent: options?.userAgent,
+      ip: options?.ip,
     },
 
     payload, // my data (request)

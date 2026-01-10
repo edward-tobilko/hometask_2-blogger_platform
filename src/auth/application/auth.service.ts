@@ -22,6 +22,7 @@ import { UserDB } from "db/types.db";
 import { UserRepository } from "users/repositories/user.repository";
 import { nodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
+import { parseDeviceTitle } from "auth/adapters/parser-device-service.adapter";
 
 class AuthService {
   constructor(
@@ -106,16 +107,22 @@ class AuthService {
     const accessToken = await JWTService.createAccessToken(userId);
     const refreshToken = await JWTService.createRefreshToken(userId, deviceId);
 
-    // * создаём authMe из user и сохраняем в БД
-    const authMe = AuthDomain.createMe(result.data!, deviceId, refreshToken);
+    // * Получаем девайс с которого входит пользователь
+    const userDeviceTitle = parseDeviceTitle(command.meta.userAgent!);
 
-    // // бажано, щоб authMe містив deviceId + lastActiveDate + refreshTokenIssuedAt etc
-    // authMe.setDeviceId?.(deviceId); // якщо є метод — ок
+    // * создаём authMe из user и сохраняем в БД
+    const authMe = AuthDomain.createMe(
+      result.data!,
+      deviceId,
+      refreshToken,
+      userDeviceTitle
+    );
 
     await this.authRepo.saveAuthMe(authMe);
 
     log("accessToken from service (loginUser) ->", accessToken);
     log("refreshToken from service (loginUser) ->", refreshToken);
+    log("[DEVICE_TITLE]", userDeviceTitle);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

@@ -6,10 +6,10 @@ const AT_SECRET: Secret = appConfig.AT_SECRET; // type Secret - проверяе
 const RT_SECRET: Secret = appConfig.RT_SECRET as unknown as Secret;
 
 const AT_TIME: SignOptions["expiresIn"] = (appConfig.AT_TIME ??
-  "10m") as SignOptions["expiresIn"]; // SignOptions["expiresIn"] - что бы TS не ругался
+  "10s") as SignOptions["expiresIn"]; // SignOptions["expiresIn"] - что бы TS не ругался
 
 const RT_TIME: SignOptions["expiresIn"] = (appConfig.RT_TIME ??
-  "20m") as SignOptions["expiresIn"];
+  "20s") as SignOptions["expiresIn"];
 
 type JWTAccessPayload = {
   userId: string;

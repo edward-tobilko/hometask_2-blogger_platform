@@ -14,13 +14,6 @@ export const setupApp = (app: Express) => {
   app.use(express.json());
   app.use(cookieParser());
 
-  // * для отлова путей
-  app.use((req, _res, next) => {
-    console.log("REQUEST:", req.method, req.url);
-
-    next();
-  });
-
   app.use(routersPaths.auth, authRoute);
 
   app.get(routersPaths.root, (_req: Request, res: Response) => {

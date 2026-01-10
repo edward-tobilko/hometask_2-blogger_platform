@@ -12,6 +12,7 @@ export class AuthDomain {
   userId: ObjectId;
   deviceId: string; // UUID
   refreshToken: string; // cookie
+  userDeviceTitle: string; // user's browser device
 
   constructor(dto: FieldsOnly<AuthDomain>) {
     this.email = dto.email;
@@ -19,6 +20,7 @@ export class AuthDomain {
     this.userId = dto.userId;
     this.deviceId = dto.deviceId;
     this.refreshToken = dto.refreshToken;
+    this.userDeviceTitle = dto.userDeviceTitle;
 
     if (dto._id) {
       this._id = dto._id;
@@ -28,7 +30,8 @@ export class AuthDomain {
   static createMe(
     user: UserDB,
     deviceId: string,
-    refreshToken: string
+    refreshToken: string,
+    userDeviceTitle: string
   ): AuthDomain {
     return new AuthDomain({
       email: user.email,
@@ -36,6 +39,7 @@ export class AuthDomain {
       userId: user._id!,
       deviceId,
       refreshToken,
+      userDeviceTitle,
     });
   }
 }

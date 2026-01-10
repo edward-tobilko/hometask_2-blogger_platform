@@ -1,5 +1,6 @@
 import { matchedData } from "express-validator";
 import { Request, Response } from "express";
+import { log } from "node:console";
 
 import { createCommand } from "../../../core/helpers/create-command.helper";
 import { LoginAuthRP } from "../request-payload-types/login-auth.request-payload";
@@ -18,9 +19,17 @@ export const loginHandler = async (req: Request, res: Response) => {
       includeOptionals: false,
     });
 
-    const command = createCommand<LoginAuthDtoCommand>(sanitizedBodyParam);
+    const command = createCommand<LoginAuthDtoCommand>(sanitizedBodyParam, {
+      userAgent: req.headers["user-agent"],
+      ip: req.ip,
+    });
 
     const result = await authService.loginUser(command);
+
+    log("[loginUser]", {
+      requestId: (req as any).requestId,
+      result,
+    });
 
     if (result.status !== ApplicationResultStatus.Success)
       return res.status(mapApplicationStatusToHttpStatus(result.status)).json({

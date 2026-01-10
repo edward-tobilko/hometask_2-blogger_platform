@@ -6,9 +6,19 @@ import { HTTP_STATUS_CODES } from "../result/types/http-status-codes.enum";
 
 export const errorsHandler = (
   err: unknown,
-  _req: Request,
+  req: Request,
   res: Response
 ): void | Response => {
+  const requestId = (req as any).requestId;
+
+  console.error("[ERROR]", {
+    requestId,
+    path: req.originalUrl,
+    method: req.method,
+    err:
+      err instanceof Error ? { message: err.message, stack: err.stack } : err,
+  });
+
   if (err instanceof ApplicationError) {
     const status = err.statusCode ?? HTTP_STATUS_CODES.UNPROCESSABLE_ENTITY_422;
 
