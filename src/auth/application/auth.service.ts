@@ -363,7 +363,7 @@ class AuthService {
     const newRefreshToken = await JWTService.createRefreshToken(
       userId,
       deviceId
-    ); хешування refresh token
+    );
 
     // * обновляем сессию в БД
     await AuthRepository.updateSessionRefreshToken(
