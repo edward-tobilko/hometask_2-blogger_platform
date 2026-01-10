@@ -1,3 +1,4 @@
+import { CryptoHasher } from "auth/adapters/crypto-hasher-service.adapter";
 import { log } from "node:console";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns";
@@ -335,7 +336,9 @@ class AuthService {
     }
 
     // * если в БД другой refreshToken → значит этот токен уже ротирован / украден / старый - базовый «reuse protection» через single valid token per session.
-    if (session.refreshToken !== oldRefreshToken)
+    if (
+      session.refreshToken !== CryptoHasher.generateTokenHash(oldRefreshToken)
+    )
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
@@ -360,14 +363,14 @@ class AuthService {
     const newRefreshToken = await JWTService.createRefreshToken(
       userId,
       deviceId
-    );
+    ); хешування refresh token
 
     // * обновляем сессию в БД
     await AuthRepository.updateSessionRefreshToken(
       new ObjectId(userId),
       deviceId,
       {
-        refreshToken: newRefreshToken,
+        refreshToken: CryptoHasher.generateTokenHash(newRefreshToken),
         lastActiveDate: new Date(),
       }
     );

@@ -19,7 +19,7 @@ export class AuthRepository {
         $set: {
           email: authMe.email,
           login: authMe.login,
-          refreshToken: authMe.refreshToken,
+          refreshToken: CryptoHasher.generateTokenHash(authMe.refreshToken),
           lastActiveDate: new Date(),
           userDeviceTitle: authMe.userDeviceTitle,
         },
