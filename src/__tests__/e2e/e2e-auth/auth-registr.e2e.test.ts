@@ -8,7 +8,7 @@ import { clearDB } from "__tests__/utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { authRegisterUser } from "__tests__/utils/auth/auth-register.util";
+import { authRegisterUser } from "__tests__/utils/auth/auth-registr.util";
 import { UserDtoDomain } from "users/domain/user-dto.domain";
 
 const testUserDto: UserDtoDomain = getUserDto();

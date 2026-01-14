@@ -5,7 +5,6 @@ import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { setupApp } from "../../../app";
 import { clearDB } from "../../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createPostUtil } from "../../utils/posts/create-post.util";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
@@ -15,7 +14,8 @@ import {
   getPostByIdResponseCodeUtil,
 } from "../../utils/posts/get-post-by-id.util";
 import { routersPaths } from "../../../core/paths/paths";
-import { CreatePostRequestPayload } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
+import { CreatePostRP } from "posts/routes/request-payload-types/create-post.request-payload-types";
+import { appConfig } from "@core/settings/config";
 
 const adminToken = generateBasicAuthToken();
 
@@ -25,10 +25,10 @@ describe("E2E Posts API tests", () => {
 
   // * prepare the base we need for the post
   let createdBlog: { id: string; name: string };
-  let postDataDto: CreatePostRequestPayload;
+  let postDataDto: CreatePostRP;
 
   beforeAll(async () => {
-    await runDB(SETTINGS_MONGO_DB.MONGO_URL);
+    await runDB(appConfig.MONGO_URL);
     await clearDB(app);
 
     // * create a blog after connecting to the db
@@ -97,7 +97,7 @@ describe("E2E Posts API tests", () => {
   it("PUT: /posts/:id -> should update post by id - 204", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
-    const updatedDtoPost: CreatePostRequestPayload = {
+    const updatedDtoPost: CreatePostRP = {
       ...postDataDto,
       title: "updated title",
       blogId: createdBlog.id,
