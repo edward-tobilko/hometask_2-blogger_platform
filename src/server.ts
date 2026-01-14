@@ -4,9 +4,9 @@ import { setupApp } from "./app";
 import { runDB } from "./db/mongo.db";
 import { appConfig } from "./core/settings/config";
 
-const bootstrap = async () => {
-  const app = express();
+export const app = express();
 
+const bootstrap = async () => {
   // * Render подставляет свой порт, локально — дефолт 8080
   const PORT = Number(process.env.PORT) || 8080;
 

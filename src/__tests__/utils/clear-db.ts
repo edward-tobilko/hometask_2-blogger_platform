@@ -1,8 +1,8 @@
 import { Express } from "express";
 import request from "supertest";
 
-import { HTTP_STATUS_CODES } from "../../core/utils/http-status-codes.util";
 import { routersPaths } from "../../core/paths/paths";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 export async function clearDB(app: Express) {
   await request(app)

@@ -7,14 +7,13 @@ import { clearDB } from "../../utils/clear-db";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import { getBlogByIdUtil } from "../../utils/blogs/get-blog-by-id.util";
 import { getPostsForBlogDtoUtil } from "../../utils/blogs/get-posts-for-blog-dto.util";
 import { createPostForBlogUtil } from "../../utils/blogs/create-post-for-blog.util";
 import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
-import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
 import { routersPaths } from "../../../core/paths/paths";
+import { appConfig } from "@core/settings/config";
 
 const adminToken = generateBasicAuthToken();
 
@@ -23,11 +22,13 @@ describe("E2E Blogs API tests", () => {
   setupApp(app);
 
   const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
-  const testPostsForBlogDataDto: CreatePostForBlogRequestPayload =
-    getPostsForBlogDtoUtil();
+  const testPostsForBlogDataDto = getPostsForBlogDtoUtil();
 
   beforeAll(async () => {
-    await runDB(SETTINGS_MONGO_DB.MONGO_URL);
+    await runDB(appConfig.MONGO_URL);
+  });
+
+  beforeEach(async () => {
     await clearDB(app);
   });
 

@@ -7,17 +7,15 @@ import { getPostDtoUtil } from "./get-post-dto.util";
 import { createBlogUtil } from "../blogs/create-blog.util";
 import { routersPaths } from "../../../core/paths/paths";
 import { PostOutput } from "../../../posts/application/output/post-type.output";
-import { CreatePostRequestPayload } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
+import { CreatePostRP } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
 
 export const createPostUtil = async (
   app: Express,
-  postInputDto: Partial<CreatePostRequestPayload>
+  postInputDto: Partial<CreatePostRP>
 ): Promise<PostOutput> => {
   const createBlog = await createBlogUtil(app);
 
-  const defaultPostDataDto: CreatePostRequestPayload = getPostDtoUtil(
-    createBlog.id
-  );
+  const defaultPostDataDto: CreatePostRP = getPostDtoUtil(createBlog.id);
   const postDataDto = { ...defaultPostDataDto, ...postInputDto };
 
   const createdPostResponse = await request(app)

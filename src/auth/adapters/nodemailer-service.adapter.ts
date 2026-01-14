@@ -29,6 +29,9 @@ export const nodeMailerService = {
     code: string, // код подтверджения
     template: (code: string) => string // ф-я которая принимает код и отправляет html строку
   ): Promise<boolean> {
+    // * Проверка для тестов (что бы письмо отправлялось фейково)
+    if (process.env.NODE_ENV === "test") return true;
+
     log("SENDING EMAIL TO:", email);
 
     let info = await transporter.sendMail({

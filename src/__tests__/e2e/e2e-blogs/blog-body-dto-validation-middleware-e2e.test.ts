@@ -6,11 +6,11 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { clearDB } from "../../utils/clear-db";
 import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { routersPaths } from "../../../core/paths/paths";
 import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
+import { appConfig } from "@core/settings/config";
 
 const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
 
@@ -19,7 +19,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
   setupApp(app);
 
   beforeAll(async () => {
-    await runDB(SETTINGS_MONGO_DB.MONGO_URL);
+    await runDB(appConfig.MONGO_URL);
     await clearDB(app);
   });
 

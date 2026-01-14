@@ -13,6 +13,10 @@ export const testingRoute = Router({});
 
 // Clear database: delete all data from all tables/collections
 testingRoute.delete("", async (_req: Request, res: Response) => {
+  if (process.env.NODE_ENV !== "test") {
+    return res.sendStatus(HTTP_STATUS_CODES.FORBIDDEN_403);
+  }
+
   await Promise.all([
     authCollection.deleteMany(),
     blogCollection.deleteMany(),
