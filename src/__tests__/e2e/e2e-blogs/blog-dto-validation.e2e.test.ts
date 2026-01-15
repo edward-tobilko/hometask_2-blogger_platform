@@ -27,7 +27,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
     await stopDB();
   });
 
-  it("201 - when payload is valid", async () => {
+  it("status 201 - when payload is valid", async () => {
     const createBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     expect(createBlogResponse).toMatchObject({
@@ -83,7 +83,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
       field: "websiteUrl",
     },
   ] as const)(
-    "400 - should not create blog if the inputModel has incorrect values",
+    "status 400 - should not create blog if the inputModel has incorrect values",
     async ({ payload, field }) => {
       const createBlogResponse = await request(app)
         .post(routersPaths.blogs)
@@ -102,7 +102,7 @@ describe("Create (POST) blogs API body dto validation ", () => {
     }
   );
 
-  it("401 - when no Authorization header", async () => {
+  it("status 401 - when no Authorization header", async () => {
     await request(app)
       .post(routersPaths.blogs)
       .send(testBlogDataDto)

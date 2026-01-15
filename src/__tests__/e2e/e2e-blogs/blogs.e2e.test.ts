@@ -26,6 +26,7 @@ describe("E2E Blogs API tests", () => {
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+    // await clearDB(app);
   });
 
   beforeEach(async () => {
@@ -36,7 +37,7 @@ describe("E2E Blogs API tests", () => {
     await stopDB();
   });
 
-  it("GET: /api/blogs -> should return blogs list - 200", async () => {
+  it("GET: /api/blogs -> should return blogs list - status 200", async () => {
     await Promise.all([
       createBlogUtil(app, testBlogDataDto),
       createBlogUtil(app, testBlogDataDto),
@@ -52,7 +53,7 @@ describe("E2E Blogs API tests", () => {
     expect(blogListResponse.body.items.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("POST: /api/blogs -> should create new blog - 201", async () => {
+  it("POST: /api/blogs -> should create new blog - status 201", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     expect(createdBlogResponse).toEqual(
@@ -60,7 +61,7 @@ describe("E2E Blogs API tests", () => {
     );
   });
 
-  it("GET: /api/blogs/:id/posts -> should return posts list for blog - 200", async () => {
+  it("GET: /api/blogs/:id/posts -> should return posts list for blog - status 200", async () => {
     const createdBlog = await createBlogUtil(app, testBlogDataDto);
 
     await Promise.all([
@@ -78,7 +79,7 @@ describe("E2E Blogs API tests", () => {
     expect(postListForBlogResponse.body.items.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("POST: /api/blogs/:id/posts -> should create post for blog - 201", async () => {
+  it("POST: /api/blogs/:id/posts -> should create post for blog - status 201", async () => {
     const createdBlog = await createBlogUtil(app, testBlogDataDto);
     const createdPostForBlog = await createPostForBlogUtil(app, createdBlog.id);
 
@@ -95,7 +96,7 @@ describe("E2E Blogs API tests", () => {
     );
   });
 
-  it("GET: /api/blogs/:id -> should return one blog by id - 200", async () => {
+  it("GET: /api/blogs/:id -> should return one blog by id - status 200", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     const getBlogByIdResponse = await getBlogByIdUtil(
@@ -108,7 +109,7 @@ describe("E2E Blogs API tests", () => {
     );
   });
 
-  it("GET: /blogs/:id -> should NOT return blog by id (If blog for passed id does not exist) - 404", async () => {
+  it("GET: /blogs/:id -> should NOT return blog by id (If blog for passed id does not exist) - status 404", async () => {
     await request(app)
       .get(`${routersPaths.blogs}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -118,12 +119,12 @@ describe("E2E Blogs API tests", () => {
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
-  it("PUT: /blogs/:id -> should update blog by id - 204", async () => {
+  it("PUT: /blogs/:id -> should update blog by id - status 204", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     const updatedDtoBlog = {
       ...testBlogDataDto,
-      name: "updated name",
+      name: "Bob",
     };
 
     await request(app)
@@ -145,7 +146,7 @@ describe("E2E Blogs API tests", () => {
     });
   });
 
-  it("DELETE: /blogs/:id -> should remove blog by id and check after NOT FOUND - 204", async () => {
+  it("DELETE: /blogs/:id -> should remove blog by id and check after NOT FOUND - status 204", async () => {
     const createdBlogResponse = await createBlogUtil(app, testBlogDataDto);
 
     expect(typeof createdBlogResponse.id).toBe("string");

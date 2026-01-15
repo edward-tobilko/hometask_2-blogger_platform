@@ -5,13 +5,13 @@ import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
 import { setupApp } from "../../../app";
 import { clearDB } from "../../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { SETTINGS_MONGO_DB } from "../../../core/settings/mongo-db.setting";
 import { createPostUtil } from "../../utils/posts/create-post.util";
 import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../../utils/blogs/create-blog.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { CreatePostRequestPayload } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
+import { CreatePostRP } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
 import { routersPaths } from "../../../core/paths/paths";
+import { appConfig } from "@core/settings/config";
 
 const adminToken = generateBasicAuthToken();
 
@@ -19,11 +19,11 @@ describe("Create (POST) posts API body validation ", () => {
   const app = express();
   setupApp(app);
 
-  let validPostDto: CreatePostRequestPayload; // ready valid DTO with correct blogId
+  let validPostDto: CreatePostRP; // ready valid DTO with correct blogId
   let blogName: string;
 
   beforeAll(async () => {
-    await runDB(SETTINGS_MONGO_DB.MONGO_URL);
+    await runDB(appConfig.MONGO_URL);
     await clearDB(app);
 
     // * create a blog and collect a valid post on its ID
@@ -36,7 +36,7 @@ describe("Create (POST) posts API body validation ", () => {
     await stopDB();
   });
 
-  it("201 - when payload is valid", async () => {
+  it("status 201 - when payload is valid", async () => {
     const createdPostResponse = await createPostUtil(app, validPostDto);
 
     expect(createdPostResponse).toEqual(
@@ -98,7 +98,7 @@ describe("Create (POST) posts API body validation ", () => {
       field: "blogId",
     },
   ] as const)(
-    "400 - should not create post if the inputModel has incorrect values",
+    "status 400 - should not create post if the inputModel has incorrect values",
     async ({ payload, field }) => {
       const createPostResponse = await request(app)
         .post(routersPaths.posts)
@@ -117,7 +117,7 @@ describe("Create (POST) posts API body validation ", () => {
     }
   );
 
-  it("400 - blogId does not exist", async () => {
+  it("status 400 - blogId does not exist", async () => {
     const nonExistingBlogId = "507f1f77bcf86cd799439011";
 
     const result = await request(app)
@@ -136,7 +136,7 @@ describe("Create (POST) posts API body validation ", () => {
     );
   });
 
-  it("401 - when no Authorization header", async () => {
+  it("status 401 - when no Authorization header", async () => {
     await request(app)
       .post(routersPaths.posts)
       .send(validPostDto)

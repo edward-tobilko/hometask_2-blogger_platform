@@ -46,7 +46,7 @@ describe("E2E Posts API tests", () => {
     await stopDB();
   });
 
-  it("GET: /posts -> should return posts list - 200", async () => {
+  it("GET: /posts -> should return posts list - status 200", async () => {
     await createPostUtil(app, postDataDto);
     await createPostUtil(app, postDataDto);
 
@@ -60,7 +60,7 @@ describe("E2E Posts API tests", () => {
     expect(postListResponse.body.items.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("POST: /posts -> should create new post - 201", async () => {
+  it("POST: /posts -> should create new post - status 201", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
     expect(createdPostResponse).toEqual(
@@ -76,7 +76,7 @@ describe("E2E Posts API tests", () => {
     );
   });
 
-  it("GET: /posts/:id -> should return one post by id - 200", async () => {
+  it("GET: /posts/:id -> should return one post by id - status 200", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
     const postResponse = await getPostByIdBodyUtil(app, createdPostResponse.id);
@@ -84,7 +84,7 @@ describe("E2E Posts API tests", () => {
     expect(postResponse).toEqual(expect.objectContaining(createdPostResponse));
   });
 
-  it("GET: /posts/:id -> should NOT return post by id (If post for passed id does not exist) - 404", async () => {
+  it("GET: /posts/:id -> should NOT return post by id (If post for passed id does not exist) - status 404", async () => {
     await request(app)
       .get(`${routersPaths.posts}/507f1f77bcf86cd799439011`)
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
@@ -94,7 +94,7 @@ describe("E2E Posts API tests", () => {
       .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
-  it("PUT: /posts/:id -> should update post by id - 204", async () => {
+  it("PUT: /posts/:id -> should update post by id - status 204", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
     const updatedDtoPost: CreatePostRP = {
@@ -122,7 +122,7 @@ describe("E2E Posts API tests", () => {
     );
   });
 
-  it("DELETE: /posts/:id -> should remove post by id and check after NOT FOUND", async () => {
+  it("DELETE: /posts/:id -> should remove post by id and check after NOT FOUND - status 404", async () => {
     const createdPostResponse = await createPostUtil(app, postDataDto);
 
     await request(app)

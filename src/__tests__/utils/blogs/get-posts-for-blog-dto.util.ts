@@ -1,6 +1,6 @@
-import { CreatePostForBlogRequestPayload } from "../../../posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
+import { CreatePostForBlogRP } from "../../../posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
 
-export function getPostsForBlogDtoUtil(): CreatePostForBlogRequestPayload {
+export function getPostsForBlogDtoUtil(): CreatePostForBlogRP {
   return {
     title: "created new title",
     shortDescription: "created new short desc",
