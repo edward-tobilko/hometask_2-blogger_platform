@@ -54,7 +54,7 @@ export async function runDB(url: string): Promise<void> {
       { expireAfterSeconds: 0 }
     );
     blackListRefreshTokensCollection.createIndex(
-      { tokenHash: 1 },
+      { token: 1 },
       { unique: true }
     );
 
@@ -77,4 +77,4 @@ export async function stopDB() {
   await client.close();
 }
 
-// ? expiresAt / expireAfterSeconds / tokenHash / unique — это название полей в документе MongoDB.
+// ? expiresAt / expireAfterSeconds / token / unique — это название полей в документе MongoDB.

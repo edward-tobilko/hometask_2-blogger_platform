@@ -64,7 +64,7 @@ export type BlackListRefreshTokenDB = {
   userId: ObjectId;
   deviceId: string;
 
-  tokenHash: string; // sha256 (refresh token)
+  token: string; // sha256 (refresh token)
 
   expiresAt: Date; // когда этот токен и так протухнет (TTL)
   createdAt: Date;
