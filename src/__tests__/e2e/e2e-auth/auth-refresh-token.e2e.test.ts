@@ -51,10 +51,8 @@ describe("E2E Auth refresh-token tests", () => {
     });
 
     // * проверка accessToken на совместимость с JWT
-    expect(
-      refreshResult.body.accessToken === "string" &&
-        refreshResult.body.accessToken.split(".").length === 3
-    ).toBe(true);
+    expect(typeof refreshResult.body.accessToken).toBe("string");
+    expect(refreshResult.body.accessToken.split(".")).toHaveLength(3);
 
     // const setCookieRaw = getCookieString(refreshResult.headers["set-cookie"]);
 
