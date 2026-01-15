@@ -3,8 +3,12 @@ import { Express } from "express";
 
 import { routersPaths } from "@core/paths/paths";
 
-const refreshPath = `${routersPaths.auth}/refresh-token`;
+const authRefreshPath = `${routersPaths.auth}/refresh-token`;
 
-export function authRefreshToken(app: Express, cookie: string) {
-  return request(app).post(refreshPath).set("Cookie", cookie);
+export function setAuthRefreshToken(app: Express, refreshToken: string) {
+  return request(app).post(authRefreshPath).set("Cookie", refreshToken);
+}
+
+export function getRefreshToken(app: Express) {
+  return request(app).post(authRefreshPath);
 }

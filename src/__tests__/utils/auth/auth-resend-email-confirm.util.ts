@@ -5,6 +5,6 @@ import { routersPaths } from "@core/paths/paths";
 
 const resendEmailConfirmPath = `${routersPaths.auth}/registration-email-resending`;
 
-export function authResendRegistrationEmail(app: Express, dto: any) {
+export function createAuthResendRegistrationEmail(app: Express, dto: any) {
   return request(app).post(resendEmailConfirmPath).send(dto);
 }

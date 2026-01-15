@@ -8,7 +8,7 @@ import { clearDB } from "__tests__/utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { authRegisterUser } from "__tests__/utils/auth/auth-registr.util";
+import { createAuthRegisterUser } from "__tests__/utils/auth/auth-registr.util";
 import { UserDtoDomain } from "users/domain/user-dto.domain";
 
 const testUserDto: UserDtoDomain = getUserDto();
@@ -53,13 +53,14 @@ describe("E2E Auth Registration tests", () => {
       email: "example2@example.dev",
     };
 
-    await authRegisterUser(app, userDtoFirst).expect(
+    await createAuthRegisterUser(app, userDtoFirst).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
-    const createdUserResult = await authRegisterUser(app, userDtoSecond).expect(
-      HTTP_STATUS_CODES.BAD_REQUEST_400
-    );
+    const createdUserResult = await createAuthRegisterUser(
+      app,
+      userDtoSecond
+    ).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
     // * Swagger: errorsMessages: [{ message, field }]
     expect(createdUserResult.body).toHaveProperty("errorsMessages");
@@ -77,13 +78,14 @@ describe("E2E Auth Registration tests", () => {
       login: "TekMr6PvUa",
     };
 
-    await authRegisterUser(app, userDtoFirst).expect(
+    await createAuthRegisterUser(app, userDtoFirst).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
-    const createdUserResult = await authRegisterUser(app, userDtoSecond).expect(
-      HTTP_STATUS_CODES.BAD_REQUEST_400
-    );
+    const createdUserResult = await createAuthRegisterUser(
+      app,
+      userDtoSecond
+    ).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
     // * Swagger: errorsMessages: [{ message, field }]
     expect(createdUserResult.body).toHaveProperty("errorsMessages");
@@ -143,9 +145,10 @@ describe("E2E Auth Registration tests", () => {
   ] as const)(
     "status 400 - validation dto errors",
     async ({ payload, field }) => {
-      const createUserResponse = await authRegisterUser(app, payload).expect(
-        HTTP_STATUS_CODES.BAD_REQUEST_400
-      );
+      const createUserResponse = await createAuthRegisterUser(
+        app,
+        payload
+      ).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
       expect(createUserResponse.body.errorsMessages).toEqual(
         expect.arrayContaining([

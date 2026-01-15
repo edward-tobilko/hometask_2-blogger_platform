@@ -7,8 +7,8 @@ import { clearDB } from "__tests__/utils/clear-db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { authRegisterUser } from "__tests__/utils/auth/auth-registr.util";
-import { authConfirmRegistration } from "__tests__/utils/auth/auth-confirm-registr.util";
+import { createAuthRegisterUser } from "__tests__/utils/auth/auth-registr.util";
+import { createAuthConfirmRegistration } from "__tests__/utils/auth/auth-confirm-registr.util";
 
 describe("E2E Auth Registration Confirmation tests", () => {
   const app = express();
@@ -29,7 +29,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
   it("POST /auth/registration-confirmation -> status 204 (success)", async () => {
     const userDto = getUserDto();
 
-    await authRegisterUser(app, userDto).expect(
+    await createAuthRegisterUser(app, userDto).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
@@ -38,7 +38,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     expect(userBefore).toBeTruthy();
     expect(userBefore!.emailConfirmation.isConfirmed).toBe(false);
 
-    await authConfirmRegistration(app, {
+    await createAuthConfirmRegistration(app, {
       code: userBefore!.emailConfirmation.confirmationCode,
     }).expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
@@ -62,11 +62,11 @@ describe("E2E Auth Registration Confirmation tests", () => {
   ] as const)(
     "POST /auth/registration-confirmation -> status 400 (validation errors)",
     async ({ payload, field }) => {
-      const res = await authConfirmRegistration(app, payload).expect(
+      const result = await createAuthConfirmRegistration(app, payload).expect(
         HTTP_STATUS_CODES.BAD_REQUEST_400
       );
 
-      expect(res.body.errorsMessages).toEqual(
+      expect(result.body.errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             message: expect.any(String),
@@ -80,11 +80,11 @@ describe("E2E Auth Registration Confirmation tests", () => {
   it("POST /auth/registration-confirmation -> status 400 (incorrect code)", async () => {
     const userDto = getUserDto();
 
-    await authRegisterUser(app, userDto).expect(
+    await createAuthRegisterUser(app, userDto).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
-    const result = await authConfirmRegistration(app, {
+    const result = await createAuthConfirmRegistration(app, {
       code: "WRONG_CODE",
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
@@ -101,19 +101,19 @@ describe("E2E Auth Registration Confirmation tests", () => {
   it("POST /auth/registration-confirmation -> status 400 (already applied)", async () => {
     const userDto = getUserDto();
 
-    await authRegisterUser(app, userDto).expect(
+    await createAuthRegisterUser(app, userDto).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
     const user = await userCollection.findOne({ email: userDto.email });
 
     // * confirm once
-    await authConfirmRegistration(app, {
+    await createAuthConfirmRegistration(app, {
       code: user!.emailConfirmation.confirmationCode,
     }).expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
     // * confirm second time -> should be 400
-    const result = await authConfirmRegistration(app, {
+    const result = await createAuthConfirmRegistration(app, {
       code: user!.emailConfirmation.confirmationCode,
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
@@ -130,7 +130,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
   it("POST /auth/registration-confirmation -> status 400 (expired code)", async () => {
     const userDto = getUserDto();
 
-    await authRegisterUser(app, userDto).expect(
+    await createAuthRegisterUser(app, userDto).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
@@ -146,7 +146,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
       } // 1 min ago
     );
 
-    const result = await authConfirmRegistration(app, {
+    const result = await createAuthConfirmRegistration(app, {
       code: userBefore!.emailConfirmation.confirmationCode,
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 

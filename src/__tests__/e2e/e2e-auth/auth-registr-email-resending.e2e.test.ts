@@ -9,8 +9,8 @@ import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { authRegisterUser } from "__tests__/utils/auth/auth-registr.util";
-import { authResendRegistrationEmail } from "__tests__/utils/auth/auth-resend-email-confirm.util";
+import { createAuthRegisterUser } from "__tests__/utils/auth/auth-registr.util";
+import { createAuthResendRegistrationEmail } from "__tests__/utils/auth/auth-resend-email-confirm.util";
 
 describe("E2E Auth Registration Email Resending tests", () => {
   const app = express();
@@ -34,7 +34,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
     const userDto = getUserDto();
 
     // * register user (creates user with isConfirmed=false)
-    await authRegisterUser(app, userDto).expect(
+    await createAuthRegisterUser(app, userDto).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
@@ -65,7 +65,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
   });
 
   it("POST /auth/registration-email-resending -> status 400 (validation: email is invalid)", async () => {
-    const result = await authResendRegistrationEmail(app, {
+    const result = await createAuthResendRegistrationEmail(app, {
       email: "not-email",
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
@@ -83,7 +83,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
     const userDto = getUserDto();
 
     // * register
-    await authRegisterUser(app, userDto).expect(
+    await createAuthRegisterUser(app, userDto).expect(
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
@@ -93,7 +93,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
       { $set: { "emailConfirmation.isConfirmed": true } }
     );
 
-    const result = await authResendRegistrationEmail(app, {
+    const result = await createAuthResendRegistrationEmail(app, {
       email: userDto.email,
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
@@ -108,7 +108,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
   });
 
   it("POST /auth/registration-email-resending -> status 400 (email is missing)", async () => {
-    const result = await authResendRegistrationEmail(app, {}).expect(
+    const result = await createAuthResendRegistrationEmail(app, {}).expect(
       HTTP_STATUS_CODES.BAD_REQUEST_400
     );
 
@@ -124,7 +124,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
 
   // OPTIONAL: only if your implementation returns 400 for non-existing email
   it("POST /auth/registration-email-resending -> status 400 (email not found)", async () => {
-    const result = await authResendRegistrationEmail(app, {
+    const result = await createAuthResendRegistrationEmail(app, {
       email: "noone@example.dev",
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 

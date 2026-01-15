@@ -4,9 +4,12 @@ import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "__tests__/utils/clear-db";
-import { authLogin, getLoginDto } from "__tests__/utils/auth/auth-login.util";
+import {
+  createAuthLogin,
+  getLoginDto,
+} from "__tests__/utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { registerAndConfirmUser } from "__tests__/utils/auth/registr-and-confirm-user.util";
+import { setRegisterAndConfirmUser } from "__tests__/utils/auth/registr-and-confirm-user.util";
 import { extractRefreshTokenCookie } from "__tests__/utils/cookie/cookies.util";
 
 const loginDto = getLoginDto();
@@ -28,9 +31,9 @@ describe("E2E Auth Login tests", () => {
   });
 
   it("POST /auth/login -> status 200 - returns accessToken and sets refreshToken cookie", async () => {
-    const userDto = await registerAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser();
 
-    const result = await authLogin(app, {
+    const result = await createAuthLogin(app, {
       loginOrEmail: userDto.login,
       password: userDto.password,
     }).expect(HTTP_STATUS_CODES.OK_200);
@@ -44,9 +47,9 @@ describe("E2E Auth Login tests", () => {
   });
 
   it("POST /auth/login -> status 401 - with wrong password", async () => {
-    const userDto = await registerAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser();
 
-    await authLogin(app, {
+    await createAuthLogin(app, {
       loginOrEmail: userDto.login,
       password: "wrong_password",
     }).expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
@@ -99,7 +102,7 @@ describe("E2E Auth Login tests", () => {
   ] as const)(
     "POST /auth/login -> status 400  (validation errors)",
     async ({ payload, field }) => {
-      const result = await authLogin(app, payload).expect(
+      const result = await createAuthLogin(app, payload).expect(
         HTTP_STATUS_CODES.BAD_REQUEST_400
       );
 

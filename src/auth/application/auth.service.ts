@@ -1,4 +1,3 @@
-import { CryptoHasher } from "auth/adapters/crypto-hasher-service.adapter";
 import { log } from "node:console";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns";
@@ -336,9 +335,7 @@ class AuthService {
     }
 
     // * если в БД другой refreshToken → значит этот токен уже ротирован / украден / старый - базовый «reuse protection» через single valid token per session.
-    if (
-      session.refreshToken !== CryptoHasher.generateTokenHash(oldRefreshToken)
-    )
+    if (session.refreshToken !== oldRefreshToken)
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
@@ -370,7 +367,7 @@ class AuthService {
       new ObjectId(userId),
       deviceId,
       {
-        refreshToken: CryptoHasher.generateTokenHash(newRefreshToken),
+        refreshToken: newRefreshToken,
         lastActiveDate: new Date(),
       }
     );

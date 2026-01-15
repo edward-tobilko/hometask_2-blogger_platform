@@ -6,7 +6,7 @@ import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.co
 
 const loginPath = `${routersPaths.auth}/login`;
 
-export function authLogin(app: Express, dto: any) {
+export function createAuthLogin(app: Express, dto: any) {
   return request(app).post(loginPath).send(dto);
 }
 

@@ -5,6 +5,6 @@ import { routersPaths } from "@core/paths/paths";
 
 const registrationConfirmPath = `${routersPaths.auth}/registration-confirmation`;
 
-export function authConfirmRegistration(app: Express, dto: any) {
+export function createAuthConfirmRegistration(app: Express, dto: any) {
   return request(app).post(registrationConfirmPath).send(dto);
 }

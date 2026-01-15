@@ -4,10 +4,10 @@ import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "__tests__/utils/clear-db";
-import { authLogin } from "__tests__/utils/auth/auth-login.util";
+import { createAuthLogin } from "__tests__/utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { registerAndConfirmUser } from "__tests__/utils/auth/registr-and-confirm-user.util";
-import { authMe } from "__tests__/utils/auth/auth-me.util";
+import { setRegisterAndConfirmUser } from "__tests__/utils/auth/registr-and-confirm-user.util";
+import { getAuthMe } from "__tests__/utils/auth/auth-me.util";
 
 describe("E2E Auth Me tests", () => {
   const app = express();
@@ -26,14 +26,14 @@ describe("E2E Auth Me tests", () => {
   });
 
   it("POST /auth/me -> status 200 - with valid access token", async () => {
-    const userDto = await registerAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser();
 
-    const loginResult = await authLogin(app, {
+    const loginResult = await createAuthLogin(app, {
       loginOrEmail: userDto.email,
       password: userDto.password,
     }).expect(HTTP_STATUS_CODES.OK_200);
 
-    const meResult = await authMe(app, loginResult.body.accessToken);
+    const meResult = await getAuthMe(app, loginResult.body.accessToken);
 
     expect(meResult.body).toHaveProperty("email", userDto.email);
     expect(meResult.body).toHaveProperty("login", userDto.login);
@@ -41,7 +41,7 @@ describe("E2E Auth Me tests", () => {
   });
 
   it("GET /auth/me -> status 401 without token (Unauthorized)", async () => {
-    await authMe(app, "invalidToken").expect(
+    await getAuthMe(app, "invalidToken").expect(
       HTTP_STATUS_CODES.UNAUTHORIZED_401
     );
   });
