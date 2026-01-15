@@ -23,7 +23,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
       path: "/",
       secure: true, // if https -> true
       httpOnly: true,
-      sameSite: "lax", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
+      sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
     });
 
     log("refresh success ->", result.data);
