@@ -7,6 +7,7 @@ import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 import { PostOutput } from "./output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import {
+  ApplicationError,
   NotFoundError,
   RepositoryNotFoundError,
 } from "../../core/errors/application.error";
@@ -136,18 +137,24 @@ class PostsService {
   ): Promise<ApplicationResult<null>> {
     const { id, ...updateDto } = command.payload;
 
-    // ищем нужный нам пост
     const existingPost = await this.postsRepository.getPostDomainById(id);
 
     if (!existingPost) {
-      throw new RepositoryNotFoundError("Post does not exist!", "postId");
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new ApplicationError("Post does not exist!", "postId")],
+      });
     }
 
     if (existingPost.blogId.toString() !== updateDto.blogId) {
-      throw new RepositoryNotFoundError(
-        "Post does not exist in this blog",
-        "postId"
-      );
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [
+          new ApplicationError("Post does not exist in this blog!", "postId"),
+        ],
+      });
     }
 
     // обновляем доменную сущность
@@ -164,8 +171,22 @@ class PostsService {
   }
 
   // * DELETE
-  async deletePost(id: string): Promise<void> {
-    return await this.postsRepository.deletePostRepo(id);
+  async deletePost(id: string): Promise<ApplicationResult<null>> {
+    const isDeleted = await this.postsRepository.deletePostRepo(id);
+
+    if (!isDeleted) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new ApplicationError("Post is not exist!", "postId")],
+      });
+    }
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
+      extensions: [],
+    });
   }
 }
 

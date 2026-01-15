@@ -8,12 +8,10 @@ import { PostCommentDB } from "../../db/types.db";
 
 export class PostsRepository {
   // * GET
-  async getPostDomainById(postId: string): Promise<PostDomain> {
+  async getPostDomainById(postId: string): Promise<PostDomain | null> {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
-    if (!result) {
-      throw new RepositoryNotFoundError("Post is not exist!", "postId");
-    }
+    if (!result) return null;
 
     return PostDomain.reconstitute({
       ...result,
@@ -74,15 +72,11 @@ export class PostsRepository {
   }
 
   // * DELETE
-  async deletePostRepo(id: string): Promise<void> {
+  async deletePostRepo(id: string): Promise<boolean> {
     const deleteResult = await postCollection.deleteOne({
       _id: new ObjectId(id),
     });
 
-    if (deleteResult.deletedCount < 1) {
-      throw new RepositoryNotFoundError("Post is not exist!", "postId");
-    }
-
-    return;
+    return deleteResult.deletedCount === 1;
   }
 }

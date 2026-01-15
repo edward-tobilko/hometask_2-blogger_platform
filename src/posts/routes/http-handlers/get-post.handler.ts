@@ -9,9 +9,11 @@ export async function getPostHandler(
   res: Response
 ) {
   try {
-    const postDb = await postQueryService.getPostById(req.params.id);
+    const post = await postQueryService.getPostById(req.params.id);
 
-    res.status(HTTP_STATUS_CODES.OK_200).json(postDb);
+    if (!post) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
+
+    res.status(HTTP_STATUS_CODES.OK_200).json(post);
   } catch (error: unknown) {
     errorsHandler(error, req, res);
   }

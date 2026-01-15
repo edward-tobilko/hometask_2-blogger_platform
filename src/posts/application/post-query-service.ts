@@ -18,7 +18,7 @@ class PostQueryService {
     return await this.postsQueryRepository.getPostsQueryRepo(queryParam);
   }
 
-  async getPostById(postId: string): Promise<PostOutput> {
+  async getPostById(postId: string): Promise<PostOutput | null> {
     return await this.postsQueryRepository.getPostByIdQueryRepo(postId);
   }
 

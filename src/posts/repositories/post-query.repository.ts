@@ -6,10 +6,7 @@ import { PostOutput } from "../application/output/post-type.output";
 import { PostsListPaginatedOutput } from "../application/output/posts-list-type.output";
 import { GetPostsListQueryHandler } from "../application/query-handlers/get-posts-list.query-handler";
 import { mapToPostOutput } from "../application/mappers/map-to-post-output.util";
-import {
-  NotFoundError,
-  RepositoryNotFoundError,
-} from "../../core/errors/application.error";
+import { NotFoundError } from "../../core/errors/application.error";
 import { GetPostCommentsListQueryHandler } from "../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../application/output/post-comments-list-type.output";
 import { mapToPostCommentsListOutput } from "../application/mappers/map-to-post-comments-list-output.mapper";
@@ -38,14 +35,14 @@ export class PostQueryRepository {
     });
   }
 
-  async getPostByIdQueryRepo(postId: string): Promise<PostOutput> {
-    const result = await postCollection.findOne({ _id: new ObjectId(postId) });
+  async getPostByIdQueryRepo(postId: string): Promise<PostOutput | null> {
+    const dbDocument = await postCollection.findOne({
+      _id: new ObjectId(postId),
+    });
 
-    if (!result) {
-      throw new RepositoryNotFoundError("Post is not exist!", "id");
-    }
+    if (!dbDocument) return null;
 
-    return mapToPostOutput(result);
+    return mapToPostOutput(dbDocument);
   }
 
   async getPostCommentsQueryRepo(
