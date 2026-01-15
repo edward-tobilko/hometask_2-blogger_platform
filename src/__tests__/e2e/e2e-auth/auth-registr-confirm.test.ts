@@ -26,7 +26,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     await stopDB();
   });
 
-  it("POST /auth/registration-confirmation -> 204 (success)", async () => {
+  it("POST /auth/registration-confirmation -> status 204 (success)", async () => {
     const userDto = getUserDto();
 
     await authRegisterUser(app, userDto).expect(
@@ -60,7 +60,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
       field: "code",
     },
   ] as const)(
-    "POST /auth/registration-confirmation -> 400 (validation errors)",
+    "POST /auth/registration-confirmation -> status 400 (validation errors)",
     async ({ payload, field }) => {
       const res = await authConfirmRegistration(app, payload).expect(
         HTTP_STATUS_CODES.BAD_REQUEST_400
@@ -77,7 +77,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     }
   );
 
-  it("POST /auth/registration-confirmation -> 400 (incorrect code)", async () => {
+  it("POST /auth/registration-confirmation -> status 400 (incorrect code)", async () => {
     const userDto = getUserDto();
 
     await authRegisterUser(app, userDto).expect(
@@ -98,7 +98,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     );
   });
 
-  it("POST /auth/registration-confirmation -> 400 (already applied)", async () => {
+  it("POST /auth/registration-confirmation -> status 400 (already applied)", async () => {
     const userDto = getUserDto();
 
     await authRegisterUser(app, userDto).expect(
@@ -127,7 +127,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     );
   });
 
-  it("POST /auth/registration-confirmation -> 400 (expired code)", async () => {
+  it("POST /auth/registration-confirmation -> status 400 (expired code)", async () => {
     const userDto = getUserDto();
 
     await authRegisterUser(app, userDto).expect(

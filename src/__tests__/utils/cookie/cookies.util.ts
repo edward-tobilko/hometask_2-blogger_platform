@@ -10,12 +10,12 @@ export function extractRefreshTokenCookie(
     : [setCookieHeader];
 
   // * finding refreshToken
-  const refreshCookie = cookies.find((c) =>
-    c.toLowerCase().startsWith("refreshToken=")
-  );
+  const refreshCookie = cookies.find((c) => /^refreshToken=/i.test(c.trim()));
 
   if (!refreshCookie) {
-    throw new Error("refreshToken cookie was not set");
+    throw new Error(
+      `refreshToken cookie was not set. Got Set-Cookie: ${JSON.stringify(cookies)}`
+    );
   }
 
   return refreshCookie.split(";")[0];

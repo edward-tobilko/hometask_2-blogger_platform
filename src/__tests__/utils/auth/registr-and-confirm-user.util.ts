@@ -16,7 +16,7 @@ export async function registerAndConfirmUser() {
   // * register
   await authRegisterUser(app, userDto).expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
-  // * take code from db
+  // * take status code from db
   const user = await userCollection.findOne({ email: userDto.email });
 
   if (!user) throw new Error("User was not created");

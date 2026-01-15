@@ -30,7 +30,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
 
   const resendEmailConfirmPath = `${routersPaths.auth}/registration-email-resending`;
 
-  it("POST /auth/registration-email-resending -> 204 (success, email exists and not confirmed)", async () => {
+  it("POST /auth/registration-email-resending -> status 204 (success, email exists and not confirmed)", async () => {
     const userDto = getUserDto();
 
     // * register user (creates user with isConfirmed=false)
@@ -64,7 +64,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
     expect(newCode).not.toBe(oldCode);
   });
 
-  it("POST /auth/registration-email-resending -> 400 (validation: email is invalid)", async () => {
+  it("POST /auth/registration-email-resending -> status 400 (validation: email is invalid)", async () => {
     const result = await authResendRegistrationEmail(app, {
       email: "not-email",
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
@@ -79,7 +79,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
     );
   });
 
-  it("POST /auth/registration-email-resending -> 400 (email already confirmed)", async () => {
+  it("POST /auth/registration-email-resending -> status 400 (email already confirmed)", async () => {
     const userDto = getUserDto();
 
     // * register
@@ -107,7 +107,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
     );
   });
 
-  it("POST /auth/registration-email-resending -> 400 (email is missing)", async () => {
+  it("POST /auth/registration-email-resending -> status 400 (email is missing)", async () => {
     const result = await authResendRegistrationEmail(app, {}).expect(
       HTTP_STATUS_CODES.BAD_REQUEST_400
     );
@@ -123,7 +123,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
   });
 
   // OPTIONAL: only if your implementation returns 400 for non-existing email
-  it("POST /auth/registration-email-resending -> 400 (email not found)", async () => {
+  it("POST /auth/registration-email-resending -> status 400 (email not found)", async () => {
     const result = await authResendRegistrationEmail(app, {
       email: "noone@example.dev",
     }).expect(HTTP_STATUS_CODES.BAD_REQUEST_400);

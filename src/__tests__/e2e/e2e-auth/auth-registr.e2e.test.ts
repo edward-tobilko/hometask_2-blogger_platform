@@ -32,7 +32,7 @@ describe("E2E Auth Registration tests", () => {
 
   const registrationPath = `${routersPaths.auth}/registration`;
 
-  it("POST /auth/registration -> 204 (success)", async () => {
+  it("POST /auth/registration -> status 204 (success)", async () => {
     const userDto = getUserDto();
 
     await request(app)
@@ -70,7 +70,7 @@ describe("E2E Auth Registration tests", () => {
     expect(fields).toContain("login");
   });
 
-  it("POST /auth/registration -> 400 (duplicate email)", async () => {
+  it("POST /auth/registration -> status 400 (duplicate email)", async () => {
     const userDtoFirst = getUserDto();
     const userDtoSecond = {
       ...getUserDto(),
@@ -95,6 +95,7 @@ describe("E2E Auth Registration tests", () => {
   });
 
   it.each([
+    // * login validation
     {
       name: "login must be string",
       payload: { ...testUserDto, login: 2 },
@@ -111,6 +112,7 @@ describe("E2E Auth Registration tests", () => {
       field: "login",
     },
 
+    // * password validation
     {
       name: "password must be string",
       payload: { ...testUserDto, password: 2 },
@@ -127,6 +129,7 @@ describe("E2E Auth Registration tests", () => {
       field: "password",
     },
 
+    // * email validation
     {
       name: "email must be string",
       payload: { ...testUserDto, email: 2 },
@@ -137,18 +140,21 @@ describe("E2E Auth Registration tests", () => {
       payload: { ...testUserDto, email: "not-a-url" },
       field: "email",
     },
-  ] as const)("400 - validation dto errors", async ({ payload, field }) => {
-    const createUserResponse = await authRegisterUser(app, payload).expect(
-      HTTP_STATUS_CODES.BAD_REQUEST_400
-    );
+  ] as const)(
+    "status 400 - validation dto errors",
+    async ({ payload, field }) => {
+      const createUserResponse = await authRegisterUser(app, payload).expect(
+        HTTP_STATUS_CODES.BAD_REQUEST_400
+      );
 
-    expect(createUserResponse.body.errorsMessages).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          message: expect.any(String),
-          field,
-        }),
-      ])
-    );
-  });
+      expect(createUserResponse.body.errorsMessages).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            message: expect.any(String),
+            field,
+          }),
+        ])
+      );
+    }
+  );
 });
