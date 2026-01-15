@@ -10,6 +10,7 @@ import { authService } from "auth/application/auth.service";
 export const logoutHandler = async (req: Request, res: Response) => {
   try {
     const refreshToken = req.cookies.refreshToken;
+
     if (!refreshToken)
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
