@@ -80,9 +80,9 @@ export class AuthRepository {
   }
 
   static async isBlackListed(refreshToken: string): Promise<boolean> {
-    const token = refreshToken;
-
-    const found = await blackListRefreshTokensCollection.findOne({ token });
+    const found = await blackListRefreshTokensCollection.findOne({
+      token: refreshToken,
+    });
 
     return !!found;
   }
