@@ -37,7 +37,7 @@ export class JWTService {
         userId: result.userId,
       };
     } catch (error: unknown) {
-      console.error("Token verify some error!");
+      // console.error("Token verify some error!");
 
       return null;
     }
@@ -76,7 +76,7 @@ export class JWTService {
         deviceId: result.deviceId,
       };
     } catch (error: unknown) {
-      console.error("Token verify some error!");
+      // console.error("Token verify some error!");
 
       return null;
     }
