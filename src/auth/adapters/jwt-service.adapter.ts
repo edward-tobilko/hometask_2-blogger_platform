@@ -1,4 +1,5 @@
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
+import { randomUUID } from "crypto";
 
 import { appConfig } from "../../core/settings/config";
 
@@ -18,6 +19,7 @@ type JWTAccessPayload = {
 type JWTRefreshPayload = {
   userId: string;
   deviceId: string;
+  jti?: string; // уникальный id токена (нужен для тестов)
 };
 export class JWTService {
   // * Access token
@@ -59,7 +61,7 @@ export class JWTService {
     deviceId: string
   ): Promise<string> {
     return jwt.sign(
-      { userId, deviceId } satisfies JWTRefreshPayload,
+      { userId, deviceId, jti: randomUUID() } satisfies JWTRefreshPayload,
       RT_SECRET,
       { expiresIn: RT_TIME }
     );
