@@ -9,6 +9,8 @@ import { ValidationErrorType } from "../../errors/types/validation-error.type";
 import { createErrorMessages } from "../../errors/create-error-messages.error";
 import { HTTP_STATUS_CODES } from "../../result/types/http-status-codes.enum";
 
+const ID_PARAMS = new Set(["id", "postId", "commentId"]);
+
 const formatValidationErrors = (
   error: ValidationError
 ): ValidationErrorType => {
@@ -30,9 +32,17 @@ export const inputResultMiddlewareValidation = (
     .array({ onlyFirstError: true }); // покажет нам первую ошибку филда, а не все сразу
 
   if (errorsMessages.length > 0) {
-    return res
-      .status(HTTP_STATUS_CODES.BAD_REQUEST_400)
-      .json(createErrorMessages(errorsMessages));
+    const rawErrors = validationResult(req).array({ onlyFirstError: true });
+
+    const hasInvalidIdParam = rawErrors.some((e: any) => {
+      return e.location === "params" && ID_PARAMS.has(String(e.path));
+    });
+
+    const status = hasInvalidIdParam
+      ? HTTP_STATUS_CODES.NOT_FOUND_404
+      : HTTP_STATUS_CODES.BAD_REQUEST_400;
+
+    return res.status(status).json(createErrorMessages(errorsMessages));
   }
 
   next(); // Если ошибок нет, передаём управление дальше

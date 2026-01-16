@@ -9,7 +9,7 @@ import { UserDomain } from "../domain/user.domain";
 import { UserOutput } from "./output/user.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import {
-  RepositoryNotFoundError,
+  NotFoundError,
   ValidationError,
 } from "../../core/errors/application.error";
 
@@ -88,16 +88,36 @@ class UserService {
     });
   }
 
-  async deleteUser(command: WithMeta<{ id: string }>): Promise<boolean> {
+  async deleteUser(
+    command: WithMeta<{ id: string }>
+  ): Promise<ApplicationResult<boolean>> {
     const id = command.payload.id;
 
     const userId = await this.userQueryRepo.findUserByIdQueryRepo(id);
 
     if (!userId) {
-      throw new RepositoryNotFoundError("User is not found!", "userId");
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: false,
+        extensions: [new NotFoundError("User is not found!", "userId")],
+      });
     }
 
-    return await this.userRepo.deleteUserRepo(id);
+    const deleted = await this.userRepo.deleteUserRepo(id);
+
+    if (!deleted) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: false,
+        extensions: [new NotFoundError("Bad request", "userId")],
+      });
+    }
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.NoContent,
+      data: true,
+      extensions: [],
+    });
   }
 }
 

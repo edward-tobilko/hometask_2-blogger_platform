@@ -16,7 +16,10 @@ export class ApplicationResult<D = null> {
   }
 
   isSuccess() {
-    return this.status === ApplicationResultStatus.Success;
+    return (
+      this.status === ApplicationResultStatus.Success ||
+      this.status === ApplicationResultStatus.NoContent
+    );
   }
 
   hasError() {

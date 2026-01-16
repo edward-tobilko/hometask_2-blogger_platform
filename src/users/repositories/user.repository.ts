@@ -19,6 +19,9 @@ export class UserRepository {
   }
 
   async deleteUserRepo(id: string): Promise<boolean> {
+    // * Проверяем, является ли ObjectId действительным
+    if (!ObjectId.isValid(id)) return false;
+
     const isDeleted = await userCollection.deleteOne({ _id: new ObjectId(id) });
 
     return isDeleted.deletedCount === 1;

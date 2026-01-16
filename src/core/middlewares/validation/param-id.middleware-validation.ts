@@ -11,17 +11,8 @@ const objectIdParamValidation = (paramIdName: string) => {
     .notEmpty()
     .withMessage(`${paramIdName} must not be empty`)
     .bail()
-    .custom((id) => {
-      if (!ObjectId.isValid(id)) {
-        throw new Error("Incorrect format of ObjectId");
-      }
-      return true;
-    })
-    .custom((id, _req) => {
-      console.log("PARAM ID FROM VALIDATOR:", id); // show incorrect id
-
-      return true;
-    });
+    .custom((value) => ObjectId.isValid(value))
+    .withMessage(`${paramIdName} must be a valid MongoDB ObjectId`);
 };
 
 export const paramIdValidation = objectIdParamValidation("id");

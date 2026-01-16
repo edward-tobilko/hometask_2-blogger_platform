@@ -6,7 +6,6 @@ import { UsersListPaginatedOutput } from "../applications/output/users-list-pagi
 import { GetUsersListQueryHandler } from "../applications/query-handlers/get-users-list.query-handler";
 import { UserOutput } from "../applications/output/user.output";
 import { mapToUserOutput } from "../applications/mappers/map-to-user-output.mapper";
-import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { UserDB } from "db/types.db";
 
 export class UsersQueryRepository {
@@ -79,13 +78,15 @@ export class UsersQueryRepository {
   }
 
   async findUserByIdQueryRepo(userId: string): Promise<UserOutput | null> {
+    // * Проверяем, является ли ObjectId действительным
+    if (!ObjectId.isValid(userId)) return null;
+
     const userDomain = await userCollection.findOne({
       _id: new ObjectId(userId),
     });
 
-    if (!userDomain)
-      throw new RepositoryNotFoundError("User is not found!", "userId");
+    if (!userDomain) return null;
 
-    return mapToUserOutput(userDomain);
+    return userDomain ? mapToUserOutput(userDomain) : null;
   }
 }
