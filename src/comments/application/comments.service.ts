@@ -1,6 +1,7 @@
 import { WithMeta } from "./../../core/types/with-meta.type";
 import {
   ForbiddenError,
+  InternalServerError,
   NotFoundError,
 } from "../../core/errors/application.error";
 import { CommentQueryRepo } from "../repositories/comment-query.repository";
@@ -17,12 +18,14 @@ class CommentsService {
 
   async deleteCommentById(commentId: string, userId: string): Promise<void> {
     const comment =
-      await this.commentsQueryRepo.getCommentsByIdQueryRepo(commentId); // 404 if not exist
+      await this.commentsQueryRepo.getCommentsByIdQueryRepo(commentId);
+
+    if (!comment) throw new NotFoundError("Comment is not found", "commentId"); // 404
 
     if (comment.commentatorInfo.userId !== userId) {
       throw new ForbiddenError(
-        "userId",
-        "You can't delete someone else's comment"
+        "You can't delete someone else's comment",
+        "userId"
       ); // 403
     }
 
@@ -40,22 +43,39 @@ class CommentsService {
       dto.commentId
     );
 
-    if (!existingComment)
-      throw new NotFoundError("Comment ID is not exist", "commentId"); // 404
+    if (!existingComment) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new NotFoundError("Comment not found", "commentId")],
+      });
+    }
 
-    if (existingComment.commentatorInfo.userId.toString() !== userId)
-      throw new ForbiddenError(
-        "You can't change someone else's content",
-        "userId"
-      ); // 403
+    if (existingComment.commentatorInfo.userId.toString() !== userId) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Forbidden,
+        data: null,
+        extensions: [
+          new ForbiddenError("You can't edit someone else's comment", "userId"),
+        ],
+      });
+    }
 
     // * обновляем доменную сущность
     existingComment.content = dto.content;
 
-    await this.commentsRepo.updateCommentRepo(existingComment);
+    const updated = await this.commentsRepo.updateCommentRepo(existingComment);
+
+    if (!updated) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.InternalServerError,
+        data: null,
+        extensions: [new InternalServerError("Failed to update comment")],
+      });
+    }
 
     return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
+      status: ApplicationResultStatus.NoContent,
       data: null,
       extensions: [],
     });
