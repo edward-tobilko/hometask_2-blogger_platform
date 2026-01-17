@@ -6,10 +6,10 @@ import { SortDirections } from "@core/types/sort-directions.enum";
 import { CommentsListRP } from "posts/routes/request-payload-types/comments-list.request-payload.";
 import { routersPaths } from "@core/paths/paths";
 
-export async function getCommentsList(
+export function getCommentsList(
   app: Express,
-  optional: { query?: Partial<CommentsListRP> } = {},
-  postId: string
+  postId: string,
+  optional: { query?: Partial<CommentsListRP> } = {}
 ) {
   const { query } = optional;
 
@@ -22,9 +22,7 @@ export async function getCommentsList(
     ...query,
   };
 
-  const commentListRes = await request(app)
+  return request(app)
     .get(`${routersPaths.posts}/${postId}/comments`)
     .query(defaultQuery);
-
-  return commentListRes;
 }
