@@ -1,123 +1,82 @@
 import express from "express";
 import request from "supertest";
 
-import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
-import { setupApp } from "../../../app";
-import { clearDB } from "../../utils/clear-db";
-import { runDB, stopDB } from "../../../db/mongo.db";
-import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { createPostUtil } from "../../utils/posts/create-post.util";
-import { getPostDtoUtil } from "../../utils/posts/get-post-dto.util";
-import { createBlogUtil } from "../../utils/blogs/create-blog.util";
-import { routersPaths } from "../../../core/paths/paths";
+import { setupApp } from "app";
+import { runDB, stopDB } from "db/mongo.db";
+import { clearDB } from "__tests__/utils/clear-db";
 import { appConfig } from "@core/settings/config";
-import { CreatePostCommentRP } from "posts/routes/request-payload-types/create-post-comment.request-payload-types";
+import { setupUserLoginBlogPost } from "__tests__/utils/posts/setup-user-login-blog-post.util";
+import { createCommentForPost } from "__tests__/utils/posts/create-comment-for-post.util";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+import { routersPaths } from "@core/paths/paths";
+import { getCommentForPostDto } from "__tests__/utils/posts/get-comment-for-post-dto.util";
 
-const adminToken = generateBasicAuthToken();
-
-describe("E2E create post tests", () => {
+describe("E2E create comment for post tests", () => {
   const app = express();
   setupApp(app);
 
-  // * prepare the base we need for the post comment
-  let createdUser: { userId: string; userLogin: string };
-  let postCommentDataDto: CreatePostCommentRP;
-
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+  });
+
+  beforeEach(async () => {
     await clearDB(app);
-
-    // * create a blog after connecting to the db
-    const createdBlogResponse = await createBlogUtil(app);
-    createdPostComment = {
-      id: createdBlogResponse.id,
-      name: createdBlogResponse.name,
-    };
-
-    // * creating a valid DTO post for this blog
-    postDataDto = getPostDtoUtil(createdBlog.id);
   });
 
   afterAll(async () => {
     await stopDB();
   });
 
-  it("POST: /posts -> should create new post - status 201", async () => {
-    const createdPostResponse = await createPostUtil(app, postDataDto);
+  // * return status 201
+  it("should create comment for post and return 201 with created comment", async () => {
+    const { userRes, postRes, accessToken } = await setupUserLoginBlogPost(app);
 
-    expect(createdPostResponse).toEqual(
-      expect.objectContaining({
-        id: expect.any(String),
-        title: postDataDto.title,
-        shortDescription: postDataDto.shortDescription,
-        content: postDataDto.content,
-        blogId: createdBlog.id,
-        blogName: createdBlog.name,
-        createdAt: expect.any(String),
-      })
-    );
+    // * Создаем comment for post
+    const commentRes = await createCommentForPost(app, postRes.id, accessToken);
+
+    // * Проверяем структуру ответа
+    expect(commentRes).toEqual({
+      id: expect.any(String),
+      content: commentRes.content,
+
+      commentatorInfo: {
+        userId: userRes.id,
+        userLogin: userRes.login,
+      },
+
+      createdAt: expect.any(String),
+    });
   });
 
+  // * return status 400
   it.each([
-    // * title validation
     {
-      name: "title is not a string",
-      payload: { title: 123 },
-      field: "title",
-    },
-    {
-      name: "title length > 30 symbols",
-      payload: { title: "a".repeat(31) },
-      field: "title",
-    },
-
-    // * shortDescription validation
-    {
-      name: "shortDescription is not a string",
-      payload: { shortDescription: 123 },
-      field: "shortDescription",
-    },
-    {
-      name: "shortDescription length > 100 symbols",
-      payload: { shortDescription: "a".repeat(101) },
-      field: "shortDescription",
-    },
-
-    // * content validation
-    {
-      name: "content is not a string",
-      payload: {
-        content: 123,
-      },
+      name: "content is missing",
+      payload: {},
       field: "content",
     },
     {
-      name: "content length > 1000 symbols",
-      payload: { content: "a".repeat(1001) },
+      name: "content is too short",
+      payload: { content: "abc" },
       field: "content",
     },
-
-    // * blogId validation
     {
-      name: "blogId not a string",
-      payload: { blogId: 123 },
-      field: "blogId",
-    },
-    {
-      name: "blogId is empty",
-      payload: { blogId: "" },
-      field: "blogId",
+      name: "content is too long",
+      payload: { content: "a".repeat(301) },
+      field: "content",
     },
   ] as const)(
-    "status 400 - should not create post if the inputModel has incorrect values",
+    "POST /posts/${postId}/comments -> status 400 (validation errors)",
     async ({ payload, field }) => {
-      const createPostResponse = await request(app)
-        .post(routersPaths.posts)
-        .set("Authorization", adminToken)
-        .send({ ...postDataDto, ...payload })
+      const { postRes, accessToken } = await setupUserLoginBlogPost(app);
+
+      const responseRes = await request(app)
+        .post(`${routersPaths.posts}/${postRes.id}/comments`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
         .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
 
-      expect(createPostResponse.body.errorsMessages).toEqual(
+      expect(responseRes.body.errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             message: expect.any(String),
@@ -128,29 +87,28 @@ describe("E2E create post tests", () => {
     }
   );
 
-  it("status 400 - blogId does not exist", async () => {
-    const nonExistingBlogId = "507f1f77bcf86cd799439011";
+  // * return status 401
+  it("should return 401 without authorization", async () => {
+    const { postRes } = await setupUserLoginBlogPost(app);
+    const commentDto = getCommentForPostDto();
 
-    const result = await request(app)
-      .post(routersPaths.posts)
-      .set("Authorization", adminToken)
-      .send({ ...postDataDto, blogId: nonExistingBlogId })
-      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
-
-    expect(result.body.errorsMessages).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          message: expect.stringContaining("Blog is not exist"),
-          field: "blogId",
-        }),
-      ])
-    );
+    await request(app)
+      .post(`${routersPaths.posts}/${postRes.id}/comments`)
+      .send(commentDto)
+      .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 
-  it("status 401 - when no Authorization header", async () => {
+  // * return status 404
+  it("should return 404 for invalid postId format", async () => {
+    const { accessToken } = await setupUserLoginBlogPost(app);
+    const commentDto = getCommentForPostDto();
+
+    const invalidPostId = "invalid-post-id";
+
     await request(app)
-      .post(routersPaths.posts)
-      .send(postDataDto)
-      .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+      .post(`${routersPaths.posts}/${invalidPostId}/comments`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send(commentDto)
+      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 });

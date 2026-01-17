@@ -1,6 +1,6 @@
-import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
+import { CreateBlogRP } from "blogs/routes/request-payload-types/create-blog.request-payload-type";
 
-export function getBlogDtoUtil(): BlogDtoDomain {
+export function getBlogDtoUtil(): CreateBlogRP {
   return {
     name: "Sam",
     description:

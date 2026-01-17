@@ -14,7 +14,6 @@ import { extractRefreshTokenCookie } from "__tests__/utils/cookie/cookies.util";
 import { createBlogUtil } from "__tests__/utils/blogs/create-blog.util";
 import { createPostUtil } from "__tests__/utils/posts/create-post.util";
 import { getPostDtoUtil } from "__tests__/utils/posts/get-post-dto.util";
-import { createComment } from "__tests__/utils/comments/create-comment.util";
 
 describe("E2E comments tests", () => {
   const app = express();
