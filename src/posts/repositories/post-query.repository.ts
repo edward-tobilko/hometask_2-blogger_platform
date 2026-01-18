@@ -6,7 +6,6 @@ import { PostOutput } from "../application/output/post-type.output";
 import { PostsListPaginatedOutput } from "../application/output/posts-list-type.output";
 import { GetPostsListQueryHandler } from "../application/query-handlers/get-posts-list.query-handler";
 import { mapToPostOutput } from "../application/mappers/map-to-post-output.util";
-import { NotFoundError } from "../../core/errors/application.error";
 import { GetPostCommentsListQueryHandler } from "../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../application/output/post-comments-list-type.output";
 import { mapToPostCommentsListOutput } from "../application/mappers/map-to-post-comments-list-output.mapper";
@@ -47,7 +46,7 @@ export class PostQueryRepository {
 
   async getPostCommentsQueryRepo(
     queryParam: GetPostCommentsListQueryHandler
-  ): Promise<PostCommentsListPaginatedOutput> {
+  ): Promise<PostCommentsListPaginatedOutput | null> {
     const { pageNumber, pageSize, sortBy, sortDirection, postId } = queryParam;
 
     const postObjectId = new ObjectId(postId);
@@ -56,9 +55,7 @@ export class PostQueryRepository {
 
     const post = await postCollection.findOne({ _id: postObjectId });
 
-    if (!post) {
-      throw new NotFoundError("PostID is not exist", "postId", 404);
-    }
+    if (!post) return null;
 
     const items = postCommentsCollection
       .find(filter)

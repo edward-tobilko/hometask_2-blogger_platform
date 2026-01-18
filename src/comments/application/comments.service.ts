@@ -29,7 +29,9 @@ class CommentsService {
       ); // 403
     }
 
-    return await this.commentsRepo.deleteCommentRepo(commentId); // 204
+    const deleted = await this.commentsRepo.deleteCommentRepo(commentId);
+
+    if (!deleted) throw new InternalServerError("Failed to delete comment"); // Если не удалился (хотя комментарий существовал) — это ошибка сервера.
   }
 
   async updateComment(
