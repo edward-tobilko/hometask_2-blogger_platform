@@ -5,8 +5,8 @@
 Backend REST API built with **Node.js + Express + TypeScript**  
 Educational project with production-oriented architecture and E2E tests.
 
-🔗 **Live API:** [hometask-2-blogger-platform.fly.dev ](https://hometask-2-blogger-platform.fly.dev)
-🔗 **Previous hosting (deprecated):** [https://hometask-2-blogger-platform.onrender.com](https://hometask-2-blogger-platform.onrender.com)
+- 🔗 **Live API:** [hometask-2-blogger-platform.fly.dev](https://hometask-2-blogger-platform.fly.dev/api)
+- 🔗 **Previous hosting (deprecated):** [https://hometask-2-blogger-platform.onrender.com](https://hometask-2-blogger-platform.onrender.com/api)
 
 <h1 align="center">About</h1>
 
