@@ -30,7 +30,7 @@ with continuous refactoring and feature expansion.
 - Реализованы E2E тесты.
 - Работа с почтой с пом. SMTP-протокола.
 
-**Поток выполнения:**
+### Поток выполнения:
 
 Handler (Controller) → Service (BLL) → Repository → Database
 
@@ -67,14 +67,14 @@ Handler (Controller) → Service (BLL) → Repository → Database
 }
 ```
 
-**Ключевые принципы**
+### Ключевые принципы
 
 - Routers отвечают только за HTTP-слой (Request Payload)
 - Services содержат бизнес-логику (Command)
 - Repositories работают с источниками данных (Domain)
 - Ответ формируется через mapper’ы (Output)
 
-## Технологии
+### Технологии
 
 - Node.js
 - Express
@@ -85,7 +85,7 @@ Handler (Controller) → Service (BLL) → Repository → Database
 - Crypto / Bcrypt
 - Nodemailer (SMTP)
 
-## Environment Variables
+### Environment Variables
 
 ```env
 
