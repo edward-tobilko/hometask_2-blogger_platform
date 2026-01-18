@@ -69,4 +69,14 @@ export class ForbiddenError extends ApplicationError {
   }
 }
 
+export class InternalServerError extends ApplicationError {
+  constructor(
+    message = "InternalServerError",
+    field: string | null = null,
+    statusCode: number = 500
+  ) {
+    super(message, field, statusCode);
+  }
+}
+
 // ? class ApplicationError extends Error - можно бросать: throw new ApplicationError(...); можно ловить: catch (e) { ... }; будет стандартный стек (.stack); instanceof ApplicationError будет работать и можно другим кодом отличать бизнес-ошибки от технических.
