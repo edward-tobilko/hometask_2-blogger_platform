@@ -5,10 +5,10 @@
 Backend REST API built with **Node.js + Express + TypeScript**  
 Educational project with production-oriented architecture and E2E tests.
 
-🔗 **Live API:** [https://your-app-name.fly.dev ](https://hometask-2-blogger-platform.fly.dev) 
-🔗 **Previous hosting (deprecated):** [https://render.com](https://hometask-2-blogger-platform.onrender.com)
+🔗 **Live API:** [hometask-2-blogger-platform.fly.dev ](https://hometask-2-blogger-platform.fly.dev)
+🔗 **Previous hosting (deprecated):** [https://hometask-2-blogger-platform.onrender.com](https://hometask-2-blogger-platform.onrender.com)
 
-## About
+<h1 align="center">About</h1>
 
 This project is a backend REST API for a blogging platform.
 It demonstrates a **clean layered architecture**, JWT authentication,
@@ -19,7 +19,7 @@ with continuous refactoring and feature expansion.
 
 ---
 
-## Реализованные концепции
+<h1 align="center">Реализованные концепции</h1>
 
 ### Service Layer (BLL)
 - Бизнес-логика вынесена из HTTP-уровня в отдельный Service Layer.
@@ -87,15 +87,15 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ## Environment Variables
 
-Example `.env`:
-
 ```env
+
 MONGO_URL=your_mongodb_url
 JWT_SECRET=your_jwt_secret
 JWT_REFRESH_SECRET=your_refresh_secret
 SMTP_EMAIL=your_email
 SMTP_PASSWORD=your_password
 
+```
 
 ---
 
