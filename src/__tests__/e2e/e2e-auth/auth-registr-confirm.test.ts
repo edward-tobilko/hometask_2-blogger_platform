@@ -3,12 +3,12 @@ import express from "express";
 import { setupApp } from "app";
 import { runDB, stopDB, userCollection } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
-import { clearDB } from "__tests__/utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
-import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { createAuthRegisterUser } from "__tests__/utils/auth/auth-registr.util";
-import { createAuthConfirmRegistration } from "__tests__/utils/auth/auth-confirm-registr.util";
+import { getUserDto } from "../utils/users/get-user-dto.util";
+import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
+import { createAuthConfirmRegistration } from "../utils/auth/auth-confirm-registr.util";
 
 describe("E2E Auth Registration Confirmation tests", () => {
   const app = express();

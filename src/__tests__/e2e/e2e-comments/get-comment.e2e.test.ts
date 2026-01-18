@@ -2,11 +2,11 @@ import express from "express";
 
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
-import { clearDB } from "__tests__/utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { appConfig } from "@core/settings/config";
-import { createCommentForPost } from "__tests__/utils/posts/create-comment-for-post.util";
-import { setupUserLoginBlogPost } from "__tests__/utils/posts/setup-user-login-blog-post.util";
-import { getCommentById } from "__tests__/utils/comments/get-comment.util";
+import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
+import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
+import { getCommentById } from "../utils/comments/get-comment.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 describe("E2E comments tests", () => {

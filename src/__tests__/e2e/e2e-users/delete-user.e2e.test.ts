@@ -4,12 +4,12 @@ import request from "supertest";
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
-import { clearDB } from "__tests__/utils/clear-db";
-import { createUserBodyDto } from "__tests__/utils/users/create-user.util";
-import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { deleteUser } from "__tests__/utils/users/delete-user.util";
+import { clearDB } from "../utils/clear-db";
+import { createUserBodyDto } from "../utils/users/create-user.util";
+import { getUserDto } from "../utils/users/get-user-dto.util";
+import { deleteUser } from "../utils/users/delete-user.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { getUsersList } from "__tests__/utils/users/get-users-list.util";
+import { getUsersList } from "../utils/users/get-users-list.util";
 import { routersPaths } from "@core/paths/paths";
 
 describe("E2E delete user tests", () => {

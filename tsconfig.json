@@ -19,8 +19,10 @@
     "noFallthroughCasesInSwitch": true,
 
     "baseUrl": "src",
+
     "paths": {
-      "@core/*": ["core/*"] // для удобного импорта файлов
+      "@core/*": ["core/*"], // для удобного импорта файлов
+      "@tests/*": ["src/__tests__/*"]
     }
   },
 

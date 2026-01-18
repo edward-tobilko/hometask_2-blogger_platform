@@ -2,14 +2,14 @@ import express from "express";
 
 import { setupApp } from "app";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { createAuthLogin } from "__tests__/utils/auth/auth-login.util";
-import { setRegisterAndConfirmUser } from "__tests__/utils/auth/registr-and-confirm-user.util";
+import { createAuthLogin } from "../utils/auth/auth-login.util";
+import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
-import { clearDB } from "__tests__/utils/clear-db";
-import { extractRefreshTokenCookie } from "__tests__/utils/cookie/cookies.util";
-import { setAuthLogout } from "__tests__/utils/auth/auth-logout.util";
-import { setAuthRefreshToken } from "__tests__/utils/auth/auth-refresh-token.util";
+import { clearDB } from "../utils/clear-db";
+import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
+import { setAuthLogout } from "../utils/auth/auth-logout.util";
+import { setAuthRefreshToken } from "../utils/auth/auth-refresh-token.util";
 
 describe("E2E Auth logout tests", () => {
   const app = express();

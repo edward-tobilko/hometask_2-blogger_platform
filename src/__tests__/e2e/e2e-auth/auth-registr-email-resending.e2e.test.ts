@@ -4,13 +4,13 @@ import request from "supertest";
 import { setupApp } from "app";
 import { runDB, stopDB, userCollection } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
-import { clearDB } from "__tests__/utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
-import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { createAuthRegisterUser } from "__tests__/utils/auth/auth-registr.util";
-import { createAuthResendRegistrationEmail } from "__tests__/utils/auth/auth-resend-email-confirm.util";
+import { getUserDto } from "../utils/users/get-user-dto.util";
+import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
+import { createAuthResendRegistrationEmail } from "../utils/auth/auth-resend-email-confirm.util";
 
 describe("E2E Auth Registration Email Resending tests", () => {
   const app = express();

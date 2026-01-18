@@ -3,11 +3,11 @@ import express from "express";
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
-import { clearDB } from "__tests__/utils/clear-db";
-import { createAuthLogin } from "__tests__/utils/auth/auth-login.util";
+import { clearDB } from "../utils/clear-db";
+import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { setRegisterAndConfirmUser } from "__tests__/utils/auth/registr-and-confirm-user.util";
-import { getAuthMe } from "__tests__/utils/auth/auth-me.util";
+import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
+import { getAuthMe } from "../utils/auth/auth-me.util";
 
 describe("E2E Auth Me tests", () => {
   const app = express();

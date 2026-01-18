@@ -3,11 +3,11 @@ import request from "supertest";
 
 import { setupApp } from "../../../app";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { clearDB } from "../../utils/clear-db";
-import { getBlogDtoUtil } from "../../utils/blogs/get-blog-dto.util";
+import { clearDB } from "../utils/clear-db";
+import { getBlogDtoUtil } from "../utils/blogs/get-blog-dto.util";
 import { runDB, stopDB } from "../../../db/mongo.db";
-import { createBlogUtil } from "../../utils/blogs/create-blog.util";
-import { generateBasicAuthToken } from "../../utils/generate-admin-auth-token";
+import { createBlogUtil } from "../utils/blogs/create-blog.util";
+import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
 import { routersPaths } from "../../../core/paths/paths";
 import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
 import { appConfig } from "@core/settings/config";

@@ -2,13 +2,13 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "../../../app";
-import { clearDB } from "../../utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { routersPaths } from "../../../core/paths/paths";
 import { appConfig } from "@core/settings/config";
-import { createUserBodyDto } from "__tests__/utils/users/create-user.util";
-import { getUsersList } from "__tests__/utils/users/get-users-list.util";
+import { createUserBodyDto } from "../utils/users/create-user.util";
+import { getUsersList } from "../utils/users/get-users-list.util";
 
 describe("E2E get users list tests", () => {
   const app = express();

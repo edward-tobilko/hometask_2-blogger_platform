@@ -3,17 +3,17 @@ import request from "supertest";
 
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
-import { clearDB } from "__tests__/utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { appConfig } from "@core/settings/config";
-import { setupUserLoginBlogPost } from "__tests__/utils/posts/setup-user-login-blog-post.util";
-import { createCommentForPost } from "__tests__/utils/posts/create-comment-for-post.util";
-import { updateComment } from "__tests__/utils/comments/update-comment.util";
+import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
+import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
+import { updateComment } from "../utils/comments/update-comment.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { getCommentById } from "__tests__/utils/comments/get-comment.util";
+import { getCommentById } from "../utils/comments/get-comment.util";
 import { routersPaths } from "@core/paths/paths";
-import { createUserBodyDto } from "__tests__/utils/users/create-user.util";
-import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { createAuthLogin } from "__tests__/utils/auth/auth-login.util";
+import { createUserBodyDto } from "../utils/users/create-user.util";
+import { getUserDto } from "../utils/users/get-user-dto.util";
+import { createAuthLogin } from "../utils/auth/auth-login.util";
 
 describe("E2E update comment tests", () => {
   const app = express();

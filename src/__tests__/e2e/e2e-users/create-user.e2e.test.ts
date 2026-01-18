@@ -4,13 +4,13 @@ import request from "supertest";
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
-import { clearDB } from "__tests__/utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import {
   createUser,
   createUserBodyDto,
   expectUserCreatedResponse,
-} from "__tests__/utils/users/create-user.util";
-import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
+} from "../utils/users/create-user.util";
+import { getUserDto } from "../utils/users/get-user-dto.util";
 import { routersPaths } from "@core/paths/paths";
 
 describe("E2E create user tests", () => {

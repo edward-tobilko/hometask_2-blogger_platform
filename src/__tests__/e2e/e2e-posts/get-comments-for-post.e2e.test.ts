@@ -1,13 +1,13 @@
 import express from "express";
 
 import { setupApp } from "../../../app";
-import { clearDB } from "../../utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { appConfig } from "@core/settings/config";
-import { createCommentForPost } from "__tests__/utils/posts/create-comment-for-post.util";
-import { getCommentsList } from "__tests__/utils/posts/get-comments-list.util";
-import { setupUserLoginBlogPost } from "__tests__/utils/posts/setup-user-login-blog-post.util";
+import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
+import { getCommentsList } from "../utils/posts/get-comments-list.util";
+import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
 
 describe("E2E get users list tests", () => {
   const app = express();

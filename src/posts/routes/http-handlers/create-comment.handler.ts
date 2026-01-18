@@ -8,6 +8,7 @@ import { createCommand } from "../../../core/helpers/create-command.helper";
 import { CreateCommentForPostDtoCommand } from "../../application/commands/create-comment-for-post-dto.command";
 import { postsService } from "../../application/posts-service";
 import { userQueryService } from "../../../users/applications/users-query.service";
+import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 
 type ReqParams = { postId: string };
 type ReqUser = { id: string };
@@ -42,6 +43,12 @@ export const createCommentHandler = async (
     });
 
     const postCommentOutput = await postsService.createPostComment(command);
+
+    if (!postCommentOutput.isSuccess()) {
+      return res
+        .status(mapApplicationStatusToHttpStatus(postCommentOutput.status))
+        .json({ errorsMessages: postCommentOutput.extensions });
+    }
 
     res.status(HTTP_STATUS_CODES.CREATED_201).json(postCommentOutput.data);
   } catch (error: unknown) {

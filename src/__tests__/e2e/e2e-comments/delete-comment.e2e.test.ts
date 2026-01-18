@@ -2,16 +2,16 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "../../../app";
-import { clearDB } from "../../utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { runDB, stopDB } from "../../../db/mongo.db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { appConfig } from "@core/settings/config";
-import { createCommentForPost } from "__tests__/utils/posts/create-comment-for-post.util";
-import { setupUserLoginBlogPost } from "__tests__/utils/posts/setup-user-login-blog-post.util";
-import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
-import { createUserBodyDto } from "__tests__/utils/users/create-user.util";
-import { createAuthLogin } from "__tests__/utils/auth/auth-login.util";
-import { deleteCommentById } from "__tests__/utils/comments/delete-comment.util";
+import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
+import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
+import { getUserDto } from "../utils/users/get-user-dto.util";
+import { createUserBodyDto } from "../utils/users/create-user.util";
+import { createAuthLogin } from "../utils/auth/auth-login.util";
+import { deleteCommentById } from "../utils/comments/delete-comment.util";
 import { routersPaths } from "@core/paths/paths";
 
 describe("E2E delete comment tests", () => {

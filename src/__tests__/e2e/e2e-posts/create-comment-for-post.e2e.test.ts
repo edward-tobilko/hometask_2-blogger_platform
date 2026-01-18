@@ -3,13 +3,13 @@ import request from "supertest";
 
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
-import { clearDB } from "__tests__/utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { appConfig } from "@core/settings/config";
-import { setupUserLoginBlogPost } from "__tests__/utils/posts/setup-user-login-blog-post.util";
-import { createCommentForPost } from "__tests__/utils/posts/create-comment-for-post.util";
+import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
+import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { routersPaths } from "@core/paths/paths";
-import { getCommentForPostDto } from "__tests__/utils/posts/get-comment-for-post-dto.util";
+import { getCommentForPostDto } from "../utils/posts/get-comment-for-post-dto.util";
 
 describe("E2E create comment for post tests", () => {
   const app = express();

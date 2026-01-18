@@ -8,8 +8,8 @@ module.exports = {
   // ! шукаємо тести тільки в .test.ts та .e2e.ts файлах
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.e2e.ts"],
 
-  // ! НЕ виконувати утиліти, якщо вони лишилися в __tests__/utils
-  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/src/__tests__/utils/"],
+  // ! НЕ виконувати утиліти, якщо вони лишилися в ../utils
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/src/../utils/"],
 
   clearMocks: true,
   coverageDirectory: "coverage",
