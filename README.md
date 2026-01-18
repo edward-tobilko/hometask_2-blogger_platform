@@ -101,19 +101,23 @@ SMTP_PASSWORD=your_password
 
 #### + дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг
 
-- Добавлен новые энд-поинты: api/users -> GET / POST / DELETE.
+- Добавлены новые энд-поинты: GET / POST / DELETE: api/users.
 - Розделения BLL service и repository на получения ( query ).
 - Шифрование паролей с пом. bcrypt библиотеки.
 
 #### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-1 + рефакторинг
 
-- Добавлен новые энд-поинты: api/auth -> GET, api/comments -> GET / PUT / DELETE, api/posts/{postId}/comments -> GET / POST.
+- Добавлены новые энд-поинты: GET: api/auth, GET / PUT / DELETE: api/comments, GET / POST: api/posts/{postId}/comments.
 - Создания и получения JWT-token пользователя.
 - Создания и получения коментариев к постам под определенным jwt-токеном.
 
 #### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-2 + рефакторинг
 
-- Добавлены новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
+- Добавлены новые энд-поинты: POST: api/auth/registration, POST: api/auth/registration-confirmation, POST: api/auth/registration-email-resending.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
 - Миграция хостинга from [Render.com ](https://render.com) to [Fly.io](https://fly.io).
 
+#### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-3 + рефакторинг
+
+- Добавлены новые энд-поинты: POST: api/auth/login, POST: api/auth/refresh-token, POST: api/auth/logout, GET: api/auth/me.
+- Работа с accessToken and refreshToken.
