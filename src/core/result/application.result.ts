@@ -23,7 +23,7 @@ export class ApplicationResult<D = null> {
   }
 
   hasError() {
-    return !this.isSuccess;
+    return !this.isSuccess();
   }
 
   static ok<D>(data: D): ApplicationResult<D> {
