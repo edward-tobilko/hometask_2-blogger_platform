@@ -1,6 +1,21 @@
 # Sprint-2 / Week-4 — Refresh token / Cookie
 
-Учебный backend-проект на **Node.js + Express + TypeScript**
+# Blogger Platform API
+
+Backend REST API built with **Node.js + Express + TypeScript**  
+Educational project with production-oriented architecture and E2E tests.
+
+🔗 **Live API:** [https://your-app-name.fly.dev ](https://hometask-2-blogger-platform.fly.dev) 
+🔗 **Previous hosting (deprecated):** [https://render.com](https://hometask-2-blogger-platform.onrender.com)
+
+## About
+
+This project is a backend REST API for a blogging platform.
+It demonstrates a **clean layered architecture**, JWT authentication,
+refresh tokens via cookies, and full E2E test coverage.
+
+The project was developed as part of a multi-sprint learning program
+with continuous refactoring and feature expansion.
 
 ---
 
@@ -66,8 +81,9 @@ Handler (Controller) → Service (BLL) → Repository → Database
 - TypeScript
 - MongoDB
 - Express-Validator
-- Jest
-- Crypto
+- Jest + Supertest
+- Crypto / Bcrypt
+- Nodemailer (SMTP)
 
 ---
 
@@ -87,5 +103,5 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 - Добавлены новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
-- Миграция хостинга from Render to Fly.io.
+- Миграция хостинга from [https://your-app-name.fly.dev ](https://render.com) to [https://your-app-name.fly.dev ](https://fly.io).
 
