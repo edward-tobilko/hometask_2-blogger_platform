@@ -11,6 +11,9 @@ import { updateComment } from "__tests__/utils/comments/update-comment.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getCommentById } from "__tests__/utils/comments/get-comment.util";
 import { routersPaths } from "@core/paths/paths";
+import { createUserBodyDto } from "__tests__/utils/users/create-user.util";
+import { getUserDto } from "__tests__/utils/users/get-user-dto.util";
+import { createAuthLogin } from "__tests__/utils/auth/auth-login.util";
 
 describe("E2E update comment tests", () => {
   const app = express();
@@ -107,4 +110,69 @@ describe("E2E update comment tests", () => {
   });
 
   // * return status 403
+  it("should return 403 if trying to edit someone else's comment", async () => {
+    // * Create the firth user
+    const user1Dto = getUserDto();
+    await createUserBodyDto(app, user1Dto);
+
+    const login1Res = await createAuthLogin(app, {
+      loginOrEmail: user1Dto.login,
+      password: user1Dto.password,
+    }).expect(HTTP_STATUS_CODES.OK_200);
+
+    const accessToken1 = login1Res.body.accessToken;
+
+    // * Create the other user
+    const user2Dto = getUserDto();
+    await createUserBodyDto(app, user2Dto);
+
+    const login2Res = await createAuthLogin(app, {
+      loginOrEmail: user2Dto.login,
+      password: user2Dto.password,
+    }).expect(HTTP_STATUS_CODES.OK_200);
+
+    const accessToken2 = login2Res.body.accessToken;
+
+    // * Create blog and post
+    const { postRes } = await setupUserLoginBlogPost(app);
+
+    // * Create a comment
+    const comment = await createCommentForPost(app, postRes.id, accessToken1);
+
+    // * User2 try update comment User1
+    await request(app)
+      .put(`${routersPaths.comments}/${comment.id}`)
+      .set("Authorization", `Bearer ${accessToken2}`)
+      .send({
+        content:
+          "Trying to update someone else's comment with enough characters",
+      })
+      .expect(HTTP_STATUS_CODES.FORBIDDEN_403);
+  });
+
+  // * return status 404
+  it("should return 404 if comment does not exist", async () => {
+    const { accessToken } = await setupUserLoginBlogPost(app);
+
+    const fakeCommentId = "507f1f77bcf86cd799439011"; // Valid ObjectId but not found
+
+    await updateComment(app, fakeCommentId, accessToken)
+      .send({
+        content: "Trying to update non-existing comment with enough characters",
+      })
+      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+  });
+
+  it("should return 404 for invalid commentId format", async () => {
+    const { accessToken } = await setupUserLoginBlogPost(app);
+
+    const invalidCommentId = "invalid-comment-id"; //  Invalid ObjectId
+
+    await updateComment(app, invalidCommentId, accessToken)
+      .send({
+        content:
+          "Trying to update with invalid ID format and enough characters",
+      })
+      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+  });
 });

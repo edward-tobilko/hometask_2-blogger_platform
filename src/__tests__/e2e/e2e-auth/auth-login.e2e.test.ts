@@ -102,7 +102,7 @@ describe("E2E Auth Login tests", () => {
   ] as const)(
     "POST /auth/login -> status 400  (validation errors)",
     async ({ payload, field }) => {
-      const result = await createAuthLogin(app, payload).expect(
+      const result = await createAuthLogin(app, payload as any).expect(
         HTTP_STATUS_CODES.BAD_REQUEST_400
       );
 

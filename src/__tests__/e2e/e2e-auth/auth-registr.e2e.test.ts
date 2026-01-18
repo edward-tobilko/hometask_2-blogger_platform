@@ -50,6 +50,7 @@ describe("E2E Auth Registration tests", () => {
     const userDtoFirst = getUserDto();
     const userDtoSecond = {
       ...getUserDto(),
+      login: userDtoFirst.login, // дубликат
       email: "example2@example.dev",
     };
 
@@ -76,6 +77,7 @@ describe("E2E Auth Registration tests", () => {
     const userDtoSecond = {
       ...getUserDto(),
       login: "TekMr6PvUa",
+      email: userDtoFirst.email, // дубликат
     };
 
     await createAuthRegisterUser(app, userDtoFirst).expect(
