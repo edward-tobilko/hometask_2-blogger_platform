@@ -5,9 +5,9 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { getPostDtoUtil } from "./get-post-dto.util";
 import { createBlogUtil } from "../blogs/create-blog.util";
-import { routersPaths } from "../../../core/paths/paths";
-import { PostOutput } from "../../../posts/application/output/post-type.output";
-import { CreatePostRP } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
+import { routersPaths } from "@core/paths/paths";
+import { PostOutput } from "posts/application/output/post-type.output";
+import { CreatePostRP } from "posts/routes/request-payload-types/create-post.request-payload-types";
 
 export const createPostUtil = async (
   app: Express,

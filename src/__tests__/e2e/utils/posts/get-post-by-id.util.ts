@@ -2,8 +2,8 @@ import request from "supertest";
 import { Express } from "express";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { PostOutput } from "../../../posts/application/output/post-type.output";
-import { routersPaths } from "../../../core/paths/paths";
+import { PostOutput } from "posts/application/output/post-type.output";
+import { routersPaths } from "@core/paths/paths";
 
 export async function getPostByIdBodyUtil(
   app: Express,

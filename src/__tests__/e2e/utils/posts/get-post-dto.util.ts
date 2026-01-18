@@ -1,4 +1,4 @@
-import { CreatePostRP } from "../../../posts/routes/request-payload-types/create-post.request-payload-types";
+import { CreatePostRP } from "posts/routes/request-payload-types/create-post.request-payload-types";
 
 export const getPostDtoUtil = (blogId: string) =>
   ({

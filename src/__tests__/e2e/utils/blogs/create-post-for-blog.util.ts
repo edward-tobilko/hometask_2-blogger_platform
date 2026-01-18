@@ -4,9 +4,9 @@ import request from "supertest";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getPostsForBlogDtoUtil } from "./get-posts-for-blog-dto.util";
-import { PostOutput } from "../../../posts/application/output/post-type.output";
-import { CreatePostForBlogRP } from "../../../posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
-import { routersPaths } from "../../../core/paths/paths";
+import { PostOutput } from "posts/application/output/post-type.output";
+import { CreatePostForBlogRP } from "posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
+import { routersPaths } from "@core/paths/paths";
 
 export async function createPostForBlogUtil(
   app: Express,

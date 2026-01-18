@@ -4,9 +4,9 @@ import request from "supertest";
 import { getBlogDtoUtil } from "./get-blog-dto.util";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { routersPaths } from "../../../core/paths/paths";
-import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
-import { BlogOutput } from "../../../blogs/application/output/blog-type.output";
+import { BlogDtoDomain } from "blogs/domain/blog-dto.domain";
+import { BlogOutput } from "blogs/application/output/blog-type.output";
+import { routersPaths } from "@core/paths/paths";
 
 export async function createBlogUtil(
   app: Express,

@@ -2,8 +2,8 @@ import request from "supertest";
 import { Express } from "express";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
-import { routersPaths } from "../../../core/paths/paths";
+import { routersPaths } from "@core/paths/paths";
+import { BlogDtoDomain } from "blogs/domain/blog-dto.domain";
 
 export async function getBlogByIdUtil(
   app: Express,

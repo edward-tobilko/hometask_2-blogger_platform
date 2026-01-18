@@ -1,7 +1,7 @@
 import request from "supertest";
 import { Express } from "express";
 
-import { routersPaths } from "./../../../core/paths/paths";
+import { routersPaths } from "@core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
 import { UserOutput } from "users/applications/output/user.output";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
