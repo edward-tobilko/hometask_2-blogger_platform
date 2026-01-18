@@ -99,7 +99,7 @@ SMTP_PASSWORD=your_password
 
 ---
 
-<h1 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг</h1>
+<h1 align="center" fontSize="10px">Дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг</h1>
 
 - Добавлены новые энд-поинты: GET / POST / DELETE: api/users.
 - Розделения BLL service и repository на получения ( query ).
