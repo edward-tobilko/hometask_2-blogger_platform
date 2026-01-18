@@ -99,25 +99,25 @@ SMTP_PASSWORD=your_password
 
 ---
 
-<h1 align="center" style="font-size: 16px;">Дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг</h1>
+<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг</h3>
 
 - Добавлены новые энд-поинты: GET / POST / DELETE: api/users.
 - Розделения BLL service и repository на получения ( query ).
 - Шифрование паролей с пом. bcrypt библиотеки.
 
-<h1 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-1 + рефакторинг</h1>
+<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-1 + рефакторинг</h3>
 
 - Добавлены новые энд-поинты: GET: api/auth, GET / PUT / DELETE: api/comments, GET / POST: api/posts/{postId}/comments.
 - Создания и получения JWT-token пользователя.
 - Создания и получения коментариев к постам под определенным jwt-токеном.
 
-<h1 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-2 + рефакторинг</h1>
+<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-2 + рефакторинг</h3>
 
 - Добавлены новые энд-поинты: POST: api/auth/registration, POST: api/auth/registration-confirmation, POST: api/auth/registration-email-resending.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
 - Миграция хостинга from [Render.com ](https://render.com) to [Fly.io](https://fly.io).
 
-<h1 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-3 + рефакторинг</h1>
+<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-3 + рефакторинг</h3>
 
 - Добавлены новые энд-поинты: POST: api/auth/login, POST: api/auth/refresh-token, POST: api/auth/logout, GET: api/auth/me.
 - Работа с accessToken and refreshToken.
