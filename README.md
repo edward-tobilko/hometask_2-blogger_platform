@@ -1,6 +1,6 @@
-# Sprint-2 / Week-4 — Refresh token / Cookie
+<h1 align="center">Sprint-2 / Week-4 — Refresh token / Cookie</h1>
 
-# Blogger Platform API
+<h1 align="center">Blogger Platform API</h1>
 
 Backend REST API built with **Node.js + Express + TypeScript**  
 Educational project with production-oriented architecture and E2E tests.
@@ -85,6 +85,18 @@ Handler (Controller) → Service (BLL) → Repository → Database
 - Crypto / Bcrypt
 - Nodemailer (SMTP)
 
+## Environment Variables
+
+Example `.env`:
+
+```env
+MONGO_URL=your_mongodb_url
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+SMTP_EMAIL=your_email
+SMTP_PASSWORD=your_password
+
+
 ---
 
 #### + дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг
@@ -103,5 +115,5 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 - Добавлены новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
-- Миграция хостинга from [https://your-app-name.fly.dev ](https://render.com) to [https://your-app-name.fly.dev ](https://fly.io).
+- Миграция хостинга from [Render.com ](https://render.com) to [Fly.io](https://fly.io).
 
