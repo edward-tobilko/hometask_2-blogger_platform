@@ -5,10 +5,10 @@ module.exports = {
   roots: ["<rootDir>/src"],
   moduleFileExtensions: ["ts", "tsx", "js", "json", "node"],
 
-  // ! шукаємо тести тільки в .test.ts та .e2e.ts файлах
+  // ! ищем тесты только в файлах .test.ts и .e2e.ts
   testMatch: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.e2e.ts"],
 
-  // ! НЕ виконувати утиліти, якщо вони лишилися в ../utils
+  // ! НЕ выполнять утилиты, если они остались в ../utils
   testPathIgnorePatterns: ["/node_modules/", "<rootDir>/src/../utils/"],
 
   clearMocks: true,
@@ -17,6 +17,6 @@ module.exports = {
     ...require("ts-jest").createDefaultPreset().transform,
   },
 
-  // серіалізуємо запуск (аналог -i), щоб не було гонок зі спільним db
+  // * сериализуем запуск (аналог -i), чтобы не было гонок с общим db
   maxWorkers: 1,
 };
