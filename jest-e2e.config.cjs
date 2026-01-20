@@ -1,15 +1,16 @@
 /** @type {import('jest').Config} */
 
 module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "node",
-  testMatch: ["<rootDir>/src/__tests__/e2e/**/*.test.ts"],
+  preset: "ts-jest", // Разрешаем запускать TS напрямую, без build
+  testEnvironment: "node", // Окружение виполнения
+  testMatch: ["<rootDir>/src/__tests__/e2e/**/*.test.ts"], // Где искать Unit-тесты
   setupFiles: ["<rootDir>/src/__tests__/e2e/setup-env.ts"],
 
   forceExit: false,
   detectOpenHandles: true,
   maxWorkers: 1,
 
+  // Потя alias (должны соответствовать tsconfig)
   moduleNameMapper: {
     "^app$": "<rootDir>/src/app",
     "^db/(.*)$": "<rootDir>/src/db/$1",

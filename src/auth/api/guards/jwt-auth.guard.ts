@@ -14,14 +14,14 @@ export const jwtAuthGuard = async (
 
     if (!auth) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-    const [authType, token] = auth.split(" ");
+    const [authType, token] = auth.split(/\s+/);
 
     if (authType !== "Bearer" || !token)
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401); // после return middleware перестает дальше работать
 
     const payload = await JWTService.verifyAccessToken(token);
 
-    if (!payload) {
+    if (!payload?.userId) {
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
     }
 
