@@ -81,7 +81,7 @@ Handler (Controller) → Service (BLL) → Repository → Database
 - TypeScript
 - MongoDB
 - Express-Validator
-- Jest + Supertest
+- Jest + Supertest + Unit
 - Crypto / Bcrypt
 - Nodemailer (SMTP)
 
@@ -121,3 +121,4 @@ SMTP_PASSWORD=your_password
 
 - Добавлены новые энд-поинты: POST: api/auth/login, POST: api/auth/refresh-token, POST: api/auth/logout, GET: api/auth/me.
 - Работа с accessToken and refreshToken.
+- Unit тестирование.
