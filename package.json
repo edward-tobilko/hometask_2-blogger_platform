@@ -10,7 +10,7 @@
     "prod": "yarn build && yarn start",
     "dev": "cross-env NODE_ENV=development tsx watch --inspect -r tsconfig-paths/register src/server.ts",
     "test:e2e": "cross-env NODE_ENV=test jest -c jest-e2e.config.cjs -i",
-    "test:unit": "cross-env NODE_ENV=test jest -c jest-unit.config.ts",
+    "test:unit": "cross-env NODE_ENV=test jest -c jest-unit.config.cjs",
     "test": "yarn test:unit && yarn test:e2e",
     "lint": "eslint --fix .",
     "format": "prettier --write ."
@@ -46,6 +46,7 @@
     "cross-env": "^10.1.0",
     "i": "^0.3.7",
     "jest": "29.7.0",
+    "jest-mock-extended": "^4.0.0",
     "nodemon": "^3.1.10",
     "npm": "^11.7.0",
     "prettier": "^3.6.2",
