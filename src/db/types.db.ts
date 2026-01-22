@@ -59,15 +59,16 @@ export type AuthDB = {
   lastActiveDate: Date;
 };
 
-export type BlackListRefreshTokenDB = {
+export type SessionDB = {
   _id?: ObjectId;
   userId: ObjectId;
-  deviceId: string;
 
-  token: string; // sha256 (refresh token)
+  sessionId: string; // будет в cookie refreshToken (refreshToken = sessionId)
+  deviceId: string; // uuid
+  ip: string;
+  deviceName: string; // user-agent title ("Chrome", "Jest", "iPhone"...)
 
-  expiresAt: Date; // когда этот токен и так протухнет (TTL)
+  lastActiveDate: Date; // обновляем при refresh / при запросах, где нужно
+  expiresAt: Date; // TTL cleanup
   createdAt: Date;
-
-  reason: "rotated" | "logout" | "reuse_detected";
 };

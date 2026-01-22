@@ -17,18 +17,19 @@ import {
 } from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
 import { AuthRepository } from "../repositories/auth.repository";
-import { AuthDomain } from "../domain/auth.domain";
+import { SessionDomain } from "../domain/session.domain";
 import { UserDB } from "db/types.db";
 import { UserRepository } from "users/repositories/user.repository";
 import { nodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/adapters/parser-device-service.adapter";
+import { getSessionExpireDate } from "auth/helpers/get-session-expire-date.helper";
 
 class AuthService {
   constructor(
     private readonly userQueryRepo: UsersQueryRepository,
     private readonly passwordHasher: BcryptPasswordHasher,
-    private readonly authRepo: AuthRepository,
+    private readonly sessionRepo: AuthRepository,
     private readonly userRepo: UserRepository
   ) {}
 
@@ -86,14 +87,14 @@ class AuthService {
   async loginUser(
     command: WithMeta<LoginAuthDtoCommand>
   ): Promise<
-    ApplicationResult<{ accessToken: string; refreshToken: string } | null>
+    ApplicationResult<{ accessToken: string; sessionId: string } | null>
   > {
     const result = await this.checkUserCredentials(command);
 
     if (result.status !== ApplicationResultStatus.Success) {
       return new ApplicationResult<{
         accessToken: string;
-        refreshToken: string;
+        sessionId: string;
       } | null>({
         status: result.status, // NotFound or Unauthorized
         data: null,
@@ -103,30 +104,34 @@ class AuthService {
 
     const userId = result.data!._id!.toString();
     const deviceId = randomUUID();
+    const sessionId = randomUUID(); // то, что мы помещаем в cookie refreshToken
+    const ip = command.meta.ip ?? "0.0.0.0";
 
     const accessToken = await JWTService.createAccessToken(userId);
-    const refreshToken = await JWTService.createRefreshToken(userId, deviceId);
 
     // * Получаем девайс с которого входит пользователь
-    const userDeviceName = parseDeviceName(command.meta.userAgent!);
-
-    // * создаём authMe из user и сохраняем в БД
-    const authMe = AuthDomain.createMe(
-      result.data!,
-      deviceId,
-      refreshToken,
-      userDeviceName
+    const userDeviceName = parseDeviceName(
+      command.meta.userAgent ?? "Unknown device"
     );
 
-    await this.authRepo.saveAuthMe(authMe);
+    // * создаём authMe из user и сохраняем в БД
+    const session = SessionDomain.createMe(result.data!, {
+      deviceId,
+      sessionId,
+      userDeviceName,
+      ip,
+      expiresAt: getSessionExpireDate(30),
+    });
+
+    await this.sessionRepo.upsertSession(session);
 
     log("accessToken from service (loginUser) ->", accessToken);
-    log("refreshToken from service (loginUser) ->", refreshToken);
+    log("sessionId from service (loginUser) ->", sessionId);
     log("[DEVICE_NAME]", userDeviceName);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: { accessToken, refreshToken },
+      data: { accessToken, sessionId },
       extensions: [],
     });
   }
@@ -300,16 +305,6 @@ class AuthService {
   ): Promise<
     ApplicationResult<{ accessToken: string; refreshToken: string } | null>
   > {
-    // * Если токен уже в черном списке — это либо повтор, либо атака
-    const isBlackList = await AuthRepository.isBlackListed(oldRefreshToken);
-    if (isBlackList) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.Unauthorized,
-        data: null,
-        extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
-      });
-    }
-
     const payload = await JWTService.verifyRefreshToken(oldRefreshToken);
     if (!payload) {
       return new ApplicationResult({
@@ -342,34 +337,11 @@ class AuthService {
         extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
       });
 
-    // * заносим старый refresh в blacklist
-    const expiredDate =
-      JWTService.getRefreshTokenExpiresDate(oldRefreshToken) ??
-      new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    await AuthRepository.addTokenToBlackList({
-      refreshToken: oldRefreshToken,
-      userId: new ObjectId(userId),
-      deviceId,
-      expiresAt: expiredDate,
-      reason: "rotated",
-    });
-
     // * создаем новую пару токенов
     const newAccessToken = await JWTService.createAccessToken(userId);
     const newRefreshToken = await JWTService.createRefreshToken(
       userId,
       deviceId
-    );
-
-    // * обновляем сессию в БД
-    await AuthRepository.updateSessionRefreshToken(
-      new ObjectId(userId),
-      deviceId,
-      {
-        refreshToken: newRefreshToken,
-        lastActiveDate: new Date(),
-      }
     );
 
     return new ApplicationResult({

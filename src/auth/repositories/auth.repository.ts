@@ -1,14 +1,11 @@
 import { ObjectId } from "mongodb";
 
-import {
-  authCollection,
-  blackListRefreshTokensCollection,
-} from "../../db/mongo.db";
-import { AuthDomain } from "../domain/auth.domain";
+import { authCollection } from "../../db/mongo.db";
+import { SessionDomain } from "../domain/session.domain";
 import { AuthDB } from "db/types.db";
 
 export class AuthRepository {
-  async saveAuthMe(authMe: AuthDomain): Promise<void> {
+  async saveAuthMe(authMe: SessionDomain): Promise<void> {
     await authCollection.updateOne(
       {
         userId: authMe.userId,
@@ -16,12 +13,26 @@ export class AuthRepository {
       },
       {
         $set: {
-          email: authMe.email,
-          login: authMe.login,
-          refreshToken: authMe.refreshToken,
           lastActiveDate: new Date(),
           userDeviceTitle: authMe.userDeviceName,
         },
+      },
+      { upsert: true }
+    );
+  }
+
+  async upsertSession(session: SessionDomain): Promise<void> {
+    await authCollection.updateOne(
+      { userId: session.userId, deviceId: session.deviceId },
+      {
+        $set: {
+          sessionId: session.sessionId,
+          ip: session.ip,
+          userDeviceName: session.userDeviceName,
+          lastActiveDate: session.lastActiveDate,
+          expiresAt: session.expiresAt,
+        },
+        $setOnInsert: { createdAt: session.createdAt },
       },
       { upsert: true }
     );
@@ -34,58 +45,11 @@ export class AuthRepository {
     return authCollection.findOne({ userId, deviceId });
   }
 
-  static async updateSessionRefreshToken(
-    userId: ObjectId,
-    deviceId: string,
-    dto: { refreshToken: string; lastActiveDate: Date }
-  ) {
-    await authCollection.updateOne(
-      { userId, deviceId },
-      {
-        $set: {
-          refreshToken: dto.refreshToken,
-          lastActiveDate: dto.lastActiveDate,
-        },
-      }
-    );
-  }
-
   static async deleteAuthMe(userId: ObjectId, deviceId: string): Promise<void> {
     await authCollection.deleteOne({ userId, deviceId });
-  }
-
-  static async addTokenToBlackList(dto: {
-    refreshToken: string;
-    userId: ObjectId;
-    deviceId: string;
-    expiresAt: Date;
-    reason: "rotated" | "logout" | "reuse_detected";
-  }): Promise<void> {
-    await blackListRefreshTokensCollection.updateOne(
-      {
-        token: dto.refreshToken,
-      },
-      {
-        $setOnInsert: {
-          token: dto.refreshToken,
-          userId: dto.userId,
-          deviceId: dto.deviceId,
-          expiresAt: dto.expiresAt,
-          createdAt: new Date(),
-          reason: dto.reason,
-        },
-      },
-      { upsert: true }
-    );
-  }
-
-  static async isBlackListed(refreshToken: string): Promise<boolean> {
-    const found = await blackListRefreshTokensCollection.findOne({
-      token: refreshToken,
-    });
-
-    return !!found;
   }
 }
 
 // ? upsert = update + insert
+
+// ? Если нужно разрешить много сессий на один deviceId — тогда делаем insertOne, а не upsert.

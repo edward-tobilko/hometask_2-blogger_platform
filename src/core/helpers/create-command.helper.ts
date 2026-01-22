@@ -9,8 +9,8 @@ export interface ICommandMeta {
 
   userId?: string;
   requestId?: string;
-  userAgent: string | undefined;
-  ip: string | undefined;
+  userAgent?: string;
+  ip?: string;
 }
 
 export const createCommand = <T>(

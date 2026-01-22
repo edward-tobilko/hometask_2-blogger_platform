@@ -11,20 +11,24 @@ import { commentsRoute } from "./comments/routes/comments.route";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 export const setupApp = (app: Express) => {
+  app.set("trust proxy", true);
+
   app.use(express.json());
   app.use(cookieParser());
 
-  app.use(routersPaths.auth, authRoute);
-
+  // * Root
   app.get(routersPaths.root, (_req: Request, res: Response) => {
     res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");
   });
 
+  // * Routers
+  app.use(routersPaths.auth, authRoute);
   app.use(routersPaths.blogs, blogsRoute);
   app.use(routersPaths.posts, postsRoute);
   app.use(routersPaths.users, usersRoute);
   app.use(routersPaths.comments, commentsRoute);
 
+  // * Testing router
   app.use(routersPaths.testing, testingRoute);
 
   return app;
