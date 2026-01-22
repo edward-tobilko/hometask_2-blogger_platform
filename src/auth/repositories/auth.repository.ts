@@ -20,7 +20,7 @@ export class AuthRepository {
           login: authMe.login,
           refreshToken: authMe.refreshToken,
           lastActiveDate: new Date(),
-          userDeviceTitle: authMe.userDeviceTitle,
+          userDeviceTitle: authMe.userDeviceName,
         },
       },
       { upsert: true }

@@ -1,7 +1,7 @@
 import * as UAParser from "ua-parser-js";
 import type { IResult } from "ua-parser-js";
 
-export const parseDeviceTitle = (userAgent: string): string => {
+export const parseDeviceName = (userAgent: string): string => {
   if (!userAgent) return "Unknown device";
 
   // * Для тестов Postman special-case
