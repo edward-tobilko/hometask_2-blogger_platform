@@ -10,7 +10,7 @@ const AT_TIME: SignOptions["expiresIn"] = (appConfig.AT_TIME ??
   "20s") as SignOptions["expiresIn"]; // SignOptions["expiresIn"] - что бы TS не ругался
 
 const RT_TIME: SignOptions["expiresIn"] = (appConfig.RT_TIME ??
-  "30s") as SignOptions["expiresIn"];
+  "30m") as SignOptions["expiresIn"];
 
 type JWTAccessPayload = {
   userId: string;
@@ -20,6 +20,7 @@ type JWTRefreshPayload = {
   userId: string;
   deviceId: string;
   jti?: string; // уникальный id токена (нужен для тестов)
+  sessionId: string;
 };
 export class JWTService {
   // * Access token
@@ -58,10 +59,16 @@ export class JWTService {
   // * Refresh token
   static async createRefreshToken(
     userId: string,
-    deviceId: string
+    deviceId: string,
+    sessionId: string
   ): Promise<string> {
     return jwt.sign(
-      { userId, deviceId, jti: randomUUID() } satisfies JWTRefreshPayload,
+      {
+        userId,
+        deviceId,
+        jti: randomUUID(),
+        sessionId,
+      } satisfies JWTRefreshPayload,
       RT_SECRET,
       { expiresIn: RT_TIME }
     );
@@ -76,6 +83,7 @@ export class JWTService {
       return {
         userId: result.userId,
         deviceId: result.deviceId,
+        sessionId: result.sessionId,
       };
     } catch (error: unknown) {
       // console.error("Token verify some error!");

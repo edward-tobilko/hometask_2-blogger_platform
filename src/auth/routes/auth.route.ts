@@ -12,6 +12,7 @@ import { confirmRegistrationHandler } from "./http-handlers/confirm-registration
 import { registrationEmailResendingHandler } from "./http-handlers/registration-email-resending.handler";
 import { refreshTokenHandler } from "./http-handlers/refresh-token.handler";
 import { logoutHandler } from "./http-handlers/logout.handler";
+import { authLoginRateLimiter } from "auth/middlewares/auth-login-rate-limit.middleware";
 
 export const authRoute = Router();
 
@@ -20,11 +21,12 @@ export const authRoute = Router();
 authRoute.get("/me", jwtAuthGuard, getAuthMeHandler);
 
 // * POST
-// Try login user to the system
+// Try login user to the system.
 authRoute.post(
   "/login",
   loginOrEmailAuthRPValidation,
   inputResultMiddlewareValidation,
+  authLoginRateLimiter,
   loginHandler
 );
 
@@ -67,7 +69,7 @@ authRoute.post(
   registrationEmailResendingHandler
 );
 
-// Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing)
+// Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh.
 authRoute.post("/refresh-token", refreshTokenHandler);
 
 // In cookie client must send correct refresh token that will be revoked

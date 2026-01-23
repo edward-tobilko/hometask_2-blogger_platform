@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { authService } from "auth/application/auth.service";
+import { authService } from "auth/application/session.service";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { ApplicationError } from "@core/errors/application.error";

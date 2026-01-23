@@ -11,7 +11,7 @@ import { commentsRoute } from "./comments/routes/comments.route";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 export const setupApp = (app: Express) => {
-  app.set("trust proxy", true);
+  app.set("trust proxy", 1);
 
   app.use(express.json());
   app.use(cookieParser());

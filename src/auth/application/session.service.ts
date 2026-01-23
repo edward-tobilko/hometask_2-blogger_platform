@@ -1,7 +1,6 @@
 import { log } from "node:console";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns";
-import { ObjectId } from "mongodb";
 
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
@@ -16,7 +15,6 @@ import {
   UnauthorizedError,
 } from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
-import { AuthRepository } from "../repositories/auth.repository";
 import { SessionDomain } from "../domain/session.domain";
 import { UserDB } from "db/types.db";
 import { UserRepository } from "users/repositories/user.repository";
@@ -24,12 +22,13 @@ import { nodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/adapters/parser-device-service.adapter";
 import { getSessionExpireDate } from "auth/helpers/get-session-expire-date.helper";
+import { SessionRepository } from "auth/repositories/session.repository";
 
 class AuthService {
   constructor(
     private readonly userQueryRepo: UsersQueryRepository,
     private readonly passwordHasher: BcryptPasswordHasher,
-    private readonly sessionRepo: AuthRepository,
+    private readonly sessionRepo: SessionRepository,
     private readonly userRepo: UserRepository
   ) {}
 
@@ -59,7 +58,7 @@ class AuthService {
         status: ApplicationResultStatus.BadRequest,
         data: null,
         extensions: [
-          new UnauthorizedError("Your profile is not verified", "loginOrEmail"),
+          new UnauthorizedError("Your profile is not verified", "isConfirmed"),
         ],
       });
     }
@@ -84,25 +83,28 @@ class AuthService {
     });
   }
 
-  async loginUser(
-    command: WithMeta<LoginAuthDtoCommand>
-  ): Promise<
-    ApplicationResult<{ accessToken: string; sessionId: string } | null>
+  async loginUser(command: WithMeta<LoginAuthDtoCommand>): Promise<
+    ApplicationResult<{
+      accessToken: string;
+      sessionId: string;
+      expiresAt: Date;
+    } | null>
   > {
-    const result = await this.checkUserCredentials(command);
+    const userResult = await this.checkUserCredentials(command);
 
-    if (result.status !== ApplicationResultStatus.Success) {
+    if (userResult.status !== ApplicationResultStatus.Success) {
       return new ApplicationResult<{
         accessToken: string;
         sessionId: string;
+        expiresAt: Date;
       } | null>({
-        status: result.status, // NotFound or Unauthorized
+        status: userResult.status, // NotFound or Unauthorized
         data: null,
-        extensions: result.extensions, // loginOrEmail or password
+        extensions: userResult.extensions, // loginOrEmail or password
       });
     }
 
-    const userId = result.data!._id!.toString();
+    const userId = userResult.data!._id!.toString();
     const deviceId = randomUUID();
     const sessionId = randomUUID(); // то, что мы помещаем в cookie refreshToken
     const ip = command.meta.ip ?? "0.0.0.0";
@@ -114,16 +116,18 @@ class AuthService {
       command.meta.userAgent ?? "Unknown device"
     );
 
+    const expiresAt = getSessionExpireDate(30_000);
+
     // * создаём authMe из user и сохраняем в БД
-    const session = SessionDomain.createMe(result.data!, {
+    const session = SessionDomain.saveMe(userResult.data!, {
       deviceId,
       sessionId,
       userDeviceName,
       ip,
-      expiresAt: getSessionExpireDate(30),
+      expiresAt,
     });
 
-    await this.sessionRepo.upsertSession(session);
+    await this.sessionRepo.upsertLoginSession(session);
 
     log("accessToken from service (loginUser) ->", accessToken);
     log("sessionId from service (loginUser) ->", sessionId);
@@ -131,7 +135,7 @@ class AuthService {
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: { accessToken, sessionId },
+      data: { accessToken, sessionId, expiresAt },
       extensions: [],
     });
   }
@@ -314,13 +318,10 @@ class AuthService {
       });
     }
 
-    const { userId, deviceId } = payload;
+    const { userId, deviceId, sessionId } = payload;
 
     // * проверка активной сессии (смотреть в browser -> application -> cookie -> session (the firth row)) в БД
-    const session = await AuthRepository.findSession(
-      new ObjectId(userId),
-      deviceId
-    );
+    const session = await this.sessionRepo.findBySessionId(sessionId);
     if (!session) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -330,18 +331,21 @@ class AuthService {
     }
 
     // * если в БД другой refreshToken → значит этот токен уже ротирован / украден / старый - базовый «reuse protection» через single valid token per session.
-    if (session.refreshToken !== oldRefreshToken)
+    if (session.userId.toString() !== userId || session.deviceId !== deviceId)
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
         extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
       });
 
+    await this.sessionRepo.updateLastActiveDate(sessionId);
+
     // * создаем новую пару токенов
     const newAccessToken = await JWTService.createAccessToken(userId);
     const newRefreshToken = await JWTService.createRefreshToken(
       userId,
-      deviceId
+      deviceId,
+      sessionId
     );
 
     return new ApplicationResult({
@@ -351,11 +355,8 @@ class AuthService {
     });
   }
 
-  async getSession(userId: string, deviceId: string) {
-    const session = await AuthRepository.findSession(
-      new ObjectId(userId),
-      deviceId
-    );
+  async getSession(sessionId: string) {
+    const session = await this.sessionRepo.findBySessionId(sessionId);
 
     return session;
   }
@@ -365,6 +366,6 @@ class AuthService {
 export const authService = new AuthService(
   new UsersQueryRepository(),
   new BcryptPasswordHasher(),
-  new AuthRepository(),
+  new SessionRepository(),
   new UserRepository()
 );

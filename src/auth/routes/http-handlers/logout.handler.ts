@@ -3,9 +3,9 @@ import { Request, Response } from "express";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { JWTService } from "auth/adapters/jwt-service.adapter";
-import { AuthRepository } from "auth/repositories/auth.repository";
+import { SessionRepository } from "auth/repositories/session.repository";
 import { ObjectId } from "mongodb";
-import { authService } from "auth/application/auth.service";
+import { authService } from "auth/application/session.service";
 
 export const logoutHandler = async (req: Request, res: Response) => {
   try {
@@ -25,13 +25,10 @@ export const logoutHandler = async (req: Request, res: Response) => {
     if (!session) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
     // * проверяем, что токен актуален (rotation guard)
-    if (session.refreshToken !== refreshToken)
+    if (session.sessionId !== refreshToken)
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-    await AuthRepository.deleteAuthMe(
-      new ObjectId(payload.userId),
-      payload.deviceId
-    );
+    await SessionRepository.deleteBySessionId(new ObjectId(payload.userId));
 
     res.clearCookie("refreshToken", {
       httpOnly: true,

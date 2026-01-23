@@ -5,7 +5,7 @@ import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to
 import { ApplicationError } from "@core/errors/application.error";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { errorsHandler } from "@core/errors/errors-handler.error";
-import { authService } from "auth/application/auth.service";
+import { authService } from "auth/application/session.service";
 
 export async function registrationEmailResendingHandler(
   req: Request<{}, {}, { email: string }>,

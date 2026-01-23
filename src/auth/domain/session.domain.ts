@@ -7,6 +7,8 @@ import { UserDB } from "db/types.db";
 export class SessionDomain {
   _id?: ObjectId;
 
+  login: string;
+
   userId: ObjectId;
   deviceId: string; // UUID
   sessionId: string;
@@ -19,6 +21,7 @@ export class SessionDomain {
 
   constructor(dto: FieldsOnly<SessionDomain>) {
     this.userId = dto.userId;
+    this.login = dto.login;
     this.deviceId = dto.deviceId;
     this.sessionId = dto.sessionId;
     this.ip = dto.ip;
@@ -31,7 +34,7 @@ export class SessionDomain {
     if (dto._id) this._id = dto._id;
   }
 
-  static createMe(
+  static saveMe(
     user: UserDB,
     dto: {
       deviceId: string;
@@ -43,6 +46,8 @@ export class SessionDomain {
   ): SessionDomain {
     return new SessionDomain({
       userId: user._id!,
+
+      login: user.login,
 
       deviceId: dto.deviceId,
       sessionId: dto.sessionId,

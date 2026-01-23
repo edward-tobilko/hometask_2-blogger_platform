@@ -3,7 +3,7 @@ import { log } from "console";
 
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { authService } from "auth/application/auth.service";
+import { authService } from "auth/application/session.service";
 
 export const refreshTokenHandler = async (req: Request, res: Response) => {
   try {
@@ -21,7 +21,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
     // * добавляем новый refresh в cookie
     res.cookie("refreshToken", result.data.refreshToken, {
       path: "/",
-      secure: true, // if https -> true
+      secure: false, // if https -> true
       httpOnly: true,
       sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
     });
