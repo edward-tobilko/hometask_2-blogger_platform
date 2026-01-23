@@ -25,10 +25,11 @@ export type SessionDB = {
   deviceId: string; // uuid
   ip: string;
   deviceName: string; // user-agent title ("Chrome", "Jest", "iPhone"...)
+  refreshToken: string;
 
   lastActiveDate: Date; // обновляем при refresh / при запросах, где нужно
-  expiresAt: Date; // TTL cleanup
-  createdAt: Date;
+  expiresAt: Date; // дата окончания (TTL cleanup)
+  createdAt: Date; // дата создания
 };
 
 export type PostCommentDB = {

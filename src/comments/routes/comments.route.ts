@@ -13,8 +13,7 @@ import { updateCommentDtoRPValidation } from "./request-payload-validations/upda
 
 export const commentsRoute = Router({});
 
-// * GET
-// Return comment by id
+// * GET: Return comment by id
 commentsRoute.get(
   "/:id",
   paramIdValidation,
@@ -22,8 +21,7 @@ commentsRoute.get(
   getCommentsHandler
 );
 
-// * PUT
-// Update existing comment by id with input model
+// * PUT: Update existing comment by id with input model
 commentsRoute.put(
   "/:commentId",
   jwtAuthGuard,
@@ -33,8 +31,7 @@ commentsRoute.put(
   updateCommentHandler
 );
 
-// * DELETE
-// Delete comment specified by id
+// * DELETE: Delete comment specified by id
 commentsRoute.delete(
   "/:commentId",
   jwtAuthGuard,

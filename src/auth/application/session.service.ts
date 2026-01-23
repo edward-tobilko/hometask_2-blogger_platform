@@ -1,4 +1,3 @@
-import { log } from "node:console";
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns";
 
@@ -12,6 +11,7 @@ import { ApplicationResultStatus } from "../../core/result/types/application-res
 import {
   ApplicationError,
   BadRequest,
+  NotFoundError,
   UnauthorizedError,
 } from "../../core/errors/application.error";
 import { JWTService } from "../adapters/jwt-service.adapter";
@@ -20,15 +20,17 @@ import { UserDB } from "db/types.db";
 import { UserRepository } from "users/repositories/user.repository";
 import { nodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
-import { parseDeviceName } from "auth/adapters/parser-device-service.adapter";
-import { getSessionExpireDate } from "auth/helpers/get-session-expire-date.helper";
+import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
+import { getSessionExpirationDate } from "auth/helpers/get-session-expire-date.helper";
 import { SessionRepository } from "auth/repositories/session.repository";
+import { SessionQueryRepo } from "auth/repositories/session-query.repo";
 
 class AuthService {
   constructor(
     private readonly userQueryRepo: UsersQueryRepository,
     private readonly passwordHasher: BcryptPasswordHasher,
     private readonly sessionRepo: SessionRepository,
+    private readonly sessionQueryRepo: SessionQueryRepo,
     private readonly userRepo: UserRepository
   ) {}
 
@@ -86,6 +88,7 @@ class AuthService {
   async loginUser(command: WithMeta<LoginAuthDtoCommand>): Promise<
     ApplicationResult<{
       accessToken: string;
+      refreshToken: string;
       sessionId: string;
       expiresAt: Date;
     } | null>
@@ -95,6 +98,7 @@ class AuthService {
     if (userResult.status !== ApplicationResultStatus.Success) {
       return new ApplicationResult<{
         accessToken: string;
+        refreshToken: string;
         sessionId: string;
         expiresAt: Date;
       } | null>({
@@ -106,17 +110,24 @@ class AuthService {
 
     const userId = userResult.data!._id!.toString();
     const deviceId = randomUUID();
-    const sessionId = randomUUID(); // то, что мы помещаем в cookie refreshToken
+    const sessionId = randomUUID();
     const ip = command.meta.ip ?? "0.0.0.0";
-
-    const accessToken = await JWTService.createAccessToken(userId);
 
     // * Получаем девайс с которого входит пользователь
     const userDeviceName = parseDeviceName(
       command.meta.userAgent ?? "Unknown device"
     );
 
-    const expiresAt = getSessionExpireDate(30_000);
+    const accessToken = await JWTService.createAccessToken(userId);
+    const refreshToken = await JWTService.createRefreshToken(
+      userId,
+      deviceId,
+      sessionId
+    );
+
+    const expiresAt =
+      JWTService.getExpirationDate(refreshToken) ||
+      getSessionExpirationDate(30_000);
 
     // * создаём authMe из user и сохраняем в БД
     const session = SessionDomain.saveMe(userResult.data!, {
@@ -129,13 +140,9 @@ class AuthService {
 
     await this.sessionRepo.upsertLoginSession(session);
 
-    log("accessToken from service (loginUser) ->", accessToken);
-    log("sessionId from service (loginUser) ->", sessionId);
-    log("[DEVICE_NAME]", userDeviceName);
-
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: { accessToken, sessionId, expiresAt },
+      data: { accessToken, sessionId, expiresAt, refreshToken },
       extensions: [],
     });
   }
@@ -321,7 +328,7 @@ class AuthService {
     const { userId, deviceId, sessionId } = payload;
 
     // * проверка активной сессии (смотреть в browser -> application -> cookie -> session (the firth row)) в БД
-    const session = await this.sessionRepo.findBySessionId(sessionId);
+    const session = await this.sessionQueryRepo.findBySessionId(sessionId);
     if (!session) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -355,10 +362,56 @@ class AuthService {
     });
   }
 
-  async getSession(sessionId: string) {
-    const session = await this.sessionRepo.findBySessionId(sessionId);
+  async logout(sessionId: string): Promise<ApplicationResult<boolean>> {
+    const deleted = await this.sessionRepo.deleteBySessionId(sessionId);
 
-    return session;
+    if (!deleted) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: false,
+        extensions: [new NotFoundError("Session is not found")],
+      });
+    }
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: true,
+      extensions: [],
+    });
+  }
+
+  async refreshTokens(oldRefreshToken: string): Promise<
+    ApplicationResult<{
+      userId: string;
+      newAccessToken: string;
+      newRefreshToken: string;
+    } | null>
+  > {
+    // * Проверяем refresh token и получаем userId
+    const refreshPayload = await JWTService.verifyRefreshToken(oldRefreshToken);
+
+    if (!refreshPayload)
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("No Unauthorized")],
+      });
+
+    const userId = refreshPayload.userId;
+
+    // * Создаем новые токены
+    const newAccessToken = await JWTService.createAccessToken(userId);
+    const newRefreshToken = await JWTService.createRefreshToken(
+      userId,
+      refreshPayload.deviceId,
+      refreshPayload.sessionId
+    );
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: { userId, newAccessToken, newRefreshToken },
+      extensions: [],
+    });
   }
 }
 
@@ -367,5 +420,6 @@ export const authService = new AuthService(
   new UsersQueryRepository(),
   new BcryptPasswordHasher(),
   new SessionRepository(),
+  new SessionQueryRepo(),
   new UserRepository()
 );

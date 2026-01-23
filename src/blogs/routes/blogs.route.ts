@@ -20,8 +20,7 @@ import { PostSortFieldRP } from "../../posts/routes/request-payload-types/post-s
 
 export const blogsRoute = Router({});
 
-// * GET methods
-// Returns blogs with paging
+// * GET: Returns blogs with paging
 blogsRoute.get(
   "",
   queryPaginationAndSortingValidation<BlogSortFieldRP>(BlogSortFieldRP),
@@ -36,7 +35,7 @@ blogsRoute.get(
   getBlogListHandler
 );
 
-// Returns blog by id
+// * GET: Returns blog by id
 blogsRoute.get(
   "/:id",
   paramIdValidation,
@@ -44,7 +43,7 @@ blogsRoute.get(
   getBlogByIdHandler
 );
 
-// Returns all posts for specified blog
+// * GET: Returns all posts for specified blog
 blogsRoute.get(
   "/:id/posts",
   paramIdValidation,
@@ -53,8 +52,7 @@ blogsRoute.get(
   getPostListForBlogHandler
 );
 
-// * POST methods
-// Create new blog
+// * POST: Create new blog
 blogsRoute.post(
   "",
   baseAuthGuard,
@@ -63,7 +61,7 @@ blogsRoute.post(
   createNewBlogHandler
 );
 
-// Create noe post for specific blog
+// * POST: Create noe post for specific blog
 blogsRoute.post(
   "/:id/posts",
   baseAuthGuard,
@@ -72,8 +70,7 @@ blogsRoute.post(
   createPostForBlogHandler
 );
 
-// * PUT methods
-// Update existing blog by id with input model
+// * PUT: Update existing blog by id with input model
 blogsRoute.put(
   "/:id",
   baseAuthGuard,
@@ -83,8 +80,7 @@ blogsRoute.put(
   updateBlogHandler
 );
 
-// * DELETE methods
-// Delete blog specified by id
+// * DELETE: Delete blog specified by id
 blogsRoute.delete(
   "/:id",
   baseAuthGuard,

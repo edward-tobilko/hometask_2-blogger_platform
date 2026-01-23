@@ -7,7 +7,7 @@ const ipKeyGenerator = (req: Request): string => {
   return req.ip || req.socket.remoteAddress || "unknown-ip";
 };
 
-export const authLoginRateLimiter: RateLimitRequestHandler = rateLimit({
+export const authRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 10 * 1000, // 10 сек
   max: 5, // максимум 5 запроссов
   standardHeaders: true, // добавляет RateLimit-заголовки

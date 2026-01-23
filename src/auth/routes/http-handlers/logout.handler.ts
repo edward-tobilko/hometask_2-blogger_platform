@@ -3,8 +3,6 @@ import { Request, Response } from "express";
 import { errorsHandler } from "../../../core/errors/errors-handler.error";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { JWTService } from "auth/adapters/jwt-service.adapter";
-import { SessionRepository } from "auth/repositories/session.repository";
-import { ObjectId } from "mongodb";
 import { authService } from "auth/application/session.service";
 
 export const logoutHandler = async (req: Request, res: Response) => {
@@ -17,27 +15,10 @@ export const logoutHandler = async (req: Request, res: Response) => {
     const payload = await JWTService.verifyRefreshToken(refreshToken);
     if (!payload) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-    const session = await authService.getSession(
-      payload.userId,
-      payload.deviceId
-    );
+    await authService.logout(payload.sessionId);
 
-    if (!session) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-
-    // * проверяем, что токен актуален (rotation guard)
-    if (session.sessionId !== refreshToken)
-      return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-
-    await SessionRepository.deleteBySessionId(new ObjectId(payload.userId));
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: true, // для https = true
-      sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
-      path: "/",
-    });
-
-    return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+    res.clearCookie("refreshToken");
+    res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
   } catch (error: unknown) {
     errorsHandler(error, req, res);
   }

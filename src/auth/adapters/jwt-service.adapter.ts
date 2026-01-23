@@ -1,5 +1,4 @@
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
-import { randomUUID } from "crypto";
 
 import { appConfig } from "../../core/settings/config";
 
@@ -19,7 +18,6 @@ type JWTAccessPayload = {
 type JWTRefreshPayload = {
   userId: string;
   deviceId: string;
-  jti?: string; // уникальный id токена (нужен для тестов)
   sessionId: string;
 };
 export class JWTService {
@@ -46,16 +44,6 @@ export class JWTService {
     }
   }
 
-  static async decodeAccessToken(token: string): Promise<any> {
-    try {
-      return jwt.decode(token);
-    } catch (error: unknown) {
-      console.error("Cannot decode this token", error);
-
-      return null;
-    }
-  }
-
   // * Refresh token
   static async createRefreshToken(
     userId: string,
@@ -66,7 +54,6 @@ export class JWTService {
       {
         userId,
         deviceId,
-        jti: randomUUID(),
         sessionId,
       } satisfies JWTRefreshPayload,
       RT_SECRET,
@@ -86,7 +73,19 @@ export class JWTService {
         sessionId: result.sessionId,
       };
     } catch (error: unknown) {
-      // console.error("Token verify some error!");
+      return null;
+    }
+  }
+
+  static getExpirationDate(token: string): Date | null {
+    try {
+      const decoded = jwt.decode(token) as { exp?: number };
+
+      if (!decoded.exp) return null;
+
+      return new Date(decoded.exp * 1000);
+    } catch (error: unknown) {
+      console.error("Cannot decode this token", error);
 
       return null;
     }

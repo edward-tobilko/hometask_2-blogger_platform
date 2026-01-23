@@ -12,7 +12,7 @@ import { BlogDB, PostCommentDB, PostDB, SessionDB, UserDB } from "./types.db";
 
 let client: MongoClient;
 
-export let authLoginSessionCollection: Collection<SessionDB>;
+export let authSessionCollection: Collection<SessionDB>;
 export let blogCollection: Collection<BlogDB>;
 export let postCollection: Collection<PostDB>;
 export let userCollection: Collection<UserDB>;
@@ -27,7 +27,7 @@ export async function runDB(url: string): Promise<void> {
     const dataBase: Db = client.db(appConfig.DB_NAME);
 
     // * Инициализация коллекций
-    authLoginSessionCollection = dataBase.collection<SessionDB>(
+    authSessionCollection = dataBase.collection<SessionDB>(
       AUTH_LOGIN_COLLECTION_NAME
     );
     blogCollection = dataBase.collection<BlogDB>(BLOG_COLLECTION_NAME);
@@ -38,7 +38,7 @@ export async function runDB(url: string): Promise<void> {
     );
 
     // * Инициализация индексов ( чтобы «протухшие» сессии убирались автоматически )
-    authLoginSessionCollection.createIndex(
+    authSessionCollection.createIndex(
       { expiresAt: 1 },
       { expireAfterSeconds: 0 }
     );

@@ -21,7 +21,7 @@ export const refreshTokenHandler = async (req: Request, res: Response) => {
     // * добавляем новый refresh в cookie
     res.cookie("refreshToken", result.data.refreshToken, {
       path: "/",
-      secure: false, // if https -> true
+      secure: process.env.NODE_ENV === "production" || false, // if https -> true
       httpOnly: true,
       sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
     });

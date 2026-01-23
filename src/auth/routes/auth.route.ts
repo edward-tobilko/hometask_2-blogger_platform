@@ -12,33 +12,32 @@ import { confirmRegistrationHandler } from "./http-handlers/confirm-registration
 import { registrationEmailResendingHandler } from "./http-handlers/registration-email-resending.handler";
 import { refreshTokenHandler } from "./http-handlers/refresh-token.handler";
 import { logoutHandler } from "./http-handlers/logout.handler";
-import { authLoginRateLimiter } from "auth/middlewares/auth-login-rate-limit.middleware";
+import { authRateLimiter } from "auth/middlewares/auth-rate-limiter.middleware";
 
 export const authRoute = Router();
 
-// * GET
-// Get info about current user
+// * GET: Get info about current user.
 authRoute.get("/me", jwtAuthGuard, getAuthMeHandler);
 
-// * POST
-// Try login user to the system.
+// * POST: Try login user to the system.
 authRoute.post(
   "/login",
   loginOrEmailAuthRPValidation,
   inputResultMiddlewareValidation,
-  authLoginRateLimiter,
+  authRateLimiter,
   loginHandler
 );
 
-// Registration in the system. Email with confirmation code will be send to passed email address.
+// * POST: Registration in the system. Email with confirmation code will be send to passed email address.
 authRoute.post(
   "/registration",
   registrationAuthRPValidation,
   inputResultMiddlewareValidation,
+  authRateLimiter,
   registrationHandler
 );
 
-// Confirm registration
+// * POST: Confirm registration.
 authRoute.post(
   "/registration-confirmation",
   body("code")
@@ -49,10 +48,11 @@ authRoute.post(
     .withMessage("Code must be a string"),
 
   inputResultMiddlewareValidation,
+  authRateLimiter,
   confirmRegistrationHandler
 );
 
-// Registration in the system.
+// * POST: Resend confirmation registration  email if user exist.
 authRoute.post(
   "/registration-email-resending",
   body("email")
@@ -66,13 +66,14 @@ authRoute.post(
     .withMessage("Email must be a valid email"),
 
   inputResultMiddlewareValidation,
+  authRateLimiter,
   registrationEmailResendingHandler
 );
 
-// Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh.
+// * POST: Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh.
 authRoute.post("/refresh-token", refreshTokenHandler);
 
-// In cookie client must send correct refresh token that will be revoked
+// * POST: In cookie client must send correct refresh token that will be revoked.
 authRoute.post("/logout", logoutHandler);
 
 // ? POST /auth/refresh-token что делает: берет refreshToken из cookie -> verify refreshToken (RT_SECRET) -> получает userId, deviceId -> ищет сессию по deviceId и сверяет refreshToken (чтобы не подсунули чужой/старый) -> генерирует новый access + новый refresh -> обновляет refreshToken в БД (ротация) -> ставит refresh cookie + возвращает accessToken в body.

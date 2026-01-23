@@ -21,7 +21,7 @@ export const loginHandler = async (req: Request, res: Response) => {
 
     const command = createCommand<LoginAuthDtoCommand>(sanitizedBodyParam, {
       userAgent: req.headers["user-agent"],
-      ip: req.ip,
+      ip: req.ip || "unknown",
     });
 
     const result = await authService.loginUser(command);
@@ -39,14 +39,13 @@ export const loginHandler = async (req: Request, res: Response) => {
         })),
       });
 
-    const { accessToken, sessionId, expiresAt } = result.data!;
+    const { accessToken, expiresAt, refreshToken } = result.data!;
 
-    res.cookie("refreshToken", sessionId, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: false, // для https = true
+      secure: process.env.NODE_ENV === "production" || false, // для https = true
       sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук
       path: "/",
-      // maxAge: Number(30 * 1000) ?? undefined,
       expires: expiresAt, // дата должна быть та же, что и в БД
     });
 

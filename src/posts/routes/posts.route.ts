@@ -24,8 +24,7 @@ import { postBodyInputRPValidation } from "./request-payload-validations/post-in
 
 export const postsRoute = Router({});
 
-// * GET methods
-// Returns all posts
+// * GET: Returns all posts
 postsRoute.get(
   "",
   queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
@@ -33,7 +32,7 @@ postsRoute.get(
   getPostListHandler
 );
 
-// Return post by id
+// * GET: Return post by id
 postsRoute.get(
   "/:id",
   paramIdValidation,
@@ -41,7 +40,7 @@ postsRoute.get(
   getPostHandler
 );
 
-// Returns comments for specified post
+// * GET: Returns comments for specified post
 postsRoute.get(
   "/:postId/comments",
   paramPostIdValidation,
@@ -52,8 +51,7 @@ postsRoute.get(
   getPostCommentsHandler
 );
 
-// * POST methods
-// Create new post
+// * POST: Create new post
 postsRoute.post(
   "",
   baseAuthGuard,
@@ -62,7 +60,7 @@ postsRoute.post(
   createPostHandler
 );
 
-// Create new comment
+// * POST: Create new comment
 postsRoute.post(
   "/:postId/comments",
   jwtAuthGuard,
@@ -71,8 +69,7 @@ postsRoute.post(
   createCommentHandler
 );
 
-// * PUT methods
-// Update existing post by id with input model
+// * PUT: Update existing post by id with input model
 postsRoute.put(
   "/:id",
   baseAuthGuard,
@@ -82,8 +79,7 @@ postsRoute.put(
   updatePostHandler
 );
 
-// * DELETE methods
-// Delete post specified by id
+// * DELETE: Delete post specified by id
 postsRoute.delete(
   "/:id",
   baseAuthGuard,
