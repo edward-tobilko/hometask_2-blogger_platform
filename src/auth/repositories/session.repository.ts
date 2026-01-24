@@ -1,9 +1,9 @@
 import { SessionDomain } from "../domain/session.domain";
-import { authLoginSessionCollection } from "db/mongo.db";
+import { authSessionCollection } from "db/mongo.db";
 
 export class SessionRepository {
   async upsertLoginSession(session: SessionDomain): Promise<void> {
-    await authLoginSessionCollection.updateOne(
+    await authSessionCollection.updateOne(
       {
         userId: session.userId,
         login: session.login,
@@ -24,7 +24,7 @@ export class SessionRepository {
   }
 
   async updateLastActiveDate(sessionId: string): Promise<boolean> {
-    const result = await authLoginSessionCollection.updateOne(
+    const result = await authSessionCollection.updateOne(
       { sessionId },
       {
         $set: {
@@ -41,7 +41,7 @@ export class SessionRepository {
     newRefreshToken: string,
     newExpirationDate: Date
   ): Promise<boolean> {
-    const result = await authLoginSessionCollection.updateOne(
+    const result = await authSessionCollection.updateOne(
       { sessionId },
       {
         $set: {
@@ -55,7 +55,7 @@ export class SessionRepository {
   }
 
   async deleteBySessionId(sessionId: string): Promise<boolean> {
-    const deleteRes = await authLoginSessionCollection.deleteOne({ sessionId });
+    const deleteRes = await authSessionCollection.deleteOne({ sessionId });
 
     return deleteRes.deletedCount === 1;
   }

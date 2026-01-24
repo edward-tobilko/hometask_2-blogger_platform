@@ -6,6 +6,7 @@ export const routersPaths = {
   blogs: "/api/blogs",
   posts: "/api/posts",
   comments: "/api/comments",
+  securityDevices: "/api/security/devices",
 
   testing: "/api/testing/all-data",
 };

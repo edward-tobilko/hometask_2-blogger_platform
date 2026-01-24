@@ -24,7 +24,7 @@ export type SessionDB = {
   sessionId: string; // будет в cookie refreshToken (refreshToken = sessionId)
   deviceId: string; // uuid
   ip: string;
-  deviceName: string; // user-agent title ("Chrome", "Jest", "iPhone"...)
+  userDeviceName: string; // user-agent title ("Chrome", "Jest", "iPhone"...)
   refreshToken: string;
 
   lastActiveDate: Date; // обновляем при refresh / при запросах, где нужно

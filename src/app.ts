@@ -9,6 +9,7 @@ import { authRoute } from "./auth/routes/auth.route";
 import { blogsRoute } from "./blogs/routes/blogs.route";
 import { commentsRoute } from "./comments/routes/comments.route";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+import { securityDevicesRouter } from "security-devices/routers/security-devices.router";
 
 export const setupApp = (app: Express) => {
   app.set("trust proxy", true);
@@ -24,9 +25,10 @@ export const setupApp = (app: Express) => {
   // * Routers
   app.use(routersPaths.auth, authRoute);
   app.use(routersPaths.blogs, blogsRoute);
-  app.use(routersPaths.posts, postsRoute);
-  app.use(routersPaths.users, usersRoute);
   app.use(routersPaths.comments, commentsRoute);
+  app.use(routersPaths.posts, postsRoute);
+  app.use(routersPaths.securityDevices, securityDevicesRouter);
+  app.use(routersPaths.users, usersRoute);
 
   // * Testing router
   app.use(routersPaths.testing, testingRoute);

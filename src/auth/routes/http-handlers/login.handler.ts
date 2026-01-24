@@ -51,6 +51,8 @@ export const loginHandler = async (req: Request, res: Response) => {
 
     return res.status(HTTP_STATUS_CODES.OK_200).json({ accessToken });
   } catch (error: unknown) {
+    console.error("[loginHandler] error:", error);
+
     errorsHandler(error, req, res);
   }
 };
