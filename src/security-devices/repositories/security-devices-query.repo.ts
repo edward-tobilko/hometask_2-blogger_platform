@@ -17,16 +17,4 @@ export class SecurityDevicesQueryRepo {
 
     return securityDevicesListOutput;
   }
-
-  async removeAllSecurityDevicesExceptCurrentRepo(
-    userId: string,
-    currentDeviceId: string
-  ): Promise<number> {
-    const deletedDevices = await authSessionCollection.deleteMany({
-      userId: new ObjectId(userId),
-      deviceId: { $ne: currentDeviceId },
-    });
-
-    return deletedDevices.deletedCount;
-  }
 }

@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { JWTService } from "auth/adapters/jwt-service.adapter";
-import { securityDevicesQueryService } from "security-devices/applications/security-devices-query.service";
 import { errorsHandler } from "@core/errors/errors-handler.error";
+import { securityDevicesService } from "security-devices/applications/security-devices.service";
 
 export const removeSecurityDevicesSessionsHandler = async (
   req: Request,
@@ -22,7 +22,7 @@ export const removeSecurityDevicesSessionsHandler = async (
 
     const { userId, deviceId } = payload;
 
-    await securityDevicesQueryService.removeAllSecurityDevicesExceptCurrent(
+    await securityDevicesService.removeAllSecurityDevicesExceptCurrent(
       userId,
       deviceId
     );

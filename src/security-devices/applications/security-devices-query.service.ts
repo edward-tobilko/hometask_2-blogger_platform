@@ -20,22 +20,6 @@ class SecurityDevicesQueryService {
       extensions: [],
     });
   }
-
-  async removeAllSecurityDevicesExceptCurrent(
-    userId: string,
-    currentDeviceId: string
-  ): Promise<ApplicationResult<boolean>> {
-    await this.securityDevicesQueryRepo.removeAllSecurityDevicesExceptCurrentRepo(
-      userId,
-      currentDeviceId
-    );
-
-    return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
-      data: true,
-      extensions: [],
-    });
-  }
 }
 
 export const securityDevicesQueryService = new SecurityDevicesQueryService(
