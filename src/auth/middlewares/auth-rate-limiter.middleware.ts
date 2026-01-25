@@ -1,18 +1,12 @@
 import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
-import { Request } from "express";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-
-const ipKeyGenerator = (req: Request): string => {
-  return req.ip || req.socket.remoteAddress || "unknown-ip";
-};
 
 export const authRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 10 * 1000, // 10 сек
   max: 5, // максимум 5 запроссов
   standardHeaders: true, // добавляет RateLimit-заголовки
   legacyHeaders: false, // не добавляет X-RateLimit-*
-  keyGenerator: ipKeyGenerator,
   message: {
     errorsMessages: [
       {

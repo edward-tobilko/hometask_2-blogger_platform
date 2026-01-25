@@ -7,7 +7,7 @@ import {
 } from "./../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { deleteCommentHandler } from "./http-handlers/delete-comment.handler";
-import { jwtAuthGuard } from "../../auth/api/guards/jwt-auth.guard";
+import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
 import { updateCommentHandler } from "./http-handlers/update-comment.handler";
 import { updateCommentDtoRPValidation } from "./request-payload-validations/update-comment.request-payload-validation";
 
@@ -24,7 +24,7 @@ commentsRoute.get(
 // * PUT: Update existing comment by id with input model
 commentsRoute.put(
   "/:commentId",
-  jwtAuthGuard,
+  jwtAccessAuthGuard,
   paramCommentIdValidation,
   updateCommentDtoRPValidation,
   inputResultMiddlewareValidation,
@@ -34,7 +34,7 @@ commentsRoute.put(
 // * DELETE: Delete comment specified by id
 commentsRoute.delete(
   "/:commentId",
-  jwtAuthGuard,
+  jwtAccessAuthGuard,
   paramCommentIdValidation,
   inputResultMiddlewareValidation,
   deleteCommentHandler

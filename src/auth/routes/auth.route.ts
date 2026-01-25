@@ -5,7 +5,7 @@ import { loginOrEmailAuthRPValidation } from "./request-payload-validations/logi
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { loginHandler } from "./http-handlers/login.handler";
 import { getAuthMeHandler } from "./http-handlers/get-auth-me.handler";
-import { jwtAuthGuard } from "../api/guards/jwt-auth.guard";
+import { jwtAccessAuthGuard } from "../api/guards/jwt-access-auth.guard";
 import { registrationHandler } from "./http-handlers/registration.handler";
 import { registrationAuthRPValidation } from "./request-payload-validations/registration-auth.request-payload-validation";
 import { confirmRegistrationHandler } from "./http-handlers/confirm-registration.handler";
@@ -17,7 +17,7 @@ import { authRateLimiter } from "auth/middlewares/auth-rate-limiter.middleware";
 export const authRoute = Router();
 
 // * GET: Get info about current user.
-authRoute.get("/me", jwtAuthGuard, getAuthMeHandler);
+authRoute.get("/me", jwtAccessAuthGuard, getAuthMeHandler);
 
 // * POST: Try login user to the system.
 authRoute.post(

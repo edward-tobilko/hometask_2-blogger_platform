@@ -17,7 +17,7 @@ import {
 import { createPostHandler } from "./http-handlers/create-post.handler";
 import { updatePostHandler } from "./http-handlers/update-post.handler";
 import { createCommentHandler } from "./http-handlers/create-comment.handler";
-import { jwtAuthGuard } from "../../auth/api/guards/jwt-auth.guard";
+import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
 import { getPostCommentsHandler } from "./http-handlers/get-post-comments.handler";
 import { createCommentDtoRPValidation } from "./request-payload-validations/create-comment-dto.validation";
 import { postBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
@@ -63,7 +63,7 @@ postsRoute.post(
 // * POST: Create new comment
 postsRoute.post(
   "/:postId/comments",
-  jwtAuthGuard,
+  jwtAccessAuthGuard,
   createCommentDtoRPValidation,
   inputResultMiddlewareValidation,
   createCommentHandler

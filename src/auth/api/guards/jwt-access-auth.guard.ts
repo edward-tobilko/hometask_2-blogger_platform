@@ -4,7 +4,7 @@ import { JWTService } from "../../adapters/jwt-service.adapter";
 import { IdType } from "../../../core/types/id";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
-export const jwtAuthGuard = async (
+export const jwtAccessAuthGuard = async (
   req: Request,
   res: Response,
   next: NextFunction
