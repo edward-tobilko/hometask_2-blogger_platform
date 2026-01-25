@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { jwtAuthGuard } from "auth/api/guards/jwt-auth.guard";
+import { jwtAccessAuthGuard } from "auth/api/guards/jwt-access-auth.guard";
 import { JWTService } from "auth/adapters/jwt-service.adapter";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
@@ -22,7 +22,7 @@ describe("jwtAuthGuard unit tests", () => {
   });
 
   it("401 if Authorization header is missing", async () => {
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(res.sendStatus).toHaveBeenCalledWith(
       HTTP_STATUS_CODES.UNAUTHORIZED_401
@@ -33,7 +33,7 @@ describe("jwtAuthGuard unit tests", () => {
   it("401 if authType is not Bearer", async () => {
     req.headers = { authorization: "Basic token" };
 
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(res.sendStatus).toHaveBeenCalledWith(401);
     expect(jwt.verifyAccessToken).not.toHaveBeenCalled();
@@ -43,7 +43,7 @@ describe("jwtAuthGuard unit tests", () => {
   it("401 if token is missing", async () => {
     req.headers = { authorization: "Bearer " };
 
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(res.sendStatus).toHaveBeenCalledWith(401);
     expect(jwt.verifyAccessToken).not.toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe("jwtAuthGuard unit tests", () => {
     req.headers = { authorization: "Bearer     token123   " };
     jwt.verifyAccessToken.mockResolvedValue({ userId: "u1" });
 
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(jwt.verifyAccessToken).toHaveBeenCalledWith("token123");
     expect(next).toHaveBeenCalled();
@@ -64,7 +64,7 @@ describe("jwtAuthGuard unit tests", () => {
     req.headers = { authorization: "Bearer bad" };
     jwt.verifyAccessToken.mockResolvedValue(null);
 
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(res.sendStatus).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
@@ -75,7 +75,7 @@ describe("jwtAuthGuard unit tests", () => {
     req.headers = { authorization: "Bearer token" };
     jwt.verifyAccessToken.mockResolvedValue({} as any);
 
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(res.sendStatus).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe("jwtAuthGuard unit tests", () => {
     req.headers = { authorization: "Bearer token" };
     jwt.verifyAccessToken.mockResolvedValue({ userId: "user-123" });
 
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(jwt.verifyAccessToken).toHaveBeenCalledWith("token");
     expect(req.user).toEqual({ id: "user-123" });
@@ -98,7 +98,7 @@ describe("jwtAuthGuard unit tests", () => {
     req.headers = { authorization: "Bearer token" };
     jwt.verifyAccessToken.mockRejectedValue(new Error("boom"));
 
-    await jwtAuthGuard(req as Request, res as Response, next);
+    await jwtAccessAuthGuard(req as Request, res as Response, next);
 
     expect(res.sendStatus).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();

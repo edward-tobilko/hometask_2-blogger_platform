@@ -13,9 +13,13 @@ export function getLoginDto(): LoginAuthDtoCommand {
   };
 }
 
-export function createAuthLogin(app: Express, dto: LoginAuthDtoCommand) {
+export function createAuthLogin(
+  app: Express,
+  dto: LoginAuthDtoCommand,
+  userAgent: string = "Jest E2E Test"
+) {
   return request(app)
     .post(loginPath)
-    .set("User-Agent", "Jest E2E Test") // for userDeviceTitle
+    .set("User-Agent", userAgent) // for userDeviceTitle
     .send(dto);
 }

@@ -21,6 +21,7 @@ module.exports = {
     "^comments/(.*)$": "<rootDir>/src/comments/$1",
     "^testing/(.*)$": "<rootDir>/src/testing/$1",
     "^types/(.*)$": "<rootDir>/src/types/$1",
+    "^security-devices/(.*)$": "<rootDir>/src/security-devices/$1",
 
     "^__tests__/(.*)$": "<rootDir>/src/__tests__/$1",
     "^@core/(.*)$": "<rootDir>/src/core/$1",
