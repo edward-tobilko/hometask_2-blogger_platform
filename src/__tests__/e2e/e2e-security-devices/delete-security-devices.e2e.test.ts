@@ -44,34 +44,37 @@ describe("Check status codes - 401, 403, 404", () => {
   });
 
   it("DELETE: deviceId non-existent device -> 404", async () => {
-    await request(app)
-      .delete(`${securityDevicesPath}/non-existent-device-id`)
-      .set("Cookie", devices.device1.cookies)
-      .expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+    await deleteSecurityDeviceById(
+      app,
+      "00000000-0000-4000-8000-000000000000",
+      devices.device1.cookies
+    ).expect(HTTP_STATUS_CODES.NOT_FOUND_404);
   });
 
   it("DELETE: deviceId If try to delete the deviceId of other user -> 403", async () => {
     // * Create one other user
-    await createUserBodyDto(app, {
-      login: "anotherUser",
-      email: "another@example.com",
-      password: "password123",
-    });
+    const anotherUser = await createUserBodyDto(app);
 
     // * Login him
     const loginRes = await createAuthLogin(app, {
-      loginOrEmail: "anotherUser",
-      password: "password123",
+      loginOrEmail: anotherUser.login,
+      password: "qwerty123", // look to getUserDto func
     }).expect(HTTP_STATUS_CODES.OK_200);
 
-    const anotherUserCookies = loginRes.headers["set-cookie"];
+    const anotherUserCookie = loginRes.headers["set-cookie"];
+
+    console.log("anotherUserCookie", anotherUserCookie);
 
     // * Try to remove the first user's device
     const devicesRes = await getSecurityDevices(app, devices.device1.cookies);
 
-    const firstUserDeviceId = devicesRes[0].deviceId;
+    const firstDeviceId = devicesRes[0].deviceId;
 
     // * Второй пользователь пытается удалить девайс первого
-    await deleteSecurityDeviceById(app, firstUserDeviceId, anotherUserCookies);
+    await deleteSecurityDeviceById(
+      app,
+      firstDeviceId,
+      anotherUserCookie
+    ).expect(HTTP_STATUS_CODES.FORBIDDEN_403);
   });
 });
