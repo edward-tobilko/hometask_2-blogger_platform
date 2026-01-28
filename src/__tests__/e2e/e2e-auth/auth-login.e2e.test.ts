@@ -1,10 +1,15 @@
 import express from "express";
+import request from "supertest";
 
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "../utils/clear-db";
-import { createAuthLogin, getLoginDto } from "../utils/auth/auth-login.util";
+import {
+  createAuthLogin,
+  getLoginDto,
+  loginPath,
+} from "../utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
 import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
@@ -27,7 +32,7 @@ describe("E2E Auth Login tests", () => {
     await stopDB();
   });
 
-  it("POST /auth/login -> status 200 - returns accessToken and sets refreshToken cookie", async () => {
+  it("POST: /auth/login -> status 200 - returns accessToken and sets refreshToken cookie", async () => {
     const userDto = await setRegisterAndConfirmUser();
 
     const result = await createAuthLogin(app, {
@@ -43,7 +48,38 @@ describe("E2E Auth Login tests", () => {
     expect(cookie.startsWith("refreshToken=")).toBe(true);
   });
 
-  it("POST /auth/login -> status 401 - with wrong password", async () => {
+  it("POST: /auth/login -> check rate limit", async () => {
+    // * Делаем 6 запросов подряд (лимит 5)
+    const requests = Array(6)
+      .fill(null)
+      .map(() =>
+        request(app).post(loginPath).send({
+          loginOrEmail: "wrong",
+          password: "wrong",
+        })
+      );
+
+    const responses = await Promise.all(requests);
+
+    // * Последний запрос должен получить 429
+    const tooManyRequests = responses.some(
+      (res) => res.status === HTTP_STATUS_CODES.TOO_MANY_REQUESTS_429
+    );
+
+    expect(tooManyRequests).toBe(true);
+  });
+
+  it("POST: /auth/login -> rate limit resets after time window", async () => {
+    // * Waiting for 11sec (windowMs = 10sec)
+    await new Promise((resolve) => setTimeout(resolve, 11000));
+
+    await createAuthLogin(app, {
+      loginOrEmail: loginDto.loginOrEmail,
+      password: loginDto.password,
+    }).expect(HTTP_STATUS_CODES.OK_200);
+  }, 20000);
+
+  it("POST: /auth/login -> status 401 - with wrong password", async () => {
     const userDto = await setRegisterAndConfirmUser();
 
     await createAuthLogin(app, {
@@ -97,7 +133,7 @@ describe("E2E Auth Login tests", () => {
       field: "password",
     },
   ] as const)(
-    "POST /auth/login -> status 400  (validation errors)",
+    "POST: /auth/login -> status 400  (validation errors)",
     async ({ payload, field }) => {
       const result = await createAuthLogin(app, payload as any).expect(
         HTTP_STATUS_CODES.BAD_REQUEST_400

@@ -4,7 +4,7 @@ import { Express } from "express";
 import { routersPaths } from "@core/paths/paths";
 import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.command";
 
-const loginPath = `${routersPaths.auth}/login`;
+export const loginPath = `${routersPaths.auth}/login`;
 
 export function getLoginDto(): LoginAuthDtoCommand {
   return {
