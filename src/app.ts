@@ -12,7 +12,11 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { securityDevicesRouter } from "security-devices/routers/security-devices.router";
 
 export const setupApp = (app: Express) => {
-  app.set("trust proxy", true);
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1); // for prod
+  } else {
+    app.set("trust proxy", false); // for dev/test
+  }
 
   app.use(express.json());
   app.use(cookieParser());
