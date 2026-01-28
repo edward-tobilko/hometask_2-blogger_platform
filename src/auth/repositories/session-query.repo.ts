@@ -10,3 +10,5 @@ export class SessionQueryRepo {
     return authSessionCollection.findOne({ deviceId });
   }
 }
+
+export const sessionQueryRepo = new SessionQueryRepo();
