@@ -125,6 +125,15 @@ class AuthService {
       sessionId
     );
 
+    const refreshPayload = await JWTService.verifyRefreshToken(refreshToken);
+    if (!refreshPayload) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError()],
+      });
+    }
+
     const expiresAt =
       JWTService.getExpirationDate(refreshToken) ||
       getSessionExpirationDate(30_000);
@@ -136,6 +145,8 @@ class AuthService {
       userDeviceName,
       ip,
       expiresAt,
+
+      refreshIat: refreshPayload.iat,
     });
 
     await this.sessionRepo.upsertLoginSession(session);
@@ -325,7 +336,7 @@ class AuthService {
       });
     }
 
-    const { userId, deviceId, sessionId } = payload;
+    const { userId, deviceId, sessionId, iat } = payload;
 
     // * проверка активной сессии (смотреть в browser -> application -> cookie -> session (the firth row)) в БД
     const session = await this.sessionQueryRepo.findBySessionId(sessionId);
@@ -345,6 +356,15 @@ class AuthService {
         extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
       });
 
+    // * rotation guard (в session должно быть поле refreshIat: number)
+    if (session.refreshIat !== iat) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
+      });
+    }
+
     await this.sessionRepo.updateLastActiveDate(sessionId);
 
     // * создаем новую пару токенов
@@ -354,6 +374,29 @@ class AuthService {
       deviceId,
       sessionId
     );
+
+    // * получаем iat нового refresh и сохраняем в сессию -> старый становится недействительным
+    const newPayload = await JWTService.verifyRefreshToken(newRefreshToken);
+    if (!newPayload) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
+      });
+    }
+
+    const updated = await this.sessionRepo.updateRefreshIat(
+      sessionId,
+      newPayload.iat
+    );
+
+    if (!updated) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "session")],
+      });
+    }
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

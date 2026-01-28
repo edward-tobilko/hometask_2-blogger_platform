@@ -19,6 +19,7 @@ type JWTRefreshPayload = {
   userId: string;
   deviceId: string;
   sessionId: string;
+  iat: number; // jwt.sign сам его сгенерирует в createRefreshToken
 };
 export class JWTService {
   // * Access token
@@ -55,7 +56,7 @@ export class JWTService {
         userId,
         deviceId,
         sessionId,
-      } satisfies JWTRefreshPayload,
+      } satisfies Omit<JWTRefreshPayload, "iat">,
       RT_SECRET,
       { expiresIn: RT_TIME }
     );
@@ -71,6 +72,7 @@ export class JWTService {
         userId: result.userId,
         deviceId: result.deviceId,
         sessionId: result.sessionId,
+        iat: result.iat,
       };
     } catch (error: unknown) {
       return null;
@@ -98,3 +100,4 @@ export class JWTService {
 
 // ? as — это проверка: «Поверь мне, я знаю, что делаю».
 // ? satisfies — это проверка: «Проверь, что это соответствует типу».
+// ? Omit - удаляет свойство, которое нам не нужно

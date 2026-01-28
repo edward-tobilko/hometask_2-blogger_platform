@@ -16,8 +16,16 @@ export class SessionRepository {
           userDeviceName: session.userDeviceName,
           lastActiveDate: session.lastActiveDate,
           expiresAt: session.expiresAt,
+
+          refreshIat: session.refreshIat,
         },
-        $setOnInsert: { createdAt: session.createdAt },
+        $setOnInsert: {
+          createdAt: session.createdAt,
+
+          userId: session.userId,
+          login: session.login,
+          deviceId: session.deviceId,
+        },
       },
       { upsert: true }
     );
@@ -52,6 +60,18 @@ export class SessionRepository {
       }
     );
     return result.modifiedCount === 1;
+  }
+
+  async updateRefreshIat(
+    sessionId: string,
+    refreshIat: number
+  ): Promise<boolean> {
+    const res = await authSessionCollection.updateOne(
+      { sessionId },
+      { $set: { refreshIat } }
+    );
+
+    return res.matchedCount === 1;
   }
 
   async deleteBySessionId(sessionId: string): Promise<boolean> {

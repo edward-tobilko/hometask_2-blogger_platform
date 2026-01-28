@@ -15,9 +15,11 @@ export class SessionDomain {
   ip: string;
   userDeviceName: string; // user's browser device
 
-  lastActiveDate: Date;
-  expiresAt: Date;
+  lastActiveDate: Date; // обновляем при refresh / при запросах, где нужно
+  expiresAt: Date; // дата окончания (когда токен протухнет сам)
   createdAt: Date;
+
+  refreshIat: number; // проверяет, последний ли был выданий токен
 
   constructor(dto: FieldsOnly<SessionDomain>) {
     this.userId = dto.userId;
@@ -31,6 +33,8 @@ export class SessionDomain {
     this.expiresAt = dto.expiresAt;
     this.createdAt = dto.createdAt;
 
+    this.refreshIat = dto.refreshIat;
+
     if (dto._id) this._id = dto._id;
   }
 
@@ -42,6 +46,7 @@ export class SessionDomain {
       ip: string;
       userDeviceName: string;
       expiresAt: Date;
+      refreshIat: number;
     }
   ): SessionDomain {
     return new SessionDomain({
@@ -57,6 +62,8 @@ export class SessionDomain {
       lastActiveDate: new Date(),
       expiresAt: dto.expiresAt,
       createdAt: new Date(),
+
+      refreshIat: dto.refreshIat,
     });
   }
 }
