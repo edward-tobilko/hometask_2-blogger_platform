@@ -28,8 +28,10 @@ export type SessionDB = {
   refreshToken: string;
 
   lastActiveDate: Date; // обновляем при refresh / при запросах, где нужно
-  expiresAt: Date; // дата окончания (TTL cleanup)
+  expiresAt: Date; // дата окончания (когда токен протухнет сам)
   createdAt: Date; // дата создания
+
+  refreshIat: number; // проверяет, последний ли был выданий токен
 };
 
 export type PostCommentDB = {
@@ -62,4 +64,11 @@ export type BlogDB = {
   websiteUrl: string;
   createdAt: Date;
   isMembership: boolean;
+};
+
+export type CustomRateLimitDB = {
+  _id?: ObjectId;
+  ip: string;
+  url: string;
+  date: Date;
 };

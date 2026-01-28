@@ -4,11 +4,19 @@ import { appConfig } from "../core/settings/config";
 import {
   AUTH_LOGIN_COLLECTION_NAME,
   BLOG_COLLECTION_NAME,
+  CUSTOM_RATE_LIMIT_COLLECTION_NAME,
   POST_COLLECTION_NAME,
   POST_COMMENTS_COLLECTION_NAME,
   USERS_COLLECTION_NAME,
 } from "./collection-names.db";
-import { BlogDB, PostCommentDB, PostDB, SessionDB, UserDB } from "./types.db";
+import {
+  BlogDB,
+  PostCommentDB,
+  PostDB,
+  CustomRateLimitDB,
+  SessionDB,
+  UserDB,
+} from "./types.db";
 
 let client: MongoClient;
 
@@ -17,6 +25,7 @@ export let blogCollection: Collection<BlogDB>;
 export let postCollection: Collection<PostDB>;
 export let userCollection: Collection<UserDB>;
 export let postCommentsCollection: Collection<PostCommentDB>;
+export let customRateLimitCollection: Collection<CustomRateLimitDB>;
 
 // * Подключения к БД
 export async function runDB(url: string): Promise<void> {
@@ -36,12 +45,22 @@ export async function runDB(url: string): Promise<void> {
     postCommentsCollection = dataBase.collection<PostCommentDB>(
       POST_COMMENTS_COLLECTION_NAME
     );
+    customRateLimitCollection = dataBase.collection<CustomRateLimitDB>(
+      CUSTOM_RATE_LIMIT_COLLECTION_NAME
+    );
 
     // * Инициализация индексов ( чтобы «протухшие» сессии убирались автоматически )
     authSessionCollection.createIndex(
       { expiresAt: 1 },
       { expireAfterSeconds: 0 }
     );
+
+    customRateLimitCollection.createIndex(
+      { date: 1 },
+      { expireAfterSeconds: 60 }
+    );
+
+    customRateLimitCollection.createIndex({ ip: 1, url: 1, date: 1 }); // ip + url + date
 
     await dataBase.command({ ping: 1 });
 
