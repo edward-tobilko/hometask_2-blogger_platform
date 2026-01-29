@@ -1,11 +1,6 @@
-import rateLimit, {
-  RateLimitRequestHandler,
-  MemoryStore,
-} from "express-rate-limit";
+import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-
-export const rateLimitStore = new MemoryStore();
 
 export const authRateLimiter: RateLimitRequestHandler = rateLimit({
   windowMs: 10 * 1000, // 10сек
@@ -13,7 +8,7 @@ export const authRateLimiter: RateLimitRequestHandler = rateLimit({
   standardHeaders: true, // добавляет RateLimit-заголовки
   legacyHeaders: false, // не добавляет X-RateLimit-*
 
-  store: rateLimitStore,
+  skip: () => process.env.NODE_ENV === "test",
 
   message: {
     errorsMessages: [

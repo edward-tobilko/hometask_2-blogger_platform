@@ -20,7 +20,7 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
 
   const authCustomRateLimiter = customRateLimiterMiddleware(repo, {
     windowMs: 10_000, // каждые 10сек можно повторять попытку отправки
-    max: 2, // max count
+    max: 5, // max count
   });
 
   // * GET: Get info about current user.
@@ -29,25 +29,24 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
   // * POST: Try login user to the system.
   authRoute.post(
     "/login",
-    authCustomRateLimiter,
     loginOrEmailAuthRPValidation,
     inputResultMiddlewareValidation,
+    authCustomRateLimiter,
     loginHandler
   );
 
   // * POST: Registration in the system. Email with confirmation code will be send to passed email address.
   authRoute.post(
     "/registration",
-    authCustomRateLimiter,
     registrationAuthRPValidation,
     inputResultMiddlewareValidation,
+    authCustomRateLimiter,
     registrationHandler
   );
 
   // * POST: Confirm registration.
   authRoute.post(
     "/registration-confirmation",
-    authCustomRateLimiter,
 
     body("code")
       .exists()
@@ -57,13 +56,13 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
       .withMessage("Code must be a string"),
 
     inputResultMiddlewareValidation,
+    authCustomRateLimiter,
     confirmRegistrationHandler
   );
 
   // * POST: Resend confirmation registration  email if user exist.
   authRoute.post(
     "/registration-email-resending",
-    authCustomRateLimiter,
 
     body("email")
       .exists()
@@ -76,6 +75,7 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
       .withMessage("Email must be a valid email"),
 
     inputResultMiddlewareValidation,
+    authCustomRateLimiter,
     registrationEmailResendingHandler
   );
 
