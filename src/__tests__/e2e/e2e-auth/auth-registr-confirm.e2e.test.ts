@@ -1,7 +1,12 @@
 import express from "express";
 
 import { setupApp } from "app";
-import { runDB, stopDB, userCollection } from "db/mongo.db";
+import {
+  customRateLimitCollection,
+  runDB,
+  stopDB,
+  userCollection,
+} from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "../utils/clear-db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
@@ -11,22 +16,26 @@ import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
 import { createAuthConfirmRegistration } from "../utils/auth/auth-confirm-registr.util";
 
 describe("E2E Auth Registration Confirmation tests", () => {
-  const app = express();
-  setupApp(app);
+  let app = express();
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    app = express();
+    setupApp(app);
   });
 
   beforeEach(async () => {
     await clearDB(app);
+
+    await customRateLimitCollection.deleteMany({});
   });
 
   afterAll(async () => {
     await stopDB();
   });
 
-  it("POST /auth/registration-confirmation -> status 204 (success)", async () => {
+  it("POST: /auth/registration-confirmation -> status 204 (success)", async () => {
     const userDto = getUserDto();
 
     await createAuthRegisterUser(app, userDto).expect(
@@ -60,7 +69,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
       field: "code",
     },
   ] as const)(
-    "POST /auth/registration-confirmation -> status 400 (validation errors)",
+    "POST: /auth/registration-confirmation -> status 400 (validation errors)",
     async ({ payload, field }) => {
       const result = await createAuthConfirmRegistration(app, payload).expect(
         HTTP_STATUS_CODES.BAD_REQUEST_400
@@ -77,7 +86,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     }
   );
 
-  it("POST /auth/registration-confirmation -> status 400 (incorrect code)", async () => {
+  it("POST: /auth/registration-confirmation -> status 400 (incorrect code)", async () => {
     const userDto = getUserDto();
 
     await createAuthRegisterUser(app, userDto).expect(
@@ -98,7 +107,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     );
   });
 
-  it("POST /auth/registration-confirmation -> status 400 (already applied)", async () => {
+  it("POST: /auth/registration-confirmation -> status 400 (already applied)", async () => {
     const userDto = getUserDto();
 
     await createAuthRegisterUser(app, userDto).expect(
@@ -127,7 +136,7 @@ describe("E2E Auth Registration Confirmation tests", () => {
     );
   });
 
-  it("POST /auth/registration-confirmation -> status 400 (expired code)", async () => {
+  it("POST: /auth/registration-confirmation -> status 400 (expired code)", async () => {
     const userDto = getUserDto();
 
     await createAuthRegisterUser(app, userDto).expect(
@@ -158,5 +167,43 @@ describe("E2E Auth Registration Confirmation tests", () => {
         }),
       ])
     );
+  });
+
+  it("POST: /auth/registration-confirmation -> status 429 (rate limit)", async () => {
+    // * важно: чтобы лимитер реально работал в e2e (так как мы его выключили в customRateLimiterMiddleware)
+    const prev = process.env.DISABLE_RATE_LIMIT;
+    process.env.DISABLE_RATE_LIMIT = "false";
+
+    try {
+      const userDto = getUserDto();
+
+      await createAuthRegisterUser(app, userDto).expect(
+        HTTP_STATUS_CODES.NO_CONTENT_204
+      );
+
+      const user = await userCollection.findOne({ email: userDto.email });
+
+      expect(user).toBeTruthy();
+
+      const payload = { code: user!.emailConfirmation.confirmationCode };
+
+      // * 5 попыток в окно (max=5) -> 400 (потому что код неправильный), но лимитер считает запросы:  - первый раз - 204, "already applied" - 400 след. попытки.
+      for (let i = 0; i < 5; i++) {
+        await createAuthConfirmRegistration(app, payload).expect((res) => {
+          // * принимаем 204 или 400, потому что после первого подтверждения будет «already applied»
+          expect([
+            HTTP_STATUS_CODES.NO_CONTENT_204,
+            HTTP_STATUS_CODES.BAD_REQUEST_400,
+          ]).toContain(res.status);
+        });
+      }
+
+      // * 6-я попытка в то же окно -> 429
+      await createAuthConfirmRegistration(app, payload).expect(
+        HTTP_STATUS_CODES.TOO_MANY_REQUESTS_429
+      );
+    } finally {
+      process.env.DISABLE_RATE_LIMIT = prev;
+    }
   });
 });

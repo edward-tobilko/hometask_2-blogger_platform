@@ -2,7 +2,12 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "app";
-import { runDB, stopDB, userCollection } from "db/mongo.db";
+import {
+  customRateLimitCollection,
+  runDB,
+  stopDB,
+  userCollection,
+} from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "../utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
@@ -14,16 +19,19 @@ import { UserDtoDomain } from "users/domain/user-dto.domain";
 const testUserDto: UserDtoDomain = getUserDto();
 
 describe("E2E Auth Registration tests", () => {
-  const app = express();
-
-  setupApp(app);
+  let app = express();
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    app = express();
+    setupApp(app);
   });
 
   beforeEach(async () => {
     await clearDB(app);
+
+    await customRateLimitCollection.deleteMany({});
   });
 
   afterAll(async () => {
@@ -32,7 +40,7 @@ describe("E2E Auth Registration tests", () => {
 
   const registrationPath = `${routersPaths.auth}/registration`;
 
-  it("POST /auth/registration -> status 204 (success)", async () => {
+  it("POST: /auth/registration -> status 204 (success)", async () => {
     const userDto = getUserDto();
 
     await request(app)
@@ -46,7 +54,7 @@ describe("E2E Auth Registration tests", () => {
     expect(createdUser!.emailConfirmation.isConfirmed).toBe(false);
   });
 
-  it("POST /auth/registration -> 400 (duplicate login)", async () => {
+  it("POST: /auth/registration -> 400 (duplicate login)", async () => {
     const userDtoFirst = getUserDto();
     const userDtoSecond = {
       ...getUserDto(),
@@ -72,7 +80,7 @@ describe("E2E Auth Registration tests", () => {
     expect(fields).toContain("login");
   });
 
-  it("POST /auth/registration -> status 400 (duplicate email)", async () => {
+  it("POST: /auth/registration -> status 400 (duplicate email)", async () => {
     const userDtoFirst = getUserDto();
     const userDtoSecond = {
       ...getUserDto(),
@@ -162,4 +170,23 @@ describe("E2E Auth Registration tests", () => {
       );
     }
   );
+
+  it("POST: /auth/registration -> status 429 (too many requests)", async () => {
+    const userDto = getUserDto();
+
+    // * Первые 5 запросов (лимит 5) — первый даст 204, далее будут 400 (потому что email/login уже существует), но главное: все эти запросы валидны и доходят до rateLimiter.
+    for (let i = 0; i < 5; i++) {
+      await createAuthRegisterUser(app, userDto).expect((res) => {
+        expect([
+          HTTP_STATUS_CODES.NO_CONTENT_204,
+          HTTP_STATUS_CODES.BAD_REQUEST_400,
+        ]).toContain(res.status);
+      });
+    }
+
+    // * 6-й запросс -> 429
+    await createAuthRegisterUser(app, userDto).expect(
+      HTTP_STATUS_CODES.TOO_MANY_REQUESTS_429
+    );
+  });
 });

@@ -4,7 +4,7 @@ import { setupApp } from "app";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
-import { runDB, stopDB } from "db/mongo.db";
+import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "../utils/clear-db";
 import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
@@ -12,22 +12,26 @@ import { setAuthLogout } from "../utils/auth/auth-logout.util";
 import { setAuthRefreshToken } from "../utils/auth/auth-refresh-token.util";
 
 describe("E2E Auth logout tests", () => {
-  const app = express();
-  setupApp(app);
+  let app = express();
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    app = express();
+    setupApp(app);
   });
 
   beforeEach(async () => {
     await clearDB(app);
+
+    await customRateLimitCollection.deleteMany({});
   });
 
   afterAll(async () => {
     await stopDB();
   });
 
-  it("POST /auth/logout -> status 204 and refresh-token becomes invalid (refresh after logout -> 401)", async () => {
+  it("POST: /auth/logout -> status 204 and refresh-token becomes invalid (refresh after logout -> 401)", async () => {
     const userDto = await setRegisterAndConfirmUser();
 
     const loginResult = await createAuthLogin(app, {

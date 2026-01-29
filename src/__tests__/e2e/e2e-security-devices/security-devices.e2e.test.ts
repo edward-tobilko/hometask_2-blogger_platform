@@ -6,7 +6,7 @@ import { getUserDto } from "../utils/users/get-user-dto.util";
 import { setupApp } from "app";
 import { runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
-// import { clearDB } from "../utils/clear-db";
+import { clearDB } from "../utils/clear-db";
 import { createUserBodyDto } from "../utils/users/create-user.util";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
@@ -40,10 +40,7 @@ describe("Security Devices E2E Tests", () => {
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
-  });
-
-  beforeEach(async () => {
-    // await clearDB(app);
+    await clearDB(app);
   });
 
   afterAll(async () => {
@@ -252,8 +249,12 @@ describe("Security Devices E2E Tests", () => {
       }).expect(HTTP_STATUS_CODES.OK_200);
 
       const anotherUserCookie = loginRes.headers["set-cookie"];
+      const cookiesArray = Array.isArray(anotherUserCookie)
+        ? anotherUserCookie
+        : [anotherUserCookie];
+      const cookieHeader = cookiesArray.map((c) => c.split(";")[0]).join("; ");
 
-      console.log("anotherUserCookie", anotherUserCookie);
+      console.log("anotherUserCookie", cookieHeader);
 
       // * Try to remove the first user's device
       const devicesRes = await getSecurityDevices(app, devices.device1.cookies);

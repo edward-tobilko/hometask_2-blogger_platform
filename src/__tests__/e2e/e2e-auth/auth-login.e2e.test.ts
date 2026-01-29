@@ -1,7 +1,7 @@
 import express from "express";
 
 import { setupApp } from "app";
-import { runDB, stopDB } from "db/mongo.db";
+import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "../utils/clear-db";
 import { createAuthLogin, getLoginDto } from "../utils/auth/auth-login.util";
@@ -12,15 +12,19 @@ import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
 const loginDto = getLoginDto();
 
 describe("E2E Auth Login tests", () => {
-  const app = express();
-  setupApp(app);
+  let app = express();
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    app = express();
+    setupApp(app);
   });
 
   beforeEach(async () => {
     await clearDB(app);
+
+    await customRateLimitCollection.deleteMany({});
   });
 
   afterAll(async () => {

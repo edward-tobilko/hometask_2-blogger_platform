@@ -4,7 +4,7 @@ import { setupApp } from "app";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
-import { runDB, stopDB } from "db/mongo.db";
+import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "../utils/clear-db";
 import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
@@ -14,15 +14,19 @@ import {
 } from "../utils/auth/auth-refresh-token.util";
 
 describe("E2E Auth refresh-token tests", () => {
-  const app = express();
-  setupApp(app);
+  let app = express();
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    app = express();
+    setupApp(app);
   });
 
   beforeEach(async () => {
     await clearDB(app);
+
+    await customRateLimitCollection.deleteMany({});
   });
 
   afterAll(async () => {
@@ -64,7 +68,7 @@ describe("E2E Auth refresh-token tests", () => {
   });
 
   it("POST /auth/refresh-token -> status 401 - if no refreshToken cookie", async () => {
-    await getRefreshToken(app);
+    await getRefreshToken(app).expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 
   it("POST /auth/refresh-token -> rotation: old refresh becomes invalid (old -> 401, new -> 200)", async () => {
@@ -78,6 +82,8 @@ describe("E2E Auth refresh-token tests", () => {
     const oldRefreshCookie = extractRefreshTokenCookie(
       loginResult.headers["set-cookie"]
     );
+    // * Если в JWT payload нет ничего, что меняется, кроме iat, а iat в секундах, то при двух токенах в пределах 1 секунды они будут 1-в-1 одинаковыми, из-за этого нужно добавить по-больше интервал = 1100.
+    await new Promise((resolve) => setTimeout(resolve, 1100));
 
     const refreshResult = await setAuthRefreshToken(
       app,
