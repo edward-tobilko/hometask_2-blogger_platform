@@ -91,6 +91,22 @@ JWT_REFRESH_SECRET=your_refresh_secret
 SMTP_EMAIL=your_email
 SMTP_PASSWORD=your_password
 
+# fly secrets set -a hometask-2-blogger-platform \
+# NODE_ENV=production \
+# MONGO_URL='mongodb+srv://1992eduard777_db_user:!Miami4769@hometask-2.zq4rutx.mongodb.net' \
+# DB_NAME='home_task2-blogger_platform_prod' \
+# ADMIN_USERNAME='admin' \
+# ADMIN_PASSWORD='qwerty' \
+# AT_SECRET='prod_access_secret_123!@#' \
+# AT_TIME='10s' \
+# RT_SECRET='prod_refresh_secret_456!@#' \
+# RT_TIME='20s' \
+# SMTP_HOST='smtp.gmail.com' \
+# SMTP_PORT='587' \
+# SMTP_SECURE='true' \
+# EMAIL='eduardtobilko@gmail.com' \
+# EMAIL_PASS='cjanstjhaohjjzrr'
+
 ```
 
 ---
