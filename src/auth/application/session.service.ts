@@ -349,14 +349,21 @@ class AuthService {
     }
 
     // * если в БД другой refreshToken → значит этот токен уже ротирован / украден / старый - базовый «reuse protection» через single valid token per session.
-    if (session.userId.toString() !== userId || session.deviceId !== deviceId)
+    if (session.userId.toString() !== userId)
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
         extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
       });
 
-    // * rotation guard (в session должно быть поле refreshIat: number)
+    if (session.deviceId !== deviceId)
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: null,
+        extensions: [new UnauthorizedError("Unauthorized", "refreshToken")],
+      });
+
+    // * rotation guard (в session в бд должно быть поле refreshIat: number)
     if (session.refreshIat !== iat) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,

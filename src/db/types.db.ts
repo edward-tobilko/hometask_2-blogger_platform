@@ -27,11 +27,11 @@ export type SessionDB = {
   userDeviceName: string; // user-agent title ("Chrome", "Jest", "iPhone"...)
   refreshToken: string;
 
-  lastActiveDate: Date; // обновляем при refresh / при запросах, где нужно
-  expiresAt: Date; // дата окончания (когда токен протухнет сам)
+  lastActiveDate: Date; // обновляем только при refresh (last visit)
+  expiresAt: Date; // дата окончания (когда токен протухнет сам, если установлен TTL (time-to-live) d mongodb)
   createdAt: Date; // дата создания
 
-  refreshIat: number; // проверяет, последний ли был выданий токен
+  refreshIat: number; // защита от повторного использ. токена (проверяет, последний ли был выданий токен)
 };
 
 export type PostCommentDB = {
