@@ -70,20 +70,19 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ---
 
-### + дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг
+<h3 align="center">Project Progress</h3>
 
-- Добавлен новые энд-поинты: api/users -> GET / POST / DELETE.
-- Розделения BLL service и repository на получения ( query ).
+### sprint-1 / week-4 + added:
+- Новые энд-поинты: GET / POST / DELETE: api/users.
+- Розделения BLL service и repository на получения query (CQRS separation).
 - Шифрование паролей с пом. bcrypt библиотеки.
 
-### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-1 + рефакторинг
-
-- Добавлен новые энд-поинты: api/auth -> GET, api/comments -> GET / PUT / DELETE, api/posts/{postId}/comments -> GET / POST.
+### sprint-2 / week-1 + added:
+- Новые энд-поинты: GET: api/auth, GET / PUT / DELETE: api/comments, GET / POST: api/posts/{postId}/comments.
 - Создания и получения JWT-token пользователя.
 - Создания и получения коментариев к постам под определенным jwt-токеном.
 
-### + дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-2 + рефакторинг
-
-- Добавлены новые энд-поинты: api/auth/registration -> POST, api/auth/registration-confirmation -> POST, api/auth/registration-email-resending -> POST.
+### sprint-2 / week-2 + added:
+- Новые энд-поинты: POST: api/auth/registration, POST: api/auth/registration-confirmation, POST: api/auth/registration-email-resending.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
-- Миграция хостинга from Render to Fly.io.
+- Миграция хостинга from [Render.com ](https://render.com) to [Fly.io](https://fly.io).
