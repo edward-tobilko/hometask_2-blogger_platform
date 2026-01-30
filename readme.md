@@ -69,8 +69,9 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ---
 
-### + дополнительно реализовано, расширение предыдущей функциональности from sprint-1 / week-4
+<h3 align="center">Project Progress</h3>
 
-- Добавлен новые энд-поинты api/users: GET / POST / DELETE.
-- Розделения BLL service и repository на получения ( query ).
+### sprint-1 / week-4 + added:
+- Новые энд-поинты: GET / POST / DELETE: api/users.
+- Розделения BLL service и repository на получения query (CQRS separation).
 - Шифрование паролей с пом. bcrypt библиотеки.
