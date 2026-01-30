@@ -85,27 +85,26 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ```env
 
+# fly secrets set -a hometask-2-blogger-platform
+
+NODE_ENV=production
+DB_NAME=your_db_name
 MONGO_URL=your_mongodb_url
-JWT_SECRET=your_jwt_secret
+
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=qwerty
+
+JWT_ACCESS_SECRET=your_access_secret
+AT_TIME=10
+
 JWT_REFRESH_SECRET=your_refresh_secret
+RT_TIME=20
+
 SMTP_EMAIL=your_email
 SMTP_PASSWORD=your_password
-
-# fly secrets set -a hometask-2-blogger-platform \
-# NODE_ENV=production \
-# MONGO_URL='mongodb+srv://1992eduard777_db_user:!Miami4769@hometask-2.zq4rutx.mongodb.net' \
-# DB_NAME='home_task2-blogger_platform_prod' \
-# ADMIN_USERNAME='admin' \
-# ADMIN_PASSWORD='qwerty' \
-# AT_SECRET='prod_access_secret_123!@#' \
-# AT_TIME='10s' \
-# RT_SECRET='prod_refresh_secret_456!@#' \
-# RT_TIME='20s' \
-# SMTP_HOST='smtp.gmail.com' \
-# SMTP_PORT='587' \
-# SMTP_SECURE='true' \
-# EMAIL='eduardtobilko@gmail.com' \
-# EMAIL_PASS='cjanstjhaohjjzrr'
+SMTP_SECURE=true
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
 
 ```
 
@@ -113,25 +112,25 @@ SMTP_PASSWORD=your_password
 
 <h3 align="center">Project Progress</h3>
 
-## sprint-1 / week-4
-### Added:
+## sprint-1 / week-4 + added:
 - Новые энд-поинты: GET / POST / DELETE: api/users.
 - Розделения BLL service и repository на получения query (CQRS separation).
 - Шифрование паролей с пом. bcrypt библиотеки.
 
-## sprint-2 / week-1
-### Added:
+## sprint-2 / week-1 + added:
 - Новые энд-поинты: GET: api/auth, GET / PUT / DELETE: api/comments, GET / POST: api/posts/{postId}/comments.
 - Создания и получения JWT-token пользователя.
 - Создания и получения коментариев к постам под определенным jwt-токеном.
 
-## sprint-2 / week-2
-### Added:
+## sprint-2 / week-2 + added:
 - Новые энд-поинты: POST: api/auth/registration, POST: api/auth/registration-confirmation, POST: api/auth/registration-email-resending.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
 - Миграция хостинга from [Render.com ](https://render.com) to [Fly.io](https://fly.io).
 
-## sprint-2 / week-3
-### Added:
+## sprint-2 / week-3 + added:
 - Новые энд-поинты: POST: api/auth/login, POST: api/auth/refresh-token, POST: api/auth/logout, GET: api/auth/me.
 - Работа с accessToken and refreshToken.
+
+## sprint-2 / week-4 + added:
+- Новые энд-поинты: GET: api/security/devices, DELETE: api/security/devices, DELETE: api/security/devices/${deviceId}
+- В Auth route добавлена новая проверка на rate limit -> 429 (More than 5 attempts from one IP-address during 10 seconds).
