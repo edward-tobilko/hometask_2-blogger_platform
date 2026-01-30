@@ -1,6 +1,4 @@
-<h1 align="center">Sprint-2 / Week-4 — Refresh token / Cookie</h1>
-
-<h1 align="center">Blogger Platform API</h1>
+<h1 align="center">Blogger Platform API: Sprint-3 / Week-1 — Multi devices / IP-Restrictions</h1>
 
 Backend REST API built with **Node.js + Express + TypeScript**  
 Educational project with production-oriented architecture and E2E tests.
@@ -22,12 +20,11 @@ with continuous refactoring and feature expansion.
 <h1 align="center">Реализованные концепции</h1>
 
 ### Service Layer (BLL)
-- Бизнес-логика вынесена из HTTP-уровня в отдельный Service Layer.
-- Сервисы не зависят от Express (`req`, `res`, `statusCode`).
+- Бизнес-логика вынесена из HTTP-уровня в отдельный Service Layer: сервисы не зависят от Express (`req`, `res`, `statusCode`).
 - Взаимодействие с базой данных происходит через Repository layer.
 - Сервисы возвращают результат выполнения, а не HTTP-ответ.
-- Basic auth and JWT-авторизация.
-- Реализованы E2E тесты.
+- Basic auth and JWT-авторизация (access / refresh tokens).
+- Реализованы E2E тесты (Jest).
 - Работа с почтой с пом. SMTP-протокола.
 
 ### Поток выполнения:
@@ -76,14 +73,13 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 ### Технологии
 
-- Node.js
-- Express
-- TypeScript
-- MongoDB
-- Express-Validator
+- Node.js / TypeScript
+- Express (Express-Validator)
+- MongoDB (TTL indexes)
 - Jest + Supertest
 - Crypto / Bcrypt
 - Nodemailer (SMTP)
+- Render / Fly.io
 
 ### Environment Variables
 
@@ -99,25 +95,27 @@ SMTP_PASSWORD=your_password
 
 ---
 
-<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-1 / week-4 + рефакторинг</h3>
+<h3 align="center">Project Progress</h3>
 
-- Добавлены новые энд-поинты: GET / POST / DELETE: api/users.
-- Розделения BLL service и repository на получения ( query ).
+## sprint-1 / week-4
+### Added:
+- Новые энд-поинты: GET / POST / DELETE: api/users.
+- Розделения BLL service и repository на получения query (CQRS separation).
 - Шифрование паролей с пом. bcrypt библиотеки.
 
-<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-1 + рефакторинг</h3>
-
-- Добавлены новые энд-поинты: GET: api/auth, GET / PUT / DELETE: api/comments, GET / POST: api/posts/{postId}/comments.
+## sprint-2 / week-1
+### Added:
+- Новые энд-поинты: GET: api/auth, GET / PUT / DELETE: api/comments, GET / POST: api/posts/{postId}/comments.
 - Создания и получения JWT-token пользователя.
 - Создания и получения коментариев к постам под определенным jwt-токеном.
 
-<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-2 + рефакторинг</h3>
-
-- Добавлены новые энд-поинты: POST: api/auth/registration, POST: api/auth/registration-confirmation, POST: api/auth/registration-email-resending.
+## sprint-2 / week-2
+### Added:
+- Новые энд-поинты: POST: api/auth/registration, POST: api/auth/registration-confirmation, POST: api/auth/registration-email-resending.
 - Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
 - Миграция хостинга from [Render.com ](https://render.com) to [Fly.io](https://fly.io).
 
-<h3 align="center">Дополнительно реализовано: расширение предыдущей функциональности from sprint-2 / week-3 + рефакторинг</h3>
-
-- Добавлены новые энд-поинты: POST: api/auth/login, POST: api/auth/refresh-token, POST: api/auth/logout, GET: api/auth/me.
+## sprint-2 / week-3
+### Added:
+- Новые энд-поинты: POST: api/auth/login, POST: api/auth/refresh-token, POST: api/auth/logout, GET: api/auth/me.
 - Работа с accessToken and refreshToken.
