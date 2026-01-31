@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { JWTService } from "../../adapters/jwt-service.adapter";
 import { IdType } from "../../../core/types/id";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { SessionQueryRepo } from "auth/repositories/session-query.repo";
+import { sessionQueryRepo } from "auth/repositories/session-query.repo";
 
 export const jwtAccessAuthGuard = async (
   req: Request,
@@ -21,7 +21,7 @@ export const jwtAccessAuthGuard = async (
     }
 
     // * Проверяем, существует ли сессия.
-    const session = await SessionQueryRepo.findBySessionId(payload.sessionId);
+    const session = await sessionQueryRepo.findBySessionId(payload.sessionId);
     if (!session) {
       return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
     }

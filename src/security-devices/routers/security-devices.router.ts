@@ -25,9 +25,9 @@ securityDevicesRouter.delete(
     .withMessage("deviceId must be a string")
     .trim()
     .notEmpty()
-    .withMessage("deviceId must not be empty")
-    .isUUID()
-    .withMessage("deviceId must be a valid UUID"),
+    .withMessage("deviceId must not be empty"),
+  // .isUUID()
+  // .withMessage("deviceId must be a valid UUID"),
 
   inputResultMiddlewareValidation,
   removeDeviceByIdHandler

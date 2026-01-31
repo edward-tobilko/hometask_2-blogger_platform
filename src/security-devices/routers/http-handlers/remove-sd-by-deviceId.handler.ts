@@ -33,6 +33,7 @@ export const removeDeviceByIdHandler = async (
       command.payload.deviceId,
       payload.userId
     );
+
     if (result.status !== ApplicationResultStatus.Success) {
       return res.status(mapApplicationStatusToHttpStatus(result.status)).json({
         errorsMessages: result.extensions.map((err: ApplicationError) => ({
