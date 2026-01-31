@@ -112,25 +112,5 @@ SMTP_PORT=587
 
 <h3 align="center">Project Progress</h3>
 
-### sprint-1 / week-4 + added:
-- Новые энд-поинты: GET / POST / DELETE: api/users.
-- Розделения BLL service и repository на получения query (CQRS separation).
-- Шифрование паролей с пом. bcrypt библиотеки.
-
-### sprint-2 / week-1 + added:
-- Новые энд-поинты: GET: api/auth, GET / PUT / DELETE: api/comments, GET / POST: api/posts/{postId}/comments.
-- Создания и получения JWT-token пользователя.
-- Создания и получения коментариев к постам под определенным jwt-токеном.
-
-### sprint-2 / week-2 + added:
-- Новые энд-поинты: POST: api/auth/registration, POST: api/auth/registration-confirmation, POST: api/auth/registration-email-resending.
-- Реализована логика создания пользователя и отправки письма (nodemailer через smtp-протокол).
-- Миграция хостинга from [Render.com ](https://render.com) to [Fly.io](https://fly.io).
-
-### sprint-2 / week-3 + added:
-- Новые энд-поинты: POST: api/auth/login, POST: api/auth/refresh-token, POST: api/auth/logout, GET: api/auth/me.
-- Работа с accessToken and refreshToken.
-
-### sprint-2 / week-4 + added:
-- Новые энд-поинты: GET: api/security/devices, DELETE: api/security/devices, DELETE: api/security/devices/${deviceId}
-- В Auth route добавлена новая проверка на rate limit -> 429 (More than 5 attempts from one IP-address during 10 seconds).
+- <img width="800" height="1000" alt="Screenshot 2026-01-31 at 2 20 20 PM" src="https://github.com/user-attachments/assets/abec1e37-a17a-44f0-a956-89a8094f0470" />
+- <img width="800" height="600" alt="Screenshot 2026-01-31 at 2 20 37 PM" src="https://github.com/user-attachments/assets/43445485-e60f-42f9-a5f2-365bc0ec6a19" />
