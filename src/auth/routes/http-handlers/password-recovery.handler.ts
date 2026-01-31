@@ -17,3 +17,7 @@ export const passwordRecoveryHandler = async (
 };
 
 // ? Request<Params, ResBody, ReqBody, Query>
+
+// ? return response 204 - Even if current email is not registered (for prevent user's email detection).
+// ? return response 400 - If the inputModel has invalid email (for example 222^gmail.com).
+// ? return response 429 - More than 5 attempts from one IP-address during 10 seconds (authCustomRateLimiter middleware)
