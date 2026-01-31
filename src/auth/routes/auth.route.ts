@@ -14,6 +14,7 @@ import { refreshTokenHandler } from "./http-handlers/refresh-token.handler";
 import { logoutHandler } from "./http-handlers/logout.handler";
 import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
 import { customRateLimiterMiddleware } from "@core/middlewares/custom-rate-limiter.middleware";
+import { passwordRecoveryHandler } from "./http-handlers/password-recovery.handler";
 
 export const createAuthRouter = (repo: CustomRateLimitRepo) => {
   const authRoute = Router();
@@ -79,11 +80,30 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
     registrationEmailResendingHandler
   );
 
-  // * POST: Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh.
+  // * POST: Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh token.
   authRoute.post("/refresh-token", refreshTokenHandler);
 
   // * POST: In cookie client must send correct refresh token that will be revoked.
   authRoute.post("/logout", logoutHandler);
+
+  // * POST: Password recovery via email confirmation. Email should be sent with RecoveryCode inside.
+  authRoute.post(
+    "/password-recovery",
+
+    body("email")
+      .exists()
+      .withMessage("Email is required")
+      .bail()
+      .isString()
+      .withMessage("Email must be a string")
+      .trim()
+      .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)
+      .withMessage("Email must be a valid email"),
+
+    inputResultMiddlewareValidation,
+    authCustomRateLimiter,
+    passwordRecoveryHandler
+  );
 
   return authRoute;
 };
