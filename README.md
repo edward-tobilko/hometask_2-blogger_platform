@@ -1,4 +1,4 @@
-<h1 align="center">Blogger Platform API: Sprint-3 / Week-1 — Multi devices / IP-Restrictions</h1>
+<h1 align="center">Blogger Platform API: Sprint-3 / Week-2 — Classes / DI (Dependency Injection) / IoC (Inversion of Control Container)</h1>
 
 Backend REST API built with **Node.js + Express + TypeScript**  
 Educational project with production-oriented architecture and E2E tests.
