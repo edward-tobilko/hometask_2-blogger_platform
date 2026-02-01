@@ -4,7 +4,7 @@ import { ApplicationResultStatus } from "@core/result/types/application-result-s
 import { SessionQueryRepo } from "auth/repositories/session-query.repo";
 import { SecurityDevicesRepo } from "security-devices/repositories/security-devices.repo";
 
-class SecurityDevicesQueryService {
+class SecurityDevicesService {
   constructor(
     private securityDevicesRepo: SecurityDevicesRepo,
     private sessionQueryRepo: SessionQueryRepo
@@ -62,7 +62,7 @@ class SecurityDevicesQueryService {
   }
 }
 
-export const securityDevicesService = new SecurityDevicesQueryService(
+export const securityDevicesService = new SecurityDevicesService(
   new SecurityDevicesRepo(),
   new SessionQueryRepo()
 );

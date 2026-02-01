@@ -9,7 +9,7 @@ interface IEmailConfirmationUpdate {
   isConfirmed: boolean;
 }
 
-export class UserRepository {
+export class UsersRepository {
   async createUserRepo(user: UserDB): Promise<UserDB> {
     const insertResult = await userCollection.insertOne(user);
 

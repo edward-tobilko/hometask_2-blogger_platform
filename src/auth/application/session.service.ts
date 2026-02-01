@@ -17,7 +17,7 @@ import {
 import { JWTService } from "../adapters/jwt-service.adapter";
 import { SessionDomain } from "../domain/session.domain";
 import { UserDB } from "db/types.db";
-import { UserRepository } from "users/repositories/user.repository";
+import { UsersRepository } from "users/repositories/user.repository";
 import { nodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
@@ -31,7 +31,7 @@ class AuthService {
     private readonly passwordHasher: BcryptPasswordHasher,
     private readonly sessionRepo: SessionRepository,
     private readonly sessionQueryRepo: SessionQueryRepo,
-    private readonly userRepo: UserRepository
+    private readonly userRepo: UsersRepository
   ) {}
 
   async checkUserCredentials(
@@ -471,5 +471,5 @@ export const authService = new AuthService(
   new BcryptPasswordHasher(),
   new SessionRepository(),
   new SessionQueryRepo(),
-  new UserRepository()
+  new UsersRepository()
 );
