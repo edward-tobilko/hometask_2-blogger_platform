@@ -17,7 +17,7 @@ const usersService = new UsersService(
 );
 
 // * Controllers
-export const usersController = new UsersController(usersService);
+const usersController = new UsersController(usersService);
 
 // ? DI (Dependency injection) - внедрение зависимостей. Нужны для:
 // ? - гибкости: зависимости могут быть легко заменены на другие

@@ -1,20 +1,26 @@
-import { UsersQueryRepository } from "../repositories/users-query.repository";
+import { inject, injectable } from "inversify";
+
 import { UserOutput } from "./output/user.output";
 import { UsersListPaginatedOutput } from "./output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "./query-handlers/get-users-list.query-handler";
+import { IUsersQueryService } from "users/interfaces/IUsersQueryService";
+import { Types } from "@core/di/types";
+import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
 
-class UserQueryService {
-  constructor(private usersQueryRepository = new UsersQueryRepository()) {}
+@injectable()
+export class UsersQueryService implements IUsersQueryService {
+  constructor(
+    @inject(Types.IUsersQueryRepository)
+    private usersQueryRepository: IUsersQueryRepository
+  ) {}
 
   async getUsersList(
     queryParam: GetUsersListQueryHandler
   ): Promise<UsersListPaginatedOutput> {
-    return await this.usersQueryRepository.getUsersListQueryRepo(queryParam);
+    return await this.usersQueryRepository.getUsersList(queryParam);
   }
 
   async getUserById(userId: string): Promise<UserOutput | null> {
-    return await this.usersQueryRepository.findUserByIdQueryRepo(userId);
+    return await this.usersQueryRepository.findUserById(userId);
   }
 }
-
-export const userQueryService = new UserQueryService();

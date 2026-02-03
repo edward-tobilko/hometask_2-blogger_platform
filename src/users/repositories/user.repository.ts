@@ -1,16 +1,16 @@
 import { ObjectId } from "mongodb";
+import { injectable } from "inversify";
 
 import { userCollection } from "../../db/mongo.db";
 import { UserDB } from "db/types.db";
+import {
+  IEmailConfirmationUpdate,
+  IUsersRepository,
+} from "users/interfaces/IUsersRepository";
 
-interface IEmailConfirmationUpdate {
-  confirmationCode: string;
-  expirationDate: Date;
-  isConfirmed: boolean;
-}
-
-export class UsersRepository {
-  async createUserRepo(user: UserDB): Promise<UserDB> {
+@injectable()
+export class UsersRepository implements IUsersRepository {
+  async createUser(user: UserDB): Promise<UserDB> {
     const insertResult = await userCollection.insertOne(user);
 
     user._id = insertResult.insertedId;
@@ -18,7 +18,7 @@ export class UsersRepository {
     return user;
   }
 
-  async deleteUserRepo(id: string): Promise<boolean> {
+  async deleteUser(id: string): Promise<boolean> {
     // * Проверяем, является ли ObjectId действительным
     if (!ObjectId.isValid(id)) return false;
 
@@ -27,7 +27,7 @@ export class UsersRepository {
     return isDeleted.deletedCount === 1;
   }
 
-  async updateEmailUserConfirmationStatus(userId: ObjectId) {
+  async updateEmailUserConfirmationStatus(userId: ObjectId): Promise<boolean> {
     const result = await userCollection.updateOne(
       { _id: userId },
 
@@ -44,7 +44,7 @@ export class UsersRepository {
   async updateEmailUserConfirmation(
     userId: ObjectId,
     emailConfirmation: IEmailConfirmationUpdate
-  ) {
+  ): Promise<boolean> {
     const result = await userCollection.updateOne(
       { _id: userId },
 

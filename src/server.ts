@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import express from "express";
 
 import { setupApp } from "./app";
@@ -32,3 +34,5 @@ const bootstrap = async () => {
 };
 
 bootstrap();
+
+// ? reflect-metadata - это механизм, который позволяет Inversify / декораторам читать метаданные типов.

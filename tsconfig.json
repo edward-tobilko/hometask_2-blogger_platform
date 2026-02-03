@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "rootDir": "src",
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "reflect-metadata"],
 
     "strict": true,
     "skipLibCheck": true,
@@ -17,6 +17,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+
+    // * for inversify / reflect-metadata
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
 
     "baseUrl": "src",
 

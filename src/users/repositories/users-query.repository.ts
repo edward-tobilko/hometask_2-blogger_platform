@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { injectable } from "inversify";
 
 import { userCollection } from "../../db/mongo.db";
 import { mapToUsersListOutput } from "../applications/mappers/map-to-users-list-output.mapper";
@@ -7,9 +8,11 @@ import { GetUsersListQueryHandler } from "../applications/query-handlers/get-use
 import { UserOutput } from "../applications/output/user.output";
 import { mapToUserOutput } from "../applications/mappers/map-to-user-output.mapper";
 import { UserDB } from "db/types.db";
+import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
 
-export class UsersQueryRepository {
-  async getUsersListQueryRepo(
+@injectable()
+export class UsersQueryRepository implements IUsersQueryRepository {
+  async getUsersList(
     queryParam: GetUsersListQueryHandler
   ): Promise<UsersListPaginatedOutput> {
     const {
@@ -59,15 +62,15 @@ export class UsersQueryRepository {
     return usersListOutput;
   }
 
-  async findByLoginQueryRepo(login: string): Promise<UserDB | null> {
+  async findByLogin(login: string): Promise<UserDB | null> {
     return userCollection.findOne({ login });
   }
 
-  async findByEmailQueryRepo(email: string): Promise<UserDB | null> {
+  async findByEmail(email: string): Promise<UserDB | null> {
     return userCollection.findOne({ email });
   }
 
-  async findUserByEmailAndNotConfirmCodeQueryRepo(
+  async findUserByEmailAndNotConfirmCode(
     emailConfirmCode: string
   ): Promise<UserDB | null> {
     const userAccount = await userCollection.findOne({
@@ -77,7 +80,7 @@ export class UsersQueryRepository {
     return userAccount;
   }
 
-  async findUserByIdQueryRepo(userId: string): Promise<UserOutput | null> {
+  async findUserById(userId: string): Promise<UserOutput | null> {
     // * Проверяем, является ли ObjectId действительным
     if (!ObjectId.isValid(userId)) return null;
 

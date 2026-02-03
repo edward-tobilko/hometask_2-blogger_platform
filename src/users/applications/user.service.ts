@@ -1,8 +1,7 @@
-import { BcryptPasswordHasher } from "./../../auth/adapters/bcrypt-hasher-service.adapter";
+import { inject, injectable } from "inversify";
+
 import { ApplicationResult } from "../../core/result/application.result";
 import { WithMeta } from "../../core/types/with-meta.type";
-import { UsersRepository } from "../repositories/user.repository";
-import { UsersQueryRepository } from "../repositories/users-query.repository";
 import { CreateUserDtoCommand } from "./commands/user-dto.commands";
 import { UserDtoDomain } from "../domain/user-dto.domain";
 import { UserDomain } from "../domain/user.domain";
@@ -12,12 +11,19 @@ import {
   NotFoundError,
   ValidationError,
 } from "../../core/errors/application.error";
+import { IUsersService } from "users/interfaces/IUsersService";
+import { Types } from "@core/di/types";
+import { IUsersRepository } from "users/interfaces/IUsersRepository";
+import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
+import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
 
-export class UsersService {
+@injectable()
+export class UsersService implements IUsersService {
   constructor(
-    private usersRepo: UsersRepository,
-    private usersQueryRepo: UsersQueryRepository,
-    private passwordHasher: BcryptPasswordHasher
+    @inject(Types.IUsersRepository) private usersRepo: IUsersRepository,
+    @inject(Types.IUsersQueryRepository)
+    private usersQueryRepo: IUsersQueryRepository,
+    @inject(Types.IPasswordHasher) private passwordHasher: IPasswordHasher
   ) {}
 
   async createUser(
@@ -28,14 +34,12 @@ export class UsersService {
     const { email, password, login } = dto;
 
     // * Проверка уникальности login / email в BLL
-    const existedUserByEmail =
-      await this.usersQueryRepo.findByEmailQueryRepo(email);
+    const existedUserByEmail = await this.usersQueryRepo.findByEmail(email);
 
     if (existedUserByEmail)
       throw new ValidationError("Email should be unique", "email", 422);
 
-    const existedUserByLogin =
-      await this.usersQueryRepo.findByLoginQueryRepo(login);
+    const existedUserByLogin = await this.usersQueryRepo.findByLogin(login);
 
     if (existedUserByLogin)
       throw new ValidationError("Login should be unique", "login", 422);
@@ -54,7 +58,7 @@ export class UsersService {
     const newUser = UserDomain.createAdminUser(domainDto);
 
     // * Сохраняем в репозитории
-    const savedUser = await this.usersRepo.createUserRepo(newUser);
+    const savedUser = await this.usersRepo.createUser(newUser);
 
     const userOutput: UserOutput = {
       id: savedUser._id!.toString(),
@@ -76,7 +80,7 @@ export class UsersService {
   ): Promise<ApplicationResult<boolean>> {
     const id = command.payload.id;
 
-    const userId = await this.usersQueryRepo.findUserByIdQueryRepo(id);
+    const userId = await this.usersQueryRepo.findUserById(id);
 
     if (!userId) {
       return new ApplicationResult({
@@ -86,7 +90,7 @@ export class UsersService {
       });
     }
 
-    const deleted = await this.usersRepo.deleteUserRepo(id);
+    const deleted = await this.usersRepo.deleteUser(id);
 
     if (!deleted) {
       return new ApplicationResult({

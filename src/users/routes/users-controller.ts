@@ -1,20 +1,27 @@
 import { Request, Response, NextFunction } from "express";
 import { matchedData } from "express-validator";
+import { inject, injectable } from "inversify";
 
 import { CreateUserRP } from "./request-payload-types/create-user.request-payload-types";
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { CreateUserDtoCommand } from "users/applications/commands/user-dto.commands";
-import { UsersService } from "users/applications/user.service";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import { UsersListRP } from "./request-payload-types/get-users-list.request-payload-types";
-import { userQueryService } from "users/applications/users-query.service";
 import { UserSortFieldRP } from "./request-payload-types/user-sort-field.request-payload-types";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
+import { Types } from "@core/di/types";
+import { IUsersService } from "users/interfaces/IUsersService";
+import { IUsersQueryService } from "users/interfaces/IUsersQueryService";
 
+@injectable()
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    @inject(Types.IUsersService) private usersService: IUsersService,
+    @inject(Types.IUsersQueryService)
+    private usersQueryService: IUsersQueryService
+  ) {}
 
   async createUserHandler(
     req: Request<{}, {}, CreateUserRP, {}>,
@@ -49,7 +56,7 @@ export class UsersController {
         );
 
       const usersListOutput =
-        await userQueryService.getUsersList(queryParamData);
+        await this.usersQueryService.getUsersList(queryParamData);
 
       res.status(HTTP_STATUS_CODES.OK_200).json(usersListOutput);
     } catch (error: unknown) {
