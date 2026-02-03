@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { injectable } from "inversify";
 
 import { postCommentsCollection, postCollection } from "../../db/mongo.db";
 import { mapToPostListOutput } from "../application/mappers/map-to-post-list-output.util";
@@ -9,9 +10,11 @@ import { mapToPostOutput } from "../application/mappers/map-to-post-output.util"
 import { GetPostCommentsListQueryHandler } from "../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../application/output/post-comments-list-type.output";
 import { mapToPostCommentsListOutput } from "../application/mappers/map-to-post-comments-list-output.mapper";
+import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
 
-export class PostQueryRepository {
-  async getPostsQueryRepo(
+@injectable()
+export class PostsQueryRepository implements IPostsQueryRepository {
+  async getPostsList(
     queryParam: GetPostsListQueryHandler
   ): Promise<PostsListPaginatedOutput> {
     const filter = {};
@@ -34,7 +37,7 @@ export class PostQueryRepository {
     });
   }
 
-  async getPostByIdQueryRepo(postId: string): Promise<PostOutput | null> {
+  async getPostById(postId: string): Promise<PostOutput | null> {
     const dbDocument = await postCollection.findOne({
       _id: new ObjectId(postId),
     });
@@ -44,7 +47,7 @@ export class PostQueryRepository {
     return mapToPostOutput(dbDocument);
   }
 
-  async getPostCommentsQueryRepo(
+  async getPostCommentsList(
     queryParam: GetPostCommentsListQueryHandler
   ): Promise<PostCommentsListPaginatedOutput | null> {
     const { pageNumber, pageSize, sortBy, sortDirection, postId } = queryParam;

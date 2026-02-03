@@ -1,12 +1,15 @@
 import { ObjectId } from "mongodb";
+import { injectable } from "inversify";
 
 import { postCommentsCollection, postCollection } from "../../db/mongo.db";
 import { PostDomain } from "../domain/post.domain";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { PostCommentDomain } from "../domain/post-comment.domain";
 import { PostCommentDB } from "../../db/types.db";
+import { IPostsRepository } from "posts/interfaces/IPostsRepository";
 
-export class PostsRepository {
+@injectable()
+export class PostsRepository implements IPostsRepository {
   // * GET
   async getPostDomainById(postId: string): Promise<PostDomain | null> {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
@@ -22,7 +25,7 @@ export class PostsRepository {
   }
 
   // * CREATE
-  async createPostRepo(newPost: PostDomain): Promise<PostDomain> {
+  async createPost(newPost: PostDomain): Promise<PostDomain> {
     const insertResult = await postCollection.insertOne(newPost);
 
     newPost._id = insertResult.insertedId;
@@ -30,7 +33,7 @@ export class PostsRepository {
     return newPost;
   }
 
-  async createPostCommentRepo(
+  async createPostComment(
     newPostComment: PostCommentDomain
   ): Promise<ObjectId> {
     const dbDocument: PostCommentDB = {
@@ -47,7 +50,7 @@ export class PostsRepository {
   }
 
   // * UPDATE
-  async updatePostRepo(postDomain: PostDomain): Promise<PostDomain> {
+  async updatePost(postDomain: PostDomain): Promise<PostDomain> {
     if (!postDomain._id) {
       throw new RepositoryNotFoundError(
         "Post ID is not provided for update",
@@ -72,7 +75,7 @@ export class PostsRepository {
   }
 
   // * DELETE
-  async deletePostRepo(id: string): Promise<boolean> {
+  async deletePost(id: string): Promise<boolean> {
     const deleteResult = await postCollection.deleteOne({
       _id: new ObjectId(id),
     });

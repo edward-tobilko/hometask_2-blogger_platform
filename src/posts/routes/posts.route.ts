@@ -14,76 +14,85 @@ import {
   PostCommentsSortFieldRP,
   PostSortFieldRP,
 } from "./request-payload-types/post-sort-field.request-payload-types";
-import { createPostHandler } from "./http-handlers/create-post.handler";
 import { updatePostHandler } from "./http-handlers/update-post.handler";
-import { createCommentHandler } from "./http-handlers/create-comment.handler";
 import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
 import { getPostCommentsHandler } from "./http-handlers/get-post-comments.handler";
 import { createCommentDtoRPValidation } from "./request-payload-validations/create-comment-dto.validation";
 import { postBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
+import { PostsController } from "./posts.controller";
+import { createCommentHandler } from "./http-handlers/create-comment.handler";
 
-export const postsRoute = Router({});
+export const createPostsRouter = (postsController: PostsController) => {
+  const postsRoute = Router({});
 
-// * GET: Returns all posts
-postsRoute.get(
-  "",
-  queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
-  inputResultMiddlewareValidation,
-  getPostListHandler
-);
+  // * GET: Returns all posts
+  postsRoute.get(
+    "",
+    queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
+    inputResultMiddlewareValidation,
+    getPostListHandler
+  );
 
-// * GET: Return post by id
-postsRoute.get(
-  "/:id",
-  paramIdValidation,
-  inputResultMiddlewareValidation,
-  getPostHandler
-);
+  // * GET: Return post by id
+  postsRoute.get(
+    "/:id",
+    paramIdValidation,
+    inputResultMiddlewareValidation,
+    getPostHandler
+  );
 
-// * GET: Returns comments for specified post
-postsRoute.get(
-  "/:postId/comments",
-  paramPostIdValidation,
-  queryPaginationAndSortingValidation<PostCommentsSortFieldRP>(
-    PostCommentsSortFieldRP
-  ),
-  inputResultMiddlewareValidation,
-  getPostCommentsHandler
-);
+  // * GET: Returns comments for specified post
+  postsRoute.get(
+    "/:postId/comments",
+    paramPostIdValidation,
+    queryPaginationAndSortingValidation<PostCommentsSortFieldRP>(
+      PostCommentsSortFieldRP
+    ),
+    inputResultMiddlewareValidation,
+    getPostCommentsHandler
+  );
 
-// * POST: Create new post
-postsRoute.post(
-  "",
-  baseAuthGuard,
-  postBodyInputRPValidation,
-  inputResultMiddlewareValidation,
-  createPostHandler
-);
+  // * POST: Create new post
+  postsRoute.post(
+    "",
+    baseAuthGuard,
+    postBodyInputRPValidation,
+    inputResultMiddlewareValidation,
 
-// * POST: Create new comment
-postsRoute.post(
-  "/:postId/comments",
-  jwtAccessAuthGuard,
-  createCommentDtoRPValidation,
-  inputResultMiddlewareValidation,
-  createCommentHandler
-);
+    postsController.createCommentHandler
+  );
 
-// * PUT: Update existing post by id with input model
-postsRoute.put(
-  "/:id",
-  baseAuthGuard,
-  paramIdValidation,
-  postBodyInputRPValidation,
-  inputResultMiddlewareValidation,
-  updatePostHandler
-);
+  // * POST: Create new comment
+  postsRoute.post(
+    "/:postId/comments",
+    jwtAccessAuthGuard,
+    createCommentDtoRPValidation,
+    inputResultMiddlewareValidation,
+    createCommentHandler
+  );
 
-// * DELETE: Delete post specified by id
-postsRoute.delete(
-  "/:id",
-  baseAuthGuard,
-  paramIdValidation,
-  inputResultMiddlewareValidation,
-  deletePostHandler
-);
+  // * PUT: Update existing post by id with input model
+  postsRoute.put(
+    "/:id",
+    baseAuthGuard,
+    paramIdValidation,
+    postBodyInputRPValidation,
+    inputResultMiddlewareValidation,
+    updatePostHandler
+  );
+
+  // * DELETE: Delete post specified by id
+  postsRoute.delete(
+    "/:id",
+    baseAuthGuard,
+    paramIdValidation,
+    inputResultMiddlewareValidation,
+    deletePostHandler
+  );
+
+  return postsRoute;
+};
+
+// ? Если мы не вызываем метод класса, а передаем его как свойство (через точку и без скобок), то этот метод теряет контекст класса postsController, и что бы этого не было, нам нужно забиндить все методы этого класса (.bind(postsController)).
+
+// ? Или же мы можем воспользоваться arrow func, что бы не биндить: Если в контроллере метод объявлен так: getUsersListHandler = async (req, res) => { ... } то он автоматически «захватывает» this из инстанса класса. И тогда можно передавать так: usersController.getUsersListHandler и контекст не потеряется, но если метод объявлен через обычную ф-ю (async getUsersListHandler(req, res) { ... }), то нужно биндить.

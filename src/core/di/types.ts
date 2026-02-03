@@ -1,15 +1,26 @@
 export const Types = {
   // * Repositories
+  // Users
   IUsersRepository: Symbol.for("IUsersRepository"),
   IUsersQueryRepository: Symbol.for("IUsersQueryRepository"),
 
+  // Posts
+  IPostsRepository: Symbol.for("IPostsRepository"),
+  IPostsQueryRepository: Symbol.for("IPostsQueryRepository"),
+
   // * Services
+  // Users
   IUsersService: Symbol.for("IUsersService"),
   IUsersQueryService: Symbol.for("IUsersQueryService"),
   IPasswordHasher: Symbol.for("IPasswordHasher"),
 
+  // Posts
+  IPostsService: Symbol.for("IPostsService"),
+  IPostsQueryService: Symbol.for("IPostsQueryService"),
+
   // * Controllers
   UsersController: Symbol.for("UsersController"),
+  PostsController: Symbol.for("PostsController"),
 } as const;
 
 // ? Зачем нужны токены (Symbols):

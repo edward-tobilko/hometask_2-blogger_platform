@@ -22,8 +22,8 @@ export const createUsersRouter = (usersController: UsersController) => {
 
     inputResultMiddlewareValidation,
 
-    // usersController.getUsersListHandler.bind(usersController)
-    usersController.getUsersListHandler
+    usersController.getUsersListHandler.bind(usersController)
+    // usersController.getUsersListHandler
   );
 
   // * POST: Add new user to the system
@@ -33,8 +33,8 @@ export const createUsersRouter = (usersController: UsersController) => {
     createUserDtoMiddlewareValidations,
     inputResultMiddlewareValidation,
 
-    // usersController.createUserHandler.bind(usersController)
-    usersController.createUserHandler
+    usersController.createUserHandler.bind(usersController)
+    // usersController.createUserHandler
   );
 
   // * DELETE: Delete user specified by id
@@ -44,9 +44,11 @@ export const createUsersRouter = (usersController: UsersController) => {
     paramIdValidation,
     inputResultMiddlewareValidation,
 
-    // usersController.deleteUserHandler.bind(usersController)
-    usersController.deleteUserHandler
+    usersController.deleteUserHandler.bind(usersController)
+    // usersController.deleteUserHandler
   );
+
+  return usersRoute;
 };
 
 // ? Если мы не вызываем метод класса, а передаем его как свойство (через точку и без скобок), то этот метод теряет контекст класса usersController, и что бы этого не было, нам нужно забиндить все методы этого класса (.bind(usersController)).

@@ -1,3 +1,6 @@
+import { inject, injectable } from "inversify";
+import { ObjectId } from "mongodb";
+
 import { PostDomain } from "../domain/post.domain";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { ApplicationResult } from "../../core/result/application.result";
@@ -15,20 +18,20 @@ import { CreatePostDtoCommand } from "./commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "./commands/update-post-dto.command";
 import { CreateCommentForPostDtoCommand } from "./commands/create-comment-for-post-dto.command";
 import { IPostCommentOutput } from "./output/post-comment.output";
-import { PostQueryRepository } from "../repositories/post-query.repository";
 import { PostCommentDomain } from "../domain/post-comment.domain";
-import { ObjectId } from "mongodb";
+import { IPostsService } from "posts/interfaces/IPostsService";
+import { Types } from "@core/di/types";
+import { PostsQueryRepository } from "posts/repositories/post-query.repository";
 
-class PostsService {
-  private postsRepository: PostsRepository;
-  private blogQueryRepository: BlogQueryRepository;
-  private postQueryRepository: PostQueryRepository;
-
-  constructor() {
-    this.postsRepository = new PostsRepository();
-    this.blogQueryRepository = new BlogQueryRepository();
-    this.postQueryRepository = new PostQueryRepository();
-  }
+@injectable()
+export class PostsService implements IPostsService {
+  constructor(
+    @inject(Types.IPostsService) private postsRepository: PostsRepository,
+    @inject(Types.IPostsService)
+    private blogQueryRepository: BlogQueryRepository,
+    @inject(Types.IPostsService)
+    private postQueryRepository: PostsQueryRepository
+  ) {}
 
   // * CREATE
   async createPost(
@@ -52,7 +55,7 @@ class PostsService {
 
     const newPost = PostDomain.createPost(domainDto);
 
-    const savedPost = await this.postsRepository.createPostRepo(newPost);
+    const savedPost = await this.postsRepository.createPost(newPost);
 
     if (!savedPost._id)
       throw new RepositoryNotFoundError(
@@ -81,8 +84,7 @@ class PostsService {
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
     const { postId, content, userId, userLogin } = command.payload;
 
-    const isPostExists =
-      await this.postQueryRepository.getPostByIdQueryRepo(postId);
+    const isPostExists = await this.postQueryRepository.getPostById(postId);
 
     if (!isPostExists) {
       return new ApplicationResult({
@@ -103,7 +105,7 @@ class PostsService {
     });
 
     const insertedId =
-      await this.postsRepository.createPostCommentRepo(newPostComment);
+      await this.postsRepository.createPostComment(newPostComment);
 
     newPostComment._id = insertedId;
 
@@ -161,7 +163,7 @@ class PostsService {
     existingPost.updatePost(updateDto);
 
     // сохраняем изменения
-    await this.postsRepository.updatePostRepo(existingPost);
+    await this.postsRepository.updatePost(existingPost);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
@@ -172,7 +174,7 @@ class PostsService {
 
   // * DELETE
   async deletePost(id: string): Promise<ApplicationResult<null>> {
-    const isDeleted = await this.postsRepository.deletePostRepo(id);
+    const isDeleted = await this.postsRepository.deletePost(id);
 
     if (!isDeleted) {
       return new ApplicationResult({
@@ -189,5 +191,3 @@ class PostsService {
     });
   }
 }
-
-export const postsService = new PostsService();
