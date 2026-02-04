@@ -11,7 +11,7 @@ export class CustomRateLimitRepo implements ICustomRateLimitRepo {
     @inject(Types.CustomRateLimitCollection)
     private readonly collection: Collection<CustomRateLimitDB>
   ) {
-    if (!collection)
+    if (!this.collection)
       throw new Error("CustomRateLimitCollection is not initialized");
   }
 

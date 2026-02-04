@@ -5,7 +5,9 @@ import {
   authController,
   blogsController,
   commentsController,
-  customRateLimitRepo,
+  getCustomRateLimitRepo,
+  // customRateLimitRepo,
+  initCompositionRoot,
   postsController,
   securityDevicesController,
   usersController,
@@ -30,6 +32,10 @@ export const setupApp = (app: Express) => {
 
   app.use(express.json());
   app.use(cookieParser());
+
+  initCompositionRoot();
+
+  const customRateLimitRepo = getCustomRateLimitRepo();
 
   // * Root router
   app.get(routersPaths.root, (_req: Request, res: Response) => {
