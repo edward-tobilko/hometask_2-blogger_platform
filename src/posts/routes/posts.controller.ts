@@ -1,6 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { inject, injectable } from "inversify";
+import { log } from "console";
 
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { Types } from "@core/di/types";
@@ -11,6 +12,18 @@ import { createCommand } from "@core/helpers/create-command.helper";
 import { CreateCommentForPostDtoCommand } from "posts/application/commands/create-comment-for-post-dto.command";
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { IPostsService } from "posts/interfaces/IPostsService";
+import { PostsListRP } from "./request-payload-types/posts-list.request-payload-types";
+import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
+import {
+  PostCommentsSortFieldRP,
+  PostSortFieldRP,
+} from "./request-payload-types/post-sort-field.request-payload-types";
+import { IPostsQueryService } from "posts/interfaces/IPostsQueryService";
+import { GetPostCommentsListQueryHandler } from "posts/application/query-handlers/get-post-comments-list.query-handler";
+import { CreatePostRP } from "./request-payload-types/create-post.request-payload-types";
+import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto.command";
+import { UpdatePostRP } from "./request-payload-types/update-post.request-payload-types";
+import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 
 type ReqParams = { postId: string };
 type ReqUser = { id: string };
@@ -20,10 +33,120 @@ export class PostsController {
   constructor(
     @inject(Types.IUsersQueryService)
     private usersQueryService: IUsersQueryService,
-    @inject(Types.IPostsService) private postsService: IPostsService
+    @inject(Types.IPostsService) private postsService: IPostsService,
+    @inject(Types.IPostsQueryService)
+    private postQueryService: IPostsQueryService
   ) {}
 
   // * arrow-handler, что бы не биндить в роутере
+  getPostsListHandler = async (
+    req: Request<{}, {}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const sanitizedQueryParam = matchedData<PostsListRP>(req, {
+        locations: ["query"],
+        includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
+      });
+
+      const queryParam =
+        setDefaultSortAndPaginationIfNotExist<PostSortFieldRP>(
+          sanitizedQueryParam
+        );
+
+      const postsListOutput =
+        await this.postQueryService.getPostsList(queryParam);
+
+      res.status(HTTP_STATUS_CODES.OK_200).json(postsListOutput);
+    } catch (error: unknown) {
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+        errorsMessages: [
+          { message: "Internal Server Error", field: "query params" },
+        ],
+      });
+
+      next(error);
+    }
+  };
+
+  getPostHandler = async (req: Request<{ id: string }>, res: Response) => {
+    try {
+      const post = await this.postQueryService.getPostById(req.params.id);
+
+      if (!post) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
+
+      res.status(HTTP_STATUS_CODES.OK_200).json(post);
+    } catch (error: unknown) {
+      errorsHandler(error, req, res);
+    }
+  };
+
+  getPostCommentsHandler = async (
+    req: Request<{ postId: string }>,
+    res: Response
+  ) => {
+    try {
+      const postId = req.params.postId;
+
+      const sanitizedQueryParam = matchedData<GetPostCommentsListQueryHandler>(
+        req,
+        {
+          locations: ["query"],
+          includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
+        }
+      );
+
+      const queryParamInput = {
+        ...setDefaultSortAndPaginationIfNotExist<PostCommentsSortFieldRP>(
+          sanitizedQueryParam
+        ),
+
+        postId,
+      };
+
+      const postCommentsListOutput =
+        await this.postQueryService.getPostCommentsList(queryParamInput);
+
+      if (!postCommentsListOutput.isSuccess()) {
+        return res
+          .status(
+            mapApplicationStatusToHttpStatus(postCommentsListOutput.status)
+          )
+          .json({ errorsMessages: postCommentsListOutput.extensions });
+      }
+
+      res.status(HTTP_STATUS_CODES.OK_200).json(postCommentsListOutput.data);
+    } catch (error: unknown) {
+      errorsHandler(error, req, res);
+    }
+  };
+
+  createPostHandler = async (
+    req: Request<{}, {}, CreatePostRP, {}>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const sanitizedBodyParam = matchedData<CreatePostRP>(req, {
+        locations: ["body"],
+        includeOptionals: true,
+      });
+
+      const command = createCommand<CreatePostDtoCommand>(sanitizedBodyParam);
+
+      const postOutput = await this.postsService.createPost(command);
+
+      log(postOutput.data);
+
+      res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
+    } catch (error: unknown) {
+      res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+
+      next(error);
+    }
+  };
+
   createCommentHandler = async (
     req: Request<ReqParams, {}, CreatePostCommentRP, {}>,
     res: Response
@@ -63,6 +186,53 @@ export class PostsController {
       }
 
       res.status(HTTP_STATUS_CODES.CREATED_201).json(postCommentOutput.data);
+    } catch (error: unknown) {
+      errorsHandler(error, req, res);
+    }
+  };
+
+  deletePostHandler = async (req: Request<{ id: string }>, res: Response) => {
+    try {
+      const id = req.params.id;
+
+      const result = await this.postsService.deletePost(id);
+
+      if (!result.isSuccess()) {
+        return res
+          .status(mapApplicationStatusToHttpStatus(result.status))
+          .json({ errorsMessages: result.extensions });
+      }
+
+      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+    } catch (error: unknown) {
+      errorsHandler(error, req, res);
+    }
+  };
+
+  updatePostHandler = async (
+    req: Request<{ id: string }, {}, UpdatePostRP, {}>,
+    res: Response
+  ) => {
+    try {
+      const sanitizedBody = matchedData<UpdatePostRP>(req, {
+        locations: ["body"],
+        includeOptionals: true,
+      });
+
+      const command = createCommand<UpdatePostDtoCommand>({
+        id: req.params.id,
+        ...sanitizedBody,
+      });
+
+      const result = await this.postsService.updatePost(command);
+
+      if (!result.isSuccess()) {
+        return res
+          .status(mapApplicationStatusToHttpStatus(result.status))
+          .json({ errorsMessages: result.extensions });
+      }
+
+      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
       errorsHandler(error, req, res);
     }

@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import { injectable } from "inversify";
 
 import { blogCollection, postCollection } from "../../db/mongo.db";
 import { mapToBlogListOutput } from "../application/mappers/map-to-blog-list-output.util";
@@ -10,9 +11,11 @@ import { PostsListPaginatedOutput } from "../../posts/application/output/posts-l
 import { GetBlogsListQueryHandler } from "../application/query-handlers/get-blogs-list-type.query-handler";
 import { GetPostsListQueryHandler } from "../../posts/application/query-handlers/get-posts-list.query-handler";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 
-export class BlogQueryRepository {
-  async findAllBlogsQueryRepo(
+@injectable()
+export class BlogsQueryRepository implements IBlogsQueryRepository {
+  async findAllBlogs(
     queryParam: GetBlogsListQueryHandler
   ): Promise<BlogListPaginatedOutput> {
     const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } =
@@ -56,7 +59,7 @@ export class BlogQueryRepository {
     return blogsListOutput;
   }
 
-  async findBlogByIdQueryRepo(blogId: string): Promise<BlogOutput> {
+  async findBlogById(blogId: string): Promise<BlogOutput> {
     const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!blog) {
@@ -66,7 +69,7 @@ export class BlogQueryRepository {
     return mapToBlogOutput(blog);
   }
 
-  async findAllPostsForBlogQueryRepo(
+  async findAllPostsForBlog(
     queryParam: GetPostsListQueryHandler
   ): Promise<PostsListPaginatedOutput> {
     const { pageNumber, pageSize, sortBy, sortDirection, blogId } = queryParam;

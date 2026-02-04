@@ -4,6 +4,10 @@ export const Types = {
   IUsersRepository: Symbol.for("IUsersRepository"),
   IUsersQueryRepository: Symbol.for("IUsersQueryRepository"),
 
+  // Blogs
+  IBlogsQueryRepository: Symbol.for("BlogsQueryRepository"),
+  IBlogsRepository: Symbol.for("IBlogsRepository"),
+
   // Posts
   IPostsRepository: Symbol.for("IPostsRepository"),
   IPostsQueryRepository: Symbol.for("IPostsQueryRepository"),
@@ -18,9 +22,14 @@ export const Types = {
   IPostsService: Symbol.for("IPostsService"),
   IPostsQueryService: Symbol.for("IPostsQueryService"),
 
+  // Blogs
+  IBlogsQueryService: Symbol.for("IBlogsQueryService"),
+  IBlogsService: Symbol.for("IBlogsService"),
+
   // * Controllers
   UsersController: Symbol.for("UsersController"),
   PostsController: Symbol.for("PostsController"),
+  BlogsController: Symbol.for("BlogsController"),
 } as const;
 
 // ? Зачем нужны токены (Symbols):

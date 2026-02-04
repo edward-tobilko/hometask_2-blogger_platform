@@ -1,3 +1,5 @@
+import { inject, injectable } from "inversify";
+
 import { BlogsRepository } from "../repositories/blogs.repository";
 import { WithMeta } from "../../core/types/with-meta.type";
 import {
@@ -6,29 +8,30 @@ import {
 } from "./commands/blog-dto-type.commands";
 import { ApplicationResult } from "../../core/result/application.result";
 import { BlogDomain } from "../domain/blog.domain";
-import { BlogQueryRepository } from "../repositories/blog-query.repository";
 import { PostDomain } from "../../posts/domain/post.domain";
 import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
 import { PostOutput } from "../../posts/application/output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/create-post-for-blog-dto.command";
+import { IBlogsService } from "blogs/interfaces/IBlogsService";
+import { Types } from "@core/di/types";
+import { BlogsQueryRepository } from "blogs/repositories/blog-query.repository";
 
-export class BlogsService {
-  private blogsRepository: BlogsRepository;
-  private blogQueryRepository: BlogQueryRepository;
-
-  constructor() {
-    this.blogsRepository = new BlogsRepository();
-    this.blogQueryRepository = new BlogQueryRepository();
-  }
+@injectable()
+export class BlogsService implements IBlogsService {
+  constructor(
+    @inject(Types.IBlogsRepository) private blogsRepository: BlogsRepository,
+    @inject(Types.IBlogsQueryRepository)
+    private blogsQueryRepository: BlogsQueryRepository
+  ) {}
 
   async createBlog(
     command: WithMeta<CreateBlogDtoCommand>
   ): Promise<ApplicationResult<{ id: string } | null>> {
     const newBlog = BlogDomain.createBlog(command.payload);
 
-    const createdBlog = await this.blogsRepository.saveBlogRepo(newBlog);
+    const createdBlog = await this.blogsRepository.saveBlog(newBlog);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
@@ -48,7 +51,7 @@ export class BlogsService {
     command: WithMeta<CreatePostForBlogDtoCommand>
   ): Promise<ApplicationResult<PostOutput>> {
     // ищеи блог
-    const blog = await this.blogQueryRepository.findBlogByIdQueryRepo(
+    const blog = await this.blogsQueryRepository.findBlogById(
       command.payload.blogId
     );
 
@@ -68,7 +71,7 @@ export class BlogsService {
 
     // сохраняем
     const createdPostForBlog =
-      await this.blogsRepository.savePostForBlogRepo(newPost);
+      await this.blogsRepository.savePostForBlog(newPost);
 
     const postViewModel: PostOutput = {
       id: createdPostForBlog._id!.toString(),
@@ -93,11 +96,11 @@ export class BlogsService {
   ): Promise<ApplicationResult<null>> {
     const { id, ...blogDomainDto } = command.payload;
 
-    const blog = await this.blogsRepository.findBlogByIdReconstituteRepo(id);
+    const blog = await this.blogsRepository.findBlogByIdReconstitute(id);
 
     blog.updateBlog(blogDomainDto);
 
-    await this.blogsRepository.saveBlogRepo(blog);
+    await this.blogsRepository.saveBlog(blog);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
@@ -109,7 +112,7 @@ export class BlogsService {
   async deleteBlog(
     command: WithMeta<{ id: string }>
   ): Promise<ApplicationResult<null>> {
-    await this.blogsRepository.deleteBlogRepo(command.payload.id);
+    await this.blogsRepository.deleteBlogById(command.payload.id);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
@@ -118,5 +121,3 @@ export class BlogsService {
     });
   }
 }
-
-export const blogsService = new BlogsService();

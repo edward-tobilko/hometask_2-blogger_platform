@@ -1,26 +1,20 @@
 import { Router } from "express";
 
-import { getPostListHandler } from "./http-handlers/get-post-list.handler";
-import { getPostHandler } from "./http-handlers/get-post.handler";
 import {
   paramIdValidation,
   paramPostIdValidation,
 } from "../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
-import { deletePostHandler } from "./http-handlers/delete-post.handler";
 import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import {
   PostCommentsSortFieldRP,
   PostSortFieldRP,
 } from "./request-payload-types/post-sort-field.request-payload-types";
-import { updatePostHandler } from "./http-handlers/update-post.handler";
 import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
-import { getPostCommentsHandler } from "./http-handlers/get-post-comments.handler";
 import { createCommentDtoRPValidation } from "./request-payload-validations/create-comment-dto.validation";
 import { postBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
 import { PostsController } from "./posts.controller";
-import { createCommentHandler } from "./http-handlers/create-comment.handler";
 
 export const createPostsRouter = (postsController: PostsController) => {
   const postsRoute = Router({});
@@ -30,7 +24,8 @@ export const createPostsRouter = (postsController: PostsController) => {
     "",
     queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
     inputResultMiddlewareValidation,
-    getPostListHandler
+
+    postsController.getPostsListHandler
   );
 
   // * GET: Return post by id
@@ -38,7 +33,7 @@ export const createPostsRouter = (postsController: PostsController) => {
     "/:id",
     paramIdValidation,
     inputResultMiddlewareValidation,
-    getPostHandler
+    postsController.getPostHandler
   );
 
   // * GET: Returns comments for specified post
@@ -49,7 +44,7 @@ export const createPostsRouter = (postsController: PostsController) => {
       PostCommentsSortFieldRP
     ),
     inputResultMiddlewareValidation,
-    getPostCommentsHandler
+    postsController.getPostCommentsHandler
   );
 
   // * POST: Create new post
@@ -59,7 +54,7 @@ export const createPostsRouter = (postsController: PostsController) => {
     postBodyInputRPValidation,
     inputResultMiddlewareValidation,
 
-    postsController.createCommentHandler
+    postsController.createPostHandler
   );
 
   // * POST: Create new comment
@@ -68,7 +63,7 @@ export const createPostsRouter = (postsController: PostsController) => {
     jwtAccessAuthGuard,
     createCommentDtoRPValidation,
     inputResultMiddlewareValidation,
-    createCommentHandler
+    postsController.createCommentHandler
   );
 
   // * PUT: Update existing post by id with input model
@@ -78,7 +73,7 @@ export const createPostsRouter = (postsController: PostsController) => {
     paramIdValidation,
     postBodyInputRPValidation,
     inputResultMiddlewareValidation,
-    updatePostHandler
+    postsController.updatePostHandler
   );
 
   // * DELETE: Delete post specified by id
@@ -87,7 +82,7 @@ export const createPostsRouter = (postsController: PostsController) => {
     baseAuthGuard,
     paramIdValidation,
     inputResultMiddlewareValidation,
-    deletePostHandler
+    postsController.deletePostHandler
   );
 
   return postsRoute;

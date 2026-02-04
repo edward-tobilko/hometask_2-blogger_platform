@@ -1,14 +1,15 @@
 import { InsertOneResult, ObjectId, WithId } from "mongodb";
+import { injectable } from "inversify";
 
 import { blogCollection, postCollection } from "../../db/mongo.db";
 import { BlogDomain } from "../domain/blog.domain";
 import { PostDomain } from "../../posts/domain/post.domain";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
+import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
 
-export class BlogsRepository {
-  async findBlogByIdReconstituteRepo(
-    blogId: string
-  ): Promise<WithId<BlogDomain>> {
+@injectable()
+export class BlogsRepository implements IBlogsRepository {
+  async findBlogByIdReconstitute(blogId: string): Promise<WithId<BlogDomain>> {
     const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
 
     if (!blog) {
@@ -18,7 +19,7 @@ export class BlogsRepository {
     return BlogDomain.reconstitute(blog);
   }
 
-  async saveBlogRepo(newBlog: BlogDomain): Promise<BlogDomain> {
+  async saveBlog(newBlog: BlogDomain): Promise<BlogDomain> {
     if (!newBlog._id) {
       const insertResult = await blogCollection.insertOne(newBlog);
 
@@ -52,7 +53,7 @@ export class BlogsRepository {
     }
   }
 
-  async savePostForBlogRepo(newPostForBlog: PostDomain): Promise<PostDomain> {
+  async savePostForBlog(newPostForBlog: PostDomain): Promise<PostDomain> {
     if (!newPostForBlog._id) {
       const insertResult: InsertOneResult =
         await postCollection.insertOne(newPostForBlog);
@@ -83,7 +84,7 @@ export class BlogsRepository {
     }
   }
 
-  async deleteBlogRepo(id: string): Promise<void> {
+  async deleteBlogById(id: string): Promise<void> {
     const deleteResult = await blogCollection.deleteOne({
       _id: new ObjectId(id),
     });

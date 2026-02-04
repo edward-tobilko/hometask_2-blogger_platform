@@ -21,6 +21,14 @@ import { PostsQueryRepository } from "posts/repositories/post-query.repository";
 import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
 import { IPostsQueryService } from "posts/interfaces/IPostsQueryService";
 import { PostQueryService } from "posts/application/post-query-service";
+import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
+import { BlogsQueryRepository } from "blogs/repositories/blog-query.repository";
+import { BlogsRepository } from "blogs/repositories/blogs.repository";
+import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
+import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
+import { BlogsQueryService } from "blogs/application/blog-query.service";
+import { IBlogsService } from "blogs/interfaces/IBlogsService";
+import { BlogsService } from "blogs/application/blogs-service";
 
 export const container = new Container({ defaultScope: "Singleton" });
 
@@ -46,6 +54,16 @@ container.bind<IPostsRepository>(Types.IPostsRepository).to(PostsRepository);
 container
   .bind<IPostsQueryRepository>(Types.IPostsQueryRepository)
   .to(PostsQueryRepository);
+
+// * Blogs
+container
+  .bind<IBlogsQueryRepository>(Types.IBlogsQueryRepository)
+  .to(BlogsQueryRepository);
+container.bind<IBlogsRepository>(Types.IBlogsRepository).to(BlogsRepository);
+container
+  .bind<IBlogsQueryService>(Types.IBlogsQueryService)
+  .to(BlogsQueryService);
+container.bind<IBlogsService>(Types.IBlogsService).to(BlogsService);
 
 // * CONTROLLERS
 container.bind<UsersController>(Types.UsersController).to(UsersController);

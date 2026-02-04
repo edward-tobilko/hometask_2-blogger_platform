@@ -5,7 +5,6 @@ import { testingRoute } from "./testing/routes/testing.route";
 import { createPostsRouter } from "./posts/routes/posts.route";
 import { routersPaths } from "./core/paths/paths";
 import { createAuthRouter } from "./auth/routes/auth.route";
-import { blogsRoute } from "./blogs/routes/blogs.route";
 import { commentsRoute } from "./comments/routes/comments.route";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { securityDevicesRouter } from "security-devices/routers/security-devices.router";
@@ -16,6 +15,8 @@ import { Types } from "@core/di/types";
 import { UsersController } from "users/routes/users-controller";
 import { createUsersRouter } from "users/routes/users.route";
 import { PostsController } from "posts/routes/posts.controller";
+import { createBlogsRouter } from "blogs/routes/blogs.route";
+import { BlogsController } from "blogs/routes/blogs.controller";
 
 export const setupApp = (app: Express) => {
   if (process.env.NODE_ENV === "production") {
@@ -40,7 +41,8 @@ export const setupApp = (app: Express) => {
   app.use(routersPaths.auth, createAuthRouter(customRateLimitRepo));
 
   // * Blog router
-  app.use(routersPaths.blogs, blogsRoute);
+  const blogsController = container.get<BlogsController>(Types.BlogsController);
+  app.use(routersPaths.blogs, createBlogsRouter(blogsController));
 
   // * Comments router
   app.use(routersPaths.comments, commentsRoute);
@@ -54,7 +56,6 @@ export const setupApp = (app: Express) => {
 
   // * Users router
   const usersController = container.get<UsersController>(Types.UsersController);
-
   app.use(routersPaths.users, createUsersRouter(usersController));
 
   // * Testing router
