@@ -1,6 +1,12 @@
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
+import { injectable } from "inversify";
 
 import { appConfig } from "../../core/settings/config";
+import {
+  IJWTAccessPayload,
+  IJWTRefreshPayload,
+  IJWTService,
+} from "auth/interfaces/IJWTService";
 
 const AT_SECRET: Secret = appConfig.AT_SECRET; // type Secret - проверяет, чтобы не было AT_SECRET = null
 const RT_SECRET: Secret = appConfig.RT_SECRET as unknown as Secret;
@@ -11,29 +17,18 @@ const AT_TIME: SignOptions["expiresIn"] = (appConfig.AT_TIME ??
 const RT_TIME: SignOptions["expiresIn"] = (appConfig.RT_TIME ??
   "30m") as SignOptions["expiresIn"];
 
-type JWTAccessPayload = {
-  userId: string;
-};
-
-type JWTRefreshPayload = {
-  userId: string;
-  deviceId: string;
-  sessionId: string;
-  iat: number; // jwt.sign сам его сгенерирует в createRefreshToken
-};
-export class JWTService {
+@injectable()
+export class JWTService implements IJWTService {
   // * Access token
-  static async createAccessToken(userId: string): Promise<string> {
-    return jwt.sign({ userId } satisfies JWTAccessPayload, AT_SECRET, {
+  async createAccessToken(userId: string): Promise<string> {
+    return jwt.sign({ userId } satisfies IJWTAccessPayload, AT_SECRET, {
       expiresIn: AT_TIME,
     });
   }
 
-  static async verifyAccessToken(
-    token: string
-  ): Promise<JWTAccessPayload | null> {
+  async verifyAccessToken(token: string): Promise<IJWTAccessPayload | null> {
     try {
-      const result = jwt.verify(token, AT_SECRET) as JWTAccessPayload;
+      const result = jwt.verify(token, AT_SECRET) as IJWTAccessPayload;
 
       return {
         userId: result.userId,
@@ -46,7 +41,7 @@ export class JWTService {
   }
 
   // * Refresh token
-  static async createRefreshToken(
+  async createRefreshToken(
     userId: string,
     deviceId: string,
     sessionId: string
@@ -56,17 +51,15 @@ export class JWTService {
         userId,
         deviceId,
         sessionId,
-      } satisfies Omit<JWTRefreshPayload, "iat">,
+      } satisfies Omit<IJWTRefreshPayload, "iat">,
       RT_SECRET,
       { expiresIn: RT_TIME }
     );
   }
 
-  static async verifyRefreshToken(
-    token: string
-  ): Promise<JWTRefreshPayload | null> {
+  async verifyRefreshToken(token: string): Promise<IJWTRefreshPayload | null> {
     try {
-      const result = jwt.verify(token, RT_SECRET) as JWTRefreshPayload;
+      const result = jwt.verify(token, RT_SECRET) as IJWTRefreshPayload;
 
       return {
         userId: result.userId,
@@ -79,7 +72,7 @@ export class JWTService {
     }
   }
 
-  static getExpirationDate(token: string): Date | null {
+  getExpirationDate(token: string): Date | null {
     try {
       const decoded = jwt.decode(token) as { exp?: number };
 

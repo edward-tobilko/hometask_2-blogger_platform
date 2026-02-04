@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
-import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
 
 type Options = {
   windowMs: number; // 10_000
@@ -9,7 +9,7 @@ type Options = {
 };
 
 export const customRateLimiterMiddleware =
-  (repo: CustomRateLimitRepo, options: Options) =>
+  (repo: ICustomRateLimitRepo, options: Options) =>
   async (req: Request, res: Response, next: NextFunction) => {
     const isE2E = process.env.NODE_ENV === "test";
     const disableRateLimit = process.env.DISABLE_RATE_LIMIT === "true";

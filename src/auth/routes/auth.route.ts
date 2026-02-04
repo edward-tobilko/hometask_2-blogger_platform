@@ -3,29 +3,33 @@ import { body } from "express-validator";
 
 import { loginOrEmailAuthRPValidation } from "./request-payload-validations/login-auth.request-payload-types";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { loginHandler } from "./http-handlers/login.handler";
-import { getAuthMeHandler } from "./http-handlers/get-auth-me.handler";
 import { jwtAccessAuthGuard } from "../api/guards/jwt-access-auth.guard";
-import { registrationHandler } from "./http-handlers/registration.handler";
 import { registrationAuthRPValidation } from "./request-payload-validations/registration-auth.request-payload-validation";
-import { confirmRegistrationHandler } from "./http-handlers/confirm-registration.handler";
-import { registrationEmailResendingHandler } from "./http-handlers/registration-email-resending.handler";
-import { refreshTokenHandler } from "./http-handlers/refresh-token.handler";
-import { logoutHandler } from "./http-handlers/logout.handler";
-import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
+import { AuthController } from "./auth.controller";
 import { customRateLimiterMiddleware } from "@core/middlewares/custom-rate-limiter.middleware";
-import { passwordRecoveryHandler } from "./http-handlers/password-recovery.handler";
+import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
 
-export const createAuthRouter = (repo: CustomRateLimitRepo) => {
+export const createAuthRouter = (
+  customRateLimitRepo: ICustomRateLimitRepo,
+  authController: AuthController
+) => {
   const authRoute = Router();
 
-  const authCustomRateLimiter = customRateLimiterMiddleware(repo, {
-    windowMs: 10_000, // каждые 10сек можно повторять попытку отправки
-    max: 5, // max count
-  });
+  const authCustomRateLimiter = customRateLimiterMiddleware(
+    customRateLimitRepo,
+    {
+      windowMs: 10_000, // каждые 10сек можно повторять попытку отправки
+      max: 5, // max count
+    }
+  );
 
   // * GET: Get info about current user.
-  authRoute.get("/me", jwtAccessAuthGuard, getAuthMeHandler);
+  authRoute.get(
+    "/me",
+    jwtAccessAuthGuard,
+
+    authController.getAuthMeHandler.bind(authController)
+  );
 
   // * POST: Try login user to the system.
   authRoute.post(
@@ -33,7 +37,8 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
     loginOrEmailAuthRPValidation,
     inputResultMiddlewareValidation,
     authCustomRateLimiter,
-    loginHandler
+
+    authController.loginHandler.bind(authController)
   );
 
   // * POST: Registration in the system. Email with confirmation code will be send to passed email address.
@@ -42,7 +47,8 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
     registrationAuthRPValidation,
     inputResultMiddlewareValidation,
     authCustomRateLimiter,
-    registrationHandler
+
+    authController.registrationHandler.bind(authController)
   );
 
   // * POST: Confirm registration.
@@ -58,7 +64,8 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
 
     inputResultMiddlewareValidation,
     authCustomRateLimiter,
-    confirmRegistrationHandler
+
+    authController.confirmRegistrationHandler.bind(authController)
   );
 
   // * POST: Resend confirmation registration  email if user exist.
@@ -77,14 +84,19 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
 
     inputResultMiddlewareValidation,
     authCustomRateLimiter,
-    registrationEmailResendingHandler
+
+    authController.registrationEmailResendingHandler.bind(authController)
   );
 
   // * POST: Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh token.
-  authRoute.post("/refresh-token", refreshTokenHandler);
+  authRoute.post(
+    "/refresh-token",
+
+    authController.refreshTokenHandler.bind(authController)
+  );
 
   // * POST: In cookie client must send correct refresh token that will be revoked.
-  authRoute.post("/logout", logoutHandler);
+  authRoute.post("/logout", authController.logoutHandler.bind(authController));
 
   // * POST: Password recovery via email confirmation. Email should be sent with RecoveryCode inside.
   authRoute.post(
@@ -102,7 +114,8 @@ export const createAuthRouter = (repo: CustomRateLimitRepo) => {
 
     inputResultMiddlewareValidation,
     authCustomRateLimiter,
-    passwordRecoveryHandler
+
+    authController.passwordRecoveryHandler.bind(authController)
   );
 
   return authRoute;

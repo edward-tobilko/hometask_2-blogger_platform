@@ -1,20 +1,26 @@
+import { inject, injectable } from "inversify";
+
 import { ForbiddenError, NotFoundError } from "@core/errors/application.error";
 import { ApplicationResult } from "@core/result/application.result";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { SessionQueryRepo } from "auth/repositories/session-query.repo";
 import { SecurityDevicesRepo } from "security-devices/repositories/security-devices.repo";
+import { Types } from "@core/di/types";
+import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDevicesService";
 
-class SecurityDevicesService {
+@injectable()
+export class SecurityDevicesService implements ISecurityDevicesService {
   constructor(
+    @inject(Types.ISecurityDevicesRepo)
     private securityDevicesRepo: SecurityDevicesRepo,
-    private sessionQueryRepo: SessionQueryRepo
+    @inject(Types.ISessionQueryRepo) private sessionQueryRepo: SessionQueryRepo
   ) {}
 
   async removeAllSecurityDevicesExceptCurrent(
     userId: string,
     currentDeviceId: string
   ): Promise<ApplicationResult<boolean>> {
-    await this.securityDevicesRepo.removeAllSecurityDevicesExceptCurrentRepo(
+    await this.securityDevicesRepo.removeAllSecurityDevicesExceptCurrent(
       userId,
       currentDeviceId
     );
@@ -52,7 +58,7 @@ class SecurityDevicesService {
     }
 
     const deletedDevice =
-      await this.securityDevicesRepo.removeSecurityDeviceByIdRepo(deviceId);
+      await this.securityDevicesRepo.removeSecurityDeviceById(deviceId);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
@@ -61,8 +67,3 @@ class SecurityDevicesService {
     });
   }
 }
-
-export const securityDevicesService = new SecurityDevicesService(
-  new SecurityDevicesRepo(),
-  new SessionQueryRepo()
-);

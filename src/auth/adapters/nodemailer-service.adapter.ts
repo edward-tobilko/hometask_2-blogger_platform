@@ -1,7 +1,9 @@
 import nodemailer from "nodemailer";
 import { log } from "console";
+import { injectable } from "inversify";
 
 import { appConfig } from "@core/settings/config";
+import { INodeMailerService } from "auth/interfaces/INodeMailerService";
 
 let transporter = nodemailer.createTransport({
   // host: appConfig.SMTP_HOST,
@@ -23,7 +25,8 @@ let transporter = nodemailer.createTransport({
   // socketTimeout: 10_000, // общий таймаут сокета
 });
 
-export const nodeMailerService = {
+@injectable()
+export class NodeMailerService implements INodeMailerService {
   async sendRegistrationConfirmationEmail(
     email: string, // куда отправляем
     code: string, // код подтверджения
@@ -45,7 +48,7 @@ export const nodeMailerService = {
 
     // return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
     return !!info;
-  },
-};
+  }
+}
 
 // ? "!!info" - превращает значения в true or false

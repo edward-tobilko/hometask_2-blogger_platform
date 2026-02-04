@@ -1,11 +1,18 @@
 import { Collection } from "mongodb";
+import { injectable, inject } from "inversify";
 
 import { CustomRateLimitDB } from "db/types.db";
+import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
+import { Types } from "@core/di/types";
 
-export class CustomRateLimitRepo {
-  constructor(private readonly collection: Collection<CustomRateLimitDB>) {
+@injectable()
+export class CustomRateLimitRepo implements ICustomRateLimitRepo {
+  constructor(
+    @inject(Types.CustomRateLimitCollection)
+    private readonly collection: Collection<CustomRateLimitDB>
+  ) {
     if (!collection)
-      throw new Error("customRateLimitCollection is not initialized");
+      throw new Error("CustomRateLimitCollection is not initialized");
   }
 
   async addRateLimit(ip: string, url: string): Promise<void> {

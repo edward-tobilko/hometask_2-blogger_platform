@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns";
+import { inject, injectable } from "inversify";
 
 import { WithMeta } from "../../core/types/with-meta.type";
 import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
-import { BcryptPasswordHasher } from "../adapters/bcrypt-hasher-service.adapter";
 import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
 import { ApplicationResult } from "../../core/result/application.result";
 import { UserDomain } from "../../users/domain/user.domain";
@@ -18,20 +18,28 @@ import { JWTService } from "../adapters/jwt-service.adapter";
 import { SessionDomain } from "../domain/session.domain";
 import { UserDB } from "db/types.db";
 import { UsersRepository } from "users/repositories/user.repository";
-import { nodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
 import { getSessionExpirationDate } from "auth/helpers/get-session-expire-date.helper";
 import { SessionRepository } from "auth/repositories/session.repository";
 import { SessionQueryRepo } from "auth/repositories/session-query.repo";
+import { IAuthService } from "auth/interfaces/IAuthService";
+import { Types } from "@core/di/types";
+import { CryptoPasswordHasher } from "auth/adapters/crypto-hasher-service.adapter";
+import { NodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 
-class AuthService {
+@injectable()
+export class AuthService implements IAuthService {
   constructor(
-    private readonly userQueryRepo: UsersQueryRepository,
-    private readonly passwordHasher: BcryptPasswordHasher,
-    private readonly sessionRepo: SessionRepository,
-    private readonly sessionQueryRepo: SessionQueryRepo,
-    private readonly userRepo: UsersRepository
+    @inject(Types.IUsersQueryRepository)
+    private usersQueryRepo: UsersQueryRepository,
+    @inject(Types.IPasswordHasher) private passwordHasher: CryptoPasswordHasher,
+    @inject(Types.ISessionRepository) private sessionRepo: SessionRepository,
+    @inject(Types.ISessionQueryRepo) private sessionQueryRepo: SessionQueryRepo,
+    @inject(Types.IUsersRepository) private usersRepo: UsersRepository,
+    @inject(Types.IJWTService) private jwtService: JWTService,
+    @inject(Types.INodeMailerService)
+    private nodeMailerService: NodeMailerService
   ) {}
 
   async checkUserCredentials(
@@ -42,8 +50,8 @@ class AuthService {
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginOrEmail);
 
     const user = isEmail
-      ? await this.userQueryRepo.findByEmailQueryRepo(loginOrEmail)
-      : await this.userQueryRepo.findByLoginQueryRepo(loginOrEmail);
+      ? await this.usersQueryRepo.findByEmail(loginOrEmail)
+      : await this.usersQueryRepo.findByLogin(loginOrEmail);
 
     if (!user) {
       return new ApplicationResult<UserDomain>({
@@ -118,14 +126,15 @@ class AuthService {
       command.meta.userAgent ?? "Unknown device"
     );
 
-    const accessToken = await JWTService.createAccessToken(userId);
-    const refreshToken = await JWTService.createRefreshToken(
+    const accessToken = await this.jwtService.createAccessToken(userId);
+    const refreshToken = await this.jwtService.createRefreshToken(
       userId,
       deviceId,
       sessionId
     );
 
-    const refreshPayload = await JWTService.verifyRefreshToken(refreshToken);
+    const refreshPayload =
+      await this.jwtService.verifyRefreshToken(refreshToken);
     if (!refreshPayload) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -135,7 +144,7 @@ class AuthService {
     }
 
     const expiresAt =
-      JWTService.getExpirationDate(refreshToken) ||
+      this.jwtService.getExpirationDate(refreshToken) ||
       getSessionExpirationDate(30_000);
 
     // * создаём authMe из user и сохраняем в БД
@@ -163,11 +172,9 @@ class AuthService {
     password: string,
     email: string
   ): Promise<ApplicationResult<UserDB | null>> {
-    const existingUserByLogin =
-      await this.userQueryRepo.findByLoginQueryRepo(login);
+    const existingUserByLogin = await this.usersQueryRepo.findByLogin(login);
 
-    const existingUserByEmail =
-      await this.userQueryRepo.findByEmailQueryRepo(email);
+    const existingUserByEmail = await this.usersQueryRepo.findByEmail(email);
 
     // * проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
     if (existingUserByLogin) {
@@ -194,11 +201,11 @@ class AuthService {
       email,
     });
 
-    await this.userRepo.createUserRepo(newUser);
+    await this.usersRepo.createUser(newUser);
 
     // * отправку сообщения лучше обернуть в try-catch, чтобы при ошибке (например отвалиться отправка) приложение не падало
     try {
-      await nodeMailerService.sendRegistrationConfirmationEmail(
+      await this.nodeMailerService.sendRegistrationConfirmationEmail(
         newUser.email,
         newUser.emailConfirmation.confirmationCode,
         emailExamples.registrationEmail
@@ -216,7 +223,7 @@ class AuthService {
 
   async confirmRegistration(code: string): Promise<ApplicationResult<boolean>> {
     const userAccount =
-      await this.userQueryRepo.findUserByEmailAndNotConfirmCodeQueryRepo(code);
+      await this.usersQueryRepo.findUserByEmailAndNotConfirmCode(code);
 
     if (!userAccount)
       return new ApplicationResult({
@@ -248,7 +255,7 @@ class AuthService {
       });
 
     const updatedResultConfirmStatus =
-      await this.userRepo.updateEmailUserConfirmationStatus(userAccount._id!);
+      await this.usersRepo.updateEmailUserConfirmationStatus(userAccount._id!);
 
     if (!updatedResultConfirmStatus) {
       return new ApplicationResult({
@@ -268,7 +275,7 @@ class AuthService {
   async resendRegistrationEmail(
     email: string
   ): Promise<ApplicationResult<null>> {
-    const userAccount = await this.userQueryRepo.findByEmailQueryRepo(email);
+    const userAccount = await this.usersQueryRepo.findByEmail(email);
 
     if (!userAccount)
       return new ApplicationResult({
@@ -288,7 +295,7 @@ class AuthService {
     const newCode = randomUUID();
     const newExp = add(new Date(), { hours: 1, minutes: 3 });
 
-    const updated = await this.userRepo.updateEmailUserConfirmation(
+    const updated = await this.usersRepo.updateEmailUserConfirmation(
       userAccount._id!,
       {
         confirmationCode: newCode,
@@ -307,7 +314,7 @@ class AuthService {
       });
     }
 
-    nodeMailerService
+    this.nodeMailerService
       .sendRegistrationConfirmationEmail(
         email,
         newCode,
@@ -327,7 +334,7 @@ class AuthService {
   ): Promise<
     ApplicationResult<{ accessToken: string; refreshToken: string } | null>
   > {
-    const payload = await JWTService.verifyRefreshToken(oldRefreshToken);
+    const payload = await this.jwtService.verifyRefreshToken(oldRefreshToken);
     if (!payload) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -375,15 +382,16 @@ class AuthService {
     await this.sessionRepo.updateLastActiveDate(sessionId);
 
     // * создаем новую пару токенов
-    const newAccessToken = await JWTService.createAccessToken(userId);
-    const newRefreshToken = await JWTService.createRefreshToken(
+    const newAccessToken = await this.jwtService.createAccessToken(userId);
+    const newRefreshToken = await this.jwtService.createRefreshToken(
       userId,
       deviceId,
       sessionId
     );
 
     // * получаем iat нового refresh и сохраняем в сессию -> старый становится недействительным
-    const newPayload = await JWTService.verifyRefreshToken(newRefreshToken);
+    const newPayload =
+      await this.jwtService.verifyRefreshToken(newRefreshToken);
     if (!newPayload) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -438,7 +446,8 @@ class AuthService {
     } | null>
   > {
     // * Проверяем refresh token и получаем userId
-    const refreshPayload = await JWTService.verifyRefreshToken(oldRefreshToken);
+    const refreshPayload =
+      await this.jwtService.verifyRefreshToken(oldRefreshToken);
 
     if (!refreshPayload)
       return new ApplicationResult({
@@ -450,8 +459,8 @@ class AuthService {
     const userId = refreshPayload.userId;
 
     // * Создаем новые токены
-    const newAccessToken = await JWTService.createAccessToken(userId);
-    const newRefreshToken = await JWTService.createRefreshToken(
+    const newAccessToken = await this.jwtService.createAccessToken(userId);
+    const newRefreshToken = await this.jwtService.createRefreshToken(
       userId,
       refreshPayload.deviceId,
       refreshPayload.sessionId
@@ -464,12 +473,3 @@ class AuthService {
     });
   }
 }
-
-// * способ для production: легче писать тесты (можно подсунуть мок репозитория/хешера) и более гибко менять реализации (например, другой хэшер).
-export const authService = new AuthService(
-  new UsersQueryRepository(),
-  new BcryptPasswordHasher(),
-  new SessionRepository(),
-  new SessionQueryRepo(),
-  new UsersRepository()
-);

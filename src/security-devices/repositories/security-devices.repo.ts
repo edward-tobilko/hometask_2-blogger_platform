@@ -1,9 +1,12 @@
 import { ObjectId } from "mongodb";
+import { injectable } from "inversify";
 
 import { authSessionCollection } from "db/mongo.db";
+import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
 
-export class SecurityDevicesRepo {
-  async removeAllSecurityDevicesExceptCurrentRepo(
+@injectable()
+export class SecurityDevicesRepo implements ISecurityDevicesRepo {
+  async removeAllSecurityDevicesExceptCurrent(
     userId: string,
     currentDeviceId: string
   ): Promise<number> {
@@ -16,7 +19,7 @@ export class SecurityDevicesRepo {
     return deletedDevices.deletedCount;
   }
 
-  async removeSecurityDeviceByIdRepo(deviceId: string): Promise<boolean> {
+  async removeSecurityDeviceById(deviceId: string): Promise<boolean> {
     const deletedDevice = await authSessionCollection.deleteOne({ deviceId });
 
     return deletedDevice.deletedCount === 1;

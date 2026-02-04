@@ -1,7 +1,11 @@
+import { injectable } from "inversify";
+
 import { authSessionCollection } from "db/mongo.db";
 import { SessionDB } from "db/types.db";
+import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 
-export class SessionQueryRepo {
+@injectable()
+export class SessionQueryRepo implements ISessionQueryRepo {
   async findBySessionId(sessionId: string): Promise<SessionDB | null> {
     return authSessionCollection.findOne({ sessionId });
   }
@@ -10,5 +14,3 @@ export class SessionQueryRepo {
     return authSessionCollection.findOne({ deviceId });
   }
 }
-
-export const sessionQueryRepo = new SessionQueryRepo();

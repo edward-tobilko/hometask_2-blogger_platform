@@ -1,7 +1,11 @@
+import { injectable } from "inversify";
+
 import { SessionDomain } from "../domain/session.domain";
 import { authSessionCollection } from "db/mongo.db";
+import { ISessionRepository } from "auth/interfaces/ISessionRepository";
 
-export class SessionRepository {
+@injectable()
+export class SessionRepository implements ISessionRepository {
   async upsertLoginSession(session: SessionDomain): Promise<void> {
     await authSessionCollection.updateOne(
       {
