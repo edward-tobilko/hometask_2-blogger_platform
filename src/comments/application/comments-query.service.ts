@@ -1,17 +1,24 @@
+import { inject, injectable } from "inversify";
+
 import { ApplicationResult } from "@core/result/application.result";
 import { IPostCommentOutput } from "../../posts/application/output/post-comment.output";
-import { CommentQueryRepo } from "../repositories/comment-query.repository";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { NotFoundError } from "@core/errors/application.error";
+import { Types } from "@core/di/types";
+import { ICommentsQueryService } from "comments/interfaces/ICommentsQueryService";
+import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
 
-class CommentsQueryService {
-  constructor(private commentsQueryRepo = new CommentQueryRepo()) {}
+@injectable()
+export class CommentsQueryService implements ICommentsQueryService {
+  constructor(
+    @inject(Types.ICommentsQueryRepo)
+    private commentsQueryRepo: ICommentsQueryRepo
+  ) {}
 
-  async getCommentsById(
+  async getCommentsListById(
     commentId: string
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
-    const comment =
-      await this.commentsQueryRepo.getCommentsByIdQueryRepo(commentId);
+    const comment = await this.commentsQueryRepo.getCommentsListById(commentId);
 
     if (!comment) {
       return new ApplicationResult({
@@ -28,5 +35,3 @@ class CommentsQueryService {
     });
   }
 }
-
-export const commentsQueryService = new CommentsQueryService();

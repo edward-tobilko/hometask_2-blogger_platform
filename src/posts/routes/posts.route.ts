@@ -13,8 +13,9 @@ import {
 } from "./request-payload-types/post-sort-field.request-payload-types";
 import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
 import { createCommentDtoRPValidation } from "./request-payload-validations/create-comment-dto.validation";
-import { postBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
 import { PostsController } from "./posts.controller";
+import { createPostBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
+import { blogsQueryService } from "composition-root";
 
 export const createPostsRouter = (postsController: PostsController) => {
   const postsRoute = Router({});
@@ -51,7 +52,7 @@ export const createPostsRouter = (postsController: PostsController) => {
   postsRoute.post(
     "",
     baseAuthGuard,
-    postBodyInputRPValidation,
+    createPostBodyInputRPValidation(blogsQueryService),
     inputResultMiddlewareValidation,
 
     postsController.createPostHandler
@@ -71,7 +72,7 @@ export const createPostsRouter = (postsController: PostsController) => {
     "/:id",
     baseAuthGuard,
     paramIdValidation,
-    postBodyInputRPValidation,
+    createPostBodyInputRPValidation(blogsQueryService),
     inputResultMiddlewareValidation,
     postsController.updatePostHandler
   );

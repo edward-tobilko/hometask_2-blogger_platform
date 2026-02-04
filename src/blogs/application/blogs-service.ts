@@ -1,6 +1,5 @@
 import { inject, injectable } from "inversify";
 
-import { BlogsRepository } from "../repositories/blogs.repository";
 import { WithMeta } from "../../core/types/with-meta.type";
 import {
   CreateBlogDtoCommand,
@@ -16,14 +15,15 @@ import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/create-post-for-blog-dto.command";
 import { IBlogsService } from "blogs/interfaces/IBlogsService";
 import { Types } from "@core/di/types";
-import { BlogsQueryRepository } from "blogs/repositories/blog-query.repository";
+import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
+import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 
 @injectable()
 export class BlogsService implements IBlogsService {
   constructor(
-    @inject(Types.IBlogsRepository) private blogsRepository: BlogsRepository,
+    @inject(Types.IBlogsRepository) private blogsRepository: IBlogsRepository,
     @inject(Types.IBlogsQueryRepository)
-    private blogsQueryRepository: BlogsQueryRepository
+    private blogsQueryRepository: IBlogsQueryRepository
   ) {}
 
   async createBlog(

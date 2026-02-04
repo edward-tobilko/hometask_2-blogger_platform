@@ -3,7 +3,6 @@ import { add } from "date-fns";
 import { inject, injectable } from "inversify";
 
 import { WithMeta } from "../../core/types/with-meta.type";
-import { UsersQueryRepository } from "../../users/repositories/users-query.repository";
 import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
 import { ApplicationResult } from "../../core/result/application.result";
 import { UserDomain } from "../../users/domain/user.domain";
@@ -14,32 +13,34 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../../core/errors/application.error";
-import { JWTService } from "../adapters/jwt-service.adapter";
 import { SessionDomain } from "../domain/session.domain";
 import { UserDB } from "db/types.db";
-import { UsersRepository } from "users/repositories/user.repository";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
 import { getSessionExpirationDate } from "auth/helpers/get-session-expire-date.helper";
-import { SessionRepository } from "auth/repositories/session.repository";
-import { SessionQueryRepo } from "auth/repositories/session-query.repo";
 import { IAuthService } from "auth/interfaces/IAuthService";
 import { Types } from "@core/di/types";
-import { CryptoPasswordHasher } from "auth/adapters/crypto-hasher-service.adapter";
-import { NodeMailerService } from "auth/adapters/nodemailer-service.adapter";
+import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
+import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
+import { ISessionRepository } from "auth/interfaces/ISessionRepository";
+import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { IJWTService } from "auth/interfaces/IJWTService";
+import { IUsersRepository } from "users/interfaces/IUsersRepository";
+import { INodeMailerService } from "auth/interfaces/INodeMailerService";
 
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
     @inject(Types.IUsersQueryRepository)
-    private usersQueryRepo: UsersQueryRepository,
-    @inject(Types.IPasswordHasher) private passwordHasher: CryptoPasswordHasher,
-    @inject(Types.ISessionRepository) private sessionRepo: SessionRepository,
-    @inject(Types.ISessionQueryRepo) private sessionQueryRepo: SessionQueryRepo,
-    @inject(Types.IUsersRepository) private usersRepo: UsersRepository,
-    @inject(Types.IJWTService) private jwtService: JWTService,
+    private usersQueryRepo: IUsersQueryRepository,
+    @inject(Types.IPasswordHasher) private passwordHasher: IPasswordHasher,
+    @inject(Types.ISessionRepository) private sessionRepo: ISessionRepository,
+    @inject(Types.ISessionQueryRepo)
+    private sessionQueryRepo: ISessionQueryRepo,
+    @inject(Types.IUsersRepository) private usersRepo: IUsersRepository,
+    @inject(Types.IJWTService) private jwtService: IJWTService,
     @inject(Types.INodeMailerService)
-    private nodeMailerService: NodeMailerService
+    private nodeMailerService: INodeMailerService
   ) {}
 
   async checkUserCredentials(

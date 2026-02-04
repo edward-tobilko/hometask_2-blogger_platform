@@ -1,24 +1,30 @@
+import { inject, injectable } from "inversify";
+
 import { WithMeta } from "./../../core/types/with-meta.type";
 import {
   ForbiddenError,
   InternalServerError,
   NotFoundError,
 } from "../../core/errors/application.error";
-import { CommentQueryRepo } from "../repositories/comment-query.repository";
-import { CommentsRepository } from "../repositories/comments.repository";
 import { ApplicationResult } from "../../core/result/application.result";
 import { UpdateCommentDtoCommand } from "./commands/update-comment-dto.command";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
+import { Types } from "@core/di/types";
+import { ICommentsService } from "comments/interfaces/ICommentsService";
+import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
+import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
 
-class CommentsService {
+@injectable()
+export class CommentsService implements ICommentsService {
   constructor(
-    private commentsRepo = new CommentsRepository(),
-    private commentsQueryRepo = new CommentQueryRepo()
+    @inject(Types.ICommentsRepository)
+    private commentsRepo: ICommentsRepository,
+    @inject(Types.ICommentsQueryRepo)
+    private commentsQueryRepo: ICommentsQueryRepo
   ) {}
 
   async deleteCommentById(commentId: string, userId: string): Promise<void> {
-    const comment =
-      await this.commentsQueryRepo.getCommentsByIdQueryRepo(commentId);
+    const comment = await this.commentsQueryRepo.getCommentsListById(commentId);
 
     if (!comment) throw new NotFoundError("Comment is not found", "commentId"); // 404
 
@@ -29,7 +35,7 @@ class CommentsService {
       ); // 403
     }
 
-    const deleted = await this.commentsRepo.deleteCommentRepo(commentId);
+    const deleted = await this.commentsRepo.deleteCommentById(commentId);
 
     if (!deleted) throw new InternalServerError("Failed to delete comment"); // Если не удалился (хотя комментарий существовал) — это ошибка сервера.
   }
@@ -66,7 +72,7 @@ class CommentsService {
     // * обновляем доменную сущность
     existingComment.content = dto.content;
 
-    const updated = await this.commentsRepo.updateCommentRepo(existingComment);
+    const updated = await this.commentsRepo.updateCommentById(existingComment);
 
     if (!updated) {
       return new ApplicationResult({
@@ -83,5 +89,3 @@ class CommentsService {
     });
   }
 }
-
-export const commentsService = new CommentsService();

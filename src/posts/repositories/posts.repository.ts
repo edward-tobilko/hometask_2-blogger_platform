@@ -10,7 +10,6 @@ import { IPostsRepository } from "posts/interfaces/IPostsRepository";
 
 @injectable()
 export class PostsRepository implements IPostsRepository {
-  // * GET
   async getPostDomainById(postId: string): Promise<PostDomain | null> {
     const result = await postCollection.findOne({ _id: new ObjectId(postId) });
 
@@ -24,7 +23,6 @@ export class PostsRepository implements IPostsRepository {
     });
   }
 
-  // * CREATE
   async createPost(newPost: PostDomain): Promise<PostDomain> {
     const insertResult = await postCollection.insertOne(newPost);
 
@@ -49,7 +47,6 @@ export class PostsRepository implements IPostsRepository {
     return createResult.insertedId;
   }
 
-  // * UPDATE
   async updatePost(postDomain: PostDomain): Promise<PostDomain> {
     if (!postDomain._id) {
       throw new RepositoryNotFoundError(
@@ -74,7 +71,6 @@ export class PostsRepository implements IPostsRepository {
     return postDomain;
   }
 
-  // * DELETE
   async deletePost(id: string): Promise<boolean> {
     const deleteResult = await postCollection.deleteOne({
       _id: new ObjectId(id),

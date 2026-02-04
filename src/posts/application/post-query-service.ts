@@ -8,15 +8,15 @@ import { GetPostCommentsListQueryHandler } from "./query-handlers/get-post-comme
 import { GetPostsListQueryHandler } from "./query-handlers/get-posts-list.query-handler";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { NotFoundError } from "@core/errors/application.error";
-import { PostsQueryRepository } from "posts/repositories/post-query.repository";
 import { Types } from "@core/di/types";
 import { IPostsQueryService } from "posts/interfaces/IPostsQueryService";
+import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {
   constructor(
     @inject(Types.IPostsQueryRepository)
-    private postsQueryRepository: PostsQueryRepository
+    private postsQueryRepository: IPostsQueryRepository
   ) {}
 
   async getPostsList(

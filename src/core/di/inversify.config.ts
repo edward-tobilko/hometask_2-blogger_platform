@@ -46,6 +46,16 @@ import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
 import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
 import { CustomRateLimitDB } from "db/types.db";
 import { customRateLimitCollection } from "db/mongo.db";
+import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
+import { CommentsRepository } from "comments/repositories/comments.repository";
+import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
+import { CommentsQueryRepo } from "comments/repositories/comment-query.repository";
+import { ICommentsQueryService } from "comments/interfaces/ICommentsQueryService";
+import { CommentsQueryService } from "comments/application/comments-query.service";
+import { ICommentsService } from "comments/interfaces/ICommentsService";
+import { CommentsService } from "comments/application/comments.service";
+import { CommentsController } from "comments/routes/comments.controller";
+import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
 
 export const container = new Container({ defaultScope: "Singleton" });
 
@@ -105,6 +115,21 @@ container
   .to(BlogsQueryService);
 container.bind<IBlogsService>(Types.IBlogsService).to(BlogsService);
 
+// * Comments
+// Repositories
+container
+  .bind<ICommentsRepository>(Types.ICommentsRepository)
+  .to(CommentsRepository);
+container
+  .bind<ICommentsQueryRepo>(Types.ICommentsQueryRepo)
+  .to(CommentsQueryRepo);
+
+// Services
+container
+  .bind<ICommentsQueryService>(Types.ICommentsQueryService)
+  .to(CommentsQueryService);
+container.bind<ICommentsService>(Types.ICommentsService).to(CommentsService);
+
 // * Other
 container
   .bind<ICustomRateLimitRepo>(Types.ICustomRateLimitRepo)
@@ -116,7 +141,13 @@ container
 // * CONTROLLERS
 container.bind<AuthController>(Types.AuthController).to(AuthController);
 container.bind<BlogsController>(Types.BlogsController).to(BlogsController);
+container
+  .bind<CommentsController>(Types.CommentsController)
+  .to(CommentsController);
 container.bind<PostsController>(Types.PostsController).to(PostsController);
+container
+  .bind<SecurityDevicesController>(Types.SecurityDevicesController)
+  .to(SecurityDevicesController);
 container.bind<UsersController>(Types.UsersController).to(UsersController);
 // container.bind<UsersController>(Types.UsersController).to(UsersController).inSingletonScope();
 

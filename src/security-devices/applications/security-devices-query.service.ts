@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
 
 import { ApplicationResult } from "@core/result/application.result";
-import { SecurityDevicesQueryRepo } from "security-devices/repositories/security-devices-query.repo";
 import { SecurityDevicesListOutput } from "./output/security-devices-type.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecurityDevicesQueryService";
 import { Types } from "@core/di/types";
+import { ISecurityDevicesQueryRepo } from "security-devices/interfaces/ISecurityDevicesQueryRepo";
 
 @injectable()
 export class SecurityDevicesQueryService
@@ -13,7 +13,7 @@ export class SecurityDevicesQueryService
 {
   constructor(
     @inject(Types.ISecurityDevicesQueryRepo)
-    private securityDevicesQueryRepo: SecurityDevicesQueryRepo
+    private securityDevicesQueryRepo: ISecurityDevicesQueryRepo
   ) {}
 
   async getAllSecurityDevices(

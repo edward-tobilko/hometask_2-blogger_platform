@@ -1,41 +1,48 @@
 import { Router } from "express";
 
-import { getCommentsHandler } from "./http-handlers/get-comments.handler";
 import {
   paramCommentIdValidation,
   paramIdValidation,
 } from "./../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { deleteCommentHandler } from "./http-handlers/delete-comment.handler";
 import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
-import { updateCommentHandler } from "./http-handlers/update-comment.handler";
 import { updateCommentDtoRPValidation } from "./request-payload-validations/update-comment.request-payload-validation";
+import { CommentsController } from "comments/routes/comments.controller";
 
-export const commentsRoute = Router({});
+export const createCommentsRouter = (
+  commentsController: CommentsController
+) => {
+  const commentsRoute = Router({});
 
-// * GET: Return comment by id
-commentsRoute.get(
-  "/:id",
-  paramIdValidation,
-  inputResultMiddlewareValidation,
-  getCommentsHandler
-);
+  // * GET: Return comment by id
+  commentsRoute.get(
+    "/:id",
+    paramIdValidation,
+    inputResultMiddlewareValidation,
 
-// * PUT: Update existing comment by id with input model
-commentsRoute.put(
-  "/:commentId",
-  jwtAccessAuthGuard,
-  paramCommentIdValidation,
-  updateCommentDtoRPValidation,
-  inputResultMiddlewareValidation,
-  updateCommentHandler
-);
+    commentsController.getCommentsHandler.bind(commentsController)
+  );
 
-// * DELETE: Delete comment specified by id
-commentsRoute.delete(
-  "/:commentId",
-  jwtAccessAuthGuard,
-  paramCommentIdValidation,
-  inputResultMiddlewareValidation,
-  deleteCommentHandler
-);
+  // * PUT: Update existing comment by id with input model
+  commentsRoute.put(
+    "/:commentId",
+    jwtAccessAuthGuard,
+    paramCommentIdValidation,
+    updateCommentDtoRPValidation,
+    inputResultMiddlewareValidation,
+
+    commentsController.updateCommentHandler.bind(commentsController)
+  );
+
+  // * DELETE: Delete comment specified by id
+  commentsRoute.delete(
+    "/:commentId",
+    jwtAccessAuthGuard,
+    paramCommentIdValidation,
+    inputResultMiddlewareValidation,
+
+    commentsController.deleteCommentHandler.bind(commentsController)
+  );
+
+  return commentsRoute;
+};

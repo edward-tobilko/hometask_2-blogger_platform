@@ -1,34 +1,53 @@
 import { Router } from "express";
 import { param } from "express-validator";
 
-import { getSecurityDevicesHandler } from "./http-handlers/get-security-devices.handler";
-import { removeSecurityDevicesSessionsHandler } from "./http-handlers/remove-sd-sessions.handler";
-import { removeDeviceByIdHandler } from "./http-handlers/remove-sd-by-deviceId.handler";
 import { inputResultMiddlewareValidation } from "@core/middlewares/validation/input-result.middleware-validation";
+import { SecurityDevicesController } from "./security-devices.controller";
 
-export const securityDevicesRouter = Router({});
+export const createSecurityDevicesRouter = (
+  securityDevicesController: SecurityDevicesController
+) => {
+  const securityDevicesRouter = Router({});
 
-// * GET: Returns all devices with active sessions for current user.
-securityDevicesRouter.get("", getSecurityDevicesHandler);
+  // * GET: Returns all devices with active sessions for current user.
+  securityDevicesRouter.get(
+    "",
 
-// * DELETE: Terminate all other (exclude current) device's sessions.
-securityDevicesRouter.delete("", removeSecurityDevicesSessionsHandler);
+    securityDevicesController.getSecurityDevicesHandler.bind(
+      securityDevicesController
+    )
+  );
 
-// * DELETE: Terminate specified device session.
-securityDevicesRouter.delete(
-  "/:deviceId",
+  // * DELETE: Terminate all other (exclude current) device's sessions.
+  securityDevicesRouter.delete(
+    "",
 
-  param("deviceId")
-    .exists()
-    .withMessage("deviceId is required")
-    .isString()
-    .withMessage("deviceId must be a string")
-    .trim()
-    .notEmpty()
-    .withMessage("deviceId must not be empty")
-    .isUUID()
-    .withMessage("deviceId must be a valid UUID"),
+    securityDevicesController.removeSecurityDevicesSessionsHandler.bind(
+      securityDevicesController
+    )
+  );
 
-  inputResultMiddlewareValidation,
-  removeDeviceByIdHandler
-);
+  // * DELETE: Terminate specified device session.
+  securityDevicesRouter.delete(
+    "/:deviceId",
+
+    param("deviceId")
+      .exists()
+      .withMessage("deviceId is required")
+      .isString()
+      .withMessage("deviceId must be a string")
+      .trim()
+      .notEmpty()
+      .withMessage("deviceId must not be empty")
+      .isUUID()
+      .withMessage("deviceId must be a valid UUID"),
+
+    inputResultMiddlewareValidation,
+
+    securityDevicesController.removeDeviceByIdHandler.bind(
+      securityDevicesController
+    )
+  );
+
+  return securityDevicesRouter;
+};

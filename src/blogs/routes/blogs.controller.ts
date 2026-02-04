@@ -9,24 +9,24 @@ import { BlogSortFieldRP } from "./request-payload-types/blog-sort-field.request
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { Types } from "@core/di/types";
-import { BlogsQueryService } from "blogs/application/blog-query.service";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
 import { PostsListRP } from "posts/routes/request-payload-types/posts-list.request-payload-types";
 import { PostSortFieldRP } from "posts/routes/request-payload-types/post-sort-field.request-payload-types";
 import { CreateBlogRP } from "./request-payload-types/create-blog.request-payload-type";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { CreateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
-import { BlogsService } from "blogs/application/blogs-service";
 import { CreatePostForBlogRP } from "posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
 import { CreatePostForBlogDtoCommand } from "posts/application/commands/create-post-for-blog-dto.command";
 import { UpdateBlogRP } from "./request-payload-types/update-blog.request-payload";
+import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
+import { IBlogsService } from "blogs/interfaces/IBlogsService";
 
 @injectable()
 export class BlogsController {
   constructor(
     @inject(Types.IBlogsQueryService)
-    private blogsQueryService: BlogsQueryService,
-    @inject(Types.IBlogsService) private blogsService: BlogsService
+    private blogsQueryService: IBlogsQueryService,
+    @inject(Types.IBlogsService) private blogsService: IBlogsService
   ) {}
 
   async getBlogsListHandler(

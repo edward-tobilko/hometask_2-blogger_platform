@@ -4,8 +4,6 @@ import { ObjectId } from "mongodb";
 import { PostDomain } from "../domain/post.domain";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { ApplicationResult } from "../../core/result/application.result";
-import { PostsRepository } from "../repositories/posts.repository";
-import { BlogQueryRepository } from "../../blogs/repositories/blog-query.repository";
 import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 import { PostOutput } from "./output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
@@ -21,16 +19,18 @@ import { IPostCommentOutput } from "./output/post-comment.output";
 import { PostCommentDomain } from "../domain/post-comment.domain";
 import { IPostsService } from "posts/interfaces/IPostsService";
 import { Types } from "@core/di/types";
-import { PostsQueryRepository } from "posts/repositories/post-query.repository";
+import { IPostsRepository } from "posts/interfaces/IPostsRepository";
+import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
+import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
 
 @injectable()
 export class PostsService implements IPostsService {
   constructor(
-    @inject(Types.IPostsService) private postsRepository: PostsRepository,
-    @inject(Types.IPostsService)
-    private blogQueryRepository: BlogQueryRepository,
-    @inject(Types.IPostsService)
-    private postQueryRepository: PostsQueryRepository
+    @inject(Types.IPostsRepository) private postsRepository: IPostsRepository,
+    @inject(Types.IBlogsQueryRepository)
+    private blogsQueryRepository: IBlogsQueryRepository,
+    @inject(Types.IPostsQueryRepository)
+    private postsQueryRepository: IPostsQueryRepository
   ) {}
 
   // * CREATE
@@ -39,9 +39,7 @@ export class PostsService implements IPostsService {
   ): Promise<ApplicationResult<PostOutput>> {
     const dto = command.payload;
 
-    const blog = await this.blogQueryRepository.findBlogByIdQueryRepo(
-      dto.blogId
-    );
+    const blog = await this.blogsQueryRepository.findBlogById(dto.blogId);
 
     if (!blog) {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
@@ -84,7 +82,7 @@ export class PostsService implements IPostsService {
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
     const { postId, content, userId, userLogin } = command.payload;
 
-    const isPostExists = await this.postQueryRepository.getPostById(postId);
+    const isPostExists = await this.postsQueryRepository.getPostById(postId);
 
     if (!isPostExists) {
       return new ApplicationResult({
