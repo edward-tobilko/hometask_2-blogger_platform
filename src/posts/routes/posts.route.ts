@@ -16,10 +16,12 @@ import { createCommentDtoRPValidation } from "./request-payload-validations/crea
 import { PostsController } from "./posts.controller";
 import { createPostBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
+import { IJWTService } from "auth/interfaces/IJWTService";
 
 export const createPostsRouter = (
   postsController: PostsController,
-  blogsQueryService: IBlogsQueryService
+  blogsQueryService: IBlogsQueryService,
+  jwtService: IJWTService
 ) => {
   const postsRoute = Router({});
 
@@ -37,6 +39,7 @@ export const createPostsRouter = (
     "/:id",
     paramIdValidation,
     inputResultMiddlewareValidation,
+
     postsController.getPostHandler
   );
 
@@ -64,9 +67,10 @@ export const createPostsRouter = (
   // * POST: Create new comment
   postsRoute.post(
     "/:postId/comments",
-    jwtAccessAuthGuard,
+    jwtAccessAuthGuard(jwtService),
     createCommentDtoRPValidation,
     inputResultMiddlewareValidation,
+
     postsController.createCommentHandler
   );
 
@@ -77,6 +81,7 @@ export const createPostsRouter = (
     paramIdValidation,
     createPostBodyInputRPValidation(blogsQueryService),
     inputResultMiddlewareValidation,
+
     postsController.updatePostHandler
   );
 
@@ -86,6 +91,7 @@ export const createPostsRouter = (
     baseAuthGuard,
     paramIdValidation,
     inputResultMiddlewareValidation,
+
     postsController.deletePostHandler
   );
 

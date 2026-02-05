@@ -8,9 +8,11 @@ import { inputResultMiddlewareValidation } from "../../core/middlewares/validati
 import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
 import { updateCommentDtoRPValidation } from "./request-payload-validations/update-comment.request-payload-validation";
 import { CommentsController } from "comments/routes/comments.controller";
+import { IJWTService } from "auth/interfaces/IJWTService";
 
 export const createCommentsRouter = (
-  commentsController: CommentsController
+  commentsController: CommentsController,
+  jwtService: IJWTService
 ) => {
   const commentsRoute = Router({});
 
@@ -26,7 +28,7 @@ export const createCommentsRouter = (
   // * PUT: Update existing comment by id with input model
   commentsRoute.put(
     "/:commentId",
-    jwtAccessAuthGuard,
+    jwtAccessAuthGuard(jwtService),
     paramCommentIdValidation,
     updateCommentDtoRPValidation,
     inputResultMiddlewareValidation,
@@ -37,7 +39,7 @@ export const createCommentsRouter = (
   // * DELETE: Delete comment specified by id
   commentsRoute.delete(
     "/:commentId",
-    jwtAccessAuthGuard,
+    jwtAccessAuthGuard(jwtService),
     paramCommentIdValidation,
     inputResultMiddlewareValidation,
 

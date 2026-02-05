@@ -78,11 +78,15 @@ export class AuthController {
   }
 
   async passwordRecoveryHandler(
-    req: Request,
+    req: Request<{}, {}, { email: string }, {}>,
     res: Response,
     _next: NextFunction
   ) {
     try {
+      const email = req.body.email;
+
+      await this.authService.passwordRecovery(email);
+
       res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
       console.error("[passwordRecoveryHandler] error:", error);
@@ -309,7 +313,3 @@ export class AuthController {
 }
 
 // ? Request<Params, ResBody, ReqBody, Query>
-
-// ? return response 204 - Even if current email is not registered (for prevent user's email detection).
-// ? return response 400 - If the inputModel has invalid email (for example 222^gmail.com).
-// ? return response 429 - More than 5 attempts from one IP-address during 10 seconds (authCustomRateLimiter middleware)

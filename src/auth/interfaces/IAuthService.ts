@@ -43,4 +43,6 @@ export interface IAuthService {
       newRefreshToken: string;
     } | null>
   >;
+
+  passwordRecovery(email: string): Promise<void>;
 }

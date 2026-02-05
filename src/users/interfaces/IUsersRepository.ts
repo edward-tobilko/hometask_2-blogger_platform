@@ -8,6 +8,11 @@ export interface IEmailConfirmationUpdate {
   isConfirmed: boolean;
 }
 
+export interface IEmailRecoveryPassword {
+  recoveryCode: string;
+  expirationDate: Date;
+}
+
 export interface IUsersRepository {
   createUser(user: UserDB): Promise<UserDB>;
 
@@ -19,4 +24,9 @@ export interface IUsersRepository {
     userId: ObjectId,
     emailConfirmation: IEmailConfirmationUpdate
   ): Promise<boolean>;
+
+  sendRecoveryPasswordEmail(
+    userId: ObjectId,
+    emailRecoveryPass: IEmailRecoveryPassword
+  ): Promise<void>;
 }

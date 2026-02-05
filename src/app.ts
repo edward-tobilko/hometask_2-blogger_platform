@@ -7,6 +7,7 @@ import {
   getBlogsQueryService,
   getCommentsController,
   getCustomRateLimitRepo,
+  getJwtService,
   getPostsController,
   getSecurityDevicesController,
   getUsersController,
@@ -46,6 +47,7 @@ export const setupApp = (app: Express) => {
 
   const customRateLimitRepo = getCustomRateLimitRepo();
   const blogsQueryService = getBlogsQueryService();
+  const jwtService = getJwtService();
 
   // * Root router
   app.get(routersPaths.root, (_req: Request, res: Response) => {
@@ -55,24 +57,31 @@ export const setupApp = (app: Express) => {
   // * Auth router
   app.use(
     routersPaths.auth,
-    createAuthRouter(customRateLimitRepo, authController)
+
+    createAuthRouter(customRateLimitRepo, authController, jwtService)
   );
 
   // * Blogs router
   app.use(routersPaths.blogs, createBlogsRouter(blogsController));
 
   // * Comments router
-  app.use(routersPaths.comments, createCommentsRouter(commentsController));
+  app.use(
+    routersPaths.comments,
+
+    createCommentsRouter(commentsController, jwtService)
+  );
 
   // * Posts router
   app.use(
     routersPaths.posts,
-    createPostsRouter(postsController, blogsQueryService)
+
+    createPostsRouter(postsController, blogsQueryService, jwtService)
   );
 
   // * Security devices router
   app.use(
     routersPaths.securityDevices,
+
     createSecurityDevicesRouter(securityDevicesController)
   );
 

@@ -12,6 +12,7 @@ import { UsersController } from "users/routes/users-controller";
 import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
 import { container } from "@core/di/inversify.config";
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
+import { IJWTService } from "auth/interfaces/IJWTService";
 
 let inited = false;
 
@@ -60,6 +61,9 @@ export const getUsersController = () =>
 
 export const getBlogsQueryService = () =>
   container.get<IBlogsQueryService>(Types.IBlogsQueryService);
+
+export const getJwtService = () =>
+  container.get<IJWTService>(Types.IJWTService);
 
 // ? В чем преимущества использования таких getters?:
 // ? 1. Упрощение тестирования: можно легко подменить реализацию контроллера на мок или стабы.

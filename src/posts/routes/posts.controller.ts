@@ -152,6 +152,7 @@ export class PostsController {
     res: Response
   ) => {
     try {
+      debugger;
       const sanitizedParamsData = matchedData<ReqParams>(req, {
         locations: ["params"],
         includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию

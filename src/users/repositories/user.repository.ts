@@ -5,6 +5,7 @@ import { userCollection } from "../../db/mongo.db";
 import { UserDB } from "db/types.db";
 import {
   IEmailConfirmationUpdate,
+  IEmailRecoveryPassword,
   IUsersRepository,
 } from "users/interfaces/IUsersRepository";
 
@@ -59,5 +60,22 @@ export class UsersRepository implements IUsersRepository {
     );
 
     return result.modifiedCount === 1;
+  }
+
+  async sendRecoveryPasswordEmail(
+    userId: ObjectId,
+    emailRecoveryPass: IEmailRecoveryPassword
+  ): Promise<void> {
+    await userCollection.updateOne(
+      { _id: userId },
+
+      {
+        $set: {
+          "emailRecoveryPassword.recoveryCode": emailRecoveryPass.recoveryCode,
+          "emailRecoveryPassword.expirationDate":
+            emailRecoveryPass.expirationDate,
+        },
+      }
+    );
   }
 }

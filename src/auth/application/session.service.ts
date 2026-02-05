@@ -473,4 +473,28 @@ export class AuthService implements IAuthService {
       extensions: [],
     });
   }
+
+  async passwordRecovery(email: string): Promise<void> {
+    const user = await this.usersQueryRepo.findByEmail(email);
+
+    // * не палим, что email не существует
+    if (!user) return;
+
+    // * Генерируем новый код и новый дедлайн
+    const recoveryCode = randomUUID();
+    const newExpDate = add(new Date(), { hours: 1, minutes: 3 });
+
+    await this.usersRepo.sendRecoveryPasswordEmail(user._id!, {
+      recoveryCode,
+      expirationDate: newExpDate,
+    });
+
+    this.nodeMailerService
+      .sendRecoveryPasswordEmail(
+        email,
+        recoveryCode,
+        emailExamples.passwordRecoveryEmail
+      )
+      .catch((error: unknown) => console.error("EMAIL_SEND_ERROR", error));
+  }
 }
