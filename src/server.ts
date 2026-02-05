@@ -13,10 +13,13 @@ const bootstrap = async () => {
   const PORT = Number(process.env.PORT) || 8080;
 
   try {
+    // * сначала вызов db
     await runDB(appConfig.MONGO_URL);
 
+    // * затем setupApp (он внутри вызовет initCompositionRoot)
     setupApp(app);
 
+    // * потом listen
     const server = app.listen(PORT, "0.0.0.0", () => {
       console.log(`✅ Server running on ${PORT}`);
       console.log(`NODE_ENV=${process.env.NODE_ENV}`);

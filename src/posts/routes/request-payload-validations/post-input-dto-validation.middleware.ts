@@ -2,10 +2,10 @@ import { body } from "express-validator";
 import { ObjectId } from "mongodb";
 
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
-import { BlogsQueryService } from "blogs/application/blog-query.service";
+import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
 
 export const createPostBodyInputRPValidation = (
-  blogsQueryService: BlogsQueryService
+  blogsQueryService: IBlogsQueryService
 ) => {
   const titleValidation = body("title")
     .exists()

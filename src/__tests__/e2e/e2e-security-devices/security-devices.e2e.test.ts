@@ -18,6 +18,7 @@ import {
 import { deleteSecurityDeviceById } from "../utils/security-devices/delete-security-device.util";
 import { setAuthRefreshToken } from "../utils/auth/auth-refresh-token.util";
 import { setAuthLogout } from "../utils/auth/auth-logout.util";
+import { initCompositionRoot } from "composition-root";
 
 // * Сохраняем данные для 4 устройств
 export const devices = {
@@ -29,7 +30,6 @@ export const devices = {
 
 describe("Security Devices E2E Tests", () => {
   const app = express();
-  setupApp(app);
 
   let createdUserId: string;
 
@@ -39,7 +39,15 @@ describe("Security Devices E2E Tests", () => {
   const userAgents = getUserAgents;
 
   beforeAll(async () => {
+    // * DB
     await runDB(appConfig.MONGO_URL);
+
+    // * DI: бинды коллекции после runDB
+    initCompositionRoot();
+
+    // * app
+    setupApp(app);
+
     await clearDB(app);
   });
 

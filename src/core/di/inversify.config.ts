@@ -1,5 +1,4 @@
 import { Container } from "inversify";
-import { Collection } from "mongodb";
 
 import { Types } from "./types";
 import { IUsersRepository } from "users/interfaces/IUsersRepository";
@@ -42,10 +41,6 @@ import { INodeMailerService } from "auth/interfaces/INodeMailerService";
 import { NodeMailerService } from "auth/adapters/nodemailer-service.adapter";
 import { AuthController } from "auth/routes/auth.controller";
 import { BlogsController } from "blogs/routes/blogs.controller";
-import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
-import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
-import { CustomRateLimitDB } from "db/types.db";
-import { customRateLimitCollection } from "db/mongo.db";
 import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
 import { CommentsRepository } from "comments/repositories/comments.repository";
 import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
@@ -56,23 +51,20 @@ import { ICommentsService } from "comments/interfaces/ICommentsService";
 import { CommentsService } from "comments/application/comments.service";
 import { CommentsController } from "comments/routes/comments.controller";
 import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
+import { SecurityDevicesQueryRepo } from "security-devices/repositories/security-devices-query.repo";
+import { ISecurityDevicesQueryRepo } from "security-devices/interfaces/ISecurityDevicesQueryRepo";
+import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
+import { SecurityDevicesRepo } from "security-devices/repositories/security-devices.repo";
+import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDevicesService";
+import { SecurityDevicesService } from "security-devices/applications/security-devices.service";
+import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecurityDevicesQueryService";
+import { SecurityDevicesQueryService } from "security-devices/applications/security-devices-query.service";
+import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
+import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
 
 export const container = new Container({ defaultScope: "Singleton" });
 
-// * Users
-// Repositories
-container.bind<IUsersRepository>(Types.IUsersRepository).to(UsersRepository);
-container
-  .bind<IUsersQueryRepository>(Types.IUsersQueryRepository)
-  .to(UsersQueryRepository);
-
-// Services
-container.bind<IUsersService>(Types.IUsersService).to(UsersService);
-container
-  .bind<IUsersQueryService>(Types.IUsersQueryService)
-  .to(UsersQueryService);
-
-// * Auth
+// * Auth model
 // Repositories
 container
   .bind<ISessionRepository>(Types.ISessionRepository)
@@ -82,27 +74,14 @@ container.bind<ISessionQueryRepo>(Types.ISessionQueryRepo).to(SessionQueryRepo);
 // Services
 container.bind<IAuthService>(Types.IAuthService).to(AuthService);
 
-// Other
+// Other services
 container.bind<IPasswordHasher>(Types.IPasswordHasher).to(CryptoPasswordHasher);
 container.bind<IJWTService>(Types.IJWTService).to(JWTService);
 container
   .bind<INodeMailerService>(Types.INodeMailerService)
   .to(NodeMailerService);
 
-// * Posts
-// Repositories
-container.bind<IPostsRepository>(Types.IPostsRepository).to(PostsRepository);
-container
-  .bind<IPostsQueryRepository>(Types.IPostsQueryRepository)
-  .to(PostsQueryRepository);
-
-// Services
-container.bind<IPostsService>(Types.IPostsService).to(PostsService);
-container
-  .bind<IPostsQueryService>(Types.IPostsQueryService)
-  .to(PostQueryService);
-
-// * Blogs
+// * Blogs model
 // Repositories
 container
   .bind<IBlogsQueryRepository>(Types.IBlogsQueryRepository)
@@ -115,7 +94,7 @@ container
   .to(BlogsQueryService);
 container.bind<IBlogsService>(Types.IBlogsService).to(BlogsService);
 
-// * Comments
+// * Comments model
 // Repositories
 container
   .bind<ICommentsRepository>(Types.ICommentsRepository)
@@ -130,25 +109,73 @@ container
   .to(CommentsQueryService);
 container.bind<ICommentsService>(Types.ICommentsService).to(CommentsService);
 
+// * Posts model
+// Repositories
+container.bind<IPostsRepository>(Types.IPostsRepository).to(PostsRepository);
+container
+  .bind<IPostsQueryRepository>(Types.IPostsQueryRepository)
+  .to(PostsQueryRepository);
+
+// Services
+container.bind<IPostsService>(Types.IPostsService).to(PostsService);
+container
+  .bind<IPostsQueryService>(Types.IPostsQueryService)
+  .to(PostQueryService);
+
+// * Security Devices model
+// Repositories
+container
+  .bind<ISecurityDevicesQueryRepo>(Types.ISecurityDevicesQueryRepo)
+  .to(SecurityDevicesQueryRepo);
+container
+  .bind<ISecurityDevicesRepo>(Types.ISecurityDevicesRepo)
+  .to(SecurityDevicesRepo);
+
+// Services
+container
+  .bind<ISecurityDevicesService>(Types.ISecurityDevicesService)
+  .to(SecurityDevicesService);
+container
+  .bind<ISecurityDevicesQueryService>(Types.ISecurityDevicesQueryService)
+  .to(SecurityDevicesQueryService);
+
+// * Users model
+// Repositories
+container.bind<IUsersRepository>(Types.IUsersRepository).to(UsersRepository);
+container
+  .bind<IUsersQueryRepository>(Types.IUsersQueryRepository)
+  .to(UsersQueryRepository);
+
+// Services
+container.bind<IUsersService>(Types.IUsersService).to(UsersService);
+container
+  .bind<IUsersQueryService>(Types.IUsersQueryService)
+  .to(UsersQueryService);
+
 // * Other
 container
   .bind<ICustomRateLimitRepo>(Types.ICustomRateLimitRepo)
   .to(CustomRateLimitRepo);
-container
-  .bind<Collection<CustomRateLimitDB>>(Types.CustomRateLimitCollection)
-  .toConstantValue(customRateLimitCollection); // customRateLimitCollection from mondo.db.ts
 
-// * CONTROLLERS
+// * Controllers
 container.bind<AuthController>(Types.AuthController).to(AuthController);
+
 container.bind<BlogsController>(Types.BlogsController).to(BlogsController);
+
 container
   .bind<CommentsController>(Types.CommentsController)
   .to(CommentsController);
+
 container.bind<PostsController>(Types.PostsController).to(PostsController);
+
 container
   .bind<SecurityDevicesController>(Types.SecurityDevicesController)
   .to(SecurityDevicesController);
+
 container.bind<UsersController>(Types.UsersController).to(UsersController);
+
 // container.bind<UsersController>(Types.UsersController).to(UsersController).inSingletonScope();
+
+// ? inversify - как бы нашь контейнер (склад), где мы складываем все наши экземпляры (Repo / Service / Controller).
 
 // ? Делаем defaultScope: «Singleton», чтобы не писать .inSingletonScope() везде. Если хочем более точно контролировать lifecycle — убираем defaultScope и ставим scope на каждый bind.

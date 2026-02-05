@@ -10,7 +10,7 @@ module.exports = {
   detectOpenHandles: true,
   maxWorkers: 1,
 
-  // Потя alias (должны соответствовать tsconfig)
+  // Путя alias (должны соответствовать tsconfig)
   moduleNameMapper: {
     "^app$": "<rootDir>/src/app",
     "^db/(.*)$": "<rootDir>/src/db/$1",
@@ -25,5 +25,6 @@ module.exports = {
 
     "^__tests__/(.*)$": "<rootDir>/src/__tests__/$1",
     "^@core/(.*)$": "<rootDir>/src/core/$1",
+    "^composition-root$": "<rootDir>/src/composition-root.ts",
   },
 };

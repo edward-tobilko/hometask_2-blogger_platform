@@ -15,9 +15,12 @@ import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard"
 import { createCommentDtoRPValidation } from "./request-payload-validations/create-comment-dto.validation";
 import { PostsController } from "./posts.controller";
 import { createPostBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
-import { blogsQueryService } from "composition-root";
+import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
 
-export const createPostsRouter = (postsController: PostsController) => {
+export const createPostsRouter = (
+  postsController: PostsController,
+  blogsQueryService: IBlogsQueryService
+) => {
   const postsRoute = Router({});
 
   // * GET: Returns all posts

@@ -13,19 +13,26 @@ import { getPostByIdBodyUtil } from "../utils/posts/get-post-by-id.util";
 import { routersPaths } from "../../../core/paths/paths";
 import { CreatePostRP } from "posts/routes/request-payload-types/create-post.request-payload-types";
 import { appConfig } from "@core/settings/config";
+import { initCompositionRoot } from "composition-root";
 
 const adminToken = generateBasicAuthToken();
 
 describe("E2E update post tests", () => {
   const app = express();
-  setupApp(app);
 
   // * prepare the base we need for the post
   let createdBlog: { id: string; name: string };
   let postDataDto: CreatePostRP;
 
   beforeAll(async () => {
+    // * DB
     await runDB(appConfig.MONGO_URL);
+
+    // * DI: бинды коллекции после runDB
+    initCompositionRoot();
+
+    // * app
+    setupApp(app);
 
     // * create a blog after connecting to the db
     const createdBlogResponse = await createBlogUtil(app);

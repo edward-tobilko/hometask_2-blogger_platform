@@ -8,13 +8,20 @@ import { appConfig } from "@core/settings/config";
 import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
 import { getCommentsList } from "../utils/posts/get-comments-list.util";
 import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
+import { initCompositionRoot } from "composition-root";
 
 describe("E2E get users list tests", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
+    // * DB
     await runDB(appConfig.MONGO_URL);
+
+    // * DI: бинды коллекции после runDB
+    initCompositionRoot();
+
+    // * app
+    setupApp(app);
   });
 
   beforeEach(async () => {
@@ -31,7 +38,7 @@ describe("E2E get users list tests", () => {
     const { postRes, accessToken } = await setupUserLoginBlogPost(app);
 
     // * create 12 comments
-    for (let i = 1; i <= 12; i++) {
+    for (let i = 0; i < 12; i++) {
       await createCommentForPost(app, postRes.id, accessToken);
     }
 

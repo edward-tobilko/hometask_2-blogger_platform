@@ -2,15 +2,15 @@ import express, { Express, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 
 import {
-  authController,
-  blogsController,
-  commentsController,
+  getAuthController,
+  getBlogsController,
+  getBlogsQueryService,
+  getCommentsController,
   getCustomRateLimitRepo,
-  // customRateLimitRepo,
+  getPostsController,
+  getSecurityDevicesController,
+  getUsersController,
   initCompositionRoot,
-  postsController,
-  securityDevicesController,
-  usersController,
 } from "composition-root";
 
 import { testingRoute } from "./testing/routes/testing.route";
@@ -33,9 +33,19 @@ export const setupApp = (app: Express) => {
   app.use(express.json());
   app.use(cookieParser());
 
+  // * вызывать setupApp будем ПОСЛЕ runDB
   initCompositionRoot();
 
+  // * получаем все getters только здесь (после init)
+  const authController = getAuthController();
+  const blogsController = getBlogsController();
+  const commentsController = getCommentsController();
+  const postsController = getPostsController();
+  const securityDevicesController = getSecurityDevicesController();
+  const usersController = getUsersController();
+
   const customRateLimitRepo = getCustomRateLimitRepo();
+  const blogsQueryService = getBlogsQueryService();
 
   // * Root router
   app.get(routersPaths.root, (_req: Request, res: Response) => {
@@ -55,7 +65,10 @@ export const setupApp = (app: Express) => {
   app.use(routersPaths.comments, createCommentsRouter(commentsController));
 
   // * Posts router
-  app.use(routersPaths.posts, createPostsRouter(postsController));
+  app.use(
+    routersPaths.posts,
+    createPostsRouter(postsController, blogsQueryService)
+  );
 
   // * Security devices router
   app.use(

@@ -11,13 +11,20 @@ import { deleteUser } from "../utils/users/delete-user.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getUsersList } from "../utils/users/get-users-list.util";
 import { routersPaths } from "@core/paths/paths";
+import { initCompositionRoot } from "composition-root";
 
 describe("E2E delete user tests", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
+    // * DB
     await runDB(appConfig.MONGO_URL);
+
+    // * DI: бинды коллекции после runDB
+    initCompositionRoot();
+
+    // * app
+    setupApp(app);
   });
 
   beforeEach(async () => {

@@ -12,13 +12,20 @@ import {
 } from "../utils/users/create-user.util";
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { routersPaths } from "@core/paths/paths";
+import { initCompositionRoot } from "composition-root";
 
 describe("E2E create user tests", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
+    // * DB
     await runDB(appConfig.MONGO_URL);
+
+    // * DI: бинды коллекции после runDB
+    initCompositionRoot();
+
+    // * app
+    setupApp(app);
   });
 
   beforeEach(async () => {

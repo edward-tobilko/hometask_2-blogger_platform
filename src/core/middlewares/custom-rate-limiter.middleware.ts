@@ -11,10 +11,11 @@ type Options = {
 export const customRateLimiterMiddleware =
   (repo: ICustomRateLimitRepo, options: Options) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    const isE2E = process.env.NODE_ENV === "test";
-    const disableRateLimit = process.env.DISABLE_RATE_LIMIT === "true";
+    const disableRateLimit =
+      process.env.NODE_ENV === "test" ||
+      process.env.DISABLE_RATE_LIMIT === "true";
 
-    if (isE2E && disableRateLimit) return next(); // for e2e tests (что бы не ламало тесты)
+    if (disableRateLimit) return next(); // for e2e tests (что бы не ламало тесты)
 
     try {
       const ip = req.ip || "unknown";

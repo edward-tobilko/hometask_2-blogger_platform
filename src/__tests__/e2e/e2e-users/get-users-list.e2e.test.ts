@@ -9,13 +9,20 @@ import { routersPaths } from "../../../core/paths/paths";
 import { appConfig } from "@core/settings/config";
 import { createUserBodyDto } from "../utils/users/create-user.util";
 import { getUsersList } from "../utils/users/get-users-list.util";
+import { initCompositionRoot } from "composition-root";
 
 describe("E2E get users list tests", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
+    // * DB
     await runDB(appConfig.MONGO_URL);
+
+    // * DI: бинды коллекции после runDB
+    initCompositionRoot();
+
+    // * app
+    setupApp(app);
   });
 
   beforeEach(async () => {

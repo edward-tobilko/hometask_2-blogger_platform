@@ -10,13 +10,20 @@ import { createCommentForPost } from "../utils/posts/create-comment-for-post.uti
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { routersPaths } from "@core/paths/paths";
 import { getCommentForPostDto } from "../utils/posts/get-comment-for-post-dto.util";
+import { initCompositionRoot } from "composition-root";
 
 describe("E2E create comment for post tests", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
+    // * DB
     await runDB(appConfig.MONGO_URL);
+
+    // * DI: бинды коллекции после runDB
+    initCompositionRoot();
+
+    // * app
+    setupApp(app);
   });
 
   beforeEach(async () => {

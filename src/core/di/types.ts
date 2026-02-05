@@ -26,6 +26,8 @@ export const Types = {
 
   // Other
   ICustomRateLimitRepo: Symbol.for("ICustomRateLimitRepo"),
+
+  // DB Tokens
   CustomRateLimitCollection: Symbol.for("CustomRateLimitCollection"),
 
   // * Services

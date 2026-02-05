@@ -26,7 +26,8 @@
 
     "paths": {
       "@core/*": ["core/*"], // для удобного импорта файлов
-      "@tests/*": ["src/__tests__/*"]
+      "@tests/*": ["src/__tests__/*"],
+      "composition-root": ["composition-root.ts"]
     }
   },
 
