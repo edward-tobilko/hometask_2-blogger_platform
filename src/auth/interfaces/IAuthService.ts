@@ -46,3 +46,5 @@ export interface IAuthService {
 
   passwordRecovery(email: string): Promise<void>;
 }
+
+// ? interface = абстракция

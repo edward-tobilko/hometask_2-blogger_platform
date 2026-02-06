@@ -49,6 +49,27 @@ export class NodeMailerService implements INodeMailerService {
     // return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
     return !!info;
   }
+
+  async sendRecoveryPasswordEmail(
+    email: string,
+    recoveryCode: string,
+    template: (recoveryCode: string) => string
+  ): Promise<boolean> {
+    if (process.env.NODE_ENV === "test") return true;
+
+    log("SENDING EMAIL TO:", email);
+
+    let info = await transporter.sendMail({
+      from: `"eddie" <${appConfig.EMAIL}>`,
+      to: email,
+      subject: "Your recoveryCode is here",
+      html: template(recoveryCode),
+    });
+
+    log("SENT:", info);
+
+    return !!info;
+  }
 }
 
 // ? "!!info" - превращает значения в true or false

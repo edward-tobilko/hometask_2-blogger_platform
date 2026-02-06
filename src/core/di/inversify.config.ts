@@ -10,7 +10,7 @@ import { UsersQueryRepository } from "users/repositories/users-query.repository"
 import { UsersService } from "users/applications/user.service";
 import { UsersQueryService } from "users/applications/users-query.service";
 import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
-import { CryptoPasswordHasher } from "auth/adapters/crypto-hasher-service.adapter";
+import { CryptoPasswordHasher } from "auth/adapters/hasher-service.adapter";
 import { UsersController } from "users/routes/users-controller";
 import { PostsController } from "posts/routes/posts.controller";
 import { PostsService } from "posts/application/posts-service";
