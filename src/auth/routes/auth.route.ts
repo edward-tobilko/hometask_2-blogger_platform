@@ -9,6 +9,7 @@ import { AuthController } from "./auth.controller";
 import { customRateLimiterMiddleware } from "@core/middlewares/custom-rate-limiter.middleware";
 import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
 import { IJWTService } from "auth/interfaces/IJWTService";
+import { newPasswordRPV } from "./request-payload-validations/new-password.rpv";
 
 export const createAuthRouter = (
   customRateLimitRepo: ICustomRateLimitRepo,
@@ -118,6 +119,16 @@ export const createAuthRouter = (
     authCustomRateLimiter,
 
     authController.passwordRecoveryHandler.bind(authController)
+  );
+
+  // * POST: Confirm password recovery.
+  authRoute.post(
+    "/new-password",
+    newPasswordRPV,
+    inputResultMiddlewareValidation,
+    authCustomRateLimiter,
+
+    authController.newPasswordHandler.bind(authController)
   );
 
   return authRoute;

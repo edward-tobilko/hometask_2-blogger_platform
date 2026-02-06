@@ -18,6 +18,7 @@ import { IJWTService } from "auth/interfaces/IJWTService";
 import { IAuthService } from "auth/interfaces/IAuthService";
 import { IUsersQueryService } from "users/interfaces/IUsersQueryService";
 import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { NewPasswordRPT } from "./request-payload-types/new-password.rpt";
 
 @injectable()
 export class AuthController {
@@ -83,7 +84,7 @@ export class AuthController {
     _next: NextFunction
   ) {
     try {
-      const email = req.body.email;
+      const { email } = req.body;
 
       await this.authService.passwordRecovery(email);
 
@@ -306,6 +307,35 @@ export class AuthController {
       };
 
       res.status(HTTP_STATUS_CODES.OK_200).json(authMeOutput);
+    } catch (error: unknown) {
+      errorsHandler(error, req, res);
+    }
+  }
+
+  async newPasswordHandler(
+    req: Request<{}, {}, NewPasswordRPT, {}>,
+    res: Response
+  ) {
+    try {
+      const { newPassword, recoveryCode } = req.body;
+
+      const result = await this.authService.newPassword(
+        newPassword,
+        recoveryCode
+      );
+
+      if (result.status !== ApplicationResultStatus.Success) {
+        return res
+          .status(mapApplicationStatusToHttpStatus(result.status))
+          .json({
+            errorsMessages: result.extensions.map((err: ApplicationError) => ({
+              message: err.message,
+              field: err.field,
+            })),
+          });
+      }
+
+      return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
       errorsHandler(error, req, res);
     }

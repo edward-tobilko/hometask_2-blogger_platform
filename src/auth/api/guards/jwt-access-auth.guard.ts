@@ -29,9 +29,6 @@ export function jwtAccessAuthGuard(jwtService: IJWTService) {
 
       return next();
     } catch (error: unknown) {
-      console.log("JWT VERIFY ERROR:", error);
-      console.log("AT_SECRET (len):", process.env.AT_SECRET?.length);
-
       res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
       return;

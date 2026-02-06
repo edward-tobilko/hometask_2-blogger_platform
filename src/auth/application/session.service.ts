@@ -497,4 +497,10 @@ export class AuthService implements IAuthService {
       )
       .catch((error: unknown) => console.error("EMAIL_SEND_ERROR", error));
   }
+
+  async newPassword(
+    command: WithMeta<{ newPassword: string; recoveryCode: string }>
+  ): Promise<string> {
+    return "";
+  }
 }
