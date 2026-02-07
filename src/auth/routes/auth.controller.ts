@@ -96,6 +96,40 @@ export class AuthController {
     }
   }
 
+  async newPasswordHandler(
+    req: Request<{}, {}, NewPasswordRPT, {}>,
+    res: Response
+  ) {
+    try {
+      const { newPassword, recoveryCode } = matchedData<NewPasswordRPT>(req, {
+        locations: ["body"],
+        includeOptionals: false,
+      });
+
+      const result = await this.authService.confirmNewPasswordRecovery(
+        newPassword,
+        recoveryCode
+      );
+
+      log("result", result);
+
+      if (result.status !== ApplicationResultStatus.NoContent) {
+        return res
+          .status(mapApplicationStatusToHttpStatus(result.status))
+          .json({
+            errorsMessages: result.extensions.map((err: ApplicationError) => ({
+              message: err.message,
+              field: err.field,
+            })),
+          });
+      }
+
+      return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+    } catch (error: unknown) {
+      errorsHandler(error, req, res);
+    }
+  }
+
   async refreshTokenHandler(req: Request, res: Response) {
     try {
       const oldRefreshTokenFromCookie = req.cookies.refreshToken;
@@ -307,35 +341,6 @@ export class AuthController {
       };
 
       res.status(HTTP_STATUS_CODES.OK_200).json(authMeOutput);
-    } catch (error: unknown) {
-      errorsHandler(error, req, res);
-    }
-  }
-
-  async newPasswordHandler(
-    req: Request<{}, {}, NewPasswordRPT, {}>,
-    res: Response
-  ) {
-    try {
-      const { newPassword, recoveryCode } = req.body;
-
-      const result = await this.authService.newPassword(
-        newPassword,
-        recoveryCode
-      );
-
-      if (result.status !== ApplicationResultStatus.Success) {
-        return res
-          .status(mapApplicationStatusToHttpStatus(result.status))
-          .json({
-            errorsMessages: result.extensions.map((err: ApplicationError) => ({
-              message: err.message,
-              field: err.field,
-            })),
-          });
-      }
-
-      return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
       errorsHandler(error, req, res);
     }

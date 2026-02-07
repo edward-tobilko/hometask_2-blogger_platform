@@ -498,9 +498,42 @@ export class AuthService implements IAuthService {
       .catch((error: unknown) => console.error("EMAIL_SEND_ERROR", error));
   }
 
-  async newPassword(
-    command: WithMeta<{ newPassword: string; recoveryCode: string }>
-  ): Promise<string> {
-    return "";
+  async confirmNewPasswordRecovery(
+    newPassword: string,
+    recoveryCode: string
+  ): Promise<ApplicationResult<void>> {
+    const user = await this.usersQueryRepo.findUserByRecoveryCode(
+      recoveryCode!
+    );
+
+    const info = user?.recoveryPasswordInfo;
+
+    if (
+      !user?._id ||
+      !info?.recoveryCode ||
+      !info.expirationDate ||
+      info.recoveryCode !== recoveryCode ||
+      info.expirationDate.getTime() < Date.now()
+    )
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [
+          new ApplicationError(
+            "RecoveryCode is incorrect or expired",
+            "recoveryCode"
+          ),
+        ],
+      });
+
+    const passwordHash = await this.passwordHasher.generateHash(newPassword);
+
+    await this.usersRepo.updatePasswordAndClearRecovery(user._id, passwordHash);
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.NoContent,
+      data: undefined,
+      extensions: [],
+    });
   }
 }

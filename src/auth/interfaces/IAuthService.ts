@@ -46,9 +46,10 @@ export interface IAuthService {
 
   passwordRecovery(email: string): Promise<void>;
 
-  newPassword(
-    command: WithMeta<{ newPassword: string; recoveryCode: string }>
-  ): Promise<string>;
+  confirmNewPasswordRecovery(
+    newPassword: string,
+    recoveryCode: string
+  ): Promise<ApplicationResult<void>>;
 }
 
 // ? interface = абстракция

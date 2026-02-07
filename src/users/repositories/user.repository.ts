@@ -5,7 +5,7 @@ import { userCollection } from "../../db/mongo.db";
 import { UserDB } from "db/types.db";
 import {
   IEmailConfirmationUpdate,
-  IEmailRecoveryPassword,
+  IRecoveryPasswordInfo,
   IUsersRepository,
 } from "users/interfaces/IUsersRepository";
 
@@ -64,18 +64,35 @@ export class UsersRepository implements IUsersRepository {
 
   async sendRecoveryPasswordEmail(
     userId: ObjectId,
-    emailRecoveryPass: IEmailRecoveryPassword
+    emailRecoveryInfo: IRecoveryPasswordInfo
   ): Promise<void> {
     await userCollection.updateOne(
       { _id: userId },
 
       {
         $set: {
-          "emailRecoveryPassword.recoveryCode": emailRecoveryPass.recoveryCode,
-          "emailRecoveryPassword.expirationDate":
-            emailRecoveryPass.expirationDate,
+          recoveryPasswordInfo: {
+            recoveryCode: emailRecoveryInfo.recoveryCode,
+            expirationDate: emailRecoveryInfo.expirationDate,
+          },
         },
       }
     );
+  }
+
+  async updatePasswordAndClearRecovery(
+    userId: ObjectId,
+    newHash: string
+  ): Promise<boolean> {
+    const result = await userCollection.updateOne(
+      { _id: userId },
+
+      {
+        $set: { passwordHash: newHash },
+        $unset: { recoveryPasswordInfo: "" }, // field "recoveryPasswordInfo" from UserDomain - затираем его после установки нового пароля
+      }
+    );
+
+    return result.matchedCount === 1 && result.modifiedCount === 1;
   }
 }

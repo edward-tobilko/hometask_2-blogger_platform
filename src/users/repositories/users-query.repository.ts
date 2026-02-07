@@ -9,6 +9,7 @@ import { UserOutput } from "../applications/output/user.output";
 import { mapToUserOutput } from "../applications/mappers/map-to-user-output.mapper";
 import { UserDB } from "db/types.db";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
+import { UserDomain } from "users/domain/user.domain";
 
 @injectable()
 export class UsersQueryRepository implements IUsersQueryRepository {
@@ -91,5 +92,13 @@ export class UsersQueryRepository implements IUsersQueryRepository {
     if (!userDomain) return null;
 
     return userDomain ? mapToUserOutput(userDomain) : null;
+  }
+
+  async findUserByRecoveryCode(
+    recoveryCode: string
+  ): Promise<UserDomain | null> {
+    return await userCollection.findOne({
+      "recoveryPasswordInfo.recoveryCode": recoveryCode,
+    });
   }
 }

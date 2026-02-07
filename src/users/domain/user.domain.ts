@@ -4,6 +4,7 @@ import { add } from "date-fns";
 
 import { FieldsOnly } from "../../core/types/fields-only.type";
 import { UserDtoDomain } from "./user-dto.domain";
+import { IRecoveryPasswordInfo } from "users/interfaces/IUsersRepository";
 
 export class UserDomain {
   _id?: ObjectId;
@@ -19,6 +20,8 @@ export class UserDomain {
     isConfirmed: boolean;
   };
 
+  recoveryPasswordInfo?: IRecoveryPasswordInfo | null;
+
   constructor(dto: FieldsOnly<UserDomain>) {
     this._id = dto._id;
     this.login = dto.login;
@@ -32,6 +35,11 @@ export class UserDomain {
       expirationDate: dto.emailConfirmation.expirationDate,
       isConfirmed: dto.emailConfirmation.isConfirmed,
     };
+
+    // this.recoveryPasswordInfo = {
+    //   recoveryCode: dto.IRecoveryPasswordInfo?.recoveryCode,
+    //   expirationDate: dto.IRecoveryPasswordInfo?.expirationDate,
+    // };
 
     if (dto._id) {
       this._id = dto._id;
