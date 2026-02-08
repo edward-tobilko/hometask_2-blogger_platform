@@ -16,10 +16,12 @@ const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
 
 describe("Create (POST) blogs API body dto validation ", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    setupApp(app);
+
     await clearDB(app);
   });
 

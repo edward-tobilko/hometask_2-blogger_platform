@@ -34,7 +34,7 @@ describe("E2E Auth refresh-token tests", () => {
   });
 
   it("POST /auth/refresh-token -> status 200 - returns accessToken in body and sets refreshToken cookie", async () => {
-    const userDto = await setRegisterAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser(app);
 
     const loginResult = await createAuthLogin(app, {
       loginOrEmail: userDto.login,
@@ -72,7 +72,7 @@ describe("E2E Auth refresh-token tests", () => {
   });
 
   it("POST /auth/refresh-token -> rotation: old refresh becomes invalid (old -> 401, new -> 200)", async () => {
-    const userDto = await setRegisterAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser(app);
 
     const loginResult = await createAuthLogin(app, {
       loginOrEmail: userDto.login,

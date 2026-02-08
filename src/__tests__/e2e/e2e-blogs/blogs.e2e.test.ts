@@ -19,14 +19,14 @@ const adminToken = generateBasicAuthToken();
 
 describe("E2E Blogs API tests", () => {
   const app = express();
-  setupApp(app);
 
   const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
   const testPostsForBlogDataDto = getPostsForBlogDtoUtil();
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
-    // await clearDB(app);
+
+    setupApp(app);
   });
 
   beforeEach(async () => {

@@ -11,10 +11,11 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 describe("E2E comments tests", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    setupApp(app);
   });
 
   beforeEach(async () => {

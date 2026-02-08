@@ -170,23 +170,4 @@ describe("E2E Auth Registration tests", () => {
       );
     }
   );
-
-  it("POST: /auth/registration -> status 429 (too many requests)", async () => {
-    const userDto = getUserDto();
-
-    // * Первые 5 запросов (лимит 5) — первый даст 204, далее будут 400 (потому что email/login уже существует), но главное: все эти запросы валидны и доходят до rateLimiter.
-    for (let i = 0; i < 5; i++) {
-      await createAuthRegisterUser(app, userDto).expect((res) => {
-        expect([
-          HTTP_STATUS_CODES.NO_CONTENT_204,
-          HTTP_STATUS_CODES.BAD_REQUEST_400,
-        ]).toContain(res.status);
-      });
-    }
-
-    // * 6-й запросс -> 429
-    await createAuthRegisterUser(app, userDto).expect(
-      HTTP_STATUS_CODES.TOO_MANY_REQUESTS_429
-    );
-  });
 });

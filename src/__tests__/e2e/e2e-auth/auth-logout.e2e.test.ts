@@ -32,7 +32,7 @@ describe("E2E Auth logout tests", () => {
   });
 
   it("POST: /auth/logout -> status 204 and refresh-token becomes invalid (refresh after logout -> 401)", async () => {
-    const userDto = await setRegisterAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser(app);
 
     const loginResult = await createAuthLogin(app, {
       loginOrEmail: userDto.login,

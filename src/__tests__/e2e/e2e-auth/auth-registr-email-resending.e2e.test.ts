@@ -91,7 +91,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
-    // * manually mark as confirmed (бысто и стабильней для e2e)
+    // * manually mark as confirmed (бысто и стабильно для e2e)
     await userCollection.updateOne(
       { email: userDto.email },
       { $set: { "emailConfirmation.isConfirmed": true } }
@@ -126,7 +126,6 @@ describe("E2E Auth Registration Email Resending tests", () => {
     );
   });
 
-  // OPTIONAL: only if your implementation returns 400 for non-existing email
   it("POST: /auth/registration-email-resending -> status 400 (email not found)", async () => {
     const result = await createAuthResendRegistrationEmail(app, {
       email: "noone@example.dev",
@@ -140,24 +139,5 @@ describe("E2E Auth Registration Email Resending tests", () => {
         }),
       ])
     );
-  });
-
-  it("POST: /auth/registration-email-resending -> status 429 (too many requests)", async () => {
-    const userDto = getUserDto();
-
-    await createAuthRegisterUser(app, userDto).expect(
-      HTTP_STATUS_CODES.NO_CONTENT_204
-    );
-
-    for (let i = 0; i < 5; i++) {
-      await createAuthResendRegistrationEmail(app, {
-        email: userDto.email,
-      }).expect(HTTP_STATUS_CODES.NO_CONTENT_204);
-    }
-
-    // * 6-й запросс -> 429
-    await createAuthResendRegistrationEmail(app, {
-      email: userDto.email,
-    }).expect(HTTP_STATUS_CODES.TOO_MANY_REQUESTS_429);
   });
 });

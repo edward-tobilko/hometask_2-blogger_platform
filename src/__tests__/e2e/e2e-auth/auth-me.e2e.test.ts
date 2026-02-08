@@ -30,7 +30,7 @@ describe("E2E Auth Me tests", () => {
   });
 
   it("POST: /auth/me -> status 200 - with valid access token", async () => {
-    const userDto = await setRegisterAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser(app);
 
     const loginResult = await createAuthLogin(app, {
       loginOrEmail: userDto.email,

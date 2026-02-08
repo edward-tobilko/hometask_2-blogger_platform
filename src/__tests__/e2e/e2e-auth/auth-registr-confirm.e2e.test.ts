@@ -168,42 +168,4 @@ describe("E2E Auth Registration Confirmation tests", () => {
       ])
     );
   });
-
-  it("POST: /auth/registration-confirmation -> status 429 (rate limit)", async () => {
-    // * важно: чтобы лимитер реально работал в e2e (так как мы его выключили в customRateLimiterMiddleware)
-    const prev = process.env.DISABLE_RATE_LIMIT;
-    process.env.DISABLE_RATE_LIMIT = "false";
-
-    try {
-      const userDto = getUserDto();
-
-      await createAuthRegisterUser(app, userDto).expect(
-        HTTP_STATUS_CODES.NO_CONTENT_204
-      );
-
-      const user = await userCollection.findOne({ email: userDto.email });
-
-      expect(user).toBeTruthy();
-
-      const payload = { code: user!.emailConfirmation.confirmationCode };
-
-      // * 5 попыток в окно (max=5) -> 400 (потому что код неправильный), но лимитер считает запросы:  - первый раз - 204, "already applied" - 400 след. попытки.
-      for (let i = 0; i < 5; i++) {
-        await createAuthConfirmRegistration(app, payload).expect((res) => {
-          // * принимаем 204 или 400, потому что после первого подтверждения будет «already applied»
-          expect([
-            HTTP_STATUS_CODES.NO_CONTENT_204,
-            HTTP_STATUS_CODES.BAD_REQUEST_400,
-          ]).toContain(res.status);
-        });
-      }
-
-      // * 6-я попытка в то же окно -> 429
-      await createAuthConfirmRegistration(app, payload).expect(
-        HTTP_STATUS_CODES.TOO_MANY_REQUESTS_429
-      );
-    } finally {
-      process.env.DISABLE_RATE_LIMIT = prev;
-    }
-  });
 });

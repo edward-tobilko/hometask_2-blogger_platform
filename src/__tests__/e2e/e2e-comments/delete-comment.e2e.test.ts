@@ -16,10 +16,11 @@ import { routersPaths } from "@core/paths/paths";
 
 describe("E2E delete comment tests", () => {
   const app = express();
-  setupApp(app);
 
   beforeAll(async () => {
     await runDB(appConfig.MONGO_URL);
+
+    setupApp(app);
   });
 
   beforeEach(async () => {

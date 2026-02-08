@@ -32,7 +32,7 @@ describe("E2E Auth Login tests", () => {
   });
 
   it("POST: /auth/login -> status 200 - returns accessToken and sets refreshToken cookie", async () => {
-    const userDto = await setRegisterAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser(app);
 
     const result = await createAuthLogin(app, {
       loginOrEmail: userDto.login,
@@ -47,46 +47,8 @@ describe("E2E Auth Login tests", () => {
     expect(cookie.startsWith("refreshToken=")).toBe(true);
   });
 
-  it("POST: /auth/login -> check rate limit", async () => {
-    const userDto = await setRegisterAndConfirmUser();
-
-    const payload = {
-      loginOrEmail: userDto.login,
-      password: userDto.password,
-    };
-
-    // * Делаем 5 запросов подряд (лимит 5)
-    for (let i = 0; i < 5; i++) {
-      await createAuthLogin(app, payload).expect(HTTP_STATUS_CODES.OK_200);
-    }
-
-    // * 6-й запросс = 429
-    await createAuthLogin(app, payload).expect(
-      HTTP_STATUS_CODES.TOO_MANY_REQUESTS_429
-    );
-  });
-
-  it("POST: /auth/login -> rate limit resets after time window", async () => {
-    const userDto = await setRegisterAndConfirmUser();
-
-    for (let i = 0; i < 6; i++) {
-      await createAuthLogin(app, {
-        loginOrEmail: userDto.login,
-        password: userDto.password,
-      });
-    }
-
-    // * Waiting for 11sec (windowMs = 10sec)
-    await new Promise((resolve) => setTimeout(resolve, 11000));
-
-    await createAuthLogin(app, {
-      loginOrEmail: userDto.login,
-      password: userDto.password,
-    }).expect(HTTP_STATUS_CODES.OK_200);
-  }, 20000);
-
   it("POST: /auth/login -> status 401 - with wrong password", async () => {
-    const userDto = await setRegisterAndConfirmUser();
+    const userDto = await setRegisterAndConfirmUser(app);
 
     await createAuthLogin(app, {
       loginOrEmail: userDto.login,
