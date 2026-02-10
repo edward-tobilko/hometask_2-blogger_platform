@@ -489,13 +489,15 @@ export class AuthService implements IAuthService {
       expirationDate: newExpDate,
     });
 
-    this.nodeMailerService
-      .sendRecoveryPasswordEmail(
+    try {
+      await this.nodeMailerService.sendRecoveryPasswordEmail(
         email,
         recoveryCode,
         emailExamples.passwordRecoveryEmail
-      )
-      .catch((error: unknown) => console.error("EMAIL_SEND_ERROR", error));
+      );
+    } catch (error: unknown) {
+      console.error("EMAIL_SEND_ERROR", error);
+    }
   }
 
   async confirmNewPasswordRecovery(
