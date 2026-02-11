@@ -58,13 +58,13 @@ export class UsersService implements IUsersService {
     const newUser = UserDomain.createAdminUser(domainDto);
 
     // * Сохраняем в репозитории
-    const savedUser = await this.usersRepo.createUser(newUser);
+    const createdUserId = await this.usersRepo.createUser(newUser);
 
     const userOutput: UserOutput = {
-      id: savedUser._id!.toString(),
-      login: savedUser.login,
-      email: savedUser.email,
-      createdAt: savedUser.createdAt.toISOString(),
+      id: createdUserId,
+      login: newUser.login,
+      email: newUser.email,
+      createdAt: newUser.createdAt.toISOString(),
     };
 
     // * Возвращаем id созданного пользователя

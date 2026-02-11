@@ -1,11 +1,7 @@
-import { Collection } from "mongodb";
-
 import { Types } from "@core/di/types";
 import { AuthController } from "auth/routes/auth.controller";
 import { BlogsController } from "blogs/routes/blogs.controller";
 import { CommentsController } from "comments/routes/comments.controller";
-import { customRateLimitCollection } from "db/mongo.db";
-import { CustomRateLimitDB } from "db/types.db";
 import { PostsController } from "posts/routes/posts.controller";
 import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
 import { UsersController } from "users/routes/users-controller";
@@ -20,21 +16,6 @@ export const initCompositionRoot = () => {
   if (inited) return;
 
   inited = true;
-
-  // * биндим коллекцию ПОСЛЕ runDB(), когда она уже инициализирована
-  if (!customRateLimitCollection) {
-    throw new Error(
-      "customRateLimitCollection is not initialized. Call runDB() first."
-    );
-  }
-
-  if (container.isBound(Types.CustomRateLimitCollection)) {
-    container.unbind(Types.CustomRateLimitCollection);
-  }
-
-  container
-    .bind<Collection<CustomRateLimitDB>>(Types.CustomRateLimitCollection)
-    .toConstantValue(customRateLimitCollection);
 };
 
 // * Getters

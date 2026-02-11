@@ -3,8 +3,8 @@ import "reflect-metadata";
 import express from "express";
 
 import { setupApp } from "./app";
-import { runDB } from "./db/mongo.db";
 import { appConfig } from "./core/settings/config";
+import { runMongoose } from "db/mongoose.db";
 
 export const app = express();
 
@@ -14,7 +14,7 @@ const bootstrap = async () => {
 
   try {
     // * сначала вызов db
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose(appConfig.MONGO_URL);
 
     // * затем setupApp (он внутри вызовет initCompositionRoot)
     setupApp(app);
@@ -39,3 +39,9 @@ const bootstrap = async () => {
 bootstrap();
 
 // ? reflect-metadata - это механизм, который позволяет Inversify / декораторам читать метаданные типов.
+
+// ? .find() → Query
+// ? .exec() → Promise
+// ? Promise → Document
+// ? Document → Domain
+// ? Domain → Output

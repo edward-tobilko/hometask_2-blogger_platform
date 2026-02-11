@@ -1,9 +1,12 @@
-import { Schema, model } from "mongoose";
+import { HydratedDocument, Schema, model } from "mongoose";
 
 import { IRecoveryPasswordInfo } from "users/interfaces/IUsersRepository";
 
+// * добавляем _id к UserDb
+export type UserDocument = HydratedDocument<UserDb>;
+
 // * Schema + Model
-export type UserDocument = {
+export type UserDb = {
   login: string;
   email: string;
   createdAt: Date;
@@ -21,19 +24,19 @@ export type UserDocument = {
 
 const RecoveryPasswordInfoSchema = new Schema(
   {
-    recoveryCode: { type: String, require: true },
-    expirationDate: { type: Date, require: true },
+    recoveryCode: { type: String, required: true },
+    expirationDate: { type: Date, required: true },
   },
   { _id: false }
 );
 
-const UserSchema = new Schema<UserDocument>(
+const UserSchema = new Schema<UserDb>(
   {
     login: {
       type: String,
-      require: true,
-      minLength: 3,
-      maxLength: 10,
+      required: true,
+      min: 3,
+      max: 10,
       match: /^[a-zA-Z0-9_-]*$/,
     },
 
@@ -41,8 +44,8 @@ const UserSchema = new Schema<UserDocument>(
       type: String,
       required: [true, "Email is required"],
       trim: true,
-      toLowerCase: true,
-      unique: true,
+      lowercase: true,
+      //   unique: true,
       match: [
         /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
         "Email must be a valid email",
@@ -89,4 +92,4 @@ const UserSchema = new Schema<UserDocument>(
   }
 );
 
-export const UserModel = model<UserDocument>("UserCollection", UserSchema);
+export const UserModel = model<UserDb>("User", UserSchema); // создаем коллекцию user в БД с проверкою типизации с пом. схемы (UserSchema)

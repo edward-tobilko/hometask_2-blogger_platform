@@ -1,11 +1,9 @@
-import { WithId } from "mongodb";
-
 import { UsersListPaginatedOutput } from "../output/users-list-paginated.output";
 import { UserOutput } from "../output/user.output";
-import { UserDB } from "../../../db/types.db";
+import { UserDomain } from "users/domain/user.domain";
 
 export const mapToUsersListOutput = (
-  usersDB: WithId<UserDB>[],
+  users: UserDomain[],
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): UsersListPaginatedOutput => {
   return {
@@ -14,12 +12,12 @@ export const mapToUsersListOutput = (
     pageSize: meta.pageSize,
     totalCount: meta.totalCount,
 
-    items: usersDB.map(
-      (userDB): UserOutput => ({
-        id: userDB._id.toString(),
-        login: userDB.login,
-        email: userDB.email,
-        createdAt: userDB.createdAt.toISOString(),
+    items: users.map(
+      (user): UserOutput => ({
+        id: user.id!.toString(),
+        login: user.login,
+        email: user.email,
+        createdAt: user.createdAt.toISOString(),
       })
     ),
   };

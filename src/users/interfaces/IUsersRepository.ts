@@ -1,4 +1,6 @@
-import { ObjectId } from "mongodb";
+import { Types } from "mongoose";
+
+import { UserDomain } from "users/domain/user.domain";
 
 export interface IEmailConfirmationUpdate {
   confirmationCode: string;
@@ -12,24 +14,24 @@ export interface IRecoveryPasswordInfo {
 }
 
 export interface IUsersRepository {
-  createUser(user: UserDB): Promise<UserDB>;
+  createUser(user: UserDomain): Promise<string>;
 
   deleteUser(id: string): Promise<boolean>;
 
-  updateEmailUserConfirmationStatus(userId: ObjectId): Promise<boolean>;
+  updateEmailUserConfirmationStatus(userId: Types.ObjectId): Promise<boolean>;
 
   updateEmailUserConfirmation(
-    userId: ObjectId,
+    userId: Types.ObjectId,
     emailConfirmation: IEmailConfirmationUpdate
   ): Promise<boolean>;
 
   sendRecoveryPasswordEmail(
-    userId: ObjectId,
+    userId: Types.ObjectId,
     emailRecoveryPass: IRecoveryPasswordInfo
   ): Promise<void>;
 
   updatePasswordAndClearRecovery(
-    userId: ObjectId,
+    userId: Types.ObjectId,
     newHash: string
   ): Promise<boolean>;
 }

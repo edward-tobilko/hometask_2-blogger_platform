@@ -50,10 +50,3 @@ export type BlogDB = {
   createdAt: Date;
   isMembership: boolean;
 };
-
-export type CustomRateLimitDB = {
-  _id?: ObjectId;
-  ip: string;
-  url: string;
-  date: Date;
-};

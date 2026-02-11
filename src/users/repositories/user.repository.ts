@@ -1,35 +1,36 @@
-import { ObjectId } from "mongodb";
+import { Types } from "mongoose";
 import { injectable } from "inversify";
 
-import { userCollection } from "../../db/mongo.db";
-import { UserDB } from "db/types.db";
 import {
   IEmailConfirmationUpdate,
   IRecoveryPasswordInfo,
   IUsersRepository,
 } from "users/interfaces/IUsersRepository";
+import { UserModel } from "users/mongoose/users.schema";
+import { UserDomain } from "users/domain/user.domain";
+import { mapUserDomainToDb } from "users/applications/mappers/user-domain-to-db.mapper";
 
 @injectable()
 export class UsersRepository implements IUsersRepository {
-  async createUser(user: UserDB): Promise<UserDB> {
-    const insertResult = await userCollection.insertOne(user);
+  async createUser(user: UserDomain): Promise<string> {
+    const createdUserId = await UserModel.create(mapUserDomainToDb(user));
 
-    user._id = insertResult.insertedId;
-
-    return user;
+    return createdUserId._id.toString();
   }
 
   async deleteUser(id: string): Promise<boolean> {
     // * Проверяем, является ли ObjectId действительным
-    if (!ObjectId.isValid(id)) return false;
+    if (!Types.ObjectId.isValid(id)) return false;
 
-    const isDeleted = await userCollection.deleteOne({ _id: new ObjectId(id) });
+    const isDeleted = await UserModel.deleteOne({ _id: id });
 
     return isDeleted.deletedCount === 1;
   }
 
-  async updateEmailUserConfirmationStatus(userId: ObjectId): Promise<boolean> {
-    const result = await userCollection.updateOne(
+  async updateEmailUserConfirmationStatus(
+    userId: Types.ObjectId
+  ): Promise<boolean> {
+    const result = await UserModel.updateOne(
       { _id: userId },
 
       {
@@ -39,14 +40,14 @@ export class UsersRepository implements IUsersRepository {
       }
     );
 
-    return result.modifiedCount === 1;
+    return result.matchedCount === 1;
   }
 
   async updateEmailUserConfirmation(
-    userId: ObjectId,
+    userId: Types.ObjectId,
     emailConfirmation: IEmailConfirmationUpdate
   ): Promise<boolean> {
-    const result = await userCollection.updateOne(
+    const result = await UserModel.updateOne(
       { _id: userId },
 
       {
@@ -59,14 +60,14 @@ export class UsersRepository implements IUsersRepository {
       }
     );
 
-    return result.modifiedCount === 1;
+    return result.matchedCount === 1;
   }
 
   async sendRecoveryPasswordEmail(
-    userId: ObjectId,
+    userId: Types.ObjectId,
     emailRecoveryInfo: IRecoveryPasswordInfo
   ): Promise<void> {
-    await userCollection.updateOne(
+    await UserModel.updateOne(
       { _id: userId },
 
       {
@@ -81,10 +82,10 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async updatePasswordAndClearRecovery(
-    userId: ObjectId,
+    userId: Types.ObjectId,
     newHash: string
   ): Promise<boolean> {
-    const result = await userCollection.updateOne(
+    const result = await UserModel.updateOne(
       { _id: userId },
 
       {
@@ -93,6 +94,6 @@ export class UsersRepository implements IUsersRepository {
       }
     );
 
-    return result.matchedCount === 1 && result.modifiedCount === 1;
+    return result.matchedCount === 1;
   }
 }

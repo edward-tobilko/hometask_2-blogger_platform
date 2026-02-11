@@ -1,15 +1,15 @@
-import { ObjectId } from "mongodb";
 import { injectable } from "inversify";
+import { Types } from "mongoose";
 
-import { userCollection } from "../../db/mongo.db";
-import { mapToUsersListOutput } from "../applications/mappers/map-to-users-list-output.mapper";
+import { mapToUsersListOutput } from "../applications/mappers/users-list-domain-to-output.mapper";
 import { UsersListPaginatedOutput } from "../applications/output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "../applications/query-handlers/get-users-list.query-handler";
 import { UserOutput } from "../applications/output/user.output";
-import { mapToUserOutput } from "../applications/mappers/map-to-user-output.mapper";
-import { UserDB } from "db/types.db";
+import { mapToUserOutput } from "../applications/mappers/user-domain-to-output.mapper";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
 import { UserDomain } from "users/domain/user.domain";
+import { UserModel } from "users/mongoose/users.schema";
+import { mapUserDocToDomain } from "users/applications/mappers/user-doc-to-domain.mapper";
 
 @injectable()
 export class UsersQueryRepository implements IUsersQueryRepository {
@@ -45,14 +45,13 @@ export class UsersQueryRepository implements IUsersQueryRepository {
       filter = {};
     }
 
-    const items = await userCollection
-      .find(filter)
+    const items = await UserModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .lean(); // возвращает plain object
 
-    const totalCount = await userCollection.countDocuments(filter);
+    const totalCount = await UserModel.countDocuments(filter);
 
     const usersListOutput = mapToUsersListOutput(items, {
       pageNumber,
@@ -63,31 +62,33 @@ export class UsersQueryRepository implements IUsersQueryRepository {
     return usersListOutput;
   }
 
-  async findByLogin(login: string): Promise<UserDB | null> {
-    return userCollection.findOne({ login });
+  async findByLogin(login: string): Promise<UserDomain | null> {
+    const document = await UserModel.findOne({ login }).exec();
+
+    return document ? mapUserDocToDomain(document) : null;
   }
 
-  async findByEmail(email: string): Promise<UserDB | null> {
-    return userCollection.findOne({ email });
+  async findByEmail(email: string): Promise<UserDomain | null> {
+    const document = await UserModel.findOne({ email }).exec();
+
+    return document ? mapUserDocToDomain(document) : null;
   }
 
   async findUserByEmailAndNotConfirmCode(
     emailConfirmCode: string
-  ): Promise<UserDB | null> {
-    const userAccount = await userCollection.findOne({
+  ): Promise<UserDomain | null> {
+    const userAccount = await UserModel.findOne({
       "emailConfirmation.confirmationCode": emailConfirmCode,
-    });
+    }).exec();
 
-    return userAccount;
+    return userAccount ? mapUserDocToDomain(userAccount) : null;
   }
 
   async findUserById(userId: string): Promise<UserOutput | null> {
     // * Проверяем, является ли ObjectId действительным
-    if (!ObjectId.isValid(userId)) return null;
+    if (!Types.ObjectId.isValid(userId)) return null;
 
-    const userDomain = await userCollection.findOne({
-      _id: new ObjectId(userId),
-    });
+    const userDomain = await UserModel.findById(userId).exec();
 
     if (!userDomain) return null;
 
@@ -97,8 +98,12 @@ export class UsersQueryRepository implements IUsersQueryRepository {
   async findUserByRecoveryCode(
     recoveryCode: string
   ): Promise<UserDomain | null> {
-    return await userCollection.findOne({
+    const doc = await UserModel.findOne({
       "recoveryPasswordInfo.recoveryCode": recoveryCode,
-    });
+    }).exec();
+
+    return doc ? mapUserDocToDomain(doc) : null;
   }
 }
+
+// ? .exec() - реально запускаешь query, получаешь нормальный Promise<UserDocument | null>, корректные типы в TS, лучший stacktrace при ошибке.

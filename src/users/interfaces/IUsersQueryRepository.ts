@@ -1,4 +1,3 @@
-import { UserDB } from "db/types.db";
 import { UserOutput } from "users/applications/output/user.output";
 import { UsersListPaginatedOutput } from "users/applications/output/users-list-paginated.output";
 import { GetUsersListQueryHandler } from "users/applications/query-handlers/get-users-list.query-handler";
@@ -9,13 +8,13 @@ export interface IUsersQueryRepository {
     queryParam: GetUsersListQueryHandler
   ): Promise<UsersListPaginatedOutput>;
 
-  findByLogin(login: string): Promise<UserDB | null>;
+  findByLogin(login: string): Promise<UserDomain | null>;
 
-  findByEmail(email: string): Promise<UserDB | null>;
+  findByEmail(email: string): Promise<UserDomain | null>;
 
   findUserByEmailAndNotConfirmCode(
     emailConfirmCode: string
-  ): Promise<UserDB | null>;
+  ): Promise<UserDomain | null>;
 
   findUserById(userId: string): Promise<UserOutput | null>;
 

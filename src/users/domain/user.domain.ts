@@ -1,4 +1,3 @@
-import { ObjectId, WithId } from "mongodb";
 import { randomUUID } from "crypto";
 import { add } from "date-fns";
 
@@ -7,7 +6,7 @@ import { UserDtoDomain } from "./user-dto.domain";
 import { IRecoveryPasswordInfo } from "users/interfaces/IUsersRepository";
 
 export class UserDomain {
-  _id?: ObjectId;
+  id?: string;
   login: string;
   email: string;
   createdAt: Date;
@@ -23,7 +22,7 @@ export class UserDomain {
   recoveryPasswordInfo?: IRecoveryPasswordInfo | null;
 
   constructor(dto: FieldsOnly<UserDomain>) {
-    this._id = dto._id;
+    this.id = dto.id;
     this.login = dto.login;
     this.email = dto.email;
     this.createdAt = dto.createdAt;
@@ -36,14 +35,7 @@ export class UserDomain {
       isConfirmed: dto.emailConfirmation.isConfirmed,
     };
 
-    // this.recoveryPasswordInfo = {
-    //   recoveryCode: dto.IRecoveryPasswordInfo?.recoveryCode,
-    //   expirationDate: dto.IRecoveryPasswordInfo?.expirationDate,
-    // };
-
-    if (dto._id) {
-      this._id = dto._id;
-    }
+    this.recoveryPasswordInfo = dto.recoveryPasswordInfo ?? null;
   }
 
   static createUser(dto: UserDtoDomain): UserDomain {
@@ -62,6 +54,8 @@ export class UserDomain {
         }),
         isConfirmed: false,
       },
+
+      recoveryPasswordInfo: null,
     });
   }
 
@@ -79,10 +73,8 @@ export class UserDomain {
         expirationDate: null,
         isConfirmed: true,
       },
-    });
-  }
 
-  static reconstitute(dto: UserDomain): WithId<UserDomain> {
-    return new UserDomain(dto) as WithId<UserDomain>;
+      recoveryPasswordInfo: null,
+    });
   }
 }
