@@ -7,7 +7,7 @@ import {
   CUSTOM_RATE_LIMIT_COLLECTION_NAME,
   POST_COLLECTION_NAME,
   POST_COMMENTS_COLLECTION_NAME,
-  USERS_COLLECTION_NAME,
+  // USERS_COLLECTION_NAME,
 } from "./collection-names.db";
 import {
   BlogDB,
@@ -15,7 +15,6 @@ import {
   PostDB,
   CustomRateLimitDB,
   SessionDB,
-  UserDB,
 } from "./types.db";
 
 let client: MongoClient;
@@ -23,7 +22,7 @@ let client: MongoClient;
 export let authSessionCollection: Collection<SessionDB>;
 export let blogCollection: Collection<BlogDB>;
 export let postCollection: Collection<PostDB>;
-export let userCollection: Collection<UserDB>;
+// export let userCollection: Collection<UserDB>;
 export let postCommentsCollection: Collection<PostCommentDB>;
 export let customRateLimitCollection: Collection<CustomRateLimitDB>;
 
@@ -41,7 +40,7 @@ export async function runDB(url: string): Promise<void> {
     );
     blogCollection = dataBase.collection<BlogDB>(BLOG_COLLECTION_NAME);
     postCollection = dataBase.collection<PostDB>(POST_COLLECTION_NAME);
-    userCollection = dataBase.collection<UserDB>(USERS_COLLECTION_NAME);
+    // userCollection = dataBase.collection<UserDB>(USERS_COLLECTION_NAME);
     postCommentsCollection = dataBase.collection<PostCommentDB>(
       POST_COMMENTS_COLLECTION_NAME
     );

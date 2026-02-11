@@ -1,7 +1,5 @@
 import { ObjectId } from "mongodb";
 
-import { UserDB } from "db/types.db";
-
 export interface IEmailConfirmationUpdate {
   confirmationCode: string;
   expirationDate: Date;

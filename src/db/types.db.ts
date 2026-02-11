@@ -1,24 +1,5 @@
 import { ObjectId } from "mongodb";
 
-import { IRecoveryPasswordInfo } from "users/interfaces/IUsersRepository";
-
-export type UserDB = {
-  _id?: ObjectId;
-  login: string;
-  email: string;
-  createdAt: Date;
-
-  passwordHash: string;
-
-  emailConfirmation: {
-    confirmationCode: string;
-    expirationDate: Date | null;
-    isConfirmed: boolean;
-  };
-
-  recoveryPasswordInfo?: IRecoveryPasswordInfo | null;
-};
-
 export type SessionDB = {
   _id?: ObjectId;
   userId: ObjectId;
