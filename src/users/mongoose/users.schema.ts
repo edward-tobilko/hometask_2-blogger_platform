@@ -35,9 +35,10 @@ const UserSchema = new Schema<UserDb>(
     login: {
       type: String,
       required: true,
-      min: 3,
-      max: 10,
+      minLength: [3, "Login must be at least 3 characters"],
+      maxLength: [10, "Login must be at most 10 characters"],
       match: /^[a-zA-Z0-9_-]*$/,
+      trim: true,
     },
 
     email: {
@@ -92,4 +93,6 @@ const UserSchema = new Schema<UserDb>(
   }
 );
 
-export const UserModel = model<UserDb>("User", UserSchema); // создаем коллекцию user в БД с проверкою типизации с пом. схемы (UserSchema)
+export const UserModel = model<UserDb>("user", UserSchema); // создаем коллекцию user в БД с проверкою типизации с пом. схемы (UserSchema)
+
+// ? HydratedDocument - описывает какой объект я получаю с БД после запросса: HydratedDocument<T> = T + _id + mongoose methods(.save().populate().deleteOne()).

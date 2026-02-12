@@ -49,7 +49,7 @@ export class UsersQueryRepository implements IUsersQueryRepository {
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .lean(); // возвращает plain object
+      .exec();
 
     const totalCount = await UserModel.countDocuments(filter);
 
@@ -107,3 +107,4 @@ export class UsersQueryRepository implements IUsersQueryRepository {
 }
 
 // ? .exec() - реально запускаешь query, получаешь нормальный Promise<UserDocument | null>, корректные типы в TS, лучший stacktrace при ошибке.
+// ? .lean() - возвращает plain object.

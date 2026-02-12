@@ -24,6 +24,6 @@ CustomRateLimitSchema.index({ date: 1 }, { expireAfterSeconds: 60 });
 CustomRateLimitSchema.index({ ip: 1, url: 1, date: 1 }); // ip + url + date
 
 export const CustomRateLimitModel = model<CustomRateLimitDb>(
-  "CustomRateLimit",
+  "custom-rate-limit",
   CustomRateLimitSchema
 );
