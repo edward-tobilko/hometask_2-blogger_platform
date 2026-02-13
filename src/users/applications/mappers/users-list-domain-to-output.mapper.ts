@@ -1,9 +1,9 @@
 import { UsersListPaginatedOutput } from "../output/users-list-paginated.output";
 import { UserOutput } from "../output/user.output";
-import { UserDomain } from "users/domain/user.domain";
+import { UserPlaneObj } from "users/mongoose/user-schema.mongoose";
 
 export const mapToUsersListOutput = (
-  users: UserDomain[],
+  users: UserPlaneObj[],
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): UsersListPaginatedOutput => {
   return {
@@ -14,7 +14,7 @@ export const mapToUsersListOutput = (
 
     items: users.map(
       (user): UserOutput => ({
-        id: user.id!.toString(),
+        id: user._id!.toString(),
         login: user.login,
         email: user.email,
         createdAt: user.createdAt.toISOString(),

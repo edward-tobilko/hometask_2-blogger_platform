@@ -3,8 +3,6 @@ import { inject, injectable } from "inversify";
 import { ApplicationResult } from "../../core/result/application.result";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { CreateUserDtoCommand } from "./commands/user-dto.commands";
-import { UserDtoDomain } from "../domain/user-dto.domain";
-import { UserDomain } from "../domain/user.domain";
 import { UserOutput } from "./output/user.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import {
@@ -16,6 +14,7 @@ import { Types } from "@core/di/types";
 import { IUsersRepository } from "users/interfaces/IUsersRepository";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
 import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
+import { UserDb } from "users/mongoose/user-schema.mongoose";
 
 @injectable()
 export class UsersService implements IUsersService {
@@ -47,24 +46,39 @@ export class UsersService implements IUsersService {
     // * Генерация хеша пароля
     const hash = await this.passwordHasher.generateHash(password);
 
-    // * DTO для доменной модели
-    const domainDto: UserDtoDomain = {
+    const userDb: UserDb = {
       login,
-      password: hash,
       email,
+      createdAt: new Date(),
+      passwordHash: hash,
+
+      emailConfirmation: {
+        confirmationCode: "",
+        expirationDate: null,
+        isConfirmed: true,
+      },
+
+      recoveryPasswordInfo: null,
     };
 
-    // * Создаем доменный обьект
-    const newUser = UserDomain.createAdminUser(domainDto);
+    // // * DTO для доменной модели
+    // const domainDto: UserDtoDomain = {
+    //   login,
+    //   password: hash,
+    //   email,
+    // };
 
-    // * Сохраняем в репозитории
-    const createdUserId = await this.usersRepo.createUser(newUser);
+    // // * Создаем доменный обьект
+    // const newUser = UserDomain.createAdminUser(domainDto);
+
+    // // * Сохраняем в репозитории
+    const createdUser = await this.usersRepo.createUser(userDb);
 
     const userOutput: UserOutput = {
-      id: createdUserId,
-      login: newUser.login,
-      email: newUser.email,
-      createdAt: newUser.createdAt.toISOString(),
+      id: createdUser._id!.toString(),
+      login: createdUser.login,
+      email: createdUser.email,
+      createdAt: createdUser.createdAt.toISOString(),
     };
 
     // * Возвращаем id созданного пользователя

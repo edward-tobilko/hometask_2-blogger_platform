@@ -14,7 +14,6 @@ import {
   UnauthorizedError,
 } from "../../core/errors/application.error";
 import { SessionDomain } from "../domain/session.domain";
-import { UserDB } from "db/types.db";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
 import { getSessionExpirationDate } from "auth/helpers/get-session-expire-date.helper";
@@ -27,6 +26,7 @@ import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { IUsersRepository } from "users/interfaces/IUsersRepository";
 import { INodeMailerService } from "auth/interfaces/INodeMailerService";
+import { UserDb } from "users/mongoose/user-schema.mongoose";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -117,7 +117,7 @@ export class AuthService implements IAuthService {
       });
     }
 
-    const userId = userResult.data!._id!.toString();
+    const userId = userResult.data!.id!.toString();
     const deviceId = randomUUID();
     const sessionId = randomUUID();
     const ip = command.meta.ip ?? "0.0.0.0";
@@ -172,12 +172,12 @@ export class AuthService implements IAuthService {
     login: string,
     password: string,
     email: string
-  ): Promise<ApplicationResult<UserDB | null>> {
+  ): Promise<ApplicationResult<UserDb | null>> {
     const existingUserByLogin = await this.usersQueryRepo.findByLogin(login);
 
     const existingUserByEmail = await this.usersQueryRepo.findByEmail(email);
 
-    // * проверяем существует ли уже юзер с таким логином или почтой и если да - не регистрировать
+    // * проверяем существует ли уже юзер с таким логином или почтой, если да - не регистрировать
     if (existingUserByLogin) {
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,

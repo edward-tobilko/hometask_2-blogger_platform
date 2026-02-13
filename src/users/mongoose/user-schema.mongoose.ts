@@ -1,11 +1,13 @@
-import { HydratedDocument, Schema, model } from "mongoose";
+import {
+  HydratedDocument,
+  Schema,
+  model,
+  Types as MongooseTypes,
+} from "mongoose";
 
 import { IRecoveryPasswordInfo } from "users/interfaces/IUsersRepository";
 
-// * добавляем _id к UserDb
-export type UserDocument = HydratedDocument<UserDb>;
-
-// * Schema + Model
+// * Date base type
 export type UserDb = {
   login: string;
   email: string;
@@ -22,6 +24,13 @@ export type UserDb = {
   recoveryPasswordInfo?: IRecoveryPasswordInfo | null;
 };
 
+// * Создание типов для plane objects нужны только для чтения (read), то есть, для query запроссов, для .lean() в query repositories. Нужно для маппинга, что бы не работать с доменом.
+export type UserPlaneObj = UserDb & { _id: MongooseTypes.ObjectId };
+
+// * Добавляем _id к UserDb
+export type UserDocument = HydratedDocument<UserDb>;
+
+// * Schema + Model
 const RecoveryPasswordInfoSchema = new Schema(
   {
     recoveryCode: { type: String, required: true },
@@ -65,14 +74,20 @@ const UserSchema = new Schema<UserDb>(
       required: true,
     },
 
+    // * Так как у нас user может создаваться админом (по дефолту isConfirmed = true) поля: confirmationCode -> required и expirationDate -> required нужно зделать опциональным, но для пользователя: isConfirmed = false.
     emailConfirmation: {
       confirmationCode: {
         type: String,
-        required: true,
+        required: function (this: any) {
+          return this.emailConfirmation.isConfirmed === false;
+        },
       },
       expirationDate: {
         type: Date,
         default: null,
+        required: function (this: any) {
+          return this.emailConfirmation.isConfirmed === false;
+        },
       },
       isConfirmed: {
         type: Boolean,
@@ -93,6 +108,9 @@ const UserSchema = new Schema<UserDb>(
   }
 );
 
-export const UserModel = model<UserDb>("user", UserSchema); // создаем коллекцию user в БД с проверкою типизации с пом. схемы (UserSchema)
+// * Создаем коллекцию "user" в БД с проверкою типизации с пом. схемы (UserSchema)
+export const UserModel = model<UserDb>("user", UserSchema);
 
-// ? HydratedDocument - описывает какой объект я получаю с БД после запросса: HydratedDocument<T> = T + _id + mongoose methods(.save().populate().deleteOne()).
+// ? HydratedDocument - описывает какой объект я получаю с БД после запросса: HydratedDocument<T> = T(UserDb) + _id + mongoose methods(.save().populate().deleteOne()).
+
+// ? model<UserDb> - model это умный класс, через который мы можем работать с коллекцией и объекты в этой коллекции буду соответсвовать конкретной схеме.

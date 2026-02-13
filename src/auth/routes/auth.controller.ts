@@ -126,6 +126,8 @@ export class AuthController {
 
       return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }
@@ -158,6 +160,8 @@ export class AuthController {
         .status(HTTP_STATUS_CODES.OK_200)
         .json({ accessToken: result.data.accessToken });
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }
@@ -218,6 +222,8 @@ export class AuthController {
 
       return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }
@@ -244,6 +250,8 @@ export class AuthController {
 
       return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }
@@ -276,6 +284,8 @@ export class AuthController {
       res.clearCookie("refreshToken");
       res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }
@@ -342,6 +352,8 @@ export class AuthController {
 
       res.status(HTTP_STATUS_CODES.OK_200).json(authMeOutput);
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }

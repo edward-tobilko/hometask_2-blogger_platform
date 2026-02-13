@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Types } from "mongoose";
+import { Types as MongooseTypes } from "mongoose";
 
 import { mapToUsersListOutput } from "../applications/mappers/users-list-domain-to-output.mapper";
 import { UsersListPaginatedOutput } from "../applications/output/users-list-paginated.output";
@@ -7,9 +7,7 @@ import { GetUsersListQueryHandler } from "../applications/query-handlers/get-use
 import { UserOutput } from "../applications/output/user.output";
 import { mapToUserOutput } from "../applications/mappers/user-domain-to-output.mapper";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
-import { UserDomain } from "users/domain/user.domain";
-import { UserModel } from "users/mongoose/users.schema";
-import { mapUserDocToDomain } from "users/applications/mappers/user-doc-to-domain.mapper";
+import { UserDocument, UserModel } from "users/mongoose/user-schema.mongoose";
 
 @injectable()
 export class UsersQueryRepository implements IUsersQueryRepository {
@@ -49,6 +47,7 @@ export class UsersQueryRepository implements IUsersQueryRepository {
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
+      .lean()
       .exec();
 
     const totalCount = await UserModel.countDocuments(filter);
@@ -62,49 +61,45 @@ export class UsersQueryRepository implements IUsersQueryRepository {
     return usersListOutput;
   }
 
-  async findByLogin(login: string): Promise<UserDomain | null> {
-    const document = await UserModel.findOne({ login }).exec();
-
-    return document ? mapUserDocToDomain(document) : null;
+  async findByLogin(login: string): Promise<UserDocument | null> {
+    return await UserModel.findOne({ login }).exec();
   }
 
-  async findByEmail(email: string): Promise<UserDomain | null> {
-    const document = await UserModel.findOne({ email }).exec();
-
-    return document ? mapUserDocToDomain(document) : null;
+  async findByEmail(email: string): Promise<UserDocument | null> {
+    return await UserModel.findOne({ email }).exec();
   }
 
   async findUserByEmailAndNotConfirmCode(
     emailConfirmCode: string
-  ): Promise<UserDomain | null> {
+  ): Promise<UserDocument | null> {
     const userAccount = await UserModel.findOne({
       "emailConfirmation.confirmationCode": emailConfirmCode,
     }).exec();
 
-    return userAccount ? mapUserDocToDomain(userAccount) : null;
+    return userAccount;
   }
 
   async findUserById(userId: string): Promise<UserOutput | null> {
     // * Проверяем, является ли ObjectId действительным
-    if (!Types.ObjectId.isValid(userId)) return null;
+    if (!MongooseTypes.ObjectId.isValid(userId)) return null;
 
-    const userDomain = await UserModel.findById(userId).exec();
+    const user = await UserModel.findById(userId).exec();
 
-    if (!userDomain) return null;
+    if (!user) return null;
 
-    return userDomain ? mapToUserOutput(userDomain) : null;
+    return user ? mapToUserOutput(user) : null;
   }
 
   async findUserByRecoveryCode(
     recoveryCode: string
-  ): Promise<UserDomain | null> {
-    const doc = await UserModel.findOne({
+  ): Promise<UserDocument | null> {
+    const document = await UserModel.findOne({
       "recoveryPasswordInfo.recoveryCode": recoveryCode,
     }).exec();
 
-    return doc ? mapUserDocToDomain(doc) : null;
+    return document;
   }
 }
 
-// ? .exec() - реально запускаешь query, получаешь нормальный Promise<UserDocument | null>, корректные типы в TS, лучший stacktrace при ошибке.
-// ? .lean() - возвращает plain object.
+// ? .exec() - запускает query, получает нормальный Promise<UserDocument | null>, корректные типы в TS, лучший stacktrace при ошибке (по дефолту модель под капотом так же вызывает этот метод, но не так чисто, лучше явно указать).
+// ? .lean() - возвращает plain object: возвращает только тот объект, который мы описали (без мета свойст и методов от монгуса).

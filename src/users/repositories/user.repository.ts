@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types as MongooseTypes } from "mongoose";
 import { injectable } from "inversify";
 
 import {
@@ -6,21 +6,27 @@ import {
   IRecoveryPasswordInfo,
   IUsersRepository,
 } from "users/interfaces/IUsersRepository";
-import { UserModel } from "users/mongoose/users.schema";
-import { UserDomain } from "users/domain/user.domain";
-import { mapUserDomainToDb } from "users/applications/mappers/user-domain-to-db.mapper";
+import {
+  UserDb,
+  UserDocument,
+  UserModel,
+} from "users/mongoose/user-schema.mongoose";
 
 @injectable()
 export class UsersRepository implements IUsersRepository {
-  async createUser(user: UserDomain): Promise<string> {
-    const createdUserId = await UserModel.create(mapUserDomainToDb(user));
+  async createUser(user: UserDb): Promise<UserDocument> {
+    // * Создаем экземпляр модели юзера и передаем ему объект user, для того что бы передать модели наши поля, которые нам нужны (обязательно все, так как монгус по валидации потом не пропустит).
+    const userDocument = new UserModel(user);
 
-    return createdUserId._id.toString();
+    // * Сохраняем с пом. meta методом mongoose нашь екземпляр
+    await userDocument.save();
+
+    return userDocument;
   }
 
   async deleteUser(id: string): Promise<boolean> {
     // * Проверяем, является ли ObjectId действительным
-    if (!Types.ObjectId.isValid(id)) return false;
+    if (!MongooseTypes.ObjectId.isValid(id)) return false;
 
     const isDeleted = await UserModel.deleteOne({ _id: id });
 
@@ -28,7 +34,7 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async updateEmailUserConfirmationStatus(
-    userId: Types.ObjectId
+    userId: MongooseTypes.ObjectId
   ): Promise<boolean> {
     const result = await UserModel.updateOne(
       { _id: userId },
@@ -44,7 +50,7 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async updateEmailUserConfirmation(
-    userId: Types.ObjectId,
+    userId: MongooseTypes.ObjectId,
     emailConfirmation: IEmailConfirmationUpdate
   ): Promise<boolean> {
     const result = await UserModel.updateOne(
@@ -64,7 +70,7 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async sendRecoveryPasswordEmail(
-    userId: Types.ObjectId,
+    userId: MongooseTypes.ObjectId,
     emailRecoveryInfo: IRecoveryPasswordInfo
   ): Promise<void> {
     await UserModel.updateOne(
@@ -82,7 +88,7 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async updatePasswordAndClearRecovery(
-    userId: Types.ObjectId,
+    userId: MongooseTypes.ObjectId,
     newHash: string
   ): Promise<boolean> {
     const result = await UserModel.updateOne(

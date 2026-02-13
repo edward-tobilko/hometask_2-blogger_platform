@@ -1,8 +1,8 @@
 import { ApplicationResult } from "@core/result/application.result";
 import { WithMeta } from "@core/types/with-meta.type";
 import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.command";
-import { UserDB } from "db/types.db";
 import { UserDomain } from "users/domain/user.domain";
+import { UserDb } from "users/mongoose/user-schema.mongoose";
 
 export interface IAuthService {
   checkUserCredentials(
@@ -22,7 +22,7 @@ export interface IAuthService {
     login: string,
     password: string,
     email: string
-  ): Promise<ApplicationResult<UserDB | null>>;
+  ): Promise<ApplicationResult<UserDb | null>>;
 
   confirmRegistration(code: string): Promise<ApplicationResult<boolean>>;
 

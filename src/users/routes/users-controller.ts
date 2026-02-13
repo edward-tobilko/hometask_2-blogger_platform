@@ -39,6 +39,8 @@ export class UsersController {
 
       res.status(HTTP_STATUS_CODES.CREATED_201).json(createdUserOutput.data);
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }
@@ -84,6 +86,8 @@ export class UsersController {
 
       res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
+      console.error("ERROR:", error);
+
       errorsHandler(error, req, res);
     }
   }
