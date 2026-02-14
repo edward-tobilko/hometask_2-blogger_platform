@@ -1,15 +1,12 @@
-import { ObjectId } from "mongodb";
-
 import { FieldsOnly } from "../../core/types/fields-only.type";
-import { UserDB } from "db/types.db";
 
 // * BLL - SessionDomain - бизнес модель
 export class SessionDomain {
-  _id?: ObjectId;
+  id?: string;
 
   login: string;
 
-  userId: ObjectId;
+  userId: string;
   deviceId: string; // UUID
   sessionId: string;
   ip: string;
@@ -34,25 +31,21 @@ export class SessionDomain {
     this.createdAt = dto.createdAt;
 
     this.refreshIat = dto.refreshIat;
-
-    if (dto._id) this._id = dto._id;
   }
 
-  static saveMe(
-    user: UserDB,
-    dto: {
-      deviceId: string;
-      sessionId: string;
-      ip: string;
-      userDeviceName: string;
-      expiresAt: Date;
-      refreshIat: number;
-    }
-  ): SessionDomain {
+  static saveMe(dto: {
+    userId: string;
+    login: string;
+    deviceId: string;
+    sessionId: string;
+    ip: string;
+    userDeviceName: string;
+    expiresAt: Date;
+    refreshIat: number;
+  }): SessionDomain {
     return new SessionDomain({
-      userId: user._id!,
-
-      login: user.login,
+      userId: dto.userId,
+      login: dto.login,
 
       deviceId: dto.deviceId,
       sessionId: dto.sessionId,

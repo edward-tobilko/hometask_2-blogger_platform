@@ -1,8 +1,8 @@
-import { ObjectId } from "mongodb";
+import { Types } from "mongoose";
 import { injectable } from "inversify";
 
-import { authSessionCollection } from "db/mongo.db";
 import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
+import { SessionModel } from "auth/mongoose/auth-schema.mongoose";
 
 @injectable()
 export class SecurityDevicesRepo implements ISecurityDevicesRepo {
@@ -11,8 +11,8 @@ export class SecurityDevicesRepo implements ISecurityDevicesRepo {
     currentDeviceId: string
   ): Promise<number> {
     // * Удалить все сессии пользователя userId, в которых deviceId НЕ равен currentDeviceId.
-    const deletedDevices = await authSessionCollection.deleteMany({
-      userId: new ObjectId(userId),
+    const deletedDevices = await SessionModel.deleteMany({
+      userId: new Types.ObjectId(userId),
       deviceId: { $ne: currentDeviceId },
     });
 
@@ -20,7 +20,7 @@ export class SecurityDevicesRepo implements ISecurityDevicesRepo {
   }
 
   async removeSecurityDeviceById(deviceId: string): Promise<boolean> {
-    const deletedDevice = await authSessionCollection.deleteOne({ deviceId });
+    const deletedDevice = await SessionModel.deleteOne({ deviceId });
 
     return deletedDevice.deletedCount === 1;
   }

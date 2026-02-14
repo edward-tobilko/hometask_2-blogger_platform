@@ -1,9 +1,7 @@
-import { WithId } from "mongodb";
-
 import { BlogOutput } from "../output/blog-type.output";
-import { BlogDB } from "../../../db/types.db";
+import { BlogLean } from "blogs/mongoose/blog-schema.mongoose";
 
-export const mapToBlogOutput = (blogDb: WithId<BlogDB>): BlogOutput => {
+export const mapToBlogOutput = (blogDb: BlogLean): BlogOutput => {
   return {
     id: blogDb._id.toString(),
     name: blogDb.name,

@@ -1,11 +1,11 @@
-import { SessionDB } from "db/types.db";
 import {
   ISecurityDevicesOutput,
   SecurityDevicesListOutput,
 } from "../output/security-devices-type.output";
+import { SessionLean } from "auth/mongoose/auth-schema.mongoose";
 
 export function mapSessionToSecurityDevicesListOutput(
-  sessions: SessionDB[]
+  sessions: SessionLean[]
 ): SecurityDevicesListOutput {
   return sessions.map(
     (session): ISecurityDevicesOutput => ({

@@ -1,9 +1,9 @@
 import { UsersListPaginatedOutput } from "../output/users-list-paginated.output";
 import { UserOutput } from "../output/user.output";
-import { UserPlaneObj } from "users/mongoose/user-schema.mongoose";
+import { UserReadModelType } from "users/mongoose/user-schema.mongoose";
 
 export const mapToUsersListOutput = (
-  users: UserPlaneObj[],
+  users: UserReadModelType[],
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): UsersListPaginatedOutput => {
   return {

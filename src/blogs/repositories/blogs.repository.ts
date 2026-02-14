@@ -1,72 +1,56 @@
-import { InsertOneResult, ObjectId, WithId } from "mongodb";
 import { injectable } from "inversify";
+import { Types } from "mongoose";
 
-import { blogCollection, postCollection } from "../../db/mongo.db";
-import { BlogDomain } from "../domain/blog.domain";
-import { PostDomain } from "../../posts/domain/post.domain";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
+import { BlogDocument, BlogModel } from "blogs/mongoose/blog-schema.mongoose";
+import { PostDocument, PostModel } from "posts/mongoose/post-schema.mongoose";
 
 @injectable()
 export class BlogsRepository implements IBlogsRepository {
-  async findBlogByIdReconstitute(blogId: string): Promise<WithId<BlogDomain>> {
-    const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
+  async saveBlog(newBlog: BlogDocument): Promise<BlogDocument> {
+    if (!newBlog._id) {
+      const createdResult = await BlogModel.create(newBlog);
 
-    if (!blog) {
+      createdResult.save();
+
+      return createdResult;
+    }
+
+    const updateResult = await BlogModel.updateOne(
+      {
+        _id: newBlog._id,
+      },
+      {
+        $set: {
+          name: newBlog.name,
+          description: newBlog.description,
+          websiteUrl: newBlog.websiteUrl,
+          isMembership: newBlog.isMembership,
+        },
+      }
+    );
+
+    if (updateResult.matchedCount < 1) {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
-    return BlogDomain.reconstitute(blog);
+    return newBlog;
   }
 
-  async saveBlog(newBlog: BlogDomain): Promise<BlogDomain> {
-    if (!newBlog._id) {
-      const insertResult = await blogCollection.insertOne(newBlog);
-
-      newBlog._id = insertResult.insertedId;
-
-      return newBlog;
-    } else {
-      // * Обновить данные блога (отправляем весь обьект)
-      const { _id, ...dtoToUpdate } = newBlog;
-
-      const updateResult = await blogCollection.updateOne(
-        {
-          _id,
-        },
-        {
-          $set: {
-            name: dtoToUpdate.name,
-            description: dtoToUpdate.description,
-            websiteUrl: dtoToUpdate.websiteUrl,
-            isMembership: dtoToUpdate.isMembership,
-          },
-        }
-      );
-
-      // * проверяем, если блог не найден, то выбрасываем ошибку
-      if (updateResult.matchedCount < 1) {
-        throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
-      }
-
-      return newBlog;
-    }
-  }
-
-  async savePostForBlog(newPostForBlog: PostDomain): Promise<PostDomain> {
+  async savePostForBlog(newPostForBlog: PostDocument): Promise<BlogDocument> {
     if (!newPostForBlog._id) {
-      const insertResult: InsertOneResult =
-        await postCollection.insertOne(newPostForBlog);
+      const createdResult = await BlogModel.create(newPostForBlog);
 
-      newPostForBlog._id = insertResult.insertedId;
+      createdResult.save();
 
       return newPostForBlog;
     } else {
       const { _id, ...dtoToUpdate } = newPostForBlog;
 
-      const updateResult = await postCollection.updateOne(
+      const updateResult = await PostModel.updateOne(
         {
-          _id,
+          _id: newPostForBlog._id,
         },
         {
           $set: dtoToUpdate,
@@ -85,8 +69,12 @@ export class BlogsRepository implements IBlogsRepository {
   }
 
   async deleteBlogById(id: string): Promise<void> {
-    const deleteResult = await blogCollection.deleteOne({
-      _id: new ObjectId(id),
+    if (!Types.ObjectId.isValid(id)) {
+      throw new RepositoryNotFoundError("Blog is not valid", "blogId");
+    }
+
+    const deleteResult = await BlogModel.deleteOne({
+      _id: new Types.ObjectId(id),
     });
 
     if (deleteResult.deletedCount < 1) {

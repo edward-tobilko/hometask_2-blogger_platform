@@ -7,7 +7,10 @@ import { GetUsersListQueryHandler } from "../applications/query-handlers/get-use
 import { UserOutput } from "../applications/output/user.output";
 import { mapToUserOutput } from "../applications/mappers/user-domain-to-output.mapper";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
-import { UserDocument, UserModel } from "users/mongoose/user-schema.mongoose";
+import {
+  UserModel,
+  UserReadModelType,
+} from "users/mongoose/user-schema.mongoose";
 
 @injectable()
 export class UsersQueryRepository implements IUsersQueryRepository {
@@ -61,20 +64,22 @@ export class UsersQueryRepository implements IUsersQueryRepository {
     return usersListOutput;
   }
 
-  async findByLogin(login: string): Promise<UserDocument | null> {
-    return await UserModel.findOne({ login }).exec();
+  async findByLogin(login: string): Promise<UserReadModelType | null> {
+    return await UserModel.findOne({ login }).lean().exec();
   }
 
-  async findByEmail(email: string): Promise<UserDocument | null> {
-    return await UserModel.findOne({ email }).exec();
+  async findByEmail(email: string): Promise<UserReadModelType | null> {
+    return await UserModel.findOne({ email }).lean().exec();
   }
 
   async findUserByEmailAndNotConfirmCode(
     emailConfirmCode: string
-  ): Promise<UserDocument | null> {
+  ): Promise<UserReadModelType | null> {
     const userAccount = await UserModel.findOne({
       "emailConfirmation.confirmationCode": emailConfirmCode,
-    }).exec();
+    })
+      .lean()
+      .exec();
 
     return userAccount;
   }
@@ -83,7 +88,7 @@ export class UsersQueryRepository implements IUsersQueryRepository {
     // * Проверяем, является ли ObjectId действительным
     if (!MongooseTypes.ObjectId.isValid(userId)) return null;
 
-    const user = await UserModel.findById(userId).exec();
+    const user = await UserModel.findById(userId).lean().exec();
 
     if (!user) return null;
 
@@ -92,10 +97,12 @@ export class UsersQueryRepository implements IUsersQueryRepository {
 
   async findUserByRecoveryCode(
     recoveryCode: string
-  ): Promise<UserDocument | null> {
+  ): Promise<UserReadModelType | null> {
     const document = await UserModel.findOne({
       "recoveryPasswordInfo.recoveryCode": recoveryCode,
-    }).exec();
+    })
+      .lean()
+      .exec();
 
     return document;
   }

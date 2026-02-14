@@ -1,7 +1,6 @@
-import { ObjectId } from "mongodb";
 import { injectable } from "inversify";
+import { Types } from "mongoose";
 
-import { blogCollection, postCollection } from "../../db/mongo.db";
 import { mapToBlogListOutput } from "../application/mappers/map-to-blog-list-output.util";
 import { BlogListPaginatedOutput } from "../application/output/blog-list-paginated-type.output";
 import { BlogOutput } from "../application/output/blog-type.output";
@@ -12,6 +11,8 @@ import { GetBlogsListQueryHandler } from "../application/query-handlers/get-blog
 import { GetPostsListQueryHandler } from "../../posts/application/query-handlers/get-posts-list.query-handler";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
+import { BlogLean, BlogModel } from "blogs/mongoose/blog-schema.mongoose";
+import { PostLean, PostModel } from "posts/mongoose/post-schema.mongoose";
 
 @injectable()
 export class BlogsQueryRepository implements IBlogsQueryRepository {
@@ -34,8 +35,7 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
       filter = {};
     }
 
-    const items = await blogCollection
-      .find(filter)
+    const items = await BlogModel.find(filter)
 
       // * "asc" (по возрастанию), то mongo используется 1
       // * "desc" — то -1 для сортировки по убыванию. - по алфавиту от Я-А, Z-A
@@ -46,9 +46,10 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
 
       // * ограничивает количество возвращаемых документов до значения pageSize
       .limit(pageSize)
-      .toArray();
+      .lean<BlogLean[]>()
+      .exec();
 
-    const totalCount = await blogCollection.countDocuments(filter);
+    const totalCount = await BlogModel.countDocuments(filter);
 
     const blogsListOutput = mapToBlogListOutput(items, {
       pageNumber,
@@ -60,7 +61,9 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
   }
 
   async findBlogById(blogId: string): Promise<BlogOutput> {
-    const blog = await blogCollection.findOne({ _id: new ObjectId(blogId) });
+    const blog = await BlogModel.findOne({ _id: new Types.ObjectId(blogId) })
+      .lean<BlogLean>()
+      .exec();
 
     if (!blog) {
       throw new RepositoryNotFoundError("Blog is not exist!");
@@ -74,25 +77,26 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
   ): Promise<PostsListPaginatedOutput> {
     const { pageNumber, pageSize, sortBy, sortDirection, blogId } = queryParam;
 
-    const blogObjectId = new ObjectId(blogId);
+    const blogObjectId = new Types.ObjectId(blogId);
 
     const filter = { blogId: blogObjectId };
 
-    const blog = await blogCollection.findOne({ _id: blogObjectId });
+    const blog = await BlogModel.findOne({ _id: blogObjectId })
+      .lean<BlogLean>()
+      .exec();
 
     if (!blog) {
       throw new RepositoryNotFoundError("Blog is not exist!");
     }
 
-    const cursor = postCollection
-      .find(filter)
+    const cursor = PostModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize);
 
     const [postsForBlog, totalCount] = await Promise.all([
-      cursor.toArray(),
-      postCollection.countDocuments(filter),
+      cursor.lean<PostLean[]>().exec(),
+      PostModel.countDocuments(filter),
     ]);
 
     const postListForBlogOutput = mapToPostListOutput(postsForBlog, {

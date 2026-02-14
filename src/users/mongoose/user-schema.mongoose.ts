@@ -16,7 +16,7 @@ export type UserDb = {
   passwordHash: string;
 
   emailConfirmation: {
-    confirmationCode: string;
+    confirmationCode: string | null;
     expirationDate: Date | null;
     isConfirmed: boolean;
   };
@@ -24,8 +24,8 @@ export type UserDb = {
   recoveryPasswordInfo?: IRecoveryPasswordInfo | null;
 };
 
-// * Создание типов для plane objects нужны только для чтения (read), то есть, для query запроссов, для .lean() в query repositories. Нужно для маппинга, что бы не работать с доменом.
-export type UserPlaneObj = UserDb & { _id: MongooseTypes.ObjectId };
+// * Создание типов для plain objects нужны только для чтения (read), то есть, для query запроссов, для .lean() в query repositories. Нужно для маппинга, что бы не работать с доменом.
+export type UserReadModelType = UserDb & { _id: MongooseTypes.ObjectId };
 
 // * Добавляем _id к UserDb
 export type UserDocument = HydratedDocument<UserDb>;
@@ -78,6 +78,7 @@ const UserSchema = new Schema<UserDb>(
     emailConfirmation: {
       confirmationCode: {
         type: String,
+        default: null,
         required: function (this: any) {
           return this.emailConfirmation.isConfirmed === false;
         },

@@ -1,18 +1,16 @@
 import { injectable } from "inversify";
 
-import { SessionDomain } from "../domain/session.domain";
-import { authSessionCollection } from "db/mongo.db";
 import { ISessionRepository } from "auth/interfaces/ISessionRepository";
+import { SessionDb, SessionModel } from "auth/mongoose/auth-schema.mongoose";
 
 @injectable()
 export class SessionRepository implements ISessionRepository {
-  async upsertLoginSession(session: SessionDomain): Promise<void> {
-    await authSessionCollection.updateOne(
+  async upsertLoginSession(session: SessionDb): Promise<void> {
+    await SessionModel.updateOne(
       {
         userId: session.userId,
-        login: session.login,
         deviceId: session.deviceId,
-      },
+      }, // key
       {
         $set: {
           sessionId: session.sessionId,
@@ -24,19 +22,19 @@ export class SessionRepository implements ISessionRepository {
           refreshIat: session.refreshIat,
         },
         $setOnInsert: {
-          createdAt: session.createdAt,
+          // createdAt: session.createdAt, // автоматически создат нам монгус в schema -> timestamps = true
 
           userId: session.userId,
           login: session.login,
           deviceId: session.deviceId,
         },
       },
-      { upsert: true }
+      { upsert: true, timestamps: true }
     );
   }
 
   async updateLastActiveDate(sessionId: string): Promise<boolean> {
-    const result = await authSessionCollection.updateOne(
+    const result = await SessionModel.updateOne(
       { sessionId },
       {
         $set: {
@@ -53,12 +51,12 @@ export class SessionRepository implements ISessionRepository {
     newRefreshToken: string,
     newExpirationDate: Date
   ): Promise<boolean> {
-    const result = await authSessionCollection.updateOne(
+    const result = await SessionModel.updateOne(
       { sessionId },
       {
         $set: {
           refreshToken: newRefreshToken,
-          expirationDate: newExpirationDate,
+          expiresAt: newExpirationDate,
           lastActiveDate: new Date(),
         },
       }
@@ -70,7 +68,7 @@ export class SessionRepository implements ISessionRepository {
     sessionId: string,
     refreshIat: number
   ): Promise<boolean> {
-    const res = await authSessionCollection.updateOne(
+    const res = await SessionModel.updateOne(
       { sessionId },
       { $set: { refreshIat } }
     );
@@ -79,7 +77,7 @@ export class SessionRepository implements ISessionRepository {
   }
 
   async deleteBySessionId(sessionId: string): Promise<boolean> {
-    const deleteRes = await authSessionCollection.deleteOne({ sessionId });
+    const deleteRes = await SessionModel.deleteOne({ sessionId });
 
     return deleteRes.deletedCount === 1;
   }

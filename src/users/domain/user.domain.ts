@@ -14,7 +14,7 @@ export class UserDomain {
   passwordHash: string;
 
   emailConfirmation: {
-    confirmationCode: string;
+    confirmationCode: string | null;
     expirationDate: Date | null;
     isConfirmed: boolean;
   };

@@ -1,7 +1,7 @@
-import { UserPlaneObj } from "users/mongoose/user-schema.mongoose";
+import { UserReadModelType } from "users/mongoose/user-schema.mongoose";
 import { UserOutput } from "../output/user.output";
 
-export const mapToUserOutput = (user: UserPlaneObj): UserOutput => {
+export const mapToUserOutput = (user: UserReadModelType): UserOutput => {
   return {
     id: user._id!.toString(),
     login: user.login,

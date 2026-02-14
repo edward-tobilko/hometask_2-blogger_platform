@@ -1,11 +1,9 @@
-import { WithId } from "mongodb";
-
 import { PostOutput } from "../output/post-type.output";
 import { PostsListPaginatedOutput } from "../output/posts-list-type.output";
-import { PostDB } from "../../../db/types.db";
+import { PostLean } from "posts/mongoose/post-schema.mongoose";
 
 export function mapToPostListOutput(
-  postsDb: WithId<PostDB>[],
+  postsDb: PostLean[],
   meta: { page: number; pageSize: number; totalCount: number }
 ): PostsListPaginatedOutput {
   return {
@@ -22,7 +20,7 @@ export function mapToPostListOutput(
         content: post.content,
         blogId: post.blogId.toString(),
         blogName: post.blogName,
-        createdAt: post.createdAt.toISOString(),
+        // createdAt: post.createdAt.toISOString(),
       })
     ),
   };

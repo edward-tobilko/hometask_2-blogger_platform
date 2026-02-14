@@ -1,11 +1,9 @@
-import { WithId } from "mongodb";
-
+import { BlogLean } from "blogs/mongoose/blog-schema.mongoose";
 import { BlogListPaginatedOutput } from "../output/blog-list-paginated-type.output";
 import { BlogOutput } from "../output/blog-type.output";
-import { BlogDB } from "../../../db/types.db";
 
 export function mapToBlogListOutput(
-  blogDb: WithId<BlogDB>[],
+  blogDb: BlogLean[],
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): BlogListPaginatedOutput {
   return {

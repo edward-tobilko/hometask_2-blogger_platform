@@ -1,16 +1,15 @@
 import { injectable } from "inversify";
 
-import { authSessionCollection } from "db/mongo.db";
-import { SessionDB } from "db/types.db";
 import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { SessionLean, SessionModel } from "auth/mongoose/auth-schema.mongoose";
 
 @injectable()
 export class SessionQueryRepo implements ISessionQueryRepo {
-  async findBySessionId(sessionId: string): Promise<SessionDB | null> {
-    return authSessionCollection.findOne({ sessionId });
+  async findBySessionId(sessionId: string): Promise<SessionLean | null> {
+    return SessionModel.findOne({ sessionId }).lean<SessionLean>().exec();
   }
 
-  async findByDeviceId(deviceId: string): Promise<SessionDB | null> {
-    return authSessionCollection.findOne({ deviceId });
+  async findByDeviceId(deviceId: string): Promise<SessionLean | null> {
+    return SessionModel.findOne({ deviceId }).lean<SessionLean>().exec();
   }
 }

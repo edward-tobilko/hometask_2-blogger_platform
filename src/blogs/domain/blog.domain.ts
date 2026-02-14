@@ -1,11 +1,8 @@
-import { ObjectId, WithId } from "mongodb";
-
 import { FieldsOnly } from "../../core/types/fields-only.type";
 import { BlogDtoDomain } from "./blog-dto.domain";
 
 // * BLL - BlogDomain - бизнес модель
 export class BlogDomain {
-  _id?: ObjectId;
   name: string;
   description: string;
   websiteUrl: string;
@@ -18,10 +15,6 @@ export class BlogDomain {
     this.websiteUrl = dto.websiteUrl;
     this.createdAt = dto.createdAt;
     this.isMembership = dto.isMembership;
-
-    if (dto._id) {
-      this._id = dto._id;
-    }
   }
 
   // * Factory Method pattern
@@ -41,10 +34,6 @@ export class BlogDomain {
     this.name = dto.name;
     this.description = dto.description;
     this.websiteUrl = dto.websiteUrl;
-  }
-
-  static reconstitute(dto: FieldsOnly<BlogDomain>): WithId<BlogDomain> {
-    return new BlogDomain(dto) as WithId<BlogDomain>;
   }
 }
 

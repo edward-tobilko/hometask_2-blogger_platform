@@ -1,19 +1,11 @@
 import { Collection, Db, MongoClient } from "mongodb";
 
 import { appConfig } from "../core/settings/config";
-import {
-  AUTH_LOGIN_COLLECTION_NAME,
-  BLOG_COLLECTION_NAME,
-  POST_COLLECTION_NAME,
-  POST_COMMENTS_COLLECTION_NAME,
-} from "./collection-names.db";
-import { BlogDB, PostCommentDB, PostDB, SessionDB } from "./types.db";
+import { POST_COMMENTS_COLLECTION_NAME } from "./collection-names.db";
+import { PostCommentDB } from "./types.db";
 
 let client: MongoClient;
 
-export let authSessionCollection: Collection<SessionDB>;
-export let blogCollection: Collection<BlogDB>;
-export let postCollection: Collection<PostDB>;
 export let postCommentsCollection: Collection<PostCommentDB>;
 
 // * Подключения к БД
@@ -25,19 +17,8 @@ export async function runDB(url: string): Promise<void> {
     const dataBase: Db = client.db(appConfig.DB_NAME);
 
     // * Инициализация коллекций
-    authSessionCollection = dataBase.collection<SessionDB>(
-      AUTH_LOGIN_COLLECTION_NAME
-    );
-    blogCollection = dataBase.collection<BlogDB>(BLOG_COLLECTION_NAME);
-    postCollection = dataBase.collection<PostDB>(POST_COLLECTION_NAME);
     postCommentsCollection = dataBase.collection<PostCommentDB>(
       POST_COMMENTS_COLLECTION_NAME
-    );
-
-    // * Инициализация индексов ( чтобы «протухшие» сессии убирались автоматически )
-    authSessionCollection.createIndex(
-      { expiresAt: 1 },
-      { expireAfterSeconds: 0 }
     );
 
     await dataBase.command({ ping: 1 });
