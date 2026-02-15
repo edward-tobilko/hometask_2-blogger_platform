@@ -50,7 +50,7 @@ export class BlogsService implements IBlogsService {
   async createPostForBlog(
     command: WithMeta<CreatePostForBlogDtoCommand>
   ): Promise<ApplicationResult<PostOutput>> {
-    // ищеи блог
+    // * find blog
     const blog = await this.blogsQueryRepository.findBlogById(
       command.payload.blogId
     );
@@ -59,17 +59,17 @@ export class BlogsService implements IBlogsService {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
-    // добавляем blogName к доменному dto
+    // * add blogName to domain dto
     const domainDto: CreatePostDtoDomain = {
       ...command.payload,
 
       blogName: blog.name,
     };
 
-    // создаем доммен
+    // * create domain
     const newPost = PostDomain.createPost(domainDto);
 
-    // сохраняем
+    // * save
     const createdPostForBlog =
       await this.blogsRepository.savePostForBlog(newPost);
 
@@ -80,10 +80,10 @@ export class BlogsService implements IBlogsService {
       content: createdPostForBlog.content,
       blogId: createdPostForBlog.blogId.toString(),
       blogName: createdPostForBlog.blogName,
-      createdAt: createdPostForBlog.createdAt.toISOString(),
+      // createdAt: createdPostForBlog.createdAt.toISOString(),
     };
 
-    // возвращаем output
+    // * return output
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
       data: postViewModel,
@@ -94,13 +94,9 @@ export class BlogsService implements IBlogsService {
   async updateBlog(
     command: WithMeta<UpdateBlogDtoCommand>
   ): Promise<ApplicationResult<null>> {
-    const { id, ...blogDomainDto } = command.payload;
+    const dto = command.payload;
 
-    const blog = await this.blogsRepository.findBlogByIdReconstitute(id);
-
-    blog.updateBlog(blogDomainDto);
-
-    await this.blogsRepository.saveBlog(blog);
+    await this.blogsRepository.updateBlog(dto);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

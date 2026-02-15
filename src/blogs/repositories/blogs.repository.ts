@@ -3,69 +3,85 @@ import { Types } from "mongoose";
 
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
-import { BlogDocument, BlogModel } from "blogs/mongoose/blog-schema.mongoose";
-import { PostDocument, PostModel } from "posts/mongoose/post-schema.mongoose";
+import {
+  BlogDb,
+  BlogDocument,
+  BlogModel,
+} from "blogs/mongoose/blog-schema.mongoose";
+import {
+  PostDb,
+  PostDocument,
+  PostModel,
+} from "posts/mongoose/post-schema.mongoose";
+import { UpdateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
+import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 
 @injectable()
 export class BlogsRepository implements IBlogsRepository {
-  async saveBlog(newBlog: BlogDocument): Promise<BlogDocument> {
-    if (!newBlog._id) {
-      const createdResult = await BlogModel.create(newBlog);
+  async saveBlog(newBlog: BlogDb): Promise<BlogDocument> {
+    // * Проверку на id можно не делать, так как mongoose всегда создает _id (HydratedDocument всегда имеет _id).
+    const blogDocument = new BlogModel(newBlog);
 
-      createdResult.save();
+    await blogDocument.save();
 
-      return createdResult;
-    }
+    return blogDocument;
+  }
 
-    const updateResult = await BlogModel.updateOne(
-      {
-        _id: newBlog._id,
-      },
-      {
-        $set: {
-          name: newBlog.name,
-          description: newBlog.description,
-          websiteUrl: newBlog.websiteUrl,
-          isMembership: newBlog.isMembership,
-        },
-      }
-    );
-
-    if (updateResult.matchedCount < 1) {
+  async updateBlog(dto: UpdateBlogDtoCommand): Promise<BlogDocument> {
+    if (!Types.ObjectId.isValid(dto.id)) {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
-    return newBlog;
+    const updatedRes = await BlogModel.findByIdAndUpdate(
+      dto.id,
+      {
+        $set: {
+          name: dto.name,
+          description: dto.description,
+          websiteUrl: dto.websiteUrl,
+        },
+      },
+      { new: true } // * для получения оновленого блога, без "new" вернется старый объект.
+    ).exec(); // * так как почти все методы find... возвр. query object, а не promise, нам нужно доставлять .exec() - который в свою очередь возвр. promise и лучшую типизацию.
+
+    if (!updatedRes) {
+      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+    }
+
+    return updatedRes;
   }
 
-  async savePostForBlog(newPostForBlog: PostDocument): Promise<BlogDocument> {
-    if (!newPostForBlog._id) {
-      const createdResult = await BlogModel.create(newPostForBlog);
+  async savePostForBlog(newPostForBlog: PostDb): Promise<PostDocument> {
+    const postDocument = new PostModel(newPostForBlog);
 
-      createdResult.save();
+    await postDocument.save();
 
-      return newPostForBlog;
-    } else {
-      const { _id, ...dtoToUpdate } = newPostForBlog;
+    return postDocument;
+  }
 
-      const updateResult = await PostModel.updateOne(
-        {
-          _id: newPostForBlog._id,
+  async updatePostForBlog(
+    newPostForBlog: UpdatePostDtoCommand
+  ): Promise<PostDocument> {
+    const updatedRes = await PostModel.findByIdAndUpdate(
+      newPostForBlog.id,
+      {
+        $set: {
+          title: newPostForBlog.title,
+          shortDescription: newPostForBlog.shortDescription,
+          content: newPostForBlog.content,
         },
-        {
-          $set: dtoToUpdate,
-        }
+      },
+      { new: true }
+    ).exec();
+
+    if (!updatedRes) {
+      throw new RepositoryNotFoundError(
+        "Post for blog does't exist!",
+        "postForBlogId"
       );
-
-      if (updateResult.matchedCount < 1) {
-        throw new RepositoryNotFoundError(
-          "Post for blog does't exist!",
-          "postForBlogId"
-        );
-      }
-
-      return newPostForBlog;
     }
+
+    return updatedRes;
   }
 
   async deleteBlogById(id: string): Promise<void> {
