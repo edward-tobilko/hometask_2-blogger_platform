@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { log } from "console";
 import { inject, injectable } from "inversify";
-import { ObjectId } from "mongodb";
+import { Types as MongooseTypes } from "mongoose";
 
 import { BlogsListRP } from "./request-payload-types/blogs-list.request-payload-type";
 import { BlogSortFieldRP } from "./request-payload-types/blog-sort-field.request-payload-type";
@@ -152,11 +152,9 @@ export class BlogsController {
     res: Response
   ) {
     try {
-      const id = req.params.id;
-
       console.log("HANDLER PARAMS:", req.params.id); // if id = 1 -> error
 
-      if (!ObjectId.isValid(id)) {
+      if (!MongooseTypes.ObjectId.isValid(req.params.id)) {
         return res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
           errorsMessages: [
             { message: "Incorrect format of ObjectId", field: "id" },
@@ -166,7 +164,8 @@ export class BlogsController {
 
       const command = createCommand<CreatePostForBlogDtoCommand>({
         ...req.body,
-        blogId: id,
+
+        blogId: req.params.id,
       });
 
       const createdPostForBlogOutput =

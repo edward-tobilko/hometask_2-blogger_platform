@@ -7,10 +7,10 @@ import { PostsListPaginatedOutput } from "./output/posts-list-type.output";
 import { GetPostCommentsListQueryHandler } from "./query-handlers/get-post-comments-list.query-handler";
 import { GetPostsListQueryHandler } from "./query-handlers/get-posts-list.query-handler";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
-import { NotFoundError } from "@core/errors/application.error";
 import { Types } from "@core/di/types";
 import { IPostsQueryService } from "posts/interfaces/IPostsQueryService";
 import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
+import { NotFoundError } from "@core/errors/application.error";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {
@@ -32,20 +32,20 @@ export class PostQueryService implements IPostsQueryService {
   async getPostCommentsList(
     queryParam: GetPostCommentsListQueryHandler
   ): Promise<ApplicationResult<PostCommentsListPaginatedOutput | null>> {
-    const commentRes =
+    const commentsResult =
       await this.postsQueryRepository.getPostCommentsList(queryParam);
 
-    if (!commentRes) {
+    if (!commentsResult) {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [new NotFoundError("Some error", "queryParam")],
+        extensions: [new NotFoundError("Post is not found!", "postId")],
       });
     }
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: commentRes,
+      data: commentsResult,
       extensions: [],
     });
   }

@@ -2,7 +2,6 @@ import { ObjectId } from "mongodb";
 import { injectable } from "inversify";
 
 import { mapToCommentOutput } from "../application/mappers/map-to-comment-output.mapper";
-import { postCommentsCollection } from "../../db/mongo.db";
 import { IPostCommentOutput } from "../../posts/application/output/post-comment.output";
 import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
 

@@ -1,11 +1,9 @@
-import { WithId } from "mongodb";
-
 import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
 import { IPostCommentOutput } from "../output/post-comment.output";
-import { PostCommentDB } from "../../../db/types.db";
+import { PostCommentDb } from "posts/mongoose/post.schema";
 
 export const mapToPostCommentsListOutput = (
-  postCommentsDomain: WithId<PostCommentDB>[],
+  postCommentsDomain: PostCommentDb[],
   meta: { page: number; pageSize: number; totalCount: number }
 ): PostCommentsListPaginatedOutput => {
   return {
@@ -16,7 +14,7 @@ export const mapToPostCommentsListOutput = (
 
     items: postCommentsDomain.map(
       (postComment): IPostCommentOutput => ({
-        id: postComment._id.toString(),
+        id: postComment.postId.toString(),
         content: postComment.content,
 
         commentatorInfo: {
@@ -24,7 +22,7 @@ export const mapToPostCommentsListOutput = (
           userLogin: postComment.commentatorInfo.userLogin,
         },
 
-        createdAt: postComment.createdAt.toISOString(),
+        // createdAt: postComment.createdAt.toISOString(),
       })
     ),
   };

@@ -1,7 +1,6 @@
-import { ObjectId } from "mongodb";
 import { injectable } from "inversify";
+import { Types as MongooseTypes } from "mongoose";
 
-import { postCommentsCollection, postCollection } from "../../db/mongo.db";
 import { mapToPostListOutput } from "../application/mappers/map-to-post-list-output.util";
 import { PostOutput } from "../application/output/post-type.output";
 import { PostsListPaginatedOutput } from "../application/output/posts-list-type.output";
@@ -11,6 +10,11 @@ import { GetPostCommentsListQueryHandler } from "../application/query-handlers/g
 import { PostCommentsListPaginatedOutput } from "../application/output/post-comments-list-type.output";
 import { mapToPostCommentsListOutput } from "../application/mappers/map-to-post-comments-list-output.mapper";
 import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
+import { PostLean, PostModel } from "posts/mongoose/post.schema";
+import {
+  PostCommentsLean,
+  PostCommentsModel,
+} from "posts/mongoose/post-comments.schema";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepository {
@@ -21,14 +25,14 @@ export class PostsQueryRepository implements IPostsQueryRepository {
 
     const { pageNumber, pageSize, sortDirection, sortBy } = queryParam;
 
-    const items = await postCollection
-      .find(filter)
+    const items = await PostModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
-      .toArray();
+      .lean<PostLean[]>()
+      .exec();
 
-    const totalCount = await postCollection.countDocuments(filter);
+    const totalCount = await PostModel.countDocuments(filter);
 
     return mapToPostListOutput(items, {
       page: pageNumber,
@@ -38,13 +42,9 @@ export class PostsQueryRepository implements IPostsQueryRepository {
   }
 
   async getPostById(postId: string): Promise<PostOutput | null> {
-    const dbDocument = await postCollection.findOne({
-      _id: new ObjectId(postId),
-    });
+    const postInstance = await PostModel.findById(postId);
 
-    if (!dbDocument) return null;
-
-    return mapToPostOutput(dbDocument);
+    return postInstance ? mapToPostOutput(postInstance) : null;
   }
 
   async getPostCommentsList(
@@ -52,23 +52,30 @@ export class PostsQueryRepository implements IPostsQueryRepository {
   ): Promise<PostCommentsListPaginatedOutput | null> {
     const { pageNumber, pageSize, sortBy, sortDirection, postId } = queryParam;
 
-    const postObjectId = new ObjectId(postId);
+    if (!postId) return null;
 
-    const filter = { postId: postObjectId };
+    if (!MongooseTypes.ObjectId.isValid(postId)) {
+      return null;
+    }
 
-    const post = await postCollection.findOne({ _id: postObjectId });
+    const filter = { postId: new MongooseTypes.ObjectId(postId) };
+
+    const post = await PostModel.findOne({
+      _id: new MongooseTypes.ObjectId(postId),
+    }).exec();
 
     if (!post) return null;
 
-    const items = postCommentsCollection
-      .find(filter)
+    const items = PostCommentsModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .lean<PostCommentsLean[]>()
+      .exec();
 
     const [postComments, totalCount] = await Promise.all([
-      items.toArray(),
-      postCommentsCollection.countDocuments(filter),
+      items,
+      PostCommentsModel.countDocuments(filter),
     ]);
 
     const postCommentsOutput = mapToPostCommentsListOutput(postComments, {

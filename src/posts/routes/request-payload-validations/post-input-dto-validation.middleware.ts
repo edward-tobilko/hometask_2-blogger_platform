@@ -64,9 +64,9 @@ export const createPostBodyInputRPValidation = (
     .withMessage("Blog id must be a valid Mongo ObjectId")
     .bail()
     .custom(async (id: string) => {
-      const exists = await blogsQueryService.getBlogById(id);
+      const existsBlog = await blogsQueryService.getBlogById(id);
 
-      if (!exists)
+      if (!existsBlog)
         throw new RepositoryNotFoundError(`Blog with id=${id} does not exist`);
 
       return true;

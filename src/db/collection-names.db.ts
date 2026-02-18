@@ -1,6 +1,6 @@
-export const AUTH_LOGIN_COLLECTION_NAME = "auth-login-sessions";
-export const BLOG_COLLECTION_NAME = "blogs";
-export const POST_COLLECTION_NAME = "posts";
-export const USERS_COLLECTION_NAME = "users";
-export const POST_COMMENTS_COLLECTION_NAME = "post-comments";
+export const AUTH_LOGIN_COLLECTION_NAME = "auth-login-session";
+export const BLOG_COLLECTION_NAME = "blog";
+export const POST_COLLECTION_NAME = "post";
+export const USERS_COLLECTION_NAME = "user";
+export const POST_COMMENTS_COLLECTION_NAME = "post-comment";
 export const CUSTOM_RATE_LIMIT_COLLECTION_NAME = "custom-rate-limit";

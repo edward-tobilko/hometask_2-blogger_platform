@@ -1,16 +1,18 @@
-import { ObjectId } from "mongodb";
-
-import { PostCommentDomain } from "posts/domain/post-comment.domain";
-import { PostDomain } from "posts/domain/post.domain";
+import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
+import {
+  PostCommentsDb,
+  PostCommentsDocument,
+} from "posts/mongoose/post-comments.schema";
+import { PostDb, PostDocument } from "posts/mongoose/post.schema";
 
 export interface IPostsRepository {
-  getPostDomainById(postId: string): Promise<PostDomain | null>;
+  createPost(newPost: PostDb): Promise<PostDocument>;
 
-  createPost(newPost: PostDomain): Promise<PostDomain>;
+  createPostComment(
+    newPostComment: PostCommentsDb
+  ): Promise<PostCommentsDocument>;
 
-  createPostComment(newPostComment: PostCommentDomain): Promise<ObjectId>;
-
-  updatePost(postDomain: PostDomain): Promise<PostDomain>;
+  updatePost(dto: UpdatePostDtoCommand): Promise<boolean | "BLOG_MISMATCH">;
 
   deletePost(id: string): Promise<boolean>;
 }

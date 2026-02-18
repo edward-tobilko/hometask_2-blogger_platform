@@ -1,81 +1,81 @@
-import { ObjectId } from "mongodb";
 import { injectable } from "inversify";
+import { Types } from "mongoose";
 
-import { postCommentsCollection, postCollection } from "../../db/mongo.db";
-import { PostDomain } from "../domain/post.domain";
-import { RepositoryNotFoundError } from "../../core/errors/application.error";
-import { PostCommentDomain } from "../domain/post-comment.domain";
-import { PostCommentDB } from "../../db/types.db";
 import { IPostsRepository } from "posts/interfaces/IPostsRepository";
+import { PostDb, PostDocument, PostModel } from "posts/mongoose/post.schema";
+import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
+import {
+  PostCommentsDb,
+  PostCommentsDocument,
+  PostCommentsModel,
+} from "posts/mongoose/post-comments.schema";
 
 @injectable()
 export class PostsRepository implements IPostsRepository {
-  async getPostDomainById(postId: string): Promise<PostDomain | null> {
-    const result = await postCollection.findOne({ _id: new ObjectId(postId) });
+  async createPost(newPost: PostDb): Promise<PostDocument> {
+    const postInstanceDoc = new PostModel(newPost);
 
-    if (!result) return null;
+    await postInstanceDoc.save();
 
-    return PostDomain.reconstitute({
-      ...result,
-      blogId: result.blogId,
-      blogName: result.blogName,
-      createdAt: result.createdAt,
-    });
-  }
-
-  async createPost(newPost: PostDomain): Promise<PostDomain> {
-    const insertResult = await postCollection.insertOne(newPost);
-
-    newPost._id = insertResult.insertedId;
-
-    return newPost;
+    return postInstanceDoc;
   }
 
   async createPostComment(
-    newPostComment: PostCommentDomain
-  ): Promise<ObjectId> {
-    const dbDocument: PostCommentDB = {
-      _id: new ObjectId(),
-      postId: newPostComment.postId,
+    newPostComment: PostCommentsDb
+  ): Promise<PostCommentsDocument> {
+    const postCommentInstance = new PostCommentsModel({
       content: newPostComment.content,
       commentatorInfo: newPostComment.commentatorInfo,
-      createdAt: newPostComment.createdAt,
-    };
+      // createdAt: newPostComment.createdAt,
 
-    const createResult = await postCommentsCollection.insertOne(dbDocument);
+      postId: newPostComment.postId,
+    });
 
-    return createResult.insertedId;
+    await postCommentInstance.save();
+
+    return postCommentInstance;
   }
 
-  async updatePost(postDomain: PostDomain): Promise<PostDomain> {
-    if (!postDomain._id) {
-      throw new RepositoryNotFoundError(
-        "Post ID is not provided for update",
-        "postId"
-      );
+  async updatePost(
+    dto: UpdatePostDtoCommand
+  ): Promise<boolean | "BLOG_MISMATCH"> {
+    if (!Types.ObjectId.isValid(dto.id)) return false;
+    if (!Types.ObjectId.isValid(dto.blogId)) return false;
+
+    // * Обновляем только если blogId совпадает
+    const updatedResult = await PostModel.updateOne(
+      { _id: dto.id, blogId: new Types.ObjectId(dto.blogId) },
+      {
+        $set: {
+          title: dto.title,
+          shortDescription: dto.shortDescription,
+          content: dto.content,
+        },
+      }
+    ).exec();
+
+    // * Если post не обновлен
+    if (updatedResult.matchedCount === 0) {
+      // * Дополнительная проверка: существует ли post
+      const postExists = await PostModel.exists({ _id: dto.id }).exec();
+
+      // * Если post существует, значит blogId не совпадает
+      if (postExists) return "BLOG_MISMATCH";
+
+      // * Если поста нет - false
+      return false;
     }
-    const { _id, ...dtoToUpdate } = postDomain;
 
-    const updateResult = await postCollection.updateOne(
-      { _id },
-      { $set: dtoToUpdate }
-    );
-
-    if (updateResult.matchedCount < 1) {
-      throw new RepositoryNotFoundError(
-        "Post is not found in this blog",
-        "postId"
-      );
-    }
-
-    return postDomain;
+    return true;
   }
 
   async deletePost(id: string): Promise<boolean> {
-    const deleteResult = await postCollection.deleteOne({
-      _id: new ObjectId(id),
+    if (!Types.ObjectId.isValid(id)) return false;
+
+    const deletedResult = await PostModel.deleteOne({
+      _id: id,
     });
 
-    return deleteResult.deletedCount === 1;
+    return deletedResult.deletedCount === 1;
   }
 }

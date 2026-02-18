@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+import {
+  BLOG_COLLECTION_NAME,
+  POST_COLLECTION_NAME,
+} from "db/collection-names.db";
+
 export type PostDb = {
   title: string;
   shortDescription: string;
@@ -9,6 +14,7 @@ export type PostDb = {
 };
 
 export type PostLean = PostDb & { _id: mongoose.Types.ObjectId };
+
 export type PostDocument = mongoose.HydratedDocument<PostDb>;
 
 const PostSchema = new mongoose.Schema<PostDb>(
@@ -28,7 +34,11 @@ const PostSchema = new mongoose.Schema<PostDb>(
       required: true,
       maxLength: [1000, "content must not exceed 1000 characters"],
     },
-    blogId: { type: mongoose.Types.ObjectId, required: true, ref: "blog" },
+    blogId: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      ref: BLOG_COLLECTION_NAME,
+    },
     blogName: {
       type: String,
       required: true,
@@ -41,4 +51,7 @@ const PostSchema = new mongoose.Schema<PostDb>(
   }
 );
 
-export const PostModel = mongoose.model<PostDb>("post", PostSchema);
+export const PostModel = mongoose.model<PostDb>(
+  POST_COLLECTION_NAME,
+  PostSchema
+);

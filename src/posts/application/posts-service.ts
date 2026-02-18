@@ -1,10 +1,8 @@
 import { inject, injectable } from "inversify";
-import { ObjectId } from "mongodb";
+import { Types as MongooseTypes } from "mongoose";
 
-import { PostDomain } from "../domain/post.domain";
 import { WithMeta } from "../../core/types/with-meta.type";
 import { ApplicationResult } from "../../core/result/application.result";
-import { CreatePostDtoDomain } from "../domain/create-post-dto.domain";
 import { PostOutput } from "./output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import {
@@ -16,7 +14,6 @@ import { CreatePostDtoCommand } from "./commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "./commands/update-post-dto.command";
 import { CreateCommentForPostDtoCommand } from "./commands/create-comment-for-post-dto.command";
 import { IPostCommentOutput } from "./output/post-comment.output";
-import { PostCommentDomain } from "../domain/post-comment.domain";
 import { IPostsService } from "posts/interfaces/IPostsService";
 import { Types } from "@core/di/types";
 import { IPostsRepository } from "posts/interfaces/IPostsRepository";
@@ -45,15 +42,21 @@ export class PostsService implements IPostsService {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
-    const domainDto: CreatePostDtoDomain = {
-      ...dto,
-      blogId: dto.blogId.toString(),
+    // const domainDto: CreatePostDtoDomain = {
+    //   ...dto,
+    //   blogId: dto.blogId.toString(),
+    //   blogName: blog.name,
+    // };
+
+    // const newPost = PostDomain.createPost(domainDto);
+
+    const savedPost = await this.postsRepository.createPost({
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId: new MongooseTypes.ObjectId(dto.blogId),
       blogName: blog.name,
-    };
-
-    const newPost = PostDomain.createPost(domainDto);
-
-    const savedPost = await this.postsRepository.createPost(newPost);
+    });
 
     if (!savedPost._id)
       throw new RepositoryNotFoundError(
@@ -65,12 +68,14 @@ export class PostsService implements IPostsService {
 
       data: {
         id: savedPost._id?.toString(),
+
         title: savedPost.title,
         shortDescription: savedPost.shortDescription,
         content: savedPost.content,
+
         blogId: blog.id.toString(),
         blogName: blog.name,
-        createdAt: savedPost.createdAt.toISOString(),
+        // createdAt: savedPost.createdAt.toISOString(),
       },
 
       extensions: [],
@@ -82,9 +87,9 @@ export class PostsService implements IPostsService {
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
     const { postId, content, userId, userLogin } = command.payload;
 
-    const isPostExists = await this.postsQueryRepository.getPostById(postId);
+    const existingPost = await this.postsQueryRepository.getPostById(postId);
 
-    if (!isPostExists) {
+    if (!existingPost) {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
@@ -92,39 +97,45 @@ export class PostsService implements IPostsService {
       });
     }
 
-    const newPostComment = PostCommentDomain.createCommentForPost({
-      postId: new ObjectId(postId),
+    // const newPostComment = PostCommentDomain.createCommentForPost({
+    //   postId: new MongooseTypes.ObjectId(postId),
+    //   content,
+
+    //   commentatorInfo: {
+    //     userId: new MongooseTypes.ObjectId(userId),
+    //     userLogin,
+    //   },
+    // });
+
+    const createdComment = await this.postsRepository.createPostComment({
       content,
 
       commentatorInfo: {
-        userId: new ObjectId(userId),
+        userId: new MongooseTypes.ObjectId(userId),
         userLogin,
       },
+
+      postId: new MongooseTypes.ObjectId(postId),
     });
 
-    const insertedId =
-      await this.postsRepository.createPostComment(newPostComment);
-
-    newPostComment._id = insertedId;
-
-    if (!insertedId.id)
+    if (!createdComment._id)
       throw new RepositoryNotFoundError(
-        `Comment was not saved correctly: ${insertedId.id} is missing`
+        `Comment was not saved correctly: ${createdComment._id} is missing`
       );
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
 
       data: {
-        id: newPostComment._id!.toString(),
-        content: newPostComment.content,
+        id: createdComment._id!.toString(),
+        content,
 
         commentatorInfo: {
-          userId: newPostComment.commentatorInfo.userId.toString(),
-          userLogin: newPostComment.commentatorInfo.userLogin,
+          userId: createdComment.commentatorInfo.userId.toString(),
+          userLogin: createdComment.commentatorInfo.userLogin,
         },
 
-        createdAt: newPostComment.createdAt.toISOString(),
+        // createdAt: newPostComment.createdAt.toISOString(),
       },
 
       extensions: [],
@@ -135,33 +146,49 @@ export class PostsService implements IPostsService {
   async updatePost(
     command: WithMeta<UpdatePostDtoCommand>
   ): Promise<ApplicationResult<null>> {
-    const { id, ...updateDto } = command.payload;
+    // const existingPost = await this.postsRepository.getPostDomainById(id);
 
-    const existingPost = await this.postsRepository.getPostDomainById(id);
+    // if (!existingPost) {
+    //   return new ApplicationResult({
+    //     status: ApplicationResultStatus.NotFound,
+    //     data: null,
+    //     extensions: [new ApplicationError("Post does not exist!", "postId")],
+    //   });
+    // }
 
-    if (!existingPost) {
+    // if (existingPost.blogId.toString() !== updateDto.blogId) {
+    //   return new ApplicationResult({
+    //     status: ApplicationResultStatus.NotFound,
+    //     data: null,
+    //     extensions: [
+    //       new ApplicationError("Post does not exist in this blog!", "postId"),
+    //     ],
+    //   });
+    // }
+
+    // * обновляем доменную сущность
+    // existingPost.updatePost(updateDto);
+
+    // * сохраняем изменения
+    const updatedPost = await this.postsRepository.updatePost(command.payload);
+
+    if (!updatedPost) {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [new ApplicationError("Post does not exist!", "postId")],
+        extensions: [new ApplicationError("Post is not found", "postId")],
       });
     }
 
-    if (existingPost.blogId.toString() !== updateDto.blogId) {
+    if (updatedPost === "BLOG_MISMATCH") {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
         extensions: [
-          new ApplicationError("Post does not exist in this blog!", "postId"),
+          new ApplicationError("Post does not belong to this blog", "blogId"),
         ],
       });
     }
-
-    // обновляем доменную сущность
-    existingPost.updatePost(updateDto);
-
-    // сохраняем изменения
-    await this.postsRepository.updatePost(existingPost);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

@@ -8,13 +8,8 @@ import {
   BlogDocument,
   BlogModel,
 } from "blogs/mongoose/blog-schema.mongoose";
-import {
-  PostDb,
-  PostDocument,
-  PostModel,
-} from "posts/mongoose/post-schema.mongoose";
+import { PostDb, PostDocument, PostModel } from "posts/mongoose/post.schema";
 import { UpdateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
-import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 
 @injectable()
 export class BlogsRepository implements IBlogsRepository {
@@ -41,7 +36,7 @@ export class BlogsRepository implements IBlogsRepository {
           websiteUrl: dto.websiteUrl,
         },
       },
-      { new: true } // * для получения оновленого блога, без "new" вернется старый объект.
+      { new: true } // * для получения обновленого блога, без "new" вернется старый объект.
     ).exec(); // * так как почти все методы find... возвр. query object, а не promise, нам нужно доставлять .exec() - который в свою очередь возвр. promise и лучшую типизацию.
 
     if (!updatedRes) {
@@ -57,31 +52,6 @@ export class BlogsRepository implements IBlogsRepository {
     await postDocument.save();
 
     return postDocument;
-  }
-
-  async updatePostForBlog(
-    newPostForBlog: UpdatePostDtoCommand
-  ): Promise<PostDocument> {
-    const updatedRes = await PostModel.findByIdAndUpdate(
-      newPostForBlog.id,
-      {
-        $set: {
-          title: newPostForBlog.title,
-          shortDescription: newPostForBlog.shortDescription,
-          content: newPostForBlog.content,
-        },
-      },
-      { new: true }
-    ).exec();
-
-    if (!updatedRes) {
-      throw new RepositoryNotFoundError(
-        "Post for blog does't exist!",
-        "postForBlogId"
-      );
-    }
-
-    return updatedRes;
   }
 
   async deleteBlogById(id: string): Promise<void> {

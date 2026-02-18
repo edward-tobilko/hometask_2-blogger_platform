@@ -9,7 +9,14 @@ export class ApplicationError extends Error {
     this.field = field;
     this.statusCode = statusCode;
 
-    this.name = this.constructor.name; // только для логов
+    this.name = "ApplicationError";
+  }
+
+  toJSON() {
+    return {
+      message: this.message,
+      field: this.field,
+    };
   }
 }
 

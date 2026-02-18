@@ -12,7 +12,7 @@ import { GetPostsListQueryHandler } from "../../posts/application/query-handlers
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 import { BlogLean, BlogModel } from "blogs/mongoose/blog-schema.mongoose";
-import { PostLean, PostModel } from "posts/mongoose/post-schema.mongoose";
+import { PostLean, PostModel } from "posts/mongoose/post.schema";
 
 @injectable()
 export class BlogsQueryRepository implements IBlogsQueryRepository {
@@ -60,16 +60,10 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
     return blogsListOutput;
   }
 
-  async findBlogById(blogId: string): Promise<BlogOutput> {
-    const blog = await BlogModel.findOne({ _id: new Types.ObjectId(blogId) })
-      .lean<BlogLean>()
-      .exec();
+  async findBlogById(blogId: string): Promise<BlogOutput | null> {
+    const blog = await BlogModel.findById(blogId).lean<BlogLean>().exec();
 
-    if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!");
-    }
-
-    return mapToBlogOutput(blog);
+    return blog ? mapToBlogOutput(blog) : null;
   }
 
   async findAllPostsForBlog(

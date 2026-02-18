@@ -1,6 +1,6 @@
 import { PostOutput } from "../output/post-type.output";
 import { PostsListPaginatedOutput } from "../output/posts-list-type.output";
-import { PostLean } from "posts/mongoose/post-schema.mongoose";
+import { PostLean } from "posts/mongoose/post.schema";
 
 export function mapToPostListOutput(
   postsDb: PostLean[],

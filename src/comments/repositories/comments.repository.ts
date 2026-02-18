@@ -1,7 +1,6 @@
 import { ObjectId } from "mongodb";
 import { injectable } from "inversify";
 
-import { postCommentsCollection } from "../../db/mongo.db";
 import { PostCommentDomain } from "../../posts/domain/post-comment.domain";
 import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
 

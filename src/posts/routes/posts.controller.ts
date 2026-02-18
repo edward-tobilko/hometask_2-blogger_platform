@@ -78,6 +78,8 @@ export class PostsController {
 
       res.status(HTTP_STATUS_CODES.OK_200).json(post);
     } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
       errorsHandler(error, req, res);
     }
   };
@@ -118,6 +120,8 @@ export class PostsController {
 
       res.status(HTTP_STATUS_CODES.OK_200).json(postCommentsListOutput.data);
     } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
       errorsHandler(error, req, res);
     }
   };
@@ -141,6 +145,8 @@ export class PostsController {
 
       res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
     } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
       res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
 
       next(error);
@@ -206,6 +212,8 @@ export class PostsController {
 
       res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
       errorsHandler(error, req, res);
     }
   };
@@ -235,6 +243,8 @@ export class PostsController {
 
       res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
       errorsHandler(error, req, res);
     }
   };

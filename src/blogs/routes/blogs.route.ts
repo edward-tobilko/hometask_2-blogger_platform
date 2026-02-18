@@ -60,7 +60,7 @@ export const createBlogsRouter = (blogsController: BlogsController) => {
     blogsController.createBlogHandler.bind(blogsController)
   );
 
-  // * POST: Create noe post for specific blog
+  // * POST: Create new post for specific blog
   blogsRoute.post(
     "/:id/posts",
     baseAuthGuard,

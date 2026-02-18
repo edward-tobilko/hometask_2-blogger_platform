@@ -7,5 +7,5 @@ export interface IPostCommentOutput {
     userLogin: string;
   };
 
-  createdAt: string;
+  // createdAt: string;
 }

@@ -1,4 +1,5 @@
 import { inject, injectable } from "inversify";
+import { Types as MongooseTypes } from "mongoose";
 
 import { WithMeta } from "../../core/types/with-meta.type";
 import {
@@ -7,8 +8,8 @@ import {
 } from "./commands/blog-dto-type.commands";
 import { ApplicationResult } from "../../core/result/application.result";
 import { BlogDomain } from "../domain/blog.domain";
-import { PostDomain } from "../../posts/domain/post.domain";
-import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
+// import { PostDomain } from "../../posts/domain/post.domain";
+// import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
 import { PostOutput } from "../../posts/application/output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
@@ -50,34 +51,42 @@ export class BlogsService implements IBlogsService {
   async createPostForBlog(
     command: WithMeta<CreatePostForBlogDtoCommand>
   ): Promise<ApplicationResult<PostOutput>> {
+    const { blogId, title, shortDescription, content } = command.payload;
+
     // * find blog
-    const blog = await this.blogsQueryRepository.findBlogById(
-      command.payload.blogId
-    );
+    const blog = await this.blogsQueryRepository.findBlogById(blogId);
 
     if (!blog) {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
 
     // * add blogName to domain dto
-    const domainDto: CreatePostDtoDomain = {
-      ...command.payload,
+    // const domainDto: CreatePostDtoDomain = {
+    //   ...command.payload,
 
-      blogName: blog.name,
-    };
+    //   blogName: blog.name,
+    // };
 
     // * create domain
-    const newPost = PostDomain.createPost(domainDto);
+    // const newPost = PostDomain.createPost(domainDto);
 
     // * save
-    const createdPostForBlog =
-      await this.blogsRepository.savePostForBlog(newPost);
+    const createdPostForBlog = await this.blogsRepository.savePostForBlog({
+      title,
+      shortDescription,
+      content,
+
+      blogId: new MongooseTypes.ObjectId(blogId),
+      blogName: blog.name,
+    });
 
     const postViewModel: PostOutput = {
-      id: createdPostForBlog._id!.toString(),
+      id: createdPostForBlog._id.toString(),
+
       title: createdPostForBlog.title,
       shortDescription: createdPostForBlog.shortDescription,
       content: createdPostForBlog.content,
+
       blogId: createdPostForBlog.blogId.toString(),
       blogName: createdPostForBlog.blogName,
       // createdAt: createdPostForBlog.createdAt.toISOString(),
