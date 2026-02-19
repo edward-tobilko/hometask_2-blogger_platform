@@ -1,16 +1,17 @@
-import { PostCommentDB } from "../../../db/types.db";
+import { PostCommentsLean } from "posts/mongoose/post-comments.schema";
 import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
 
 export const mapToCommentOutput = (
-  commentDomain: PostCommentDB
+  commentDomain: PostCommentsLean
 ): IPostCommentOutput => {
   return {
-    id: commentDomain._id!.toString(),
+    id: commentDomain._id.toString(),
     content: commentDomain.content,
+
     commentatorInfo: {
       userId: commentDomain.commentatorInfo.userId.toString(),
       userLogin: commentDomain.commentatorInfo.userLogin,
     },
-    createdAt: commentDomain.createdAt.toISOString(),
+    // createdAt: commentDomain.createdAt.toISOString(),
   };
 };

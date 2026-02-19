@@ -1,3 +1,4 @@
+import { BLOG_COLLECTION_NAME } from "db/collection-names.db";
 import mongoose from "mongoose";
 
 export type BlogDb = {
@@ -37,4 +38,7 @@ const BlogSchema = new mongoose.Schema<BlogDb>(
   }
 );
 
-export const BlogModel = mongoose.model<BlogDb>("blog", BlogSchema);
+export const BlogModel = mongoose.model<BlogDb>(
+  BLOG_COLLECTION_NAME,
+  BlogSchema
+);

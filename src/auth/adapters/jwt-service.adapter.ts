@@ -28,6 +28,8 @@ export class JWTService implements IJWTService {
 
   async verifyAccessToken(token: string): Promise<IJWTAccessPayload | null> {
     try {
+      console.log("ACCESS_SECRET exists:", !!process.env.JWT_ACCESS_SECRET);
+
       const result = jwt.verify(token, AT_SECRET) as IJWTAccessPayload;
 
       return {

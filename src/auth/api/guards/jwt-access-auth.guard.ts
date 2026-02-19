@@ -7,6 +7,8 @@ import { IJWTService } from "auth/interfaces/IJWTService";
 export function jwtAccessAuthGuard(jwtService: IJWTService) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
+      console.log("AUTH HEADER:", req.headers.authorization);
+
       const auth = req.headers["authorization"] as string;
 
       if (!auth) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
@@ -18,6 +20,8 @@ export function jwtAccessAuthGuard(jwtService: IJWTService) {
 
       // * closer
       const payload = await jwtService.verifyAccessToken(token);
+
+      console.log("PAYLOAD:", payload);
 
       if (!payload?.userId) {
         return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);

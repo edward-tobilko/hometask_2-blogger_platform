@@ -13,6 +13,7 @@ import { Types } from "@core/di/types";
 import { ICommentsService } from "comments/interfaces/ICommentsService";
 import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
 import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 @injectable()
 export class CommentsService implements ICommentsService {
@@ -47,7 +48,11 @@ export class CommentsService implements ICommentsService {
     const dto = command.payload;
 
     // * ищем нужный нам коммент
-    const existingComment = await this.commentsRepo.getCommentDomainById(
+    // const existingComment = await this.commentsRepo.getCommentDomainById(
+    //   dto.commentId
+    // );
+
+    const existingComment = await this.commentsQueryRepo.getCommentsListById(
       dto.commentId
     );
 
@@ -59,7 +64,7 @@ export class CommentsService implements ICommentsService {
       });
     }
 
-    if (existingComment.commentatorInfo.userId.toString() !== userId) {
+    if (existingComment.commentatorInfo.userId !== userId) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Forbidden,
         data: null,
@@ -72,13 +77,39 @@ export class CommentsService implements ICommentsService {
     // * обновляем доменную сущность
     existingComment.content = dto.content;
 
-    const updated = await this.commentsRepo.updateCommentById(existingComment);
+    const updated = await this.commentsRepo.updateCommentById({
+      commentId: dto.commentId,
+      content: dto.content,
+    });
 
     if (!updated) {
       return new ApplicationResult({
         status: ApplicationResultStatus.InternalServerError,
         data: null,
         extensions: [new InternalServerError("Failed to update comment")],
+      });
+    }
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.NoContent,
+      data: null,
+      extensions: [],
+    });
+  }
+
+  async updateCommentLikeStatusById(dto: {
+    likeStatus: LikeStatus;
+    commentId: string;
+    userId: string;
+  }): Promise<ApplicationResult<null>> {
+    // * Обновляем статус в репозитории
+    const success = await this.commentsRepo.updateCommentLikeStatusById(dto);
+
+    if (!success) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new NotFoundError("comment is not found", "commentId")],
       });
     }
 

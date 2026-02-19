@@ -1,3 +1,4 @@
+import { AUTH_LOGIN_COLLECTION_NAME } from "db/collection-names.db";
 import {
   HydratedDocument,
   Schema,
@@ -65,7 +66,10 @@ const SessionSchema = new Schema<SessionDb>(
   }
 );
 
-export const SessionModel = model<SessionDb>("login-session", SessionSchema);
+export const SessionModel = model<SessionDb>(
+  AUTH_LOGIN_COLLECTION_NAME,
+  SessionSchema
+);
 
 // * TTL что бы «протухшие» сессии убирались автоматически
 SessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });

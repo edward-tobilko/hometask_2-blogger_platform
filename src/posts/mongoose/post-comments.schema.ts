@@ -9,6 +9,8 @@ import {
 export type PostCommentsDb = {
   content: string;
 
+  postId: mongoose.Types.ObjectId;
+
   commentatorInfo: {
     userId: mongoose.Types.ObjectId;
     userLogin: string;
@@ -16,7 +18,11 @@ export type PostCommentsDb = {
 
   // createdAt: Date;
 
-  postId: mongoose.Types.ObjectId;
+  likesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    // myStatus: "None";
+  };
 };
 
 export type PostCommentsLean = PostCommentsDb & {
@@ -33,11 +39,13 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
       minLength: [20, "content must be min 20 length symbols"],
       maxLength: [300, "title must not exceed 30 characters"],
     },
+
     postId: {
       type: mongoose.Types.ObjectId,
       required: true,
       ref: POST_COLLECTION_NAME,
     },
+
     commentatorInfo: {
       userId: {
         type: mongoose.Types.ObjectId,
@@ -46,7 +54,21 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
       },
       userLogin: { type: String, required: true },
     },
+
+    likesInfo: {
+      likesCount: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      dislikesCount: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+    },
   },
+
   {
     timestamps: true,
     versionKey: false,
