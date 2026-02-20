@@ -25,7 +25,7 @@ export class CommentsService implements ICommentsService {
   ) {}
 
   async deleteCommentById(commentId: string, userId: string): Promise<void> {
-    const comment = await this.commentsQueryRepo.getCommentsListById(commentId);
+    const comment = await this.commentsQueryRepo.getCommentById(commentId);
 
     if (!comment) throw new NotFoundError("Comment is not found", "commentId"); // 404
 
@@ -52,7 +52,7 @@ export class CommentsService implements ICommentsService {
     //   dto.commentId
     // );
 
-    const existingComment = await this.commentsQueryRepo.getCommentsListById(
+    const existingComment = await this.commentsQueryRepo.getCommentById(
       dto.commentId
     );
 

@@ -21,12 +21,17 @@ export class CommentsController {
     @inject(Types.ICommentsService) private commentsService: CommentsService
   ) {}
 
-  async getCommentsHandler(req: Request<{ id: string }>, res: Response) {
+  async getCommentByIdHandler(req: Request<{ id: string }>, res: Response) {
     try {
       const commentId = req.params.id;
 
-      const commentOutput =
-        await this.commentsQueryService.getCommentsListById(commentId);
+      // * Если jwtAuthGuard прошел → userId уже есть
+      const currentUserId = req.user?.id;
+
+      const commentOutput = await this.commentsQueryService.getCommentById(
+        commentId,
+        currentUserId // * Передаем userId для вычисления myStatus
+      );
 
       if (!commentOutput.isSuccess()) {
         return res

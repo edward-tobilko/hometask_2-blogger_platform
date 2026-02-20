@@ -4,19 +4,47 @@ import { Types } from "mongoose";
 import { mapToCommentOutput } from "../application/mappers/map-to-comment-output.mapper";
 import { IPostCommentOutput } from "../../posts/application/output/post-comment.output";
 import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
-import { PostCommentsModel } from "posts/mongoose/post-comments.schema";
+import {
+  PostCommentsLean,
+  PostCommentsModel,
+} from "posts/mongoose/post-comments.schema";
+import { LikeStatus } from "@core/types/like-status.enum";
+import {
+  CommentLikeLean,
+  CommentLikeModel,
+} from "comments/mongoose/comment-likes.schema";
 
 @injectable()
 export class CommentsQueryRepo implements ICommentsQueryRepo {
-  async getCommentsListById(
-    commentId: string
+  async getCommentById(
+    commentId: string,
+    currentUserId?: string // * Опционально - для неавторизованных пользователей
   ): Promise<IPostCommentOutput | null> {
-    const comment = await PostCommentsModel.findOne({
-      _id: new Types.ObjectId(commentId),
-    });
+    if (!Types.ObjectId.isValid(commentId)) return null;
+
+    // * Получаем коммент
+    const comment = await PostCommentsModel.findById(commentId)
+      .lean<PostCommentsLean>()
+      .exec();
 
     if (!comment) return null;
 
-    return mapToCommentOutput(comment);
+    // * Получаем myStatus для текущего пользователя
+    let myStatus = LikeStatus.None;
+
+    if (currentUserId && Types.ObjectId.isValid(currentUserId)) {
+      const currentUserLike = await CommentLikeModel.findOne({
+        commentId: new Types.ObjectId(commentId),
+        userId: new Types.ObjectId(currentUserId),
+      })
+        .lean<CommentLikeLean>()
+        .exec();
+
+      if (currentUserLike) {
+        myStatus = currentUserLike.status;
+      }
+    }
+
+    return mapToCommentOutput(comment, myStatus);
   }
 }

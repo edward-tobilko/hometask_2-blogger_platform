@@ -13,6 +13,7 @@ export interface IPostsQueryService {
   getPostById(postId: string): Promise<PostOutput | null>;
 
   getPostCommentsList(
-    queryParam: GetPostCommentsListQueryHandler
+    queryParam: GetPostCommentsListQueryHandler,
+    currentUserId?: string
   ): Promise<ApplicationResult<PostCommentsListPaginatedOutput | null>>;
 }

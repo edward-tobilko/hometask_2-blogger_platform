@@ -21,7 +21,6 @@ export type PostCommentsDb = {
   likesInfo: {
     likesCount: number;
     dislikesCount: number;
-    // myStatus: "None";
   };
 };
 

@@ -15,6 +15,10 @@ import {
   PostCommentsLean,
   PostCommentsModel,
 } from "posts/mongoose/post-comments.schema";
+import {
+  CommentLikeLean,
+  CommentLikeModel,
+} from "comments/mongoose/comment-likes.schema";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepository {
@@ -48,7 +52,8 @@ export class PostsQueryRepository implements IPostsQueryRepository {
   }
 
   async getPostCommentsList(
-    queryParam: GetPostCommentsListQueryHandler
+    queryParam: GetPostCommentsListQueryHandler,
+    currentUserId?: string // * Опционально - для неавторизованных пользователей
   ): Promise<PostCommentsListPaginatedOutput | null> {
     const { pageNumber, pageSize, sortBy, sortDirection, postId } = queryParam;
 
@@ -60,29 +65,50 @@ export class PostsQueryRepository implements IPostsQueryRepository {
 
     const filter = { postId: new MongooseTypes.ObjectId(postId) };
 
-    const post = await PostModel.findOne({
-      _id: new MongooseTypes.ObjectId(postId),
-    }).exec();
+    // * Параллельно получаем post, comments и их кол-во
+    const [post, postComments, totalCount] = await Promise.all([
+      PostModel.findOne({
+        _id: new MongooseTypes.ObjectId(postId),
+      })
+        .lean<PostLean>()
+        .exec(),
+
+      PostCommentsModel.find(filter)
+        .sort({ [sortBy]: sortDirection })
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize)
+        .lean<PostCommentsLean[]>()
+        .exec(),
+
+      PostCommentsModel.countDocuments(filter).exec(),
+    ]);
 
     if (!post) return null;
 
-    const items = PostCommentsModel.find(filter)
-      .sort({ [sortBy]: sortDirection })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .lean<PostCommentsLean[]>()
-      .exec();
+    let likes: CommentLikeLean[] | null = null;
 
-    const [postComments, totalCount] = await Promise.all([
-      items,
-      PostCommentsModel.countDocuments(filter),
-    ]);
+    // * Получаем myStatus для ВСЕХ комментариев одним запросом
+    if (currentUserId && MongooseTypes.ObjectId.isValid(currentUserId)) {
+      const commentIds = postComments.map((comment) => comment._id);
 
-    const postCommentsOutput = mapToPostCommentsListOutput(postComments, {
-      page: pageNumber,
-      pageSize,
-      totalCount,
-    });
+      likes = await CommentLikeModel.find({
+        commentId: { $in: commentIds },
+        userId: new MongooseTypes.ObjectId(currentUserId),
+      })
+        .lean<CommentLikeLean[]>()
+        .exec();
+    }
+
+    const postCommentsOutput = mapToPostCommentsListOutput(
+      postComments,
+      likes,
+
+      {
+        page: pageNumber,
+        pageSize,
+        totalCount,
+      }
+    );
 
     return postCommentsOutput;
   }

@@ -1,9 +1,7 @@
-import { WithId } from "mongodb";
-
+import { PostDocument } from "posts/mongoose/post.schema";
 import { PostOutput } from "../output/post-type.output";
-import { PostDB } from "../../../db/types.db";
 
-export function mapToPostOutput(post: WithId<PostDB>): PostOutput {
+export function mapToPostOutput(post: PostDocument): PostOutput {
   return {
     id: post._id.toString(),
     title: post.title,
@@ -11,6 +9,6 @@ export function mapToPostOutput(post: WithId<PostDB>): PostOutput {
     content: post.content,
     blogId: post.blogId.toString(),
     blogName: post.blogName,
-    createdAt: post.createdAt.toISOString(),
+    // createdAt: post.createdAt.toISOString(),
   };
 }

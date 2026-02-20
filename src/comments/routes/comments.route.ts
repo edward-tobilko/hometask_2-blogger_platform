@@ -10,6 +10,7 @@ import { updateCommentContentRPValidation } from "./request-payload-validations/
 import { CommentsController } from "comments/routes/comments.controller";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { updateCommentLikeStatusRPValidation } from "./request-payload-validations/update-comment-likeStatus.rpv";
+import { optionalAuthMiddleware } from "auth/middlewares/optional-auth.middleware";
 
 export const createCommentsRouter = (
   commentsController: CommentsController,
@@ -20,10 +21,11 @@ export const createCommentsRouter = (
   // * GET: Return comment by id
   commentsRoute.get(
     "/:id",
+    optionalAuthMiddleware(jwtService),
     paramIdValidation,
     inputResultMiddlewareValidation,
 
-    commentsController.getCommentsHandler.bind(commentsController)
+    commentsController.getCommentByIdHandler.bind(commentsController)
   );
 
   // * PUT: Make like / unlike / dislike / undislike operation

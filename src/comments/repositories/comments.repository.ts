@@ -3,7 +3,10 @@ import { Types } from "mongoose";
 
 // import { PostCommentDomain } from "../../posts/domain/post-comment.domain";
 import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
-import { PostCommentsModel } from "posts/mongoose/post-comments.schema";
+import {
+  PostCommentsLean,
+  PostCommentsModel,
+} from "posts/mongoose/post-comments.schema";
 import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 import { LikeStatus } from "@core/types/like-status.enum";
 import {
@@ -63,7 +66,7 @@ export class CommentsRepository implements ICommentsRepository {
     const existingComment = await PostCommentsModel.findById(
       new Types.ObjectId(dto.commentId)
     )
-      .lean<CommentLikeLean>()
+      .lean<PostCommentsLean>()
       .exec();
 
     if (!existingComment) return false;

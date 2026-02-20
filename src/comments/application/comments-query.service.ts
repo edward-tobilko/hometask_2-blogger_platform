@@ -15,10 +15,14 @@ export class CommentsQueryService implements ICommentsQueryService {
     private commentsQueryRepo: ICommentsQueryRepo
   ) {}
 
-  async getCommentsListById(
-    commentId: string
+  async getCommentById(
+    commentId: string,
+    currentUserId?: string
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
-    const comment = await this.commentsQueryRepo.getCommentsListById(commentId);
+    const comment = await this.commentsQueryRepo.getCommentById(
+      commentId,
+      currentUserId
+    );
 
     if (!comment) {
       return new ApplicationResult({
