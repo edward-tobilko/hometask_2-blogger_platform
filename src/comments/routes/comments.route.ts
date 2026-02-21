@@ -10,7 +10,7 @@ import { updateCommentContentRPValidation } from "./request-payload-validations/
 import { CommentsController } from "comments/routes/comments.controller";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { updateCommentLikeStatusRPValidation } from "./request-payload-validations/update-comment-likeStatus.rpv";
-import { optionalAuthMiddleware } from "auth/middlewares/optional-auth.middleware";
+import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
 
 export const createCommentsRouter = (
   commentsController: CommentsController,
@@ -21,9 +21,9 @@ export const createCommentsRouter = (
   // * GET: Return comment by id
   commentsRoute.get(
     "/:id",
-    optionalAuthMiddleware(jwtService),
     paramIdValidation,
     inputResultMiddlewareValidation,
+    optionalJwtAccessGuard(jwtService), // * Получаем токен для передачи userId для вычисления динамического myStatus
 
     commentsController.getCommentByIdHandler.bind(commentsController)
   );

@@ -30,6 +30,22 @@ export type PostCommentsLean = PostCommentsDb & {
 
 export type PostCommentsDocument = mongoose.HydratedDocument<PostCommentsDb>;
 
+const LikesInfoSchema = new mongoose.Schema(
+  {
+    likesCount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    dislikesCount: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+  },
+  { _id: false } // что бы не создавало id для вложенного объекта likesInfo в mongo
+);
+
 const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
   {
     content: {
@@ -55,16 +71,10 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
     },
 
     likesInfo: {
-      likesCount: {
-        type: Number,
-        required: true,
-        default: 0,
-      },
-      dislikesCount: {
-        type: Number,
-        required: true,
-        default: 0,
-      },
+      type: LikesInfoSchema,
+      required: true,
+
+      default: () => ({ likesCount: 0, dislikesCount: 0 }), // * что бы не прокидывать likesInfo при создании post comments (автоматически появиться).
     },
   },
 

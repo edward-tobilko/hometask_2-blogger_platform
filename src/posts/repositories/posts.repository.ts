@@ -5,7 +5,6 @@ import { IPostsRepository } from "posts/interfaces/IPostsRepository";
 import { PostDb, PostDocument, PostModel } from "posts/mongoose/post.schema";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 import {
-  PostCommentsDb,
   PostCommentsDocument,
   PostCommentsModel,
 } from "posts/mongoose/post-comments.schema";
@@ -20,15 +19,28 @@ export class PostsRepository implements IPostsRepository {
     return postInstanceDoc;
   }
 
-  async createPostComment(
-    newPostComment: PostCommentsDb
-  ): Promise<PostCommentsDocument> {
-    const postCommentInstance = new PostCommentsModel({
-      content: newPostComment.content,
-      commentatorInfo: newPostComment.commentatorInfo,
-      // createdAt: newPostComment.createdAt,
+  async createPostComment(dto: {
+    content: string;
+    postId: Types.ObjectId;
+    commentatorInfo: {
+      userId: Types.ObjectId;
+      userLogin: string;
+    };
+  }): Promise<PostCommentsDocument | null> {
+    if (
+      !Types.ObjectId.isValid(dto.postId) ||
+      !Types.ObjectId.isValid(dto.commentatorInfo.userId)
+    )
+      return null;
 
-      postId: newPostComment.postId,
+    const postCommentInstance = new PostCommentsModel({
+      content: dto.content,
+      postId: dto.postId,
+
+      commentatorInfo: dto.commentatorInfo,
+      // * likesInfo автоматически
+
+      // createdAt: newPostComment.createdAt,
     });
 
     await postCommentInstance.save();

@@ -17,6 +17,7 @@ import { PostsController } from "./posts.controller";
 import { createPostBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
 import { IJWTService } from "auth/interfaces/IJWTService";
+import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
 
 export const createPostsRouter = (
   postsController: PostsController,
@@ -46,6 +47,7 @@ export const createPostsRouter = (
   // * GET: Returns comments for specified post
   postsRoute.get(
     "/:postId/comments",
+    optionalJwtAccessGuard(jwtService), // * Получаем токен для передачи userId для вычисления динамического myStatus
     paramPostIdValidation,
     queryPaginationAndSortingValidation<PostCommentsSortFieldRP>(
       PostCommentsSortFieldRP

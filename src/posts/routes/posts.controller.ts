@@ -25,9 +25,6 @@ import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto
 import { UpdatePostRP } from "./request-payload-types/update-post.request-payload-types";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 
-type ReqParams = { postId: string };
-type ReqUser = { id: string };
-
 @injectable()
 export class PostsController {
   constructor(
@@ -85,11 +82,14 @@ export class PostsController {
   };
 
   getPostCommentsHandler = async (
-    req: Request<{ postId: string }>,
+    req: Request<{ postId: string }, {}, GetPostCommentsListQueryHandler, {}>,
     res: Response
   ) => {
     try {
       const postId = req.params.postId;
+
+      // * Если optionalJwtAccessGuard прошел → userId уже есть
+      const currentUserId = req.user?.id;
 
       const sanitizedQueryParam = matchedData<GetPostCommentsListQueryHandler>(
         req,
@@ -108,7 +108,10 @@ export class PostsController {
       };
 
       const postCommentsListOutput =
-        await this.postQueryService.getPostCommentsList(queryParamInput);
+        await this.postQueryService.getPostCommentsList(
+          queryParamInput,
+          currentUserId // * Передаем userId для вычисления myStatus
+        );
 
       if (!postCommentsListOutput.isSuccess()) {
         return res
@@ -154,12 +157,11 @@ export class PostsController {
   };
 
   createCommentHandler = async (
-    req: Request<ReqParams, {}, CreatePostCommentRP, {}>,
+    req: Request<{ postId: string }, {}, CreatePostCommentRP, {}>,
     res: Response
   ) => {
     try {
-      debugger;
-      const sanitizedParamsData = matchedData<ReqParams>(req, {
+      const sanitizedParamsData = matchedData<{ postId: string }>(req, {
         locations: ["params"],
         includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
       });
@@ -169,18 +171,20 @@ export class PostsController {
         includeOptionals: false,
       });
 
-      const user = req.user as ReqUser; // from auth -> api/guards -> JWT guard
+      const user = req.user as { id: string }; // from auth -> api/guards -> JWT guard
 
       const userById = await this.usersQueryService.getUserById(user.id);
 
       if (!userById) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
       const command = createCommand<CreateCommentForPostDtoCommand>({
-        postId: sanitizedParamsData.postId,
         content: sanitizedBodyData.content,
+        postId: sanitizedParamsData.postId,
 
-        userId: user.id,
-        userLogin: userById.login,
+        commentatorInfo: {
+          userId: user.id,
+          userLogin: userById.login,
+        },
       });
 
       const postCommentOutput =
@@ -194,6 +198,8 @@ export class PostsController {
 
       res.status(HTTP_STATUS_CODES.CREATED_201).json(postCommentOutput.data);
     } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
       errorsHandler(error, req, res);
     }
   };

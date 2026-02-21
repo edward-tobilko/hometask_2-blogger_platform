@@ -71,7 +71,7 @@ export class CommentsRepository implements ICommentsRepository {
 
     if (!existingComment) return false;
 
-    // *  Получаем текущий статус пользователя (если есть)
+    // *  Получаем текущий статус лайка пользователя (если есть)
     const existingLike = await CommentLikeModel.findOne({
       commentId: new Types.ObjectId(dto.commentId),
       userId: new Types.ObjectId(dto.userId),

@@ -30,10 +30,13 @@ export class PostQueryService implements IPostsQueryService {
   }
 
   async getPostCommentsList(
-    queryParam: GetPostCommentsListQueryHandler
+    queryParam: GetPostCommentsListQueryHandler,
+    currentUserId?: string
   ): Promise<ApplicationResult<PostCommentsListPaginatedOutput | null>> {
-    const commentsResult =
-      await this.postsQueryRepository.getPostCommentsList(queryParam);
+    const commentsResult = await this.postsQueryRepository.getPostCommentsList(
+      queryParam,
+      currentUserId
+    );
 
     if (!commentsResult) {
       return new ApplicationResult({

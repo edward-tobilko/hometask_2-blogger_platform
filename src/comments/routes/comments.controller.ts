@@ -25,7 +25,7 @@ export class CommentsController {
     try {
       const commentId = req.params.id;
 
-      // * Если jwtAuthGuard прошел → userId уже есть
+      // * Если optionalJwtAccessGuard прошел → userId уже есть
       const currentUserId = req.user?.id;
 
       const commentOutput = await this.commentsQueryService.getCommentById(

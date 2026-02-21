@@ -19,6 +19,7 @@ import { Types } from "@core/di/types";
 import { IPostsRepository } from "posts/interfaces/IPostsRepository";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 @injectable()
 export class PostsService implements IPostsService {
@@ -85,7 +86,7 @@ export class PostsService implements IPostsService {
   async createPostComment(
     command: WithMeta<CreateCommentForPostDtoCommand>
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
-    const { postId, content, userId, userLogin } = command.payload;
+    const { postId, content, commentatorInfo } = command.payload;
 
     const existingPost = await this.postsQueryRepository.getPostById(postId);
 
@@ -109,14 +110,23 @@ export class PostsService implements IPostsService {
 
     const createdComment = await this.postsRepository.createPostComment({
       content,
+      postId: new MongooseTypes.ObjectId(postId),
 
       commentatorInfo: {
-        userId: new MongooseTypes.ObjectId(userId),
-        userLogin,
+        userId: new MongooseTypes.ObjectId(commentatorInfo.userId),
+        userLogin: commentatorInfo.userLogin,
       },
 
-      postId: new MongooseTypes.ObjectId(postId),
+      // * likesInfo не передаем — schema поставит default
     });
+
+    if (!createdComment) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new NotFoundError("comment is not found", "commentId")],
+      });
+    }
 
     if (!createdComment._id)
       throw new RepositoryNotFoundError(
@@ -133,6 +143,12 @@ export class PostsService implements IPostsService {
         commentatorInfo: {
           userId: createdComment.commentatorInfo.userId.toString(),
           userLogin: createdComment.commentatorInfo.userLogin,
+        },
+
+        likesInfo: {
+          likesCount: createdComment.likesInfo.likesCount,
+          dislikesCount: createdComment.likesInfo.dislikesCount,
+          myStatus: LikeStatus.None,
         },
 
         // createdAt: newPostComment.createdAt.toISOString(),

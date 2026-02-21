@@ -12,6 +12,7 @@ export interface IPostsQueryRepository {
   getPostById(postId: string): Promise<PostOutput | null>;
 
   getPostCommentsList(
-    queryParam: GetPostCommentsListQueryHandler
+    queryParam: GetPostCommentsListQueryHandler,
+    currentUserId?: string
   ): Promise<PostCommentsListPaginatedOutput | null>;
 }
