@@ -1,7 +1,6 @@
 import express from "express";
 
 import { setupApp } from "app";
-import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
 import { appConfig } from "@core/settings/config";
 import { clearDB } from "../utils/clear-db";
 import { createAuthLogin, getLoginDto } from "../utils/auth/auth-login.util";
