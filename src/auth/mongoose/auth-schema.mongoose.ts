@@ -1,4 +1,7 @@
-import { AUTH_LOGIN_COLLECTION_NAME } from "db/collection-names.db";
+import {
+  AUTH_LOGIN_COLLECTION_NAME,
+  USERS_COLLECTION_NAME,
+} from "db/collection-names.db";
 import {
   HydratedDocument,
   Schema,
@@ -28,7 +31,11 @@ export type SessionDocument = HydratedDocument<SessionDb>;
 
 const SessionSchema = new Schema<SessionDb>(
   {
-    userId: { type: MongooseTypes.ObjectId, required: true, ref: "user" },
+    userId: {
+      type: MongooseTypes.ObjectId,
+      required: true,
+      ref: USERS_COLLECTION_NAME,
+    },
 
     login: {
       type: String,
@@ -67,8 +74,9 @@ const SessionSchema = new Schema<SessionDb>(
 );
 
 export const SessionModel = model<SessionDb>(
-  AUTH_LOGIN_COLLECTION_NAME,
-  SessionSchema
+  "Session", // имя модели
+  SessionSchema,
+  AUTH_LOGIN_COLLECTION_NAME // точное имя коллекции для записи в Mongo (без добавления "s")
 );
 
 // * TTL что бы «протухшие» сессии убирались автоматически

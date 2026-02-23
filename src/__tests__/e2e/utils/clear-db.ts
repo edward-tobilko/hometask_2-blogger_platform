@@ -1,13 +1,14 @@
-import { Express } from "express";
-import request from "supertest";
+import mongoose from "mongoose";
 
-import { routersPaths } from "@core/paths/paths";
-import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+export async function clearDb(): Promise<void> {
+  // * защита — убедимся, что подключение уже есть
+  if (mongoose.connection.readyState !== 1) {
+    throw new Error("clearDb called before mongoose connected");
+  }
 
-export async function clearDB(app: Express) {
-  await request(app)
-    .delete(routersPaths.testing)
-    .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
+  const collections = mongoose.connection.collections;
 
-  return;
+  await Promise.all(
+    Object.values(collections).map((collection) => collection.deleteMany({}))
+  );
 }

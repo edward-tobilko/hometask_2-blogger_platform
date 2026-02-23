@@ -2,9 +2,23 @@ import { config } from "dotenv";
 import { Secret } from "jsonwebtoken";
 import { StringValue } from "ms";
 
-import { defaultDbName } from "./mongo-db.setting";
+const nodeEnv = process.env.NODE_ENV ?? "development";
 
-config();
+const envFilePath =
+  nodeEnv === "test"
+    ? ".env.test.local"
+    : nodeEnv === "production"
+      ? ".env.production.local"
+      : ".env.development.local";
+
+const defaultDbName =
+  nodeEnv === "test"
+    ? "home_task2-blogger_platform_test"
+    : nodeEnv === "production"
+      ? "home_task2-blogger_platform_prod"
+      : "home_task2-blogger_platform_dev";
+
+config({ path: envFilePath });
 
 export const appConfig = {
   PORT: process.env.PORT,

@@ -12,7 +12,7 @@ export interface IPostCommentOutput {
   likesInfo: {
     likesCount: number;
     dislikesCount: number;
-    myStatus: LikeStatus.None;
+    myStatus: LikeStatus;
   };
 
   // createdAt: string;

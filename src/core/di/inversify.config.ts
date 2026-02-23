@@ -38,7 +38,7 @@ import { IAuthService } from "auth/interfaces/IAuthService";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { JWTService } from "auth/adapters/jwt-service.adapter";
 import { INodeMailerService } from "auth/interfaces/INodeMailerService";
-import { NodeMailerService } from "auth/adapters/nodemailer-service.adapter";
+import { NodeMailerService } from "auth/adapters/node-mailer-service.adapter";
 import { AuthController } from "auth/routes/auth.controller";
 import { BlogsController } from "blogs/routes/blogs.controller";
 import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";

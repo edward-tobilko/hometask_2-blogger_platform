@@ -9,7 +9,7 @@ export interface IBlogsQueryService {
     queryParam: GetBlogsListQueryHandler
   ): Promise<BlogListPaginatedOutput>;
 
-  getBlogById(blogId: string): Promise<BlogOutput>;
+  getBlogById(blogId: string): Promise<BlogOutput | null>;
 
   getPostsListByBlog(
     queryParam: GetPostsListQueryHandler

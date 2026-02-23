@@ -22,7 +22,7 @@ export class BlogsQueryService implements IBlogsQueryService {
     return await this.blogsQueryRepository.findAllBlogs(queryParam);
   }
 
-  async getBlogById(blogId: string): Promise<BlogOutput> {
+  async getBlogById(blogId: string): Promise<BlogOutput | null> {
     return await this.blogsQueryRepository.findBlogById(blogId);
   }
 
