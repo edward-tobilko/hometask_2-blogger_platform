@@ -18,6 +18,10 @@ export const initCompositionRoot = () => {
   inited = true;
 };
 
+export const resetCompositionRootForTests = () => {
+  inited = false;
+};
+
 // * Getters
 export const getCustomRateLimitRepo = () =>
   container.get<ICustomRateLimitRepo>(Types.ICustomRateLimitRepo);
