@@ -1,40 +1,43 @@
 import express from "express";
 import request from "supertest";
+import mongoose from "mongoose";
 
 import { setupApp } from "../../../app";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { clearDB } from "../utils/clear-db";
 import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
 import { createBlogUtil } from "../utils/blogs/create-blog.util";
-import { runDB, stopDB } from "../../../db/mongo.db";
 import { getBlogDtoUtil } from "../utils/blogs/get-blog-dto.util";
 import { getBlogByIdUtil } from "../utils/blogs/get-blog-by-id.util";
 import { getPostsForBlogDtoUtil } from "../utils/blogs/get-posts-for-blog-dto.util";
 import { createPostForBlogUtil } from "../utils/blogs/create-post-for-blog.util";
 import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
 import { routersPaths } from "../../../core/paths/paths";
-import { appConfig } from "@core/settings/config";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
+import { clearDb } from "../utils/clear-db";
 
 const adminToken = generateBasicAuthToken();
 
 describe("E2E Blogs API tests", () => {
-  const app = express();
+  let app = express();
 
   const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
   const testPostsForBlogDataDto = getPostsForBlogDtoUtil();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
+    app = express();
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
+
+    await mongoose.disconnect().catch((er) => er);
   });
 
   it("GET: /api/blogs -> should return blogs list - status 200", async () => {

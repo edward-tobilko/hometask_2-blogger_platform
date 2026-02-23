@@ -1,34 +1,35 @@
 import express from "express";
+import mongoose from "mongoose";
 
 import { setupApp } from "app";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
-import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
-import { appConfig } from "@core/settings/config";
-import { clearDB } from "../utils/clear-db";
 import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
 import { setAuthLogout } from "../utils/auth/auth-logout.util";
 import { setAuthRefreshToken } from "../utils/auth/auth-refresh-token.util";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
+import { clearDb } from "../utils/clear-db";
 
 describe("E2E Auth logout tests", () => {
   let app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
     app = express();
-    setupApp(app);
+    setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 
   beforeEach(async () => {
-    await clearDB(app);
-
-    await customRateLimitCollection.deleteMany({});
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
+
+    // * страховка, если stopMongoose не зделает disconnect
+    await mongoose.disconnect().catch(() => {});
   });
 
   it("POST: /auth/logout -> status 204 and refresh-token becomes invalid (refresh after logout -> 401)", async () => {

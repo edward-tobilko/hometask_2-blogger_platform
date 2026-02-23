@@ -1,10 +1,9 @@
 import express from "express";
 import request from "supertest";
+import mongoose from "mongoose";
 
-import { appConfig } from "@core/settings/config";
-import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
 import { setupApp } from "app";
-import { clearDB } from "../utils/clear-db";
+import { clearDb } from "../utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
@@ -13,27 +12,30 @@ import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
 import { Types } from "@core/di/types";
 import { IUsersRepository } from "users/interfaces/IUsersRepository";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 const newPasswordUrl = `${routersPaths.auth}/new-password`;
 const passwordRecoveryUrl = `${routersPaths.auth}/password-recovery`;
 
 describe("E2E: password recovery flow", () => {
-  const app = express();
+  let app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    setupApp(app);
+    app = express();
+    setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 
   beforeEach(async () => {
-    await clearDB(app);
-
-    await customRateLimitCollection.deleteMany({});
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
+
+    // * страховка, если stopMongoose не зделает disconnect
+    await mongoose.disconnect().catch(() => {});
   });
 
   it("POST: /auth/new-password -> 400 if recoveryCode expired (using IoC repo to force expiration)", async () => {

@@ -1,20 +1,16 @@
 import express from "express";
 import request from "supertest";
+import mongoose from "mongoose";
 
 import { setupApp } from "app";
-import {
-  customRateLimitCollection,
-  runDB,
-  stopDB,
-  userCollection,
-} from "db/mongo.db";
-import { appConfig } from "@core/settings/config";
-import { clearDB } from "../utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
 import { UserDtoDomain } from "users/domain/user-dto.domain";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
+import { clearDb } from "../utils/clear-db";
+import { UserModel } from "users/mongoose/user-schema.mongoose";
 
 const testUserDto: UserDtoDomain = getUserDto();
 
@@ -22,20 +18,21 @@ describe("E2E Auth Registration tests", () => {
   let app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
     app = express();
-    setupApp(app);
+    setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 
   beforeEach(async () => {
-    await clearDB(app);
-
-    await customRateLimitCollection.deleteMany({});
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
+
+    // * страховка, если stopMongoose не зделает disconnect
+    await mongoose.disconnect().catch(() => {});
   });
 
   const registrationPath = `${routersPaths.auth}/registration`;
@@ -49,7 +46,7 @@ describe("E2E Auth Registration tests", () => {
       .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
     // * Минимальная проверка, что пользователь реально создан в БД
-    const createdUser = await userCollection.findOne({ email: userDto.email });
+    const createdUser = await UserModel.findOne({ email: userDto.email });
     expect(createdUser).toBeTruthy();
     expect(createdUser!.emailConfirmation.isConfirmed).toBe(false);
   });

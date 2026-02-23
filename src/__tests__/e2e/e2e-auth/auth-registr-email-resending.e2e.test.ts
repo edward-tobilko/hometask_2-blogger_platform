@@ -1,38 +1,34 @@
 import express from "express";
+import mongoose from "mongoose";
 
 import { setupApp } from "app";
-import {
-  customRateLimitCollection,
-  runDB,
-  stopDB,
-  userCollection,
-} from "db/mongo.db";
-import { appConfig } from "@core/settings/config";
-import { clearDB } from "../utils/clear-db";
+import { clearDb } from "../utils/clear-db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
 import { createAuthResendRegistrationEmail } from "../utils/auth/auth-resend-email-confirm.util";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
+import { UserModel } from "users/mongoose/user-schema.mongoose";
 
 describe("E2E Auth Registration Email Resending tests", () => {
   let app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
     app = express();
-    setupApp(app);
+    setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 
   beforeEach(async () => {
-    await clearDB(app);
-
-    await customRateLimitCollection.deleteMany({});
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
+
+    // * страховка, если stopMongoose не зделает disconnect
+    await mongoose.disconnect().catch(() => {});
   });
 
   it("POST: /auth/registration-email-resending -> status 204 (success, email exists and not confirmed)", async () => {
@@ -43,7 +39,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
       HTTP_STATUS_CODES.NO_CONTENT_204
     );
 
-    const userBefore = await userCollection.findOne({ email: userDto.email });
+    const userBefore = await UserModel.findOne({ email: userDto.email });
 
     expect(userBefore).toBeTruthy();
     expect(userBefore!.emailConfirmation.isConfirmed).toBe(false);
@@ -57,7 +53,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
     }).expect(HTTP_STATUS_CODES.NO_CONTENT_204);
 
     // * confirmation code should be changed
-    const userAfter = await userCollection.findOne({ email: userDto.email });
+    const userAfter = await UserModel.findOne({ email: userDto.email });
 
     expect(userAfter).toBeTruthy();
     expect(userAfter!.emailConfirmation.isConfirmed).toBe(false);
@@ -92,7 +88,7 @@ describe("E2E Auth Registration Email Resending tests", () => {
     );
 
     // * manually mark as confirmed (бысто и стабильно для e2e)
-    await userCollection.updateOne(
+    await UserModel.updateOne(
       { email: userDto.email },
       { $set: { "emailConfirmation.isConfirmed": true } }
     );

@@ -1,32 +1,33 @@
 import express from "express";
+import mongoose from "mongoose";
 
 import { setupApp } from "app";
-import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
-import { appConfig } from "@core/settings/config";
-import { clearDB } from "../utils/clear-db";
+import { clearDb } from "../utils/clear-db";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
 import { getAuthMe } from "../utils/auth/auth-me.util";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E Auth Me tests", () => {
   let app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
     app = express();
-    setupApp(app);
+    setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 
   beforeEach(async () => {
-    await clearDB(app);
-
-    await customRateLimitCollection.deleteMany({});
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
+
+    // * страховка, если stopMongoose не зделает disconnect
+    await mongoose.disconnect().catch(() => {});
   });
 
   it("POST: /auth/me -> status 200 - with valid access token", async () => {

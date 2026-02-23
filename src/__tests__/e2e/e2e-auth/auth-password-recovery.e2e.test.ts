@@ -1,32 +1,34 @@
 import express from "express";
 import request from "supertest";
+import mongoose from "mongoose";
 
-import { appConfig } from "@core/settings/config";
-import { customRateLimitCollection, runDB, stopDB } from "db/mongo.db";
 import { setupApp } from "app";
-import { clearDB } from "../utils/clear-db";
+import { clearDb } from "../utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 const path = `${routersPaths.auth}/password-recovery`;
 
 describe("E2E: password recovery flow", () => {
-  const app = express();
+  let app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    setupApp(app);
+    app = express();
+    setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 
   beforeEach(async () => {
-    await clearDB(app);
-
-    await customRateLimitCollection.deleteMany({});
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
+
+    // * страховка, если stopMongoose не зделает disconnect
+    await mongoose.disconnect().catch(() => {});
   });
 
   it("POST: /auth/password-recovery -> 204: even if current email is not registered (for prevent user's email detection)", async () => {
