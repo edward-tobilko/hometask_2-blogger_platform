@@ -26,9 +26,11 @@ import { createSecurityDevicesRouter } from "security-devices/routers/security-d
 
 export const setupApp = (app: Express) => {
   if (process.env.NODE_ENV === "production") {
-    app.set("trust proxy", 1); // for prod
+    app.set("trust proxy", 1); // true for prod
+  } else if (process.env.NODE_ENV === "test") {
+    app.set("trust proxy", 1); // true for test
   } else {
-    app.set("trust proxy", false); // for dev/test
+    app.set("trust proxy", false); // false for dev/test
   }
 
   app.use(express.json());
