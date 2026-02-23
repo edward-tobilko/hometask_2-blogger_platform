@@ -1,0 +1,75 @@
+import nodemailer from "nodemailer";
+import { log } from "console";
+import { injectable } from "inversify";
+
+import { appConfig } from "@core/settings/config";
+import { INodeMailerService } from "auth/interfaces/INodeMailerService";
+
+let transporter = nodemailer.createTransport({
+  // host: appConfig.SMTP_HOST,
+  // port: Number(appConfig.SMTP_PORT), // 587
+  // secure: appConfig.SMTP_SECURE === "true",
+  service: "gmail",
+  auth: {
+    user: appConfig.EMAIL, // нашь email
+    pass: appConfig.EMAIL_PASS, // получаем сгенерированный код в настройках гугл аккаунта (https://myaccount.google.com/security )
+  },
+
+  // requireTLS: true,
+  // tls: {
+  //   servername: appConfig.SMTP_HOST,
+  // },
+
+  // connectionTimeout: 10_000, // установка TCP
+  // greetingTimeout: 10_000, // ожидание SMTP
+  // socketTimeout: 10_000, // общий таймаут сокета
+});
+
+@injectable()
+export class NodeMailerService implements INodeMailerService {
+  async sendRegistrationConfirmationEmail(
+    email: string, // куда отправляем
+    code: string, // код подтверджения
+    template: (code: string) => string // ф-я которая принимает код и отправляет html строку
+  ): Promise<boolean> {
+    // * Проверка для тестов (что бы письмо отправлялось фейково)
+    if (process.env.NODE_ENV === "test") return true;
+
+    log("SENDING EMAIL TO:", email);
+
+    let info = await transporter.sendMail({
+      from: `"eddie" <${appConfig.EMAIL}>`,
+      to: email,
+      subject: "Your code is here",
+      html: template(code), // html body
+    });
+
+    log("SENT:", info);
+
+    // return info.accepted.length > 0; // так будет надежней, если вдруг будет не валидный email
+    return !!info;
+  }
+
+  async sendRecoveryPasswordEmail(
+    email: string,
+    recoveryCode: string,
+    template: (recoveryCode: string) => string
+  ): Promise<boolean> {
+    if (process.env.NODE_ENV === "test") return true;
+
+    log("SENDING EMAIL TO:", email);
+
+    let info = await transporter.sendMail({
+      from: `"eddie" <${appConfig.EMAIL}>`,
+      to: email,
+      subject: "Your recoveryCode is here",
+      html: template(recoveryCode),
+    });
+
+    log("SENT:", info);
+
+    return !!info;
+  }
+}
+
+// ? "!!info" - превращает значения в true or false
