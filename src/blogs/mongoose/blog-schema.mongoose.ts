@@ -39,6 +39,7 @@ const BlogSchema = new mongoose.Schema<BlogDb>(
 );
 
 export const BlogModel = mongoose.model<BlogDb>(
-  BLOG_COLLECTION_NAME,
-  BlogSchema
+  "Blog",
+  BlogSchema,
+  BLOG_COLLECTION_NAME
 );

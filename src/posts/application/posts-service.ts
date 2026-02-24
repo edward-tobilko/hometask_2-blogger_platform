@@ -76,7 +76,7 @@ export class PostsService implements IPostsService {
 
         blogId: blog.id.toString(),
         blogName: blog.name,
-        // createdAt: savedPost.createdAt.toISOString(),
+        createdAt: savedPost.createdAt!.toISOString(),
       },
 
       extensions: [],
@@ -117,6 +117,8 @@ export class PostsService implements IPostsService {
         userLogin: commentatorInfo.userLogin,
       },
 
+      createdAt: new Date(),
+
       // * likesInfo не передаем — schema поставит default
     });
 
@@ -151,7 +153,7 @@ export class PostsService implements IPostsService {
           myStatus: LikeStatus.None,
         },
 
-        // createdAt: newPostComment.createdAt.toISOString(),
+        createdAt: createdComment.createdAt!.toISOString(),
       },
 
       extensions: [],

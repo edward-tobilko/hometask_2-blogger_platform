@@ -32,7 +32,7 @@ export class BlogsController {
   async getBlogsListHandler(
     req: Request<{}, {}, {}, {}>,
     res: Response,
-    next: NextFunction
+    _next: NextFunction
   ) {
     try {
       const sanitizedQueryParam = matchedData<BlogsListRP>(req, {
@@ -54,13 +54,11 @@ export class BlogsController {
 
       res.status(HTTP_STATUS_CODES.OK_200).json(blogsListOutput);
     } catch (error: unknown) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+      return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
         errorsMessages: [
           { message: "Internal Server Error", field: "query params" },
         ],
       });
-
-      next(error);
     }
   }
 
@@ -69,6 +67,8 @@ export class BlogsController {
       const id = req.params.id;
 
       const blogOutput = await this.blogsQueryService.getBlogById(id);
+
+      if (!blogOutput) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
       res.status(HTTP_STATUS_CODES.OK_200).json(blogOutput);
     } catch (error: unknown) {
@@ -104,10 +104,6 @@ export class BlogsController {
       const postsListByBlogOutput =
         await this.blogsQueryService.getPostsListByBlog(queryParamInput);
 
-      log(
-        `Post list for blog ${postsListByBlogOutput.page}/${postsListByBlogOutput.pagesCount} - items: ${postsListByBlogOutput.items.length} - total: ${postsListByBlogOutput.totalCount}`
-      );
-
       res.status(HTTP_STATUS_CODES.OK_200).json(postsListByBlogOutput);
     } catch (error: unknown) {
       if (error instanceof RepositoryNotFoundError) {
@@ -127,7 +123,7 @@ export class BlogsController {
   async createBlogHandler(
     req: Request<{}, {}, CreateBlogRP, {}>,
     res: Response,
-    next: NextFunction
+    _next: NextFunction
   ) {
     try {
       const sanitizedParam = matchedData<CreateBlogRP>(req, {
@@ -141,9 +137,7 @@ export class BlogsController {
 
       res.status(HTTP_STATUS_CODES.CREATED_201).json(createdBlogOutput.data);
     } catch (error: unknown) {
-      res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
-
-      next(error);
+      return res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
     }
   }
 

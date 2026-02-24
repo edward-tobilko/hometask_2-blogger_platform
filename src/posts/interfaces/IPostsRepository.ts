@@ -14,6 +14,7 @@ export interface IPostsRepository {
       userId: Types.ObjectId;
       userLogin: string;
     };
+    createdAt: Date;
   }): Promise<PostCommentsDocument | null>;
 
   updatePost(dto: UpdatePostDtoCommand): Promise<boolean | "BLOG_MISMATCH">;

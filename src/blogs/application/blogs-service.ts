@@ -89,7 +89,7 @@ export class BlogsService implements IBlogsService {
 
       blogId: createdPostForBlog.blogId.toString(),
       blogName: createdPostForBlog.blogName,
-      // createdAt: createdPostForBlog.createdAt.toISOString(),
+      createdAt: createdPostForBlog.createdAt!.toISOString(),
     };
 
     // * return output

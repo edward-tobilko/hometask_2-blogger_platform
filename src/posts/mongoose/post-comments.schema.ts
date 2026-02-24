@@ -16,7 +16,7 @@ export type PostCommentsDb = {
     userLogin: string;
   };
 
-  // createdAt: Date;
+  createdAt?: Date;
 
   likesInfo: {
     likesCount: number;
@@ -85,6 +85,7 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
 );
 
 export const PostCommentsModel = mongoose.model<PostCommentsDb>(
-  POST_COMMENTS_COLLECTION_NAME,
-  PostCommentsSchema
+  "PostComments",
+  PostCommentsSchema,
+  POST_COMMENTS_COLLECTION_NAME
 );

@@ -13,5 +13,17 @@ export async function runMongoose(): Promise<void> {
 }
 
 export async function stopMongoose(): Promise<void> {
-  await mongoose.disconnect();
+  const state = mongoose.connection.readyState; // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+
+  if (state === 1) {
+    await mongoose.disconnect();
+    return;
+  }
+
+  // * если ещё коннектится — дождёмся / мягко закроем
+  if (state === 2) {
+    try {
+      await mongoose.connection.close();
+    } catch {}
+  }
 }

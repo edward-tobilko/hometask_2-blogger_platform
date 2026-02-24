@@ -11,6 +11,7 @@ export type PostDb = {
   content: string;
   blogId: mongoose.Types.ObjectId;
   blogName: string;
+  createdAt?: Date;
 };
 
 export type PostLean = PostDb & { _id: mongoose.Types.ObjectId };
@@ -52,6 +53,7 @@ const PostSchema = new mongoose.Schema<PostDb>(
 );
 
 export const PostModel = mongoose.model<PostDb>(
-  POST_COLLECTION_NAME,
-  PostSchema
+  "Post",
+  PostSchema,
+  POST_COLLECTION_NAME
 );

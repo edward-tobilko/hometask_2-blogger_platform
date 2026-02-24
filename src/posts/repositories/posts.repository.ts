@@ -26,6 +26,7 @@ export class PostsRepository implements IPostsRepository {
       userId: Types.ObjectId;
       userLogin: string;
     };
+    createdAt: Date;
   }): Promise<PostCommentsDocument | null> {
     if (
       !Types.ObjectId.isValid(dto.postId) ||
@@ -40,7 +41,7 @@ export class PostsRepository implements IPostsRepository {
       commentatorInfo: dto.commentatorInfo,
       // * likesInfo автоматически
 
-      // createdAt: newPostComment.createdAt,
+      createdAt: dto.createdAt,
     });
 
     await postCommentInstance.save();

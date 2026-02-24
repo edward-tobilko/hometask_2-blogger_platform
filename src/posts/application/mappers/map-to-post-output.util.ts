@@ -9,6 +9,6 @@ export function mapToPostOutput(post: PostDocument): PostOutput {
     content: post.content,
     blogId: post.blogId.toString(),
     blogName: post.blogName,
-    // createdAt: post.createdAt.toISOString(),
+    createdAt: post.createdAt!.toISOString(),
   };
 }

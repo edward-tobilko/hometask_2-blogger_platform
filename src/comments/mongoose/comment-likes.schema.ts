@@ -47,6 +47,7 @@ const CommentLikeSchema = new mongoose.Schema<CommentLikeDb>(
 CommentLikeSchema.index({ commentId: 1, userId: 1 }, { unique: true });
 
 export const CommentLikeModel = mongoose.model<CommentLikeDb>(
-  COMMENT_LIKE_STATUS_COLLECTION_NAME,
-  CommentLikeSchema
+  "CommentLike",
+  CommentLikeSchema,
+  COMMENT_LIKE_STATUS_COLLECTION_NAME
 );

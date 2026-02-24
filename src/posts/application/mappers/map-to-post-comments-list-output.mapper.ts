@@ -41,7 +41,7 @@ export const mapToPostCommentsListOutput = (
           myStatus,
         },
 
-        // createdAt: postComment.createdAt.toISOString(),
+        createdAt: postComment.createdAt!.toISOString(),
       };
     }),
   };

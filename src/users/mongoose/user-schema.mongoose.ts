@@ -111,7 +111,11 @@ const UserSchema = new Schema<UserDb>(
 );
 
 // * Создаем коллекцию "user" в БД с проверкою типизации с пом. схемы (UserSchema)
-export const UserModel = model<UserDb>(USERS_COLLECTION_NAME, UserSchema);
+export const UserModel = model<UserDb>(
+  "User",
+  UserSchema,
+  USERS_COLLECTION_NAME
+);
 
 // ? HydratedDocument - описывает какой объект я получаю с БД после запросса: HydratedDocument<T> = T(UserDb) + _id + mongoose methods(.save().populate().deleteOne()).
 

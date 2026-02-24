@@ -185,6 +185,8 @@ export class PostsController {
           userId: user.id,
           userLogin: userById.login,
         },
+
+        createdAt: new Date(),
       });
 
       const postCommentOutput =

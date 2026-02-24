@@ -15,5 +15,5 @@ export interface IPostCommentOutput {
     myStatus: LikeStatus;
   };
 
-  // createdAt: string;
+  createdAt: string;
 }
