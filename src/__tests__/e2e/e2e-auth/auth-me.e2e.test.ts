@@ -10,12 +10,11 @@ import { getAuthMe } from "../utils/auth/auth-me.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E Auth Me tests", () => {
-  let app = express();
+  const app = express();
 
   beforeAll(async () => {
     await runMongoose();
 
-    app = express();
     setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 

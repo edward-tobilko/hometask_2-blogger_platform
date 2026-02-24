@@ -2,36 +2,29 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "app";
-import { runDB, stopDB } from "db/mongo.db";
-import { clearDB } from "../utils/clear-db";
-import { appConfig } from "@core/settings/config";
+import { clearDb } from "../utils/clear-db";
 import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
 import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { routersPaths } from "@core/paths/paths";
 import { getCommentForPostDto } from "../utils/posts/get-comment-for-post-dto.util";
-import { initCompositionRoot } from "composition-root";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E create comment for post tests", () => {
   const app = express();
 
   beforeAll(async () => {
-    // * DB
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    // * DI: бинды коллекции после runDB
-    initCompositionRoot();
-
-    // * app
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   // * return status 201
@@ -49,6 +42,12 @@ describe("E2E create comment for post tests", () => {
       commentatorInfo: {
         userId: userRes.id,
         userLogin: userRes.login,
+      },
+
+      likesInfo: {
+        likesCount: expect.any(Number),
+        dislikesCount: expect.any(Number),
+        myStatus: expect.stringMatching(/^(None|Like|Dislike)$/), // строго указываем enum
       },
 
       createdAt: expect.any(String),

@@ -1,35 +1,28 @@
 import express from "express";
 
 import { setupApp } from "../../../app";
-import { clearDB } from "../utils/clear-db";
-import { runDB, stopDB } from "../../../db/mongo.db";
+import { clearDb } from "../utils/clear-db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { appConfig } from "@core/settings/config";
 import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
 import { getCommentsList } from "../utils/posts/get-comments-list.util";
 import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
-import { initCompositionRoot } from "composition-root";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E get users list tests", () => {
   const app = express();
 
   beforeAll(async () => {
-    // * DB
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    // * DI: бинды коллекции после runDB
-    initCompositionRoot();
-
-    // * app
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   // * return status 200

@@ -2,8 +2,7 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "../../../app";
-import { clearDB } from "../utils/clear-db";
-import { runDB, stopDB } from "../../../db/mongo.db";
+import { clearDb } from "../utils/clear-db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createPostUtil } from "../utils/posts/create-post.util";
 import { getPostDtoUtil } from "../utils/posts/get-post-dto.util";
@@ -11,8 +10,7 @@ import { createBlogUtil } from "../utils/blogs/create-blog.util";
 import { getPostByIdBodyUtil } from "../utils/posts/get-post-by-id.util";
 import { routersPaths } from "../../../core/paths/paths";
 import { CreatePostRP } from "posts/routes/request-payload-types/create-post.request-payload-types";
-import { appConfig } from "@core/settings/config";
-import { initCompositionRoot } from "composition-root";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E get post tests", () => {
   const app = express();
@@ -22,16 +20,11 @@ describe("E2E get post tests", () => {
   let postDataDto: CreatePostRP;
 
   beforeAll(async () => {
-    // * DB
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    // * DI: бинды коллекции после runDB
-    initCompositionRoot();
-
-    // * app
     setupApp(app);
 
-    await clearDB(app);
+    await clearDb();
 
     // * create a blog after connecting to the db
     const createdBlogResponse = await createBlogUtil(app);
@@ -45,7 +38,7 @@ describe("E2E get post tests", () => {
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   it("GET: /posts/:id -> should return one post by id - status 200", async () => {

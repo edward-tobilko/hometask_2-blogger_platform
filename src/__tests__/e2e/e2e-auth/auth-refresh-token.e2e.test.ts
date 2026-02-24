@@ -14,12 +14,11 @@ import {
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E Auth refresh-token tests", () => {
-  let app = express();
+  const app = express();
 
   beforeAll(async () => {
     await runMongoose();
 
-    app = express();
     setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 

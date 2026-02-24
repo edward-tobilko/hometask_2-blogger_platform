@@ -18,12 +18,11 @@ const newPasswordUrl = `${routersPaths.auth}/new-password`;
 const passwordRecoveryUrl = `${routersPaths.auth}/password-recovery`;
 
 describe("E2E: password recovery flow", () => {
-  let app = express();
+  const app = express();
 
   beforeAll(async () => {
     await runMongoose();
 
-    app = express();
     setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 

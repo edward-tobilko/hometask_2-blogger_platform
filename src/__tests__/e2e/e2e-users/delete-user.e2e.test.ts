@@ -2,37 +2,30 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "app";
-import { runDB, stopDB } from "db/mongo.db";
-import { appConfig } from "@core/settings/config";
-import { clearDB } from "../utils/clear-db";
+import { clearDb } from "../utils/clear-db";
 import { createUserBodyDto } from "../utils/users/create-user.util";
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { deleteUser } from "../utils/users/delete-user.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getUsersList } from "../utils/users/get-users-list.util";
 import { routersPaths } from "@core/paths/paths";
-import { initCompositionRoot } from "composition-root";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E delete user tests", () => {
   const app = express();
 
   beforeAll(async () => {
-    // * DB
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    // * DI: бинды коллекции после runDB
-    initCompositionRoot();
-
-    // * app
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   it("should delete user and return status 204 ", async () => {

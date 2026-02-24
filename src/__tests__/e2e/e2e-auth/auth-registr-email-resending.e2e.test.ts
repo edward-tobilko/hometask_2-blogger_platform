@@ -11,12 +11,11 @@ import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { UserModel } from "users/mongoose/user-schema.mongoose";
 
 describe("E2E Auth Registration Email Resending tests", () => {
-  let app = express();
+  const app = express();
 
   beforeAll(async () => {
     await runMongoose();
 
-    app = express();
     setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 

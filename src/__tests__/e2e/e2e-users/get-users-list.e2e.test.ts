@@ -2,35 +2,28 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "../../../app";
-import { clearDB } from "../utils/clear-db";
-import { runDB, stopDB } from "../../../db/mongo.db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { routersPaths } from "../../../core/paths/paths";
-import { appConfig } from "@core/settings/config";
 import { createUserBodyDto } from "../utils/users/create-user.util";
 import { getUsersList } from "../utils/users/get-users-list.util";
-import { initCompositionRoot } from "composition-root";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
+import { clearDb } from "../utils/clear-db";
 
 describe("E2E get users list tests", () => {
   const app = express();
 
   beforeAll(async () => {
-    // * DB
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    // * DI: бинды коллекции после runDB
-    initCompositionRoot();
-
-    // * app
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   it("GET: /users -> status 200 - should return users list (12 users with pagination)", async () => {

@@ -1,29 +1,28 @@
 import express from "express";
 
 import { setupApp } from "app";
-import { runDB, stopDB } from "db/mongo.db";
-import { clearDB } from "../utils/clear-db";
-import { appConfig } from "@core/settings/config";
+import { clearDb } from "../utils/clear-db";
 import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
 import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
 import { getCommentById } from "../utils/comments/get-comment.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E comments tests", () => {
   const app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   // * return status 200
@@ -41,19 +40,20 @@ describe("E2E comments tests", () => {
     // * get comment by id
     const fetchedCommentRes = await getCommentById(app, createdCommentRes.id);
 
-    expect(fetchedCommentRes.body).toEqual(
-      expect.objectContaining({
-        id: createdCommentRes.id,
-        content: createdCommentRes.content,
-
-        commentatorInfo: expect.objectContaining({
-          userId: expect.any(String),
-          userLogin: createdCommentRes.commentatorInfo.userLogin,
-        }),
-
-        createdAt: expect.any(String),
-      })
-    );
+    expect(fetchedCommentRes.body).toEqual({
+      id: expect.any(String),
+      content: createdCommentRes.content,
+      commentatorInfo: {
+        userId: expect.any(String),
+        userLogin: createdCommentRes.commentatorInfo.userLogin,
+      },
+      likesInfo: {
+        likesCount: expect.any(Number),
+        dislikesCount: expect.any(Number),
+        myStatus: expect.stringMatching(/^(None|Like|Dislike)$/),
+      },
+      createdAt: expect.any(String),
+    });
   });
 
   // * return status 404

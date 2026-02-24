@@ -18,7 +18,7 @@ import { clearDb } from "../utils/clear-db";
 const adminToken = generateBasicAuthToken();
 
 describe("E2E Blogs API tests", () => {
-  let app = express();
+  const app = express();
 
   const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
   const testPostsForBlogDataDto = getPostsForBlogDtoUtil();
@@ -26,7 +26,6 @@ describe("E2E Blogs API tests", () => {
   beforeAll(async () => {
     await runMongoose();
 
-    app = express();
     setupApp(app);
   });
 
@@ -68,8 +67,8 @@ describe("E2E Blogs API tests", () => {
     const createdBlog = await createBlogUtil(app, testBlogDataDto);
 
     await Promise.all([
-      await createPostForBlogUtil(app, createdBlog.id),
-      await createPostForBlogUtil(app, createdBlog.id),
+      createPostForBlogUtil(app, createdBlog.id),
+      createPostForBlogUtil(app, createdBlog.id),
     ]);
 
     const postListForBlogResponse = await request(app)

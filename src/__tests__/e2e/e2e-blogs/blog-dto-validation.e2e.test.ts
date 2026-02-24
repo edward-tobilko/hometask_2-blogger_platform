@@ -3,14 +3,13 @@ import request from "supertest";
 
 import { setupApp } from "../../../app";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { clearDB } from "../utils/clear-db";
 import { getBlogDtoUtil } from "../utils/blogs/get-blog-dto.util";
-import { runDB, stopDB } from "../../../db/mongo.db";
 import { createBlogUtil } from "../utils/blogs/create-blog.util";
 import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
 import { routersPaths } from "../../../core/paths/paths";
 import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
-import { appConfig } from "@core/settings/config";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
+import { clearDb } from "../utils/clear-db";
 
 const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
 
@@ -18,15 +17,17 @@ describe("Create (POST) blogs API body dto validation ", () => {
   const app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
     setupApp(app);
+  });
 
-    await clearDB(app);
+  beforeEach(async () => {
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   it("status 201 - when payload is valid", async () => {

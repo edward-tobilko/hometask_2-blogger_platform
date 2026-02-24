@@ -2,9 +2,6 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "app";
-import { runDB, stopDB } from "db/mongo.db";
-import { appConfig } from "@core/settings/config";
-import { clearDB } from "../utils/clear-db";
 import {
   createUser,
   createUserBodyDto,
@@ -12,28 +9,24 @@ import {
 } from "../utils/users/create-user.util";
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { routersPaths } from "@core/paths/paths";
-import { initCompositionRoot } from "composition-root";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
+import { clearDb } from "../utils/clear-db";
 
 describe("E2E create user tests", () => {
   const app = express();
 
   beforeAll(async () => {
-    // * DB
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    // * DI: бинды коллекции после runDB
-    initCompositionRoot();
-
-    // * app
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   it("POST /users -> status 201 - returns created user and this user appears in list", async () => {

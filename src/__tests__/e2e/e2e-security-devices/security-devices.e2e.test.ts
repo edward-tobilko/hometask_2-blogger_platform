@@ -4,9 +4,6 @@ import request from "supertest";
 import { getUserAgents } from "../utils/security-devices/get-user-agents.util";
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { setupApp } from "app";
-import { runDB, stopDB } from "db/mongo.db";
-import { appConfig } from "@core/settings/config";
-import { clearDB } from "../utils/clear-db";
 import { createUserBodyDto } from "../utils/users/create-user.util";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
@@ -18,7 +15,8 @@ import {
 import { deleteSecurityDeviceById } from "../utils/security-devices/delete-security-device.util";
 import { setAuthRefreshToken } from "../utils/auth/auth-refresh-token.util";
 import { setAuthLogout } from "../utils/auth/auth-logout.util";
-import { initCompositionRoot } from "composition-root";
+import { clearDb } from "../utils/clear-db";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 // * Сохраняем данные для 4 устройств
 export const devices = {
@@ -39,20 +37,15 @@ describe("Security Devices E2E Tests", () => {
   const userAgents = getUserAgents;
 
   beforeAll(async () => {
-    // * DB
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
-    // * DI: бинды коллекции после runDB
-    initCompositionRoot();
-
-    // * app
     setupApp(app);
 
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   it("Create user and setup 4 logins", async () => {
@@ -270,11 +263,9 @@ describe("Security Devices E2E Tests", () => {
       const firstDeviceId = devicesRes[0].deviceId;
 
       // * Второй пользователь пытается удалить девайс первого
-      await deleteSecurityDeviceById(
-        app,
-        firstDeviceId,
-        anotherUserCookie
-      ).expect(HTTP_STATUS_CODES.FORBIDDEN_403);
+      await deleteSecurityDeviceById(app, firstDeviceId, cookieHeader).expect(
+        HTTP_STATUS_CODES.FORBIDDEN_403
+      );
     });
   });
 

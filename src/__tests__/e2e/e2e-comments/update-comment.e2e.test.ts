@@ -2,9 +2,7 @@ import express from "express";
 import request from "supertest";
 
 import { setupApp } from "app";
-import { runDB, stopDB } from "db/mongo.db";
-import { clearDB } from "../utils/clear-db";
-import { appConfig } from "@core/settings/config";
+import { clearDb } from "../utils/clear-db";
 import { setupUserLoginBlogPost } from "../utils/posts/setup-user-login-blog-post.util";
 import { createCommentForPost } from "../utils/posts/create-comment-for-post.util";
 import { updateComment } from "../utils/comments/update-comment.util";
@@ -14,22 +12,23 @@ import { routersPaths } from "@core/paths/paths";
 import { createUserBodyDto } from "../utils/users/create-user.util";
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
+import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E update comment tests", () => {
   const app = express();
 
   beforeAll(async () => {
-    await runDB(appConfig.MONGO_URL);
+    await runMongoose();
 
     setupApp(app);
   });
 
   beforeEach(async () => {
-    await clearDB(app);
+    await clearDb();
   });
 
   afterAll(async () => {
-    await stopDB();
+    await stopMongoose();
   });
 
   // * return status 204

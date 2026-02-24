@@ -15,12 +15,11 @@ import { UserModel } from "users/mongoose/user-schema.mongoose";
 const testUserDto: UserDtoDomain = getUserDto();
 
 describe("E2E Auth Registration tests", () => {
-  let app = express();
+  const app = express();
 
   beforeAll(async () => {
     await runMongoose();
 
-    app = express();
     setupApp(app); // * IoC уже внутри setupApp (через initCompositionRoot)
   });
 
