@@ -7,7 +7,7 @@
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "node dist/server.js",
-    "prod": "yarn build && yarn start",
+    "prod": "cross-env NODE_ENV=production PORT=8080 yarn build && yarn start",
     "dev": "cross-env NODE_ENV=development tsx watch --inspect -r tsconfig-paths/register src/server.ts",
     "test:e2e": "cross-env NODE_ENV=test jest -c jest-e2e.config.cjs -i",
     "test:unit": "cross-env NODE_ENV=test jest -c jest-unit.config.cjs",

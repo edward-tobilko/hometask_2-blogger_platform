@@ -20,6 +20,9 @@ const defaultDbName =
 
 config({ path: envFilePath });
 
+console.log("ENV MODE:", nodeEnv);
+console.log("ENV FILE:", envFilePath);
+
 export const appConfig = {
   PORT: process.env.PORT,
   MONGO_URL: process.env.MONGO_URL ?? "mongodb://127.0.0.1:27017",

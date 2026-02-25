@@ -8,7 +8,11 @@ export const app = express();
 
 const bootstrap = async () => {
   // * Render подставляет свой порт, локально — дефолт 8080
-  const PORT = Number(process.env.PORT) || 8080;
+
+  const PORT =
+    process.env.NODE_ENV === "production"
+      ? Number(process.env.PORT) || 8080
+      : Number(process.env.PORT) || 3000;
 
   try {
     // * сначала вызов db
@@ -19,7 +23,7 @@ const bootstrap = async () => {
 
     // * потом listen
     const server = app.listen(PORT, "0.0.0.0", () => {
-      console.log(`✅ Server running on ${PORT}`);
+      console.log(`✅ Server running on ${PORT} PORT`);
       console.log(`NODE_ENV=${process.env.NODE_ENV}`);
       console.log("✅ ENTRY:", __filename);
     });

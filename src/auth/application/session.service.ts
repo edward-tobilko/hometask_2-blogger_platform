@@ -27,6 +27,7 @@ import { IJWTService } from "auth/interfaces/IJWTService";
 import { IUsersRepository } from "users/interfaces/IUsersRepository";
 import { INodeMailerService } from "auth/interfaces/INodeMailerService";
 import { UserDb, UserReadModelType } from "users/mongoose/user-schema.mongoose";
+import { appConfig } from "@core/settings/config";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -149,7 +150,7 @@ export class AuthService implements IAuthService {
 
     const expiresAt =
       this.jwtService.getExpirationDate(refreshToken) ||
-      getSessionExpirationDate(30_000);
+      getSessionExpirationDate(appConfig.RT_TIME ?? "7d");
 
     // // * создаём authMe из user и сохраняем в БД
     // const session = SessionDomain.saveMe({

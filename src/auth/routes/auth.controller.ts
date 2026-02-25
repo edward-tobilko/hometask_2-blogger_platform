@@ -45,11 +45,6 @@ export class AuthController {
 
       const result = await this.authService.loginUser(command);
 
-      log("[loginUser]", {
-        requestId: (req as any).requestId,
-        result,
-      });
-
       if (result.status !== ApplicationResultStatus.Success)
         return res
           .status(mapApplicationStatusToHttpStatus(result.status))
