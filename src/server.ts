@@ -9,10 +9,7 @@ export const app = express();
 const bootstrap = async () => {
   // * Render подставляет свой порт, локально — дефолт 8080
 
-  const PORT =
-    process.env.NODE_ENV === "production"
-      ? Number(process.env.PORT) || 8080
-      : Number(process.env.PORT) || 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   try {
     // * сначала вызов db
