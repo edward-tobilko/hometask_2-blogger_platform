@@ -26,7 +26,7 @@ describe("E2E comments tests", () => {
   });
 
   // * return status 200
-  it("GET /comments/:id -> status 200  and returns comment view model", async () => {
+  it("GET: /comments/:id -> status 200  and returns comment view model", async () => {
     // * setup user
     const { postRes, accessToken } = await setupUserLoginBlogPost(app);
 
