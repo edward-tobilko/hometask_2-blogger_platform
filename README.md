@@ -80,6 +80,7 @@ Handler (Controller) → Service (BLL) → Repository → Database
 - Crypto / Bcrypt
 - Nodemailer (SMTP)
 - Render / Fly.io
+- DI / IoC
 
 ### Environment Variables
 
@@ -87,7 +88,6 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 # fly secrets set -a hometask-2-blogger-platform
 
-NODE_ENV=production
 DB_NAME=your_db_name
 MONGO_URL=your_mongodb_url
 
@@ -95,16 +95,17 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=qwerty
 
 JWT_ACCESS_SECRET=your_access_secret
-AT_TIME=10
+AT_TIME=24h
 
 JWT_REFRESH_SECRET=your_refresh_secret
-RT_TIME=20
+RT_TIME=7d
 
 SMTP_EMAIL=your_email
 SMTP_PASSWORD=your_password
 SMTP_SECURE=true
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
+DISABLE_RATE_LIMIT=false
 
 ```
 
