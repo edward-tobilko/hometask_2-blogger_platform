@@ -114,5 +114,7 @@ DISABLE_RATE_LIMIT=false
 
 <h3 align="center">Project Progress</h3>
 
-[Sprint_3_week_3.pdf](https://github.com/user-attachments/files/25587145/Sprint_3_week_3.pdf)
+<img width="683" height="794" alt="Screenshot 2026-02-26 at 3 36 19 PM" src="https://github.com/user-attachments/assets/4f1da7e1-49a1-42e3-9bc1-55f5c0c16a45" />
+
+[Download sprint-3 / week-3.pdf](https://github.com/user-attachments/files/25587145/Sprint_3_week_3.pdf)
 
