@@ -1,7 +1,7 @@
 export const routersPaths = {
-  auth: "/api/auth",
+  root: "/",
 
-  root: "/api",
+  auth: "/api/auth",
   users: "/api/users",
   blogs: "/api/blogs",
   posts: "/api/posts",
