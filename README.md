@@ -1,4 +1,4 @@
-<h1 align="center">Blogger Platform API: Sprint-3 / Week-2 — Classes / DI (Dependency Injection) / IoC (Inversion of Control ) Container</h1>
+<h1 align="center">Blogger Platform API: Sprint-3 / Week-3 — Mongoose</h1>
 
 Backend REST API built with **Node.js + Express + TypeScript**  
 Educational project with production-oriented architecture and E2E tests.
@@ -80,6 +80,8 @@ Handler (Controller) → Service (BLL) → Repository → Database
 - Crypto / Bcrypt
 - Nodemailer (SMTP)
 - Render / Fly.io
+- DI / IoC
+- Mongoose
 
 ### Environment Variables
 
@@ -87,7 +89,6 @@ Handler (Controller) → Service (BLL) → Repository → Database
 
 # fly secrets set -a hometask-2-blogger-platform
 
-NODE_ENV=production
 DB_NAME=your_db_name
 MONGO_URL=your_mongodb_url
 
@@ -105,6 +106,7 @@ SMTP_PASSWORD=your_password
 SMTP_SECURE=true
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
+DISABLE_RATE_LIMIT=false
 
 ```
 
@@ -112,5 +114,5 @@ SMTP_PORT=587
 
 <h3 align="center">Project Progress</h3>
 
-- <img width="800" height="1000" alt="Screenshot 2026-01-31 at 2 20 20 PM" src="https://github.com/user-attachments/assets/abec1e37-a17a-44f0-a956-89a8094f0470" />
-- <img width="800" height="600" alt="Screenshot 2026-01-31 at 2 20 37 PM" src="https://github.com/user-attachments/assets/43445485-e60f-42f9-a5f2-365bc0ec6a19" />
+[Sprint_3_week_3.pdf](https://github.com/user-attachments/files/25587145/Sprint_3_week_3.pdf)
+
