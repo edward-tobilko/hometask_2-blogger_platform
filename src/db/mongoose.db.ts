@@ -4,9 +4,11 @@ import { appConfig } from "@core/settings/config";
 
 export async function runMongoose(): Promise<void> {
   try {
-    await mongoose.connect(appConfig.MONGO_URL);
+    await mongoose.connect(appConfig.MONGO_URL, {
+      dbName: appConfig.DB_NAME,
+    });
 
-    console.log(`✅ Connected (mongoose) to DB: ${mongoose.connection.name}`);
+    console.log(`✅ Connected (mongoose) to DB: ${appConfig.DB_NAME}`);
   } catch (error: unknown) {
     throw new Error(`❌ Mongoose connection failed: ${error}`);
   }

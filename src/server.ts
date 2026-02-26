@@ -3,13 +3,16 @@ import express from "express";
 
 import { setupApp } from "./app";
 import { runMongoose } from "db/mongoose.db";
+import { appConfig } from "@core/settings/config";
 
 export const app = express();
 
 const bootstrap = async () => {
-  // * Render подставляет свой порт, локально — дефолт 8080
+  // * Hosting подставляет свой порт, локально — 8080
+  const PORT = appConfig.PORT;
+  const HOST = "0.0.0.0";
 
-  const PORT = Number(process.env.PORT) || 3000;
+  if (!PORT) throw new Error("PORT is not set");
 
   try {
     // * сначала вызов db
@@ -19,9 +22,8 @@ const bootstrap = async () => {
     setupApp(app);
 
     // * потом listen
-    const server = app.listen(PORT, "0.0.0.0", () => {
+    const server = app.listen(PORT, HOST, () => {
       console.log(`✅ Server running on ${PORT} PORT`);
-      console.log(`NODE_ENV=${process.env.NODE_ENV}`);
       console.log("✅ ENTRY:", __filename);
     });
 

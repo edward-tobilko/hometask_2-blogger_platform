@@ -2,14 +2,22 @@ import { config } from "dotenv";
 import { Secret } from "jsonwebtoken";
 import { StringValue } from "ms";
 
-const nodeEnv = process.env.NODE_ENV ?? "development";
+type NodeEnv = "development" | "test" | "production";
 
-const envFilePath =
-  nodeEnv === "test"
-    ? ".env.test.local"
-    : nodeEnv === "production"
-      ? ".env.production.local"
-      : ".env.development.local";
+const nodeEnv = (process.env.NODE_ENV as NodeEnv | undefined) ?? "development";
+
+if (nodeEnv !== "production") {
+  const envFilePath =
+    nodeEnv === "test" ? ".env.test.local" : ".env.development.local";
+
+  config({ path: envFilePath });
+
+  console.log("ENV MODE:", nodeEnv);
+  console.log("ENV FILE:", envFilePath);
+} else {
+  console.log("ENV MODE:", nodeEnv);
+  console.log("ENV FILE: (skipped in production)");
+}
 
 const defaultDbName =
   nodeEnv === "test"
@@ -18,13 +26,11 @@ const defaultDbName =
       ? "home_task2-blogger_platform_prod"
       : "home_task2-blogger_platform_dev";
 
-config({ path: envFilePath });
-
-console.log("ENV MODE:", nodeEnv);
-console.log("ENV FILE:", envFilePath);
-
 export const appConfig = {
-  PORT: process.env.PORT,
+  NODE_ENV: nodeEnv,
+
+  PORT: Number(process.env.PORT) || 8080,
+
   MONGO_URL: process.env.MONGO_URL ?? "mongodb://127.0.0.1:27017",
   DB_NAME: process.env.DB_NAME ?? defaultDbName,
 
@@ -45,4 +51,4 @@ export const appConfig = {
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_PORT: process.env.SMTP_PORT,
   SMTP_SECURE: process.env.SMTP_SECURE,
-};
+} as const;

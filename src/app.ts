@@ -23,15 +23,15 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createUsersRouter } from "users/routes/users.route";
 import { createBlogsRouter } from "blogs/routes/blogs.route";
 import { createSecurityDevicesRouter } from "security-devices/routers/security-devices.router";
+import { appConfig } from "@core/settings/config";
 
 export const setupApp = (app: Express) => {
-  if (process.env.NODE_ENV === "production") {
-    app.set("trust proxy", 1); // true for prod
-  } else if (process.env.NODE_ENV === "test") {
-    app.set("trust proxy", 1); // true for test
-  } else {
-    app.set("trust proxy", false); // false for dev/test
-  }
+  app.set(
+    "trust proxy",
+    appConfig.NODE_ENV === "production" || appConfig.NODE_ENV === "test"
+      ? 1
+      : false
+  );
 
   app.use(express.json());
   app.use(cookieParser());
@@ -53,7 +53,21 @@ export const setupApp = (app: Express) => {
 
   // * Root router
   app.get(routersPaths.root, (_req: Request, res: Response) => {
-    res.status(HTTP_STATUS_CODES.OK_200).json("Hello User");
+    res.status(HTTP_STATUS_CODES.OK_200).json({
+      status: "ok",
+      name: "Blogger Platform API",
+
+      environment: appConfig.NODE_ENV,
+
+      endpoints: {
+        posts: "/api/posts",
+        comments: "/api/comments",
+        users: "/api/users",
+        auth: "/api/auth",
+      },
+
+      timestamp: new Date().toISOString(),
+    });
   });
 
   // * Auth router
