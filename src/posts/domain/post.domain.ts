@@ -43,7 +43,7 @@ export class PostDomain {
   }
 }
 
-// ? class PostDomain -> updatePost() - бизнес-логика уровня домена, а не просто patch-update в репозитории. ( Domain Entity ).
+// ? class PostDomain -> updatePost() - бизнес-логика уровня домена, а не просто patch-update в репозитории. ( Domain - Entity ).
 // ? - Используется, когда ты получаешь PostDomain из, например, Mongo.
 // ? - Ты получаешь plain object, а хочешь — полноценный экземпляр класса с методами.
 // ? static - метод для создания сущности, когда экземпляра еще нет. ОН принадлежит не обьекту, а классу.

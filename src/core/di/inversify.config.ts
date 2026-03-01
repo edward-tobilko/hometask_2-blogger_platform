@@ -42,14 +42,13 @@ import { NodeMailerService } from "auth/adapters/node-mailer-service.adapter";
 import { AuthController } from "auth/routes/auth.controller";
 import { BlogsController } from "blogs/routes/blogs.controller";
 import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
-import { CommentsRepository } from "comments/repositories/comments.repository";
+import { CommentsRepository } from "comments/infrastructure/repositories/comments.repository";
 import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
-import { CommentsQueryRepo } from "comments/repositories/comment-query.repository";
+import { CommentsQueryRepo } from "comments/infrastructure/repositories/comment-query.repository";
 import { ICommentsQueryService } from "comments/interfaces/ICommentsQueryService";
-import { CommentsQueryService } from "comments/application/comments-query.service";
+import { CommentsQueryService } from "comments/application/services/comments-query.service";
 import { ICommentsService } from "comments/interfaces/ICommentsService";
-import { CommentsService } from "comments/application/comments.service";
-import { CommentsController } from "comments/routes/comments.controller";
+import { CommentsService } from "comments/application/services/comments.service";
 import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
 import { SecurityDevicesQueryRepo } from "security-devices/repositories/security-devices-query.repo";
 import { ISecurityDevicesQueryRepo } from "security-devices/interfaces/ISecurityDevicesQueryRepo";
@@ -61,6 +60,7 @@ import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecur
 import { SecurityDevicesQueryService } from "security-devices/applications/security-devices-query.service";
 import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
 import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
+import { CommentsController } from "comments/controllers/comments.controller";
 
 export const container = new Container({ defaultScope: "Singleton" });
 

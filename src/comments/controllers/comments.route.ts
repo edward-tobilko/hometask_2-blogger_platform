@@ -3,11 +3,11 @@ import { Router } from "express";
 import {
   paramCommentIdValidation,
   paramIdValidation,
-} from "./../../core/middlewares/validation/param-id.middleware-validation";
+} from "../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
 import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
 import { updateCommentContentRPValidation } from "./request-payload-validations/update-comment-content.rpv";
-import { CommentsController } from "comments/routes/comments.controller";
+import { CommentsController } from "comments/controllers/comments.controller";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { updateCommentLikeStatusRPValidation } from "./request-payload-validations/update-comment-likeStatus.rpv";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";

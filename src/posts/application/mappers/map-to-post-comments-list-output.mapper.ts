@@ -2,7 +2,7 @@ import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-ty
 import { IPostCommentOutput } from "../output/post-comment.output";
 import { PostCommentsLean } from "posts/mongoose/post-comments.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { CommentLikeLean } from "comments/mongoose/comment-likes.schema";
+import { CommentLikeLean } from "comments/infrastructure/mongoose/comment-likes.schema";
 
 export const mapToPostCommentsListOutput = (
   postCommentsDomain: PostCommentsLean[],

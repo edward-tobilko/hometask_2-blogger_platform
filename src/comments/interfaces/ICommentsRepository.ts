@@ -2,15 +2,15 @@ import { LikeStatus } from "@core/types/like-status.enum";
 import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 
 export interface ICommentsRepository {
-  // getCommentDomainById(commentId: string): Promise<PostCommentDomain | null>;
+  upsertCommentLikeStatus(
+    likeStatus: LikeStatus,
+    commentId: string,
+    userId: string,
+    likesChange: number,
+    disLikesChange: number
+  ): Promise<boolean>;
 
-  deleteCommentById(commentId: string): Promise<boolean>;
+  updateComment(domain: UpdateCommentDtoCommand): Promise<boolean>;
 
-  updateCommentById(dto: UpdateCommentDtoCommand): Promise<boolean>;
-
-  updateCommentLikeStatusById(dto: {
-    likeStatus: LikeStatus;
-    commentId: string;
-    userId: string;
-  }): Promise<boolean>;
+  deleteComment(commentId: string): Promise<boolean>;
 }

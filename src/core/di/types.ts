@@ -66,5 +66,5 @@ export const Types = {
   UsersController: Symbol.for("UsersController"),
 } as const;
 
-// ? Зачем нужны токены (Symbols): потому что интерфейсы TypeScript не существуют в рантайме. То есть IUsersRepository — это только во время компиляции, а в Node.js его нет. Поэтому мы говорим Inversify: «когда видишь @inject(TYPES.IUsersRepository) — достань зависимость по этому токену».
+// ? Зачем нужны токены (Symbols): потому что интерфейсы TypeScript не существуют в рантайме. То есть, IUsersRepository — это только во время компиляции, а в Node.js его нет. Поэтому мы говорим Inversify: «когда видишь @inject(TYPES.IUsersRepository) — достань зависимость по этому токену».
 // ? Теперь UsersController зависит только от интерфейсов, а контейнер решает, что именно подставлять.

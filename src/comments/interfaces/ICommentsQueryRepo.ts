@@ -1,7 +1,7 @@
 import { IPostCommentOutput } from "posts/application/output/post-comment.output";
 
 export interface ICommentsQueryRepo {
-  getCommentById(
+  findCommentById(
     commentId: string,
     currentUserId?: string
   ): Promise<IPostCommentOutput | null>;

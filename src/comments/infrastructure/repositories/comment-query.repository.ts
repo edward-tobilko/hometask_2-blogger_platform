@@ -1,8 +1,8 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { mapToCommentOutput } from "../application/mappers/map-to-comment-output.mapper";
-import { IPostCommentOutput } from "../../posts/application/output/post-comment.output";
+import { mapToCommentOutput } from "../../application/mappers/map-to-comment-output.mapper";
+import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
 import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
 import {
   PostCommentsLean,
@@ -12,11 +12,11 @@ import { LikeStatus } from "@core/types/like-status.enum";
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/mongoose/comment-likes.schema";
+} from "comments/infrastructure/mongoose/comment-likes.schema";
 
 @injectable()
 export class CommentsQueryRepo implements ICommentsQueryRepo {
-  async getCommentById(
+  async findCommentById(
     commentId: string,
     currentUserId?: string // * Опционально - для неавторизованных пользователей
   ): Promise<IPostCommentOutput | null> {

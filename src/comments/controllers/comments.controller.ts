@@ -6,11 +6,11 @@ import { errorsHandler } from "@core/errors/errors-handler.error";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { Types } from "@core/di/types";
-import { CommentsQueryService } from "../application/comments-query.service";
+import { CommentsQueryService } from "../application/services/comments-query.service";
 import { UpdateCommentRP } from "./request-payload-types/update-comment.request-payload-types";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { UpdateCommentDtoCommand } from "../application/commands/update-comment-dto.command";
-import { CommentsService } from "../application/comments.service";
+import { CommentsService } from "../application/services/comments.service";
 import { LikeStatus } from "@core/types/like-status.enum";
 
 @injectable()
@@ -21,25 +21,40 @@ export class CommentsController {
     @inject(Types.ICommentsService) private commentsService: CommentsService
   ) {}
 
-  async getCommentByIdHandler(req: Request<{ id: string }>, res: Response) {
+  async updateCommentLikeStatusHandler(
+    req: Request<{ commentId: string }, {}, { likeStatus: string }, {}>,
+    res: Response
+  ) {
     try {
-      const commentId = req.params.id;
+      // * Validate body
+      const sanitizedBody = matchedData<{ likeStatus: string }>(req, {
+        locations: ["body"],
+        includeOptionals: false,
+      });
 
-      // * Если optionalJwtAccessGuard прошел → userId уже есть
-      const currentUserId = req.user?.id;
+      // * Create command
+      const command = createCommand<{
+        likeStatus: LikeStatus;
+        commentId: string;
+        userId: string;
+      }>({
+        commentId: req.params.commentId,
+        userId: req.user.id,
+        likeStatus: sanitizedBody.likeStatus as LikeStatus,
+      });
 
-      const commentOutput = await this.commentsQueryService.getCommentById(
-        commentId,
-        currentUserId // * Передаем userId для вычисления myStatus
+      // * Get result
+      const result = await this.commentsService.upsertCommentLikeStatus(
+        command.payload
       );
 
-      if (!commentOutput.isSuccess()) {
+      if (!result.isSuccess()) {
         return res
-          .status(mapApplicationStatusToHttpStatus(commentOutput.status))
-          .json({ errorsMessages: commentOutput.extensions });
+          .status(mapApplicationStatusToHttpStatus(result.status))
+          .json({ errorsMessages: result.extensions });
       }
 
-      res.status(HTTP_STATUS_CODES.OK_200).json(commentOutput.data);
+      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
       console.log("ERROR HANDLER:", error);
 
@@ -91,10 +106,7 @@ export class CommentsController {
       // * Получаем от express.d.ts (именно через middleware jwtAuthGuard мы пропускаем правильного юзера с токеном)
       const userId = req.user.id;
 
-      await this.commentsService.deleteCommentById(
-        req.params.commentId,
-        userId
-      );
+      await this.commentsService.deleteComment(req.params.commentId, userId);
 
       res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
@@ -104,39 +116,25 @@ export class CommentsController {
     }
   }
 
-  async updateCommentLikeStatusHandler(
-    req: Request<{ commentId: string }, {}, { likeStatus: string }, {}>,
-    res: Response
-  ) {
+  async getCommentByIdHandler(req: Request<{ id: string }>, res: Response) {
     try {
-      // * Валидируем body
-      const sanitizedBody = matchedData<{ likeStatus: string }>(req, {
-        locations: ["body"],
-        includeOptionals: false,
-      });
+      const commentId = req.params.id;
 
-      // * Создаем сомманду
-      const command = createCommand<{
-        likeStatus: LikeStatus;
-        commentId: string;
-        userId: string;
-      }>({
-        commentId: req.params.commentId,
-        userId: req.user.id,
-        likeStatus: sanitizedBody.likeStatus as LikeStatus,
-      });
+      // * Если optionalJwtAccessGuard прошел → userId уже есть
+      const currentUserId = req.user?.id;
 
-      const result = await this.commentsService.updateCommentLikeStatusById(
-        command.payload
+      const commentOutput = await this.commentsQueryService.getCommentById(
+        commentId,
+        currentUserId // * Передаем userId для вычисления myStatus
       );
 
-      if (!result.isSuccess()) {
+      if (!commentOutput.isSuccess()) {
         return res
-          .status(mapApplicationStatusToHttpStatus(result.status))
-          .json({ errorsMessages: result.extensions });
+          .status(mapApplicationStatusToHttpStatus(commentOutput.status))
+          .json({ errorsMessages: commentOutput.extensions });
       }
 
-      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+      res.status(HTTP_STATUS_CODES.OK_200).json(commentOutput.data);
     } catch (error: unknown) {
       console.log("ERROR HANDLER:", error);
 

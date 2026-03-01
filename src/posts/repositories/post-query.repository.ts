@@ -18,7 +18,7 @@ import {
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/mongoose/comment-likes.schema";
+} from "comments/infrastructure/mongoose/comment-likes.schema";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepository {

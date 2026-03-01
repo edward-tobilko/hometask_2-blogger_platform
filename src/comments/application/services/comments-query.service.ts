@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 
 import { ApplicationResult } from "@core/result/application.result";
-import { IPostCommentOutput } from "../../posts/application/output/post-comment.output";
+import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { NotFoundError } from "@core/errors/application.error";
 import { Types } from "@core/di/types";
@@ -19,7 +19,7 @@ export class CommentsQueryService implements ICommentsQueryService {
     commentId: string,
     currentUserId?: string
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
-    const comment = await this.commentsQueryRepo.getCommentById(
+    const comment = await this.commentsQueryRepo.findCommentById(
       commentId,
       currentUserId
     );
