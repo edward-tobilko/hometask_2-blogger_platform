@@ -1,5 +1,5 @@
-import { UpdateCommentDtoDomain } from "../../domain/update-comment-dto.domain";
+import { UpdateCommentDtoEntity } from "../../domain/value-objects/update-comment-dto.entity";
 
-export type UpdateCommentDtoCommand = UpdateCommentDtoDomain & {
+export type UpdateCommentDtoCommand = UpdateCommentDtoEntity & {
   commentId: string;
 };

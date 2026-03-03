@@ -1,16 +1,16 @@
 import { inject, injectable } from "inversify";
 
-import { ApplicationResult } from "./../../core/result/application.result";
-import { PostCommentsListPaginatedOutput } from "./output/post-comments-list-type.output";
-import { PostOutput } from "./output/post-type.output";
-import { PostsListPaginatedOutput } from "./output/posts-list-type.output";
-import { GetPostCommentsListQueryHandler } from "./query-handlers/get-post-comments-list.query-handler";
-import { GetPostsListQueryHandler } from "./query-handlers/get-posts-list.query-handler";
+import { PostOutput } from "../output/post-type.output";
+import { PostsListPaginatedOutput } from "../output/posts-list-type.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { Types } from "@core/di/types";
-import { IPostsQueryService } from "posts/interfaces/IPostsQueryService";
-import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
+import { IPostsQueryService } from "posts/application/interfaces/IPostsQueryService";
+import { IPostsQueryRepository } from "posts/application/interfaces/IPostsQueryRepository";
 import { NotFoundError } from "@core/errors/application.error";
+import { ApplicationResult } from "@core/result/application.result";
+import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
+import { GetPostsListQueryHandler } from "../query-handlers/get-posts-list.query-handler";
+import { GetPostCommentsListQueryHandler } from "../query-handlers/get-post-comments-list.query-handler";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {

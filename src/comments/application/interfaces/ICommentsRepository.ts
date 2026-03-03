@@ -14,3 +14,5 @@ export interface ICommentsRepository {
 
   deleteComment(commentId: string): Promise<boolean>;
 }
+
+// ? application слой зависит от абстракций (interfaces) -> infrastructure реализует эти абстракции.

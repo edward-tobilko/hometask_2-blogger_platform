@@ -10,6 +10,7 @@ export type PostDb = {
   shortDescription: string;
   content: string;
   blogId: mongoose.Types.ObjectId;
+
   blogName: string;
   createdAt?: Date;
 };

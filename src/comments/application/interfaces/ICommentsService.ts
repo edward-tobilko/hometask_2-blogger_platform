@@ -17,3 +17,5 @@ export interface ICommentsService {
 
   deleteComment(commentId: string, userId: string): Promise<void>;
 }
+
+// ? application слой зависит от абстракций (interfaces) -> infrastructure реализует эти абстракции.

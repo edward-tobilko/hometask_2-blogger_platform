@@ -1,6 +1,6 @@
-import { UpdatePostDtoDomain } from "../../domain/update-post-dto.domain";
+import { UpdatePostDtoEntity } from "../../domain/value-objects/update-post-dto.entity";
 
-export type UpdatePostDtoCommand = UpdatePostDtoDomain & {
+export type UpdatePostDtoCommand = UpdatePostDtoEntity & {
   id: string;
 };
 

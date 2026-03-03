@@ -1,11 +1,11 @@
-import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
 
 // * DTO model - response for db
-export type CreatePostDtoDomain = {
+export type CreatePostDtoEntity = {
   title: string;
   shortDescription: string;
   content: string;
-  blogId: ObjectId | string;
+  blogId: mongoose.Types.ObjectId;
 
   blogName: string;
 };

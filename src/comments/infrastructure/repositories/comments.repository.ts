@@ -1,17 +1,17 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
+import { ICommentsRepository } from "comments/application/interfaces/ICommentsRepository";
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/mongoose/post-comments.schema";
+} from "posts/infrastructure/mongoose/post-comments.schema";
 import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 import { LikeStatus } from "@core/types/like-status.enum";
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/infrastructure/mongoose/comment-likes.schema";
+} from "comments/infrastructure/schemas/comment-likes.schema";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
 
 @injectable()

@@ -5,8 +5,8 @@ import { IPostCommentOutput } from "../../../posts/application/output/post-comme
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { NotFoundError } from "@core/errors/application.error";
 import { Types } from "@core/di/types";
-import { ICommentsQueryService } from "comments/interfaces/ICommentsQueryService";
-import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
+import { ICommentsQueryService } from "comments/application/interfaces/ICommentsQueryService";
+import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
 
 @injectable()
 export class CommentsQueryService implements ICommentsQueryService {

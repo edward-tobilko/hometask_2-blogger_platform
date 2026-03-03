@@ -1,4 +1,4 @@
-import { PostCommentsLean } from "posts/mongoose/post-comments.schema";
+import { PostCommentsLean } from "posts/infrastructure/mongoose/post-comments.schema";
 import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
 import { LikeStatus } from "@core/types/like-status.enum";
 

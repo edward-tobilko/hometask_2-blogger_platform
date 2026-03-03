@@ -3,16 +3,16 @@ import { Types } from "mongoose";
 
 import { mapToCommentOutput } from "../../application/mappers/map-to-comment-output.mapper";
 import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
-import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
+import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/mongoose/post-comments.schema";
+} from "posts/infrastructure/mongoose/post-comments.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/infrastructure/mongoose/comment-likes.schema";
+} from "comments/infrastructure/schemas/comment-likes.schema";
 
 @injectable()
 export class CommentsQueryRepo implements ICommentsQueryRepo {

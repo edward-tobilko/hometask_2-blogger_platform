@@ -8,7 +8,11 @@ import {
   BlogDocument,
   BlogModel,
 } from "blogs/mongoose/blog-schema.mongoose";
-import { PostDb, PostDocument, PostModel } from "posts/mongoose/post.schema";
+import {
+  PostDb,
+  PostDocument,
+  PostModel,
+} from "posts/infrastructure/mongoose/post.schema";
 import { UpdateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
 
 @injectable()

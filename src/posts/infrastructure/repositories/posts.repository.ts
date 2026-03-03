@@ -1,13 +1,17 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { IPostsRepository } from "posts/interfaces/IPostsRepository";
-import { PostDb, PostDocument, PostModel } from "posts/mongoose/post.schema";
+import { IPostsRepository } from "posts/application/interfaces/IPostsRepository";
+import {
+  PostDb,
+  PostDocument,
+  PostModel,
+} from "posts/infrastructure/mongoose/post.schema";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 import {
   PostCommentsDocument,
   PostCommentsModel,
-} from "posts/mongoose/post-comments.schema";
+} from "posts/infrastructure/mongoose/post-comments.schema";
 
 @injectable()
 export class PostsRepository implements IPostsRepository {

@@ -1,8 +1,11 @@
 import { Types } from "mongoose";
 
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
-import { PostCommentsDocument } from "posts/mongoose/post-comments.schema";
-import { PostDb, PostDocument } from "posts/mongoose/post.schema";
+import { PostCommentsDocument } from "posts/infrastructure/mongoose/post-comments.schema";
+import {
+  PostDb,
+  PostDocument,
+} from "posts/infrastructure/mongoose/post.schema";
 
 export interface IPostsRepository {
   createPost(newPost: PostDb): Promise<PostDocument>;

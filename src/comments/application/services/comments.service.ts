@@ -11,9 +11,9 @@ import { ApplicationResult } from "../../../core/result/application.result";
 import { UpdateCommentDtoCommand } from "../commands/update-comment-dto.command";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import { Types } from "@core/di/types";
-import { ICommentsService } from "comments/interfaces/ICommentsService";
-import { ICommentsRepository } from "comments/interfaces/ICommentsRepository";
-import { ICommentsQueryRepo } from "comments/interfaces/ICommentsQueryRepo";
+import { ICommentsService } from "comments/application/interfaces/ICommentsService";
+import { ICommentsRepository } from "comments/application/interfaces/ICommentsRepository";
+import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { CommentEntity } from "comments/domain/entities/comment.entity";
 
@@ -35,10 +35,13 @@ export class CommentsService implements ICommentsService {
 
     const session = await mongoose.startSession(); // * позволяет объединить несколько запросов в одну транзакцию. Без session каждый updateOne() — это отдельная операция.
 
+    const prevStatus = LikeStatus.Dislike;
+    const nextStatus = LikeStatus.Like;
+
     try {
       // * Domain
       const { likesChange, disLikesChange } =
-        CommentEntity.calculateLikeDislike();
+        CommentEntity.calculateLikeDislike(prevStatus, nextStatus);
 
       // * session.withTransaction() - все внутри либо выполнится целиком, либо откатится полностью (если хоть один запросс не сработает: $inc или $upsert).
       await session.withTransaction(async () => {

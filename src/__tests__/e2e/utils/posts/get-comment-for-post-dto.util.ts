@@ -1,4 +1,4 @@
-import { CreatePostCommentRP } from "posts/routes/request-payload-types/create-post-comment.request-payload-types";
+import { CreatePostCommentRP } from "posts/presentation/request-payload-types/create-post-comment.request-payload-types";
 
 export function getCommentForPostDto(): CreatePostCommentRP {
   return {

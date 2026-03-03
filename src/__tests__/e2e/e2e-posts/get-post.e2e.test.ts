@@ -9,7 +9,7 @@ import { getPostDtoUtil } from "../utils/posts/get-post-dto.util";
 import { createBlogUtil } from "../utils/blogs/create-blog.util";
 import { getPostByIdBodyUtil } from "../utils/posts/get-post-by-id.util";
 import { routersPaths } from "../../../core/paths/paths";
-import { CreatePostRP } from "posts/routes/request-payload-types/create-post.request-payload-types";
+import { CreatePostRP } from "posts/presentation/request-payload-types/create-post.request-payload-types";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 describe("E2E get post tests", () => {

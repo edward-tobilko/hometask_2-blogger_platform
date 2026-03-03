@@ -1,5 +1,5 @@
 import { LikeStatus } from "@core/types/like-status.enum";
-import { CommentLikeDocument } from "comments/infrastructure/mongoose/comment-likes.schema";
+// import { CommentLikeDocument } from "comments/infrastructure/mongoose/comment-likes.schema";
 
 type LikeChange = {
   likesChange: number;
@@ -8,12 +8,12 @@ type LikeChange = {
 
 export class CommentEntity {
   // * НЕ дублируем свойства, храним ссылку на mongoose document
-  private constructor(private readonly document: CommentLikeDocument) {}
+  // private constructor(private readonly document: CommentLikeDocument) {}
 
-  // * Фабричный метод для востановления entity из документа БД
-  static fromDocument(doc: CommentLikeDocument): CommentEntity {
-    return new CommentEntity(doc);
-  }
+  // // * Фабричный метод для востановления entity из документа БД
+  // static fromDocument(doc: CommentLikeDocument): CommentEntity {
+  //   return new CommentEntity(doc);
+  // }
 
   static calculateLikeDislike(
     prevStatus: LikeStatus,
@@ -43,6 +43,10 @@ export class CommentEntity {
 
     return { likesChange, disLikesChange };
   }
+
+  // applyLikeChanges(likesChange: number, disLikesChange: number): void {
+  //   this.document;
+  // }
 }
 
 /*

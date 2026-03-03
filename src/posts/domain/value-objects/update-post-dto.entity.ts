@@ -1,5 +1,5 @@
 // * DTO model
-export type UpdatePostDtoDomain = {
+export type UpdatePostDtoEntity = {
   title: string;
   shortDescription: string;
   content: string;

@@ -3,18 +3,18 @@ import { Router } from "express";
 import {
   paramIdValidation,
   paramPostIdValidation,
-} from "../../core/middlewares/validation/param-id.middleware-validation";
-import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
-import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
+} from "../../../core/middlewares/validation/param-id.middleware-validation";
+import { inputResultMiddlewareValidation } from "../../../core/middlewares/validation/input-result.middleware-validation";
+import { baseAuthGuard } from "../../../auth/api/guards/base-auth.guard";
+import { queryPaginationAndSortingValidation } from "../../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import {
   PostCommentsSortFieldRP,
   PostSortFieldRP,
-} from "./request-payload-types/post-sort-field.request-payload-types";
-import { jwtAccessAuthGuard } from "../../auth/api/guards/jwt-access-auth.guard";
-import { createCommentDtoRPValidation } from "./request-payload-validations/create-comment-dto.validation";
+} from "../request-payload-types/post-sort-field.request-payload-types";
+import { jwtAccessAuthGuard } from "../../../auth/api/guards/jwt-access-auth.guard";
+import { createCommentDtoRPValidation } from "../request-payload-validations/create-comment-dto.validation";
 import { PostsController } from "./posts.controller";
-import { createPostBodyInputRPValidation } from "./request-payload-validations/post-input-dto-validation.middleware";
+import { createPostBodyInputRPValidation } from "../request-payload-validations/post-input-dto-validation.middleware";
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";

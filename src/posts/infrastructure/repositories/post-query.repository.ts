@@ -1,24 +1,24 @@
 import { injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
-import { mapToPostListOutput } from "../application/mappers/map-to-post-list-output.util";
-import { PostOutput } from "../application/output/post-type.output";
-import { PostsListPaginatedOutput } from "../application/output/posts-list-type.output";
-import { GetPostsListQueryHandler } from "../application/query-handlers/get-posts-list.query-handler";
-import { mapToPostOutput } from "../application/mappers/map-to-post-output.util";
-import { GetPostCommentsListQueryHandler } from "../application/query-handlers/get-post-comments-list.query-handler";
-import { PostCommentsListPaginatedOutput } from "../application/output/post-comments-list-type.output";
-import { mapToPostCommentsListOutput } from "../application/mappers/map-to-post-comments-list-output.mapper";
-import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
-import { PostLean, PostModel } from "posts/mongoose/post.schema";
+import { mapToPostListOutput } from "../../application/mappers/map-to-post-list-output.util";
+import { PostOutput } from "../../application/output/post-type.output";
+import { PostsListPaginatedOutput } from "../../application/output/posts-list-type.output";
+import { GetPostsListQueryHandler } from "../../application/query-handlers/get-posts-list.query-handler";
+import { mapToPostOutput } from "../../application/mappers/map-to-post-output.util";
+import { GetPostCommentsListQueryHandler } from "../../application/query-handlers/get-post-comments-list.query-handler";
+import { PostCommentsListPaginatedOutput } from "../../application/output/post-comments-list-type.output";
+import { mapToPostCommentsListOutput } from "../../application/mappers/map-to-post-comments-list-output.mapper";
+import { IPostsQueryRepository } from "posts/application/interfaces/IPostsQueryRepository";
+import { PostLean, PostModel } from "posts/infrastructure/mongoose/post.schema";
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/mongoose/post-comments.schema";
+} from "posts/infrastructure/mongoose/post-comments.schema";
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/infrastructure/mongoose/comment-likes.schema";
+} from "comments/infrastructure/schemas/comment-likes.schema";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepository {

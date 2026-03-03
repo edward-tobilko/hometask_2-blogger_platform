@@ -6,12 +6,12 @@ import { errorsHandler } from "@core/errors/errors-handler.error";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { Types } from "@core/di/types";
-import { CommentsQueryService } from "../application/services/comments-query.service";
-import { UpdateCommentRP } from "./request-payload-types/update-comment.request-payload-types";
+import { UpdateCommentRP } from "../request-payload-types/update-comment.request-payload-types";
 import { createCommand } from "@core/helpers/create-command.helper";
-import { UpdateCommentDtoCommand } from "../application/commands/update-comment-dto.command";
-import { CommentsService } from "../application/services/comments.service";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { CommentsQueryService } from "comments/application/services/comments-query.service";
+import { CommentsService } from "comments/application/services/comments.service";
+import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 
 @injectable()
 export class CommentsController {

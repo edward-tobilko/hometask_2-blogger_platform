@@ -1,24 +1,24 @@
 import { inject, injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
-import { WithMeta } from "../../core/types/with-meta.type";
-import { ApplicationResult } from "../../core/result/application.result";
-import { PostOutput } from "./output/post-type.output";
-import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
+import { WithMeta } from "../../../core/types/with-meta.type";
+import { ApplicationResult } from "../../../core/result/application.result";
+import { PostOutput } from "../output/post-type.output";
+import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import {
   ApplicationError,
   NotFoundError,
   RepositoryNotFoundError,
-} from "../../core/errors/application.error";
-import { CreatePostDtoCommand } from "./commands/create-post-dto.command";
-import { UpdatePostDtoCommand } from "./commands/update-post-dto.command";
-import { CreateCommentForPostDtoCommand } from "./commands/create-comment-for-post-dto.command";
-import { IPostCommentOutput } from "./output/post-comment.output";
-import { IPostsService } from "posts/interfaces/IPostsService";
+} from "../../../core/errors/application.error";
+import { CreatePostDtoCommand } from "../commands/create-post-dto.command";
+import { UpdatePostDtoCommand } from "../commands/update-post-dto.command";
+import { CreateCommentForPostDtoCommand } from "../commands/create-comment-for-post-dto.command";
+import { IPostCommentOutput } from "../output/post-comment.output";
+import { IPostsService } from "posts/application/interfaces/IPostsService";
 import { Types } from "@core/di/types";
-import { IPostsRepository } from "posts/interfaces/IPostsRepository";
+import { IPostsRepository } from "posts/application/interfaces/IPostsRepository";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
-import { IPostsQueryRepository } from "posts/interfaces/IPostsQueryRepository";
+import { IPostsQueryRepository } from "posts/application/interfaces/IPostsQueryRepository";
 import { LikeStatus } from "@core/types/like-status.enum";
 
 @injectable()

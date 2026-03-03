@@ -10,12 +10,12 @@ import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { Types } from "@core/di/types";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
-import { PostsListRP } from "posts/routes/request-payload-types/posts-list.request-payload-types";
-import { PostSortFieldRP } from "posts/routes/request-payload-types/post-sort-field.request-payload-types";
+import { PostsListRP } from "posts/presentation/request-payload-types/posts-list.request-payload-types";
+import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-sort-field.request-payload-types";
 import { CreateBlogRP } from "./request-payload-types/create-blog.request-payload-type";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { CreateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
-import { CreatePostForBlogRP } from "posts/routes/request-payload-types/create-post-for-blog.request-payload-types";
+import { CreatePostForBlogRP } from "posts/presentation/request-payload-types/create-post-for-blog.request-payload-types";
 import { CreatePostForBlogDtoCommand } from "posts/application/commands/create-post-for-blog-dto.command";
 import { UpdateBlogRP } from "./request-payload-types/update-blog.request-payload";
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";

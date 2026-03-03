@@ -12,7 +12,7 @@ import { GetPostsListQueryHandler } from "../../posts/application/query-handlers
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 import { BlogLean, BlogModel } from "blogs/mongoose/blog-schema.mongoose";
-import { PostLean, PostModel } from "posts/mongoose/post.schema";
+import { PostLean, PostModel } from "posts/infrastructure/mongoose/post.schema";
 
 @injectable()
 export class BlogsQueryRepository implements IBlogsQueryRepository {

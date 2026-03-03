@@ -1,4 +1,4 @@
-import { PostDocument } from "posts/mongoose/post.schema";
+import { PostDocument } from "posts/infrastructure/mongoose/post.schema";
 import { PostOutput } from "../output/post-type.output";
 
 export function mapToPostOutput(post: PostDocument): PostOutput {

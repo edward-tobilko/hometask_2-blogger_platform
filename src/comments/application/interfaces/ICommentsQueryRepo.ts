@@ -6,3 +6,5 @@ export interface ICommentsQueryRepo {
     currentUserId?: string
   ): Promise<IPostCommentOutput | null>;
 }
+
+// ? application слой зависит от абстракций (interfaces) -> infrastructure реализует эти абстракции.
