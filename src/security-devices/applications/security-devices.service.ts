@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { ForbiddenError, NotFoundError } from "@core/errors/application.error";
 import { ApplicationResult } from "@core/result/application.result";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDevicesService";
 import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
 import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
@@ -11,9 +11,10 @@ import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 @injectable()
 export class SecurityDevicesService implements ISecurityDevicesService {
   constructor(
-    @inject(Types.ISecurityDevicesRepo)
+    @inject(DiTypes.ISecurityDevicesRepo)
     private securityDevicesRepo: ISecurityDevicesRepo,
-    @inject(Types.ISessionQueryRepo) private sessionQueryRepo: ISessionQueryRepo
+    @inject(DiTypes.ISessionQueryRepo)
+    private sessionQueryRepo: ISessionQueryRepo
   ) {}
 
   async removeAllSecurityDevicesExceptCurrent(

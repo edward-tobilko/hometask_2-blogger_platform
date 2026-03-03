@@ -4,21 +4,21 @@ import { inject, injectable } from "inversify";
 import { log } from "console";
 
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IUsersQueryService } from "users/interfaces/IUsersQueryService";
 import { CreatePostCommentRP } from "../request-payload-types/create-post-comment.request-payload-types";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { CreateCommentForPostDtoCommand } from "posts/application/commands/create-comment-for-post-dto.command";
 import { errorsHandler } from "@core/errors/errors-handler.error";
-import { IPostsService } from "posts/application/interfaces/IPostsService";
+import { IPostsService } from "posts/application/interfaces/posts-service.interface";
 import { PostsListRP } from "../request-payload-types/posts-list.request-payload-types";
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import {
   PostCommentsSortFieldRP,
   PostSortFieldRP,
 } from "../request-payload-types/post-sort-field.request-payload-types";
-import { IPostsQueryService } from "posts/application/interfaces/IPostsQueryService";
+import { IPostsQueryService } from "posts/application/interfaces/posts-query-service.interface";
 import { GetPostCommentsListQueryHandler } from "posts/application/query-handlers/get-post-comments-list.query-handler";
 import { CreatePostRP } from "../request-payload-types/create-post.request-payload-types";
 import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto.command";
@@ -28,10 +28,10 @@ import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto
 @injectable()
 export class PostsController {
   constructor(
-    @inject(Types.IUsersQueryService)
+    @inject(DiTypes.IUsersQueryService)
     private usersQueryService: IUsersQueryService,
-    @inject(Types.IPostsService) private postsService: IPostsService,
-    @inject(Types.IPostsQueryService)
+    @inject(DiTypes.IPostsService) private postsService: IPostsService,
+    @inject(DiTypes.IPostsQueryService)
     private postQueryService: IPostsQueryService
   ) {}
 

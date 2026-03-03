@@ -1,72 +1,73 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { IPostsRepository } from "posts/application/interfaces/IPostsRepository";
-import {
-  PostDb,
-  PostDocument,
-  PostModel,
-} from "posts/infrastructure/mongoose/post.schema";
-import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
-import {
-  PostCommentsDocument,
-  PostCommentsModel,
-} from "posts/infrastructure/mongoose/post-comments.schema";
+import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
+import { PostModel } from "posts/infrastructure/mongoose/post.schema";
+import { PostCommentsModel } from "posts/infrastructure/mongoose/post-comments.schema";
+import { PostEntity } from "posts/domain/entities/post.entity";
+import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 
 @injectable()
-export class PostsRepository implements IPostsRepository {
-  async createPost(newPost: PostDb): Promise<PostDocument> {
-    const postInstanceDoc = new PostModel(newPost);
+export class PostsRepository implements IPostsRepo {
+  async createPost(newPost: PostEntity): Promise<PostEntity> {
+    // * получаем замапенный инстанс дб поста
+    const postDb = PostMapper.toDb(newPost);
+
+    // * создаем новый объект экземпляра поста
+    const postInstanceDoc = new PostModel(postDb);
 
     await postInstanceDoc.save();
 
-    return postInstanceDoc;
+    return PostMapper.toDomain(postInstanceDoc);
   }
 
-  async createPostComment(dto: {
-    content: string;
-    postId: Types.ObjectId;
-    commentatorInfo: {
-      userId: Types.ObjectId;
-      userLogin: string;
-    };
-    createdAt: Date;
-  }): Promise<PostCommentsDocument | null> {
+  async createPostComment(
+    domain: PostCommentEntity
+  ): Promise<PostCommentEntity | null> {
     if (
-      !Types.ObjectId.isValid(dto.postId) ||
-      !Types.ObjectId.isValid(dto.commentatorInfo.userId)
+      !Types.ObjectId.isValid(domain.postId) ||
+      !Types.ObjectId.isValid(domain.commentatorInfo.userId)
     )
       return null;
 
-    const postCommentInstance = new PostCommentsModel({
-      content: dto.content,
-      postId: dto.postId,
+    const postCommentInstanceDoc = new PostCommentsModel({
+      content: domain.content,
+      postId: domain.postId,
 
-      commentatorInfo: dto.commentatorInfo,
-      // * likesInfo автоматически
+      createdAt: domain.createdAt,
 
-      createdAt: dto.createdAt,
+      commentatorInfo: domain.commentatorInfo,
+      // * likesInfo автоматически подтянутся с модельки
     });
 
-    await postCommentInstance.save();
+    await postCommentInstanceDoc.save();
 
-    return postCommentInstance;
+    return PostCommentEntity.reconstitute({
+      id: domain.id?.toString(),
+      content: domain.content,
+      postId: domain.postId.toString(),
+
+      createdAt: domain.createdAt,
+
+      commentatorInfo: domain.commentatorInfo,
+      // * likesInfo автоматически подтяниться с модельки
+    });
   }
 
-  async updatePost(
-    dto: UpdatePostDtoCommand
-  ): Promise<boolean | "BLOG_MISMATCH"> {
-    if (!Types.ObjectId.isValid(dto.id)) return false;
-    if (!Types.ObjectId.isValid(dto.blogId)) return false;
+  async updatePost(post: PostEntity): Promise<boolean> {
+    if (!post.id) return false;
+
+    const postDb = PostMapper.toDb(post);
 
     // * Обновляем только если blogId совпадает
     const updatedResult = await PostModel.updateOne(
-      { _id: dto.id, blogId: new Types.ObjectId(dto.blogId) },
+      { _id: postDb._id, blogId: new Types.ObjectId(postDb.blogId) },
       {
         $set: {
-          title: dto.title,
-          shortDescription: dto.shortDescription,
-          content: dto.content,
+          title: postDb.title,
+          shortDescription: postDb.shortDescription,
+          content: postDb.content,
         },
       }
     ).exec();
@@ -74,10 +75,7 @@ export class PostsRepository implements IPostsRepository {
     // * Если post не обновлен
     if (updatedResult.matchedCount === 0) {
       // * Дополнительная проверка: существует ли post
-      const postExists = await PostModel.exists({ _id: dto.id }).exec();
-
-      // * Если post существует, значит blogId не совпадает
-      if (postExists) return "BLOG_MISMATCH";
+      await PostModel.exists({ _id: postDb._id }).exec();
 
       // * Если поста нет - false
       return false;
@@ -90,8 +88,8 @@ export class PostsRepository implements IPostsRepository {
     if (!Types.ObjectId.isValid(id)) return false;
 
     const deletedResult = await PostModel.deleteOne({
-      _id: id,
-    });
+      _id: new Types.ObjectId(id),
+    }).exec();
 
     return deletedResult.deletedCount === 1;
   }

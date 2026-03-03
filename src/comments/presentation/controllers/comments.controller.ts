@@ -5,7 +5,7 @@ import { matchedData } from "express-validator";
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { UpdateCommentRP } from "../request-payload-types/update-comment.request-payload-types";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { LikeStatus } from "@core/types/like-status.enum";
@@ -16,9 +16,9 @@ import { UpdateCommentDtoCommand } from "comments/application/commands/update-co
 @injectable()
 export class CommentsController {
   constructor(
-    @inject(Types.ICommentsQueryService)
+    @inject(DiTypes.ICommentsQueryService)
     private commentsQueryService: CommentsQueryService,
-    @inject(Types.ICommentsService) private commentsService: CommentsService
+    @inject(DiTypes.ICommentsService) private commentsService: CommentsService
   ) {}
 
   async updateCommentLikeStatusHandler(

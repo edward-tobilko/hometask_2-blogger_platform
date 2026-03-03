@@ -1,16 +1,14 @@
-import mongoose from "mongoose";
-
 // * response for db
 export type CreatePostCommentDtoEntity = {
   content: string;
-  postId: mongoose.Types.ObjectId;
+  postId: string;
 
   commentatorInfo: {
-    userId: mongoose.Types.ObjectId;
+    userId: string;
     userLogin: string;
   };
 
-  createdAt?: Date;
+  createdAt: Date;
 
   likesInfo: {
     likesCount: number;

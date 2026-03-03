@@ -8,7 +8,7 @@ import { BlogsListRP } from "./request-payload-types/blogs-list.request-payload-
 import { BlogSortFieldRP } from "./request-payload-types/blog-sort-field.request-payload-type";
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
 import { PostsListRP } from "posts/presentation/request-payload-types/posts-list.request-payload-types";
 import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-sort-field.request-payload-types";
@@ -24,9 +24,9 @@ import { IBlogsService } from "blogs/interfaces/IBlogsService";
 @injectable()
 export class BlogsController {
   constructor(
-    @inject(Types.IBlogsQueryService)
+    @inject(DiTypes.IBlogsQueryService)
     private blogsQueryService: IBlogsQueryService,
-    @inject(Types.IBlogsService) private blogsService: IBlogsService
+    @inject(DiTypes.IBlogsService) private blogsService: IBlogsService
   ) {}
 
   async getBlogsListHandler(

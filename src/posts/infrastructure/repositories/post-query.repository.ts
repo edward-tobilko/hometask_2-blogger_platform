@@ -1,15 +1,13 @@
 import { injectable } from "inversify";
-import { Types as MongooseTypes } from "mongoose";
+import { Types as MongooseTypes, Types } from "mongoose";
 
 import { mapToPostListOutput } from "../../application/mappers/map-to-post-list-output.util";
-import { PostOutput } from "../../application/output/post-type.output";
 import { PostsListPaginatedOutput } from "../../application/output/posts-list-type.output";
 import { GetPostsListQueryHandler } from "../../application/query-handlers/get-posts-list.query-handler";
-import { mapToPostOutput } from "../../application/mappers/map-to-post-output.util";
 import { GetPostCommentsListQueryHandler } from "../../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../../application/output/post-comments-list-type.output";
 import { mapToPostCommentsListOutput } from "../../application/mappers/map-to-post-comments-list-output.mapper";
-import { IPostsQueryRepository } from "posts/application/interfaces/IPostsQueryRepository";
+import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
 import { PostLean, PostModel } from "posts/infrastructure/mongoose/post.schema";
 import {
   PostCommentsLean,
@@ -19,9 +17,11 @@ import {
   CommentLikeLean,
   CommentLikeModel,
 } from "comments/infrastructure/schemas/comment-likes.schema";
+import { PostEntity } from "posts/domain/entities/post.entity";
+import { PostMapper } from "posts/domain/mappers/post.mapper";
 
 @injectable()
-export class PostsQueryRepository implements IPostsQueryRepository {
+export class PostsQueryRepository implements IPostsQueryRepo {
   async getPostsList(
     queryParam: GetPostsListQueryHandler
   ): Promise<PostsListPaginatedOutput> {
@@ -45,10 +45,13 @@ export class PostsQueryRepository implements IPostsQueryRepository {
     });
   }
 
-  async getPostById(postId: string): Promise<PostOutput | null> {
-    const postInstance = await PostModel.findById(postId);
+  async getPostById(postId: string): Promise<PostEntity | null> {
+    if (!Types.ObjectId.isValid(postId)) return null;
 
-    return postInstance ? mapToPostOutput(postInstance) : null;
+    const postInstanceDoc = await PostModel.findById(postId).exec();
+    if (!postInstanceDoc) return null;
+
+    return PostMapper.toDomain(postInstanceDoc);
   }
 
   async getPostCommentsList(

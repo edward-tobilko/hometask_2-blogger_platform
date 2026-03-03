@@ -1,6 +1,5 @@
 import { Container } from "inversify";
 
-import { Types } from "./types";
 import { IUsersRepository } from "users/interfaces/IUsersRepository";
 import { UsersRepository } from "users/repositories/user.repository";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
@@ -14,12 +13,11 @@ import { CryptoPasswordHasher } from "auth/adapters/hasher-service.adapter";
 import { UsersController } from "users/routes/users-controller";
 import { PostsController } from "posts/presentation/controllers/posts.controller";
 import { PostsService } from "posts/application/services/posts-service";
-import { IPostsService } from "posts/application/interfaces/IPostsService";
-import { IPostsRepository } from "posts/application/interfaces/IPostsRepository";
+import { IPostsService } from "posts/application/interfaces/posts-service.interface";
+import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
 import { PostsRepository } from "posts/infrastructure/repositories/posts.repository";
-import { PostsQueryRepository } from "posts/infrastructure/repositories/post-query.repository";
-import { IPostsQueryRepository } from "posts/application/interfaces/IPostsQueryRepository";
-import { IPostsQueryService } from "posts/application/interfaces/IPostsQueryService";
+import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
+import { IPostsQueryService } from "posts/application/interfaces/posts-query-service.interface";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 import { BlogsQueryRepository } from "blogs/repositories/blog-query.repository";
 import { BlogsRepository } from "blogs/repositories/blogs.repository";
@@ -61,120 +59,126 @@ import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
 import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
 import { PostQueryService } from "posts/application/services/post-query-service";
 import { CommentsController } from "comments/presentation/controllers/comments.controller";
+import { DiTypes } from "./types";
+import { PostsQueryRepository } from "posts/infrastructure/repositories/post-query.repository";
 
 export const container = new Container({ defaultScope: "Singleton" });
 
 // * Auth model
 // Repositories
 container
-  .bind<ISessionRepository>(Types.ISessionRepository)
+  .bind<ISessionRepository>(DiTypes.ISessionRepository)
   .to(SessionRepository);
-container.bind<ISessionQueryRepo>(Types.ISessionQueryRepo).to(SessionQueryRepo);
+container
+  .bind<ISessionQueryRepo>(DiTypes.ISessionQueryRepo)
+  .to(SessionQueryRepo);
 
 // Services
-container.bind<IAuthService>(Types.IAuthService).to(AuthService);
+container.bind<IAuthService>(DiTypes.IAuthService).to(AuthService);
 
 // Other services
-container.bind<IPasswordHasher>(Types.IPasswordHasher).to(CryptoPasswordHasher);
-container.bind<IJWTService>(Types.IJWTService).to(JWTService);
 container
-  .bind<INodeMailerService>(Types.INodeMailerService)
+  .bind<IPasswordHasher>(DiTypes.IPasswordHasher)
+  .to(CryptoPasswordHasher);
+container.bind<IJWTService>(DiTypes.IJWTService).to(JWTService);
+container
+  .bind<INodeMailerService>(DiTypes.INodeMailerService)
   .to(NodeMailerService);
 
 // * Blogs model
 // Repositories
 container
-  .bind<IBlogsQueryRepository>(Types.IBlogsQueryRepository)
+  .bind<IBlogsQueryRepository>(DiTypes.IBlogsQueryRepository)
   .to(BlogsQueryRepository);
-container.bind<IBlogsRepository>(Types.IBlogsRepository).to(BlogsRepository);
+container.bind<IBlogsRepository>(DiTypes.IBlogsRepository).to(BlogsRepository);
 
 // Services
 container
-  .bind<IBlogsQueryService>(Types.IBlogsQueryService)
+  .bind<IBlogsQueryService>(DiTypes.IBlogsQueryService)
   .to(BlogsQueryService);
-container.bind<IBlogsService>(Types.IBlogsService).to(BlogsService);
+container.bind<IBlogsService>(DiTypes.IBlogsService).to(BlogsService);
 
 // * Comments model
 // Repositories
 container
-  .bind<ICommentsRepository>(Types.ICommentsRepository)
+  .bind<ICommentsRepository>(DiTypes.ICommentsRepository)
   .to(CommentsRepository);
 container
-  .bind<ICommentsQueryRepo>(Types.ICommentsQueryRepo)
+  .bind<ICommentsQueryRepo>(DiTypes.ICommentsQueryRepo)
   .to(CommentsQueryRepo);
 
 // Services
 container
-  .bind<ICommentsQueryService>(Types.ICommentsQueryService)
+  .bind<ICommentsQueryService>(DiTypes.ICommentsQueryService)
   .to(CommentsQueryService);
-container.bind<ICommentsService>(Types.ICommentsService).to(CommentsService);
+container.bind<ICommentsService>(DiTypes.ICommentsService).to(CommentsService);
 
 // * Posts model
 // Repositories
-container.bind<IPostsRepository>(Types.IPostsRepository).to(PostsRepository);
+container.bind<IPostsRepo>(DiTypes.IPostsRepository).to(PostsRepository);
 container
-  .bind<IPostsQueryRepository>(Types.IPostsQueryRepository)
+  .bind<IPostsQueryRepo>(DiTypes.IPostsQueryRepository)
   .to(PostsQueryRepository);
 
 // Services
-container.bind<IPostsService>(Types.IPostsService).to(PostsService);
+container.bind<IPostsService>(DiTypes.IPostsService).to(PostsService);
 container
-  .bind<IPostsQueryService>(Types.IPostsQueryService)
+  .bind<IPostsQueryService>(DiTypes.IPostsQueryService)
   .to(PostQueryService);
 
 // * Security Devices model
 // Repositories
 container
-  .bind<ISecurityDevicesQueryRepo>(Types.ISecurityDevicesQueryRepo)
+  .bind<ISecurityDevicesQueryRepo>(DiTypes.ISecurityDevicesQueryRepo)
   .to(SecurityDevicesQueryRepo);
 container
-  .bind<ISecurityDevicesRepo>(Types.ISecurityDevicesRepo)
+  .bind<ISecurityDevicesRepo>(DiTypes.ISecurityDevicesRepo)
   .to(SecurityDevicesRepo);
 
 // Services
 container
-  .bind<ISecurityDevicesService>(Types.ISecurityDevicesService)
+  .bind<ISecurityDevicesService>(DiTypes.ISecurityDevicesService)
   .to(SecurityDevicesService);
 container
-  .bind<ISecurityDevicesQueryService>(Types.ISecurityDevicesQueryService)
+  .bind<ISecurityDevicesQueryService>(DiTypes.ISecurityDevicesQueryService)
   .to(SecurityDevicesQueryService);
 
 // * Users model
 // Repositories
-container.bind<IUsersRepository>(Types.IUsersRepository).to(UsersRepository);
+container.bind<IUsersRepository>(DiTypes.IUsersRepository).to(UsersRepository);
 container
-  .bind<IUsersQueryRepository>(Types.IUsersQueryRepository)
+  .bind<IUsersQueryRepository>(DiTypes.IUsersQueryRepository)
   .to(UsersQueryRepository);
 
 // Services
-container.bind<IUsersService>(Types.IUsersService).to(UsersService);
+container.bind<IUsersService>(DiTypes.IUsersService).to(UsersService);
 container
-  .bind<IUsersQueryService>(Types.IUsersQueryService)
+  .bind<IUsersQueryService>(DiTypes.IUsersQueryService)
   .to(UsersQueryService);
 
 // * Other
 container
-  .bind<ICustomRateLimitRepo>(Types.ICustomRateLimitRepo)
+  .bind<ICustomRateLimitRepo>(DiTypes.ICustomRateLimitRepo)
   .to(CustomRateLimitRepo);
 
 // * Controllers
-container.bind<AuthController>(Types.AuthController).to(AuthController);
+container.bind<AuthController>(DiTypes.AuthController).to(AuthController);
 
-container.bind<BlogsController>(Types.BlogsController).to(BlogsController);
+container.bind<BlogsController>(DiTypes.BlogsController).to(BlogsController);
 
 container
-  .bind<CommentsController>(Types.CommentsController)
+  .bind<CommentsController>(DiTypes.CommentsController)
   .to(CommentsController);
 
-container.bind<PostsController>(Types.PostsController).to(PostsController);
+container.bind<PostsController>(DiTypes.PostsController).to(PostsController);
 
 container
-  .bind<SecurityDevicesController>(Types.SecurityDevicesController)
+  .bind<SecurityDevicesController>(DiTypes.SecurityDevicesController)
   .to(SecurityDevicesController);
 
-container.bind<UsersController>(Types.UsersController).to(UsersController);
+container.bind<UsersController>(DiTypes.UsersController).to(UsersController);
 
-// container.bind<UsersController>(Types.UsersController).to(UsersController).inSingletonScope();
+// container.bind<UsersController>(DiTypes.UsersController).to(UsersController).inSingletonScope();
 
 // ? inversify - как бы нашь контейнер (склад), где мы складываем все наши экземпляры (Repo / Service / Controller).
 

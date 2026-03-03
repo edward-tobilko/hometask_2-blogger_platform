@@ -62,8 +62,9 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
 
   async findBlogById(blogId: string): Promise<BlogOutput | null> {
     const blog = await BlogModel.findById(blogId).lean<BlogLean>().exec();
+    if (!blog) throw new RepositoryNotFoundError("Blog is not found", "blog");
 
-    return blog ? mapToBlogOutput(blog) : null;
+    return mapToBlogOutput(blog);
   }
 
   async findAllPostsForBlog(

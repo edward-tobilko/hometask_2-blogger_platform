@@ -12,11 +12,10 @@ export type PostDb = {
   blogId: mongoose.Types.ObjectId;
 
   blogName: string;
-  createdAt?: Date;
+  createdAt: Date;
 };
 
 export type PostLean = PostDb & { _id: mongoose.Types.ObjectId };
-
 export type PostDocument = mongoose.HydratedDocument<PostDb>;
 
 const PostSchema = new mongoose.Schema<PostDb>(
@@ -46,9 +45,10 @@ const PostSchema = new mongoose.Schema<PostDb>(
       required: true,
       maxLength: [100, "content must not exceed 100 characters"],
     },
+    createdAt: { type: Date, required: true },
   },
   {
-    timestamps: true,
+    timestamps: false, // createdAt создаем сами
     versionKey: false,
   }
 );

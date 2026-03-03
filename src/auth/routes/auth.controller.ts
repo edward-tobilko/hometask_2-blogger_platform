@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { matchedData } from "express-validator";
 import { log } from "node:console";
 
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { ApplicationError } from "@core/errors/application.error";
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
@@ -23,12 +23,12 @@ import { NewPasswordRPT } from "./request-payload-types/new-password.rpt";
 @injectable()
 export class AuthController {
   constructor(
-    @inject(Types.IAuthService) private authService: IAuthService,
-    @inject(Types.IUsersQueryService)
+    @inject(DiTypes.IAuthService) private authService: IAuthService,
+    @inject(DiTypes.IUsersQueryService)
     private usersQueryService: IUsersQueryService,
-    @inject(Types.ISessionQueryRepo)
+    @inject(DiTypes.ISessionQueryRepo)
     private sessionQueryRepo: ISessionQueryRepo,
-    @inject(Types.IJWTService) private jwtService: IJWTService
+    @inject(DiTypes.IJWTService) private jwtService: IJWTService
   ) {}
 
   async loginHandler(req: Request, res: Response) {

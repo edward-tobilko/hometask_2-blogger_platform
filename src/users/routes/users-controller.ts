@@ -11,15 +11,15 @@ import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default
 import { UsersListRP } from "./request-payload-types/get-users-list.request-payload-types";
 import { UserSortFieldRP } from "./request-payload-types/user-sort-field.request-payload-types";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IUsersService } from "users/interfaces/IUsersService";
 import { IUsersQueryService } from "users/interfaces/IUsersQueryService";
 
 @injectable()
 export class UsersController {
   constructor(
-    @inject(Types.IUsersService) private usersService: IUsersService,
-    @inject(Types.IUsersQueryService)
+    @inject(DiTypes.IUsersService) private usersService: IUsersService,
+    @inject(DiTypes.IUsersQueryService)
     private usersQueryService: IUsersQueryService
   ) {}
 

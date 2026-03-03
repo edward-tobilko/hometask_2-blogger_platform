@@ -16,7 +16,7 @@ export type PostCommentsDb = {
     userLogin: string;
   };
 
-  createdAt?: Date;
+  createdAt: Date;
 
   likesInfo: {
     likesCount: number;
@@ -27,7 +27,6 @@ export type PostCommentsDb = {
 export type PostCommentsLean = PostCommentsDb & {
   _id: mongoose.Types.ObjectId;
 };
-
 export type PostCommentsDocument = mongoose.HydratedDocument<PostCommentsDb>;
 
 const LikesInfoSchema = new mongoose.Schema(
@@ -70,6 +69,8 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
       userLogin: { type: String, required: true },
     },
 
+    createdAt: { type: Date, required: true },
+
     likesInfo: {
       type: LikesInfoSchema,
       required: true,
@@ -79,7 +80,7 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
   },
 
   {
-    timestamps: true,
+    timestamps: false,
     versionKey: false,
   }
 );

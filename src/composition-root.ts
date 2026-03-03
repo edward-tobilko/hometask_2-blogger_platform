@@ -1,4 +1,4 @@
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { AuthController } from "auth/routes/auth.controller";
 import { BlogsController } from "blogs/routes/blogs.controller";
 import { PostsController } from "posts/presentation/controllers/posts.controller";
@@ -24,31 +24,31 @@ export const resetCompositionRootForTests = () => {
 
 // * Getters
 export const getCustomRateLimitRepo = () =>
-  container.get<ICustomRateLimitRepo>(Types.ICustomRateLimitRepo);
+  container.get<ICustomRateLimitRepo>(DiTypes.ICustomRateLimitRepo);
 
 export const getAuthController = () =>
-  container.get<AuthController>(Types.AuthController);
+  container.get<AuthController>(DiTypes.AuthController);
 
 export const getBlogsController = () =>
-  container.get<BlogsController>(Types.BlogsController);
+  container.get<BlogsController>(DiTypes.BlogsController);
 
 export const getCommentsController = () =>
-  container.get<CommentsController>(Types.CommentsController);
+  container.get<CommentsController>(DiTypes.CommentsController);
 
 export const getPostsController = () =>
-  container.get<PostsController>(Types.PostsController);
+  container.get<PostsController>(DiTypes.PostsController);
 
 export const getSecurityDevicesController = () =>
-  container.get<SecurityDevicesController>(Types.SecurityDevicesController);
+  container.get<SecurityDevicesController>(DiTypes.SecurityDevicesController);
 
 export const getUsersController = () =>
-  container.get<UsersController>(Types.UsersController);
+  container.get<UsersController>(DiTypes.UsersController);
 
 export const getBlogsQueryService = () =>
-  container.get<IBlogsQueryService>(Types.IBlogsQueryService);
+  container.get<IBlogsQueryService>(DiTypes.IBlogsQueryService);
 
 export const getJwtService = () =>
-  container.get<IJWTService>(Types.IJWTService);
+  container.get<IJWTService>(DiTypes.IJWTService);
 
 // ? В чем преимущества использования таких getters?:
 // ? 1. Упрощение тестирования: можно легко подменить реализацию контроллера на мок или стабы.

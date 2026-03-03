@@ -4,12 +4,11 @@ import { CreateCommentForPostDtoCommand } from "posts/application/commands/creat
 import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 import { IPostCommentOutput } from "posts/application/output/post-comment.output";
-import { PostOutput } from "posts/application/output/post-type.output";
 
 export interface IPostsService {
   createPost(
     command: WithMeta<CreatePostDtoCommand>
-  ): Promise<ApplicationResult<PostOutput>>;
+  ): Promise<ApplicationResult<string | null>>;
 
   createPostComment(
     command: WithMeta<CreateCommentForPostDtoCommand>

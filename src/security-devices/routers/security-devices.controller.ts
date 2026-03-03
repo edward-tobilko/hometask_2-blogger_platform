@@ -5,7 +5,7 @@ import { errorsHandler } from "@core/errors/errors-handler.error";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecurityDevicesQueryService";
@@ -16,12 +16,12 @@ import { createCommand } from "@core/helpers/create-command.helper";
 @injectable()
 export class SecurityDevicesController {
   constructor(
-    @inject(Types.IJWTService) private jwtService: IJWTService,
-    @inject(Types.ISessionQueryRepo)
+    @inject(DiTypes.IJWTService) private jwtService: IJWTService,
+    @inject(DiTypes.ISessionQueryRepo)
     private sessionQueryRepo: ISessionQueryRepo,
-    @inject(Types.ISecurityDevicesQueryService)
+    @inject(DiTypes.ISecurityDevicesQueryService)
     private securityDevicesQueryService: ISecurityDevicesQueryService,
-    @inject(Types.ISecurityDevicesService)
+    @inject(DiTypes.ISecurityDevicesService)
     private securityDevicesService: ISecurityDevicesService
   ) {}
 

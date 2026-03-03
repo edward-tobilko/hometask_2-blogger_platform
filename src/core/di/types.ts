@@ -1,4 +1,4 @@
-export const Types = {
+export const DiTypes = {
   // * Repositories
   // Auth
   ISessionQueryRepo: Symbol.for("ISessionQueryRepo"),

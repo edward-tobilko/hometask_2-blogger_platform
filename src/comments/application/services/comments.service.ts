@@ -10,7 +10,7 @@ import {
 import { ApplicationResult } from "../../../core/result/application.result";
 import { UpdateCommentDtoCommand } from "../commands/update-comment-dto.command";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { ICommentsService } from "comments/application/interfaces/ICommentsService";
 import { ICommentsRepository } from "comments/application/interfaces/ICommentsRepository";
 import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
@@ -20,9 +20,9 @@ import { CommentEntity } from "comments/domain/entities/comment.entity";
 @injectable()
 export class CommentsService implements ICommentsService {
   constructor(
-    @inject(Types.ICommentsRepository)
+    @inject(DiTypes.ICommentsRepository)
     private commentsRepo: ICommentsRepository,
-    @inject(Types.ICommentsQueryRepo)
+    @inject(DiTypes.ICommentsQueryRepo)
     private commentsQueryRepo: ICommentsQueryRepo
   ) {}
 

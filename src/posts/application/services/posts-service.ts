@@ -1,9 +1,7 @@
 import { inject, injectable } from "inversify";
-import { Types as MongooseTypes } from "mongoose";
 
 import { WithMeta } from "../../../core/types/with-meta.type";
 import { ApplicationResult } from "../../../core/result/application.result";
-import { PostOutput } from "../output/post-type.output";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import {
   ApplicationError,
@@ -14,73 +12,66 @@ import { CreatePostDtoCommand } from "../commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "../commands/update-post-dto.command";
 import { CreateCommentForPostDtoCommand } from "../commands/create-comment-for-post-dto.command";
 import { IPostCommentOutput } from "../output/post-comment.output";
-import { IPostsService } from "posts/application/interfaces/IPostsService";
-import { Types } from "@core/di/types";
-import { IPostsRepository } from "posts/application/interfaces/IPostsRepository";
+import { IPostsService } from "posts/application/interfaces/posts-service.interface";
+import { DiTypes } from "@core/di/types";
+import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
-import { IPostsQueryRepository } from "posts/application/interfaces/IPostsQueryRepository";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { IPostsQueryRepo } from "../interfaces/posts-query-repo.interface";
+import { PostEntity } from "posts/domain/entities/post.entity";
+import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 
 @injectable()
 export class PostsService implements IPostsService {
   constructor(
-    @inject(Types.IPostsRepository) private postsRepository: IPostsRepository,
-    @inject(Types.IBlogsQueryRepository)
+    @inject(DiTypes.IPostsRepository) private postsRepository: IPostsRepo,
+    @inject(DiTypes.IBlogsQueryRepository)
     private blogsQueryRepository: IBlogsQueryRepository,
-    @inject(Types.IPostsQueryRepository)
-    private postsQueryRepository: IPostsQueryRepository
+    @inject(DiTypes.IPostsQueryRepository)
+    private postsQueryRepository: IPostsQueryRepo
   ) {}
 
-  // * CREATE
   async createPost(
     command: WithMeta<CreatePostDtoCommand>
-  ): Promise<ApplicationResult<PostOutput>> {
+  ): Promise<ApplicationResult<string | null>> {
     const dto = command.payload;
 
     const blog = await this.blogsQueryRepository.findBlogById(dto.blogId);
 
     if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new NotFoundError("Blog is not found", "blogId")],
+      });
     }
 
-    // const domainDto: CreatePostDtoDomain = {
-    //   ...dto,
-    //   blogId: dto.blogId.toString(),
-    //   blogName: blog.name,
-    // };
+    try {
+      const post = PostEntity.createPost({
+        title: dto.title,
+        shortDescription: dto.shortDescription,
+        content: dto.content,
+        blogId: dto.blogId,
 
-    // const newPost = PostDomain.createPost(domainDto);
-
-    const savedPost = await this.postsRepository.createPost({
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId: new MongooseTypes.ObjectId(dto.blogId),
-      blogName: blog.name,
-    });
-
-    if (!savedPost._id)
-      throw new RepositoryNotFoundError(
-        `Post was not saved correctly: ${savedPost._id} is missing`
-      );
-
-    return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
-
-      data: {
-        id: savedPost._id?.toString(),
-
-        title: savedPost.title,
-        shortDescription: savedPost.shortDescription,
-        content: savedPost.content,
-
-        blogId: blog.id.toString(),
         blogName: blog.name,
-        createdAt: savedPost.createdAt!.toISOString(),
-      },
+      });
 
-      extensions: [],
-    });
+      const savedPost = await this.postsRepository.createPost(post);
+
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Success,
+
+        data: savedPost.id, // после save id уже есть
+
+        extensions: [],
+      });
+    } catch (error) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [new ApplicationError("Validation error", "post", 400)],
+      });
+    }
   }
 
   async createPostComment(
@@ -98,124 +89,122 @@ export class PostsService implements IPostsService {
       });
     }
 
-    // const newPostComment = PostCommentDomain.createCommentForPost({
-    //   postId: new MongooseTypes.ObjectId(postId),
-    //   content,
+    try {
+      const commentPost = PostCommentEntity.createCommentForPost({
+        content,
+        postId,
+        commentatorInfo: {
+          userId: commentatorInfo.userId,
+          userLogin: commentatorInfo.userLogin,
+        },
+      });
 
-    //   commentatorInfo: {
-    //     userId: new MongooseTypes.ObjectId(userId),
-    //     userLogin,
-    //   },
-    // });
+      const createdComment =
+        await this.postsRepository.createPostComment(commentPost);
 
-    const createdComment = await this.postsRepository.createPostComment({
-      content,
-      postId: new MongooseTypes.ObjectId(postId),
+      if (!createdComment) {
+        return new ApplicationResult({
+          status: ApplicationResultStatus.NotFound,
+          data: null,
+          extensions: [
+            new NotFoundError("Comment is not found", "commentId", 404),
+          ],
+        });
+      }
 
-      commentatorInfo: {
-        userId: new MongooseTypes.ObjectId(commentatorInfo.userId),
-        userLogin: commentatorInfo.userLogin,
-      },
+      if (!createdComment.id)
+        throw new RepositoryNotFoundError(
+          `Comment was not saved correctly: ${createdComment.id} is missing`
+        );
 
-      createdAt: new Date(),
-
-      // * likesInfo не передаем — schema поставит default
-    });
-
-    if (!createdComment) {
       return new ApplicationResult({
-        status: ApplicationResultStatus.NotFound,
+        status: ApplicationResultStatus.Success,
+
+        data: {
+          id: createdComment.id.toString(),
+          content,
+
+          commentatorInfo: {
+            userId: createdComment.commentatorInfo.userId.toString(),
+            userLogin: createdComment.commentatorInfo.userLogin,
+          },
+
+          likesInfo: {
+            likesCount: createdComment.likesInfo.likesCount,
+            dislikesCount: createdComment.likesInfo.dislikesCount,
+            myStatus: LikeStatus.None,
+          },
+
+          createdAt: createdComment.createdAt!.toISOString(),
+        },
+
+        extensions: [],
+      });
+    } catch (error) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
         data: null,
-        extensions: [new NotFoundError("comment is not found", "commentId")],
+        extensions: [new ApplicationError("Validation error", "post", 400)],
       });
     }
-
-    if (!createdComment._id)
-      throw new RepositoryNotFoundError(
-        `Comment was not saved correctly: ${createdComment._id} is missing`
-      );
-
-    return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
-
-      data: {
-        id: createdComment._id!.toString(),
-        content,
-
-        commentatorInfo: {
-          userId: createdComment.commentatorInfo.userId.toString(),
-          userLogin: createdComment.commentatorInfo.userLogin,
-        },
-
-        likesInfo: {
-          likesCount: createdComment.likesInfo.likesCount,
-          dislikesCount: createdComment.likesInfo.dislikesCount,
-          myStatus: LikeStatus.None,
-        },
-
-        createdAt: createdComment.createdAt!.toISOString(),
-      },
-
-      extensions: [],
-    });
   }
 
-  // * UPDATE
   async updatePost(
     command: WithMeta<UpdatePostDtoCommand>
   ): Promise<ApplicationResult<null>> {
-    // const existingPost = await this.postsRepository.getPostDomainById(id);
+    const { id, blogId } = command.payload;
 
-    // if (!existingPost) {
-    //   return new ApplicationResult({
-    //     status: ApplicationResultStatus.NotFound,
-    //     data: null,
-    //     extensions: [new ApplicationError("Post does not exist!", "postId")],
-    //   });
-    // }
+    const existingPost = await this.postsQueryRepository.getPostById(id);
 
-    // if (existingPost.blogId.toString() !== updateDto.blogId) {
-    //   return new ApplicationResult({
-    //     status: ApplicationResultStatus.NotFound,
-    //     data: null,
-    //     extensions: [
-    //       new ApplicationError("Post does not exist in this blog!", "postId"),
-    //     ],
-    //   });
-    // }
-
-    // * обновляем доменную сущность
-    // existingPost.updatePost(updateDto);
-
-    // * сохраняем изменения
-    const updatedPost = await this.postsRepository.updatePost(command.payload);
-
-    if (!updatedPost) {
+    if (!existingPost) {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [new ApplicationError("Post is not found", "postId")],
+        extensions: [new ApplicationError("Post does not exist!", "postId")],
       });
     }
 
-    if (updatedPost === "BLOG_MISMATCH") {
+    if (existingPost.blogId.toString() !== blogId) {
       return new ApplicationResult({
         status: ApplicationResultStatus.NotFound,
         data: null,
         extensions: [
-          new ApplicationError("Post does not belong to this blog", "blogId"),
+          new ApplicationError("Post does not exist in this blog!", "postId"),
         ],
       });
     }
 
-    return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
-      data: null,
-      extensions: [],
-    });
+    try {
+      // * обновляем доменную сущность
+      existingPost.updatePost(command.payload);
+
+      // * сохраняем изменения
+      const updatedPost = await this.postsRepository.updatePost(existingPost);
+
+      if (!updatedPost) {
+        return new ApplicationResult({
+          status: ApplicationResultStatus.NotFound,
+          data: null,
+          extensions: [new ApplicationError("Post is not found", "postId")],
+        });
+      }
+
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Success,
+        data: null,
+        extensions: [],
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Validation error";
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [new ApplicationError(message, "post", 400)],
+      });
+    }
   }
 
-  // * DELETE
   async deletePost(id: string): Promise<ApplicationResult<null>> {
     const isDeleted = await this.postsRepository.deletePost(id);
 

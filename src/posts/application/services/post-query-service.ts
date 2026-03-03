@@ -1,22 +1,22 @@
 import { inject, injectable } from "inversify";
 
-import { PostOutput } from "../output/post-type.output";
 import { PostsListPaginatedOutput } from "../output/posts-list-type.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
-import { Types } from "@core/di/types";
-import { IPostsQueryService } from "posts/application/interfaces/IPostsQueryService";
-import { IPostsQueryRepository } from "posts/application/interfaces/IPostsQueryRepository";
+import { DiTypes } from "@core/di/types";
+import { IPostsQueryService } from "posts/application/interfaces/posts-query-service.interface";
+import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
 import { NotFoundError } from "@core/errors/application.error";
 import { ApplicationResult } from "@core/result/application.result";
 import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
 import { GetPostsListQueryHandler } from "../query-handlers/get-posts-list.query-handler";
 import { GetPostCommentsListQueryHandler } from "../query-handlers/get-post-comments-list.query-handler";
+import { PostEntity } from "posts/domain/entities/post.entity";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {
   constructor(
-    @inject(Types.IPostsQueryRepository)
-    private postsQueryRepository: IPostsQueryRepository
+    @inject(DiTypes.IPostsQueryRepository)
+    private postsQueryRepository: IPostsQueryRepo
   ) {}
 
   async getPostsList(
@@ -25,7 +25,7 @@ export class PostQueryService implements IPostsQueryService {
     return await this.postsQueryRepository.getPostsList(queryParam);
   }
 
-  async getPostById(postId: string): Promise<PostOutput | null> {
+  async getPostById(postId: string): Promise<PostEntity | null> {
     return await this.postsQueryRepository.getPostById(postId);
   }
 

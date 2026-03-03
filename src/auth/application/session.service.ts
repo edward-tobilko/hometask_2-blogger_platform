@@ -18,7 +18,7 @@ import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
 import { getSessionExpirationDate } from "auth/helpers/get-session-expire-date.helper";
 import { IAuthService } from "auth/interfaces/IAuthService";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
 import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
 import { ISessionRepository } from "auth/interfaces/ISessionRepository";
@@ -32,15 +32,15 @@ import { appConfig } from "@core/settings/config";
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
-    @inject(Types.IUsersQueryRepository)
+    @inject(DiTypes.IUsersQueryRepository)
     private usersQueryRepo: IUsersQueryRepository,
-    @inject(Types.IPasswordHasher) private passwordHasher: IPasswordHasher,
-    @inject(Types.ISessionRepository) private sessionRepo: ISessionRepository,
-    @inject(Types.ISessionQueryRepo)
+    @inject(DiTypes.IPasswordHasher) private passwordHasher: IPasswordHasher,
+    @inject(DiTypes.ISessionRepository) private sessionRepo: ISessionRepository,
+    @inject(DiTypes.ISessionQueryRepo)
     private sessionQueryRepo: ISessionQueryRepo,
-    @inject(Types.IUsersRepository) private usersRepo: IUsersRepository,
-    @inject(Types.IJWTService) private jwtService: IJWTService,
-    @inject(Types.INodeMailerService)
+    @inject(DiTypes.IUsersRepository) private usersRepo: IUsersRepository,
+    @inject(DiTypes.IJWTService) private jwtService: IJWTService,
+    @inject(DiTypes.INodeMailerService)
     private nodeMailerService: INodeMailerService
   ) {}
 

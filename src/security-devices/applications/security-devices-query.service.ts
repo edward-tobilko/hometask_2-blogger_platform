@@ -4,7 +4,7 @@ import { ApplicationResult } from "@core/result/application.result";
 import { SecurityDevicesListOutput } from "./output/security-devices-type.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecurityDevicesQueryService";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { ISecurityDevicesQueryRepo } from "security-devices/interfaces/ISecurityDevicesQueryRepo";
 
 @injectable()
@@ -12,7 +12,7 @@ export class SecurityDevicesQueryService
   implements ISecurityDevicesQueryService
 {
   constructor(
-    @inject(Types.ISecurityDevicesQueryRepo)
+    @inject(DiTypes.ISecurityDevicesQueryRepo)
     private securityDevicesQueryRepo: ISecurityDevicesQueryRepo
   ) {}
 

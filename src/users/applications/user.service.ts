@@ -10,7 +10,7 @@ import {
   ValidationError,
 } from "../../core/errors/application.error";
 import { IUsersService } from "users/interfaces/IUsersService";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IUsersRepository } from "users/interfaces/IUsersRepository";
 import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
 import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
@@ -19,10 +19,10 @@ import { UserDb } from "users/mongoose/user-schema.mongoose";
 @injectable()
 export class UsersService implements IUsersService {
   constructor(
-    @inject(Types.IUsersRepository) private usersRepo: IUsersRepository,
-    @inject(Types.IUsersQueryRepository)
+    @inject(DiTypes.IUsersRepository) private usersRepo: IUsersRepository,
+    @inject(DiTypes.IUsersQueryRepository)
     private usersQueryRepo: IUsersQueryRepository,
-    @inject(Types.IPasswordHasher) private passwordHasher: IPasswordHasher
+    @inject(DiTypes.IPasswordHasher) private passwordHasher: IPasswordHasher
   ) {}
 
   async createUser(

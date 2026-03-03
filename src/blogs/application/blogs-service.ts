@@ -8,22 +8,20 @@ import {
 } from "./commands/blog-dto-type.commands";
 import { ApplicationResult } from "../../core/result/application.result";
 import { BlogDomain } from "../domain/blog.domain";
-// import { PostDomain } from "../../posts/domain/post.domain";
-// import { CreatePostDtoDomain } from "../../posts/domain/create-post-dto.domain";
 import { PostOutput } from "../../posts/application/output/post-type.output";
 import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
 import { RepositoryNotFoundError } from "../../core/errors/application.error";
 import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/create-post-for-blog-dto.command";
 import { IBlogsService } from "blogs/interfaces/IBlogsService";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 
 @injectable()
 export class BlogsService implements IBlogsService {
   constructor(
-    @inject(Types.IBlogsRepository) private blogsRepository: IBlogsRepository,
-    @inject(Types.IBlogsQueryRepository)
+    @inject(DiTypes.IBlogsRepository) private blogsRepository: IBlogsRepository,
+    @inject(DiTypes.IBlogsQueryRepository)
     private blogsQueryRepository: IBlogsQueryRepository
   ) {}
 

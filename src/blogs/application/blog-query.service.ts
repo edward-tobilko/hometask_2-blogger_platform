@@ -6,13 +6,13 @@ import { BlogListPaginatedOutput } from "./output/blog-list-paginated-type.outpu
 import { BlogOutput } from "./output/blog-type.output";
 import { GetBlogsListQueryHandler } from "./query-handlers/get-blogs-list-type.query-handler";
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
 
 @injectable()
 export class BlogsQueryService implements IBlogsQueryService {
   constructor(
-    @inject(Types.IBlogsQueryRepository)
+    @inject(DiTypes.IBlogsQueryRepository)
     private blogsQueryRepository: IBlogsQueryRepository
   ) {}
 
