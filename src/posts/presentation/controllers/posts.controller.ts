@@ -24,6 +24,7 @@ import { CreatePostRP } from "../request-payload-types/create-post.request-paylo
 import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto.command";
 import { UpdatePostRP } from "../request-payload-types/update-post.request-payload-types";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 @injectable()
 export class PostsController {
@@ -242,6 +243,46 @@ export class PostsController {
       });
 
       const result = await this.postsService.updatePost(command);
+
+      if (!result.isSuccess()) {
+        return res
+          .status(mapApplicationStatusToHttpStatus(result.status))
+          .json({ errorsMessages: result.extensions });
+      }
+
+      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+    } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
+      errorsHandler(error, req, res);
+    }
+  };
+
+  updatePostLikeStatusHandler = async (
+    req: Request<{ postId: string }, {}, { likeStatus: string }, {}>,
+    res: Response
+  ) => {
+    try {
+      const sanitizedBody = matchedData<{ likeStatus: string }>(req, {
+        locations: ["body"],
+        includeOptionals: false,
+      });
+
+      const command = createCommand<{
+        postId: string;
+        userId: string;
+        likeStatus: LikeStatus;
+      }>({
+        postId: req.params.postId,
+        userId: req.user.id, // берем с access token
+        likeStatus: sanitizedBody.likeStatus as LikeStatus,
+      });
+
+      log("command ->", command.payload);
+
+      const result = await this.postsService.upsertPostLikeStatus(
+        command.payload
+      );
 
       if (!result.isSuccess()) {
         return res

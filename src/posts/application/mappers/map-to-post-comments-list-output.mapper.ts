@@ -1,6 +1,6 @@
 import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
 import { IPostCommentOutput } from "../output/post-comment.output";
-import { PostCommentsLean } from "posts/infrastructure/mongoose/post-comments.schema";
+import { PostCommentsLean } from "posts/infrastructure/schemas/post-comments.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { CommentLikeLean } from "comments/infrastructure/schemas/comment-likes.schema";
 

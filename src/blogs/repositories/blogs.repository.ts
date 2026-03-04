@@ -12,7 +12,7 @@ import {
   PostDb,
   PostDocument,
   PostModel,
-} from "posts/infrastructure/mongoose/post.schema";
+} from "posts/infrastructure/schemas/post.schema";
 import { UpdateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
 
 @injectable()

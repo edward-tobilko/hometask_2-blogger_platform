@@ -26,22 +26,14 @@ export const createPostsRouter = (
 ) => {
   const postsRoute = Router({});
 
-  // * GET: Returns all posts
-  postsRoute.get(
-    "",
-    queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
+  // * PUT: Make like / unlike / dislike / undislike operation.
+  postsRoute.put(
+    "/:postId/like-status",
+    jwtAccessAuthGuard(jwtService),
+    paramPostIdValidation,
     inputResultMiddlewareValidation,
 
-    postsController.getPostsListHandler
-  );
-
-  // * GET: Return post by id
-  postsRoute.get(
-    "/:id",
-    paramIdValidation,
-    inputResultMiddlewareValidation,
-
-    postsController.getPostHandler
+    postsController.updatePostLikeStatusHandler
   );
 
   // * GET: Returns comments for specified post
@@ -53,7 +45,27 @@ export const createPostsRouter = (
       PostCommentsSortFieldRP
     ),
     inputResultMiddlewareValidation,
+
     postsController.getPostCommentsHandler
+  );
+
+  // * POST: Create new comment
+  postsRoute.post(
+    "/:postId/comments",
+    jwtAccessAuthGuard(jwtService),
+    createCommentDtoRPValidation,
+    inputResultMiddlewareValidation,
+
+    postsController.createCommentHandler
+  );
+
+  // * GET: Returns all posts
+  postsRoute.get(
+    "",
+    queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
+    inputResultMiddlewareValidation,
+
+    postsController.getPostsListHandler
   );
 
   // * POST: Create new post
@@ -66,14 +78,13 @@ export const createPostsRouter = (
     postsController.createPostHandler
   );
 
-  // * POST: Create new comment
-  postsRoute.post(
-    "/:postId/comments",
-    jwtAccessAuthGuard(jwtService),
-    createCommentDtoRPValidation,
+  // * GET: Return post by id
+  postsRoute.get(
+    "/:id",
+    paramIdValidation,
     inputResultMiddlewareValidation,
 
-    postsController.createCommentHandler
+    postsController.getPostHandler
   );
 
   // * PUT: Update existing post by id with input model

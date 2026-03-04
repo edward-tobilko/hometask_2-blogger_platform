@@ -1,9 +1,10 @@
 import { CreatePostCommentDtoEntity } from "../value-objects/create-post-comment-dto.entity";
 import { UpdateCommentDtoEntity } from "../../../comments/domain/value-objects/update-comment-dto.entity";
 import { ValidationError } from "@core/errors/application.error";
+import { Types } from "mongoose";
 
 export class PostCommentEntity {
-  id: string | null;
+  id: string;
   content: string;
 
   postId: string;
@@ -20,24 +21,26 @@ export class PostCommentEntity {
     dislikesCount: number;
   };
 
-  constructor(props: {
-    id: string | null;
-    content: string;
+  constructor(
+    public props: {
+      id: string;
+      content: string;
 
-    postId: string;
+      postId: string;
 
-    commentatorInfo: {
-      userId: string;
-      userLogin: string;
-    };
+      commentatorInfo: {
+        userId: string;
+        userLogin: string;
+      };
 
-    createdAt: Date;
+      createdAt: Date;
 
-    likesInfo: {
-      likesCount: number;
-      dislikesCount: number;
-    };
-  }) {
+      likesInfo: {
+        likesCount: number;
+        dislikesCount: number;
+      };
+    }
+  ) {
     this.id = props.id;
     this.content = props.content;
     this.postId = props.postId;
@@ -86,7 +89,7 @@ export class PostCommentEntity {
     PostCommentEntity.validateContent(dto.content);
 
     return new PostCommentEntity({
-      id: null, // Будет установлен при сохранении
+      id: new Types.ObjectId().toString(),
       content: dto.content,
       postId: dto.postId,
 

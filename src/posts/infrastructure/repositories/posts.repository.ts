@@ -2,8 +2,8 @@ import { injectable } from "inversify";
 import { Types } from "mongoose";
 
 import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
-import { PostModel } from "posts/infrastructure/mongoose/post.schema";
-import { PostCommentsModel } from "posts/infrastructure/mongoose/post-comments.schema";
+import { PostModel } from "posts/infrastructure/schemas/post.schema";
+import { PostCommentsModel } from "posts/infrastructure/schemas/post-comments.schema";
 import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
@@ -35,23 +35,31 @@ export class PostsRepository implements IPostsRepo {
       content: domain.content,
       postId: domain.postId,
 
+      commentatorInfo: domain.commentatorInfo,
+
       createdAt: domain.createdAt,
 
-      commentatorInfo: domain.commentatorInfo,
-      // * likesInfo автоматически подтянутся с модельки
+      // * likesInfo подтянится с модельки
     });
 
     await postCommentInstanceDoc.save();
 
     return PostCommentEntity.reconstitute({
-      id: domain.id?.toString(),
-      content: domain.content,
-      postId: domain.postId.toString(),
+      id: postCommentInstanceDoc._id.toString(),
+      content: postCommentInstanceDoc.content,
+      postId: postCommentInstanceDoc.postId.toString(),
 
-      createdAt: domain.createdAt,
+      createdAt: postCommentInstanceDoc.createdAt,
 
-      commentatorInfo: domain.commentatorInfo,
-      // * likesInfo автоматически подтяниться с модельки
+      commentatorInfo: {
+        userId: postCommentInstanceDoc.commentatorInfo.userId.toString(),
+        userLogin: postCommentInstanceDoc.commentatorInfo.userLogin,
+      },
+
+      likesInfo: {
+        likesCount: postCommentInstanceDoc.likesInfo.likesCount,
+        dislikesCount: postCommentInstanceDoc.likesInfo.dislikesCount,
+      },
     });
   }
 

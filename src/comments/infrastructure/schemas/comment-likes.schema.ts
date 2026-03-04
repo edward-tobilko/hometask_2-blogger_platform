@@ -14,7 +14,6 @@ type CommentLikeDb = {
 };
 
 export type CommentLikeDocument = mongoose.HydratedDocument<CommentLikeDb>;
-
 export type CommentLikeLean = CommentLikeDb & {
   _id: mongoose.Types.ObjectId;
 };

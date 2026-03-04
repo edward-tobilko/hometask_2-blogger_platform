@@ -8,11 +8,11 @@ import { GetPostCommentsListQueryHandler } from "../../application/query-handler
 import { PostCommentsListPaginatedOutput } from "../../application/output/post-comments-list-type.output";
 import { mapToPostCommentsListOutput } from "../../application/mappers/map-to-post-comments-list-output.mapper";
 import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
-import { PostLean, PostModel } from "posts/infrastructure/mongoose/post.schema";
+import { PostLean, PostModel } from "posts/infrastructure/schemas/post.schema";
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/infrastructure/mongoose/post-comments.schema";
+} from "posts/infrastructure/schemas/post-comments.schema";
 import {
   CommentLikeLean,
   CommentLikeModel,

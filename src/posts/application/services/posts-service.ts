@@ -222,4 +222,18 @@ export class PostsService implements IPostsService {
       extensions: [],
     });
   }
+
+  async upsertPostLikeStatus(domain: {
+    likeStatus: string;
+    postId: string;
+    userId: string;
+  }): Promise<ApplicationResult<null>> {
+    console.log(domain);
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
+      extensions: [],
+    });
+  }
 }

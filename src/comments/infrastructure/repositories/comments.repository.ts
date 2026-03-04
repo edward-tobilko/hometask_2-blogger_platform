@@ -5,7 +5,7 @@ import { ICommentsRepository } from "comments/application/interfaces/ICommentsRe
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/infrastructure/mongoose/post-comments.schema";
+} from "posts/infrastructure/schemas/post-comments.schema";
 import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 import { LikeStatus } from "@core/types/like-status.enum";
 import {

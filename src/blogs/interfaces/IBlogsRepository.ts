@@ -1,9 +1,6 @@
 import { UpdateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
 import { BlogDb, BlogDocument } from "blogs/mongoose/blog-schema.mongoose";
-import {
-  PostDb,
-  PostDocument,
-} from "posts/infrastructure/mongoose/post.schema";
+import { PostDb, PostDocument } from "posts/infrastructure/schemas/post.schema";
 
 export interface IBlogsRepository {
   saveBlog(newBlog: BlogDb): Promise<BlogDocument>;

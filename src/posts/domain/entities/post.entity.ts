@@ -1,3 +1,4 @@
+import { LikeStatus } from "@core/types/like-status.enum";
 import { CreatePostDtoEntity } from "../value-objects/create-post-dto.entity";
 import { UpdatePostDtoEntity } from "../value-objects/update-post-dto.entity";
 import { ValidationError } from "@core/errors/application.error";
@@ -13,6 +14,19 @@ export class PostEntity {
   private _blogName: string;
   private readonly _createdAt: Date;
 
+  private _extendedLikesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: LikeStatus;
+    newestLikes: [
+      {
+        addedAt: Date;
+        userId: string;
+        login: string;
+      },
+    ];
+  };
+
   private constructor(props: {
     id: string | null;
 
@@ -23,6 +37,19 @@ export class PostEntity {
 
     blogName: string;
     createdAt: Date;
+
+    extendedLikesInfo: {
+      likesCount: number;
+      dislikesCount: number;
+      myStatus: LikeStatus;
+      newestLikes: [
+        {
+          addedAt: Date;
+          userId: string;
+          login: string;
+        },
+      ];
+    };
   }) {
     this._id = props.id;
     this._title = props.title;
@@ -31,6 +58,7 @@ export class PostEntity {
     this._blogId = props.blogId;
     this._blogName = props.blogName;
     this._createdAt = props.createdAt;
+    this._extendedLikesInfo = props.extendedLikesInfo;
   }
 
   // * Factory validation methods
@@ -82,6 +110,19 @@ export class PostEntity {
 
     blogName: string;
     createdAt: Date;
+
+    extendedLikesInfo: {
+      likesCount: number;
+      dislikesCount: number;
+      myStatus: LikeStatus;
+      newestLikes: [
+        {
+          addedAt: Date;
+          userId: string;
+          login: string;
+        },
+      ];
+    };
   }): PostEntity {
     return new PostEntity(props);
   }
@@ -100,6 +141,19 @@ export class PostEntity {
 
       blogName: dto.blogName,
       createdAt: new Date(),
+
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: LikeStatus.None,
+        newestLikes: [
+          {
+            addedAt: new Date(),
+            userId: "userId",
+            login: "login",
+          },
+        ],
+      },
     });
 
     return newPost;
@@ -136,6 +190,9 @@ export class PostEntity {
   }
   get createdAt(): Date {
     return this._createdAt;
+  }
+  get extendedLikesInfo() {
+    return this._extendedLikesInfo;
   }
 }
 
