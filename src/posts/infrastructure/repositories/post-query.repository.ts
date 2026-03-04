@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Types as MongooseTypes, Types } from "mongoose";
+import { ClientSession, Types as MongooseTypes } from "mongoose";
 
 import { mapToPostListOutput } from "../../application/mappers/map-to-post-list-output.util";
 import { PostsListPaginatedOutput } from "../../application/output/posts-list-type.output";
@@ -19,6 +19,8 @@ import {
 } from "comments/infrastructure/schemas/comment-likes.schema";
 import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostLikeLean, PostLikeModel } from "../schemas/post-like.schema";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepo {
@@ -46,7 +48,7 @@ export class PostsQueryRepository implements IPostsQueryRepo {
   }
 
   async getPostById(postId: string): Promise<PostEntity | null> {
-    if (!Types.ObjectId.isValid(postId)) return null;
+    if (!MongooseTypes.ObjectId.isValid(postId)) return null;
 
     const postInstanceDoc = await PostModel.findById(postId).exec();
     if (!postInstanceDoc) return null;
@@ -114,5 +116,51 @@ export class PostsQueryRepository implements IPostsQueryRepo {
     );
 
     return postCommentsOutput;
+  }
+
+  async findPostLike(
+    postId: string,
+    userId: string,
+    session: ClientSession
+  ): Promise<PostLikeLean | null> {
+    const like = await PostLikeModel.findOne({
+      postId: new MongooseTypes.ObjectId(postId), // string -> ObjectId
+      userId: new MongooseTypes.ObjectId(userId), // string -> ObjectId
+    })
+      .session(session)
+      .lean<PostLikeLean>()
+      .exec();
+
+    console.log("like from query repo:", like);
+
+    return like;
+  }
+
+  async getNewestLikes(
+    postId: string,
+    session: ClientSession
+  ): Promise<
+    Array<{
+      addedAt: Date;
+      userId: string;
+      login: string;
+    }>
+  > {
+    const likes = await PostLikeModel.find({
+      postId: new MongooseTypes.ObjectId(postId),
+      likeStatus: LikeStatus.Like, // только лайки
+    })
+      .sort({ addedAt: -1 }) // от новых к старым
+      .limit(3) // 3
+      .select({ addedAt: 1, userId: 1, login: 1, _id: 0 })
+      .lean<PostLikeLean[]>()
+      .session(session)
+      .exec();
+
+    return likes.map((like) => ({
+      addedAt: like.addedAt,
+      userId: like.userId.toString(),
+      login: like.login,
+    }));
   }
 }

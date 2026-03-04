@@ -75,7 +75,7 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
       type: LikesInfoSchema,
       required: true,
 
-      default: () => ({ likesCount: 0, dislikesCount: 0 }), // * что бы не прокидывать likesInfo при создании post comments (автоматически появиться).
+      default: () => ({ likesCount: 0, dislikesCount: 0 }), // * что бы не прокидывать likesInfo при создании post comments (автоматически появиться в репо).
     },
   },
 

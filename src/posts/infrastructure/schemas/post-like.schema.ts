@@ -10,7 +10,8 @@ import { LikeStatus } from "@core/types/like-status.enum";
 type PostLikeDb = {
   postId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
-  status: LikeStatus;
+  likeStatus: LikeStatus;
+  login: string;
 
   addedAt: Date; // когда поставили Like (для newestLikes)
 };
@@ -32,13 +33,13 @@ const PostLikeSchema = new mongoose.Schema<PostLikeDb>(
       required: true,
       ref: USERS_COLLECTION_NAME,
     },
-    status: {
+    likeStatus: {
       type: String,
       required: true,
       enum: Object.values(LikeStatus),
       default: LikeStatus.None,
     },
-    //   login: { type: String, required: true },
+    login: { type: String, required: true },
     addedAt: { type: Date, required: true, default: () => new Date() },
     //   updatedAt: { type: Date, required: true },
   },

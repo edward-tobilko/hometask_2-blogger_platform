@@ -1,10 +1,13 @@
+import { IUsersQueryService } from "./../../../users/interfaces/IUsersQueryService";
 import { inject, injectable } from "inversify";
+import mongoose from "mongoose";
 
 import { WithMeta } from "../../../core/types/with-meta.type";
 import { ApplicationResult } from "../../../core/result/application.result";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import {
   ApplicationError,
+  InternalServerError,
   NotFoundError,
   RepositoryNotFoundError,
 } from "../../../core/errors/application.error";
@@ -20,6 +23,9 @@ import { LikeStatus } from "@core/types/like-status.enum";
 import { IPostsQueryRepo } from "../interfaces/posts-query-repo.interface";
 import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
+import { PostOutput } from "../output/post-type.output";
+import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { CommentEntity } from "comments/domain/entities/comment.entity";
 
 @injectable()
 export class PostsService implements IPostsService {
@@ -28,12 +34,14 @@ export class PostsService implements IPostsService {
     @inject(DiTypes.IBlogsQueryRepository)
     private blogsQueryRepository: IBlogsQueryRepository,
     @inject(DiTypes.IPostsQueryRepository)
-    private postsQueryRepository: IPostsQueryRepo
+    private postsQueryRepository: IPostsQueryRepo,
+    @inject(DiTypes.IUsersQueryService)
+    private usersQueryService: IUsersQueryService
   ) {}
 
   async createPost(
     command: WithMeta<CreatePostDtoCommand>
-  ): Promise<ApplicationResult<string | null>> {
+  ): Promise<ApplicationResult<PostOutput | null>> {
     const dto = command.payload;
 
     const blog = await this.blogsQueryRepository.findBlogById(dto.blogId);
@@ -58,10 +66,12 @@ export class PostsService implements IPostsService {
 
       const savedPost = await this.postsRepository.createPost(post);
 
+      const viewModelPost = PostMapper.toViewModel(savedPost);
+
       return new ApplicationResult({
         status: ApplicationResultStatus.Success,
 
-        data: savedPost.id, // после save id уже есть
+        data: viewModelPost,
 
         extensions: [],
       });
@@ -223,17 +233,115 @@ export class PostsService implements IPostsService {
     });
   }
 
-  async upsertPostLikeStatus(domain: {
-    likeStatus: string;
+  async upsertPostLike(domain: {
+    likeStatus: LikeStatus;
     postId: string;
     userId: string;
   }): Promise<ApplicationResult<null>> {
-    console.log(domain);
+    const session = await mongoose.startSession(); // * позволяет объединить несколько запросов в одну транзакцию. Без session каждый updateOne() — это отдельная операция.
 
-    return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
-      data: null,
-      extensions: [],
-    });
+    try {
+      let result: ApplicationResult<null> = new ApplicationResult({
+        status: ApplicationResultStatus.InternalServerError,
+        data: null,
+        extensions: [new InternalServerError("Unknown error")],
+      });
+
+      await session.withTransaction(async () => {
+        // * Получаем пост (проверяем существование)
+        const existingPost = await this.postsQueryRepository.getPostById(
+          domain.postId,
+          session
+        );
+
+        if (!existingPost) {
+          result = new ApplicationResult({
+            status: ApplicationResultStatus.NotFound,
+            data: null,
+            extensions: [new NotFoundError("Post is not found", "postId")],
+          });
+
+          return;
+        }
+
+        // * Получаем предыдущий статус лайка
+        const prevLike = await this.postsQueryRepository.findPostLike(
+          domain.postId,
+          domain.userId,
+          session
+        );
+
+        const prevStatus = prevLike?.likeStatus || LikeStatus.None;
+
+        // * Если статус не изменился - ничего не делаем
+        if (prevStatus === domain.likeStatus) {
+          result = new ApplicationResult({
+            status: ApplicationResultStatus.NoContent,
+            data: null,
+            extensions: [],
+          });
+          return;
+        }
+
+        // * Domain: вычисляет изменения счетчиков
+        const { likesChange, disLikesChange } =
+          CommentEntity.calculateLikeDislike(prevStatus, domain.likeStatus);
+
+        // * Обновляем счетчики в посте
+        await this.postsRepository.updateLikeCounters(
+          domain.postId,
+          likesChange,
+          disLikesChange,
+          session
+        );
+
+        // * достаём login пользователя (один запрос)
+        const user = await this.usersQueryService.getUserById(domain.userId);
+        const login = user?.login ?? "";
+
+        // * Сохраняем / обновляем лайк пользователя
+        await this.postsRepository.upsertPostLike(
+          {
+            postId: domain.postId,
+            userId: domain.userId,
+            likeStatus: domain.likeStatus,
+            login,
+          },
+          session
+        );
+
+        // * пересобираем newestLikes и пишем в Post
+        const newestLikes = await this.postsQueryRepository.getNewestLikes(
+          domain.postId,
+          session
+        );
+
+        await this.postsRepository.setNewestLikes(
+          domain.postId,
+          newestLikes,
+          session
+        );
+
+        console.log("like from service:", domain);
+
+        result = new ApplicationResult({
+          status: ApplicationResultStatus.Success,
+          data: null,
+          extensions: [],
+        });
+      });
+
+      return result;
+    } catch (error) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.InternalServerError,
+        data: null,
+        extensions: [
+          new InternalServerError("Failed to update post like status"),
+        ],
+      });
+    } finally {
+      session.endSession();
+    }
   }
 }

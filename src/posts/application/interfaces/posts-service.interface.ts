@@ -4,11 +4,13 @@ import { CreateCommentForPostDtoCommand } from "posts/application/commands/creat
 import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 import { IPostCommentOutput } from "posts/application/output/post-comment.output";
+import { PostOutput } from "../output/post-type.output";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 export interface IPostsService {
   createPost(
     command: WithMeta<CreatePostDtoCommand>
-  ): Promise<ApplicationResult<string | null>>;
+  ): Promise<ApplicationResult<PostOutput | null>>;
 
   createPostComment(
     command: WithMeta<CreateCommentForPostDtoCommand>
@@ -20,8 +22,8 @@ export interface IPostsService {
 
   deletePost(id: string): Promise<ApplicationResult<null>>;
 
-  upsertPostLikeStatus(domain: {
-    likeStatus: string;
+  upsertPostLike(domain: {
+    likeStatus: LikeStatus;
     postId: string;
     userId: string;
   }): Promise<ApplicationResult<null>>;

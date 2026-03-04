@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 
 import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
 import { PostModel } from "posts/infrastructure/schemas/post.schema";
@@ -7,12 +7,14 @@ import { PostCommentsModel } from "posts/infrastructure/schemas/post-comments.sc
 import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
+import { LikeStatus } from "@core/types/like-status.enum";
+import { PostLikeModel } from "../schemas/post-like.schema";
 
 @injectable()
 export class PostsRepository implements IPostsRepo {
-  async createPost(newPost: PostEntity): Promise<PostEntity> {
+  async createPost(domainPost: PostEntity): Promise<PostEntity> {
     // * получаем замапенный инстанс дб поста
-    const postDb = PostMapper.toDb(newPost);
+    const postDb = PostMapper.toDb(domainPost);
 
     // * создаем новый объект экземпляра поста
     const postInstanceDoc = new PostModel(postDb);
@@ -100,5 +102,80 @@ export class PostsRepository implements IPostsRepo {
     }).exec();
 
     return deletedResult.deletedCount === 1;
+  }
+
+  async updateLikeCounters(
+    postId: string,
+    like: number,
+    dislike: number,
+    session: ClientSession
+  ): Promise<void> {
+    await PostModel.updateOne(
+      {
+        _id: new Types.ObjectId(postId),
+      },
+      {
+        $inc: {
+          "extendedLikesInfo.likesCount": like,
+          "extendedLikesInfo.dislikesCount": dislike,
+        },
+      },
+      { session }
+    ).exec();
+  }
+
+  async upsertPostLike(
+    domain: {
+      postId: string;
+      userId: string;
+      likeStatus: LikeStatus;
+      login: string;
+    },
+    session: ClientSession
+  ): Promise<void> {
+    const filter = {
+      postId: new Types.ObjectId(domain.postId), // string -> ObjectId
+      userId: new Types.ObjectId(domain.userId), // string -> ObjectId
+    };
+
+    if (domain.likeStatus === LikeStatus.None) {
+      await PostLikeModel.deleteOne(filter, { session }).exec();
+      return;
+    }
+
+    const update: any = {
+      $set: {
+        likeStatus: domain.likeStatus,
+        login: domain.login,
+      },
+    };
+
+    // * addedAt обновляем только когда ставим Like
+    if (domain.likeStatus === LikeStatus.Like) {
+      update.$set.addedAt = new Date();
+    }
+
+    await PostLikeModel.updateOne(filter, update, {
+      upsert: true,
+      session,
+    }).exec();
+  }
+
+  async setNewestLikes(
+    postId: string,
+    newestLikes: Array<{ addedAt: Date; userId: string; login: string }>,
+    session: ClientSession
+  ): Promise<void> {
+    const filter = {
+      _id: new Types.ObjectId(postId),
+    };
+
+    const update = {
+      $set: {
+        "extendedLikesInfo.newestLikes": newestLikes,
+      },
+    };
+
+    await PostModel.updateOne(filter, update, { session }).exec();
   }
 }

@@ -138,14 +138,14 @@ export class PostsController {
     try {
       const sanitizedBodyParam = matchedData<CreatePostRP>(req, {
         locations: ["body"],
-        includeOptionals: true,
+        includeOptionals: false,
       });
 
       const command = createCommand<CreatePostDtoCommand>(sanitizedBodyParam);
 
       const postOutput = await this.postsService.createPost(command);
 
-      log(postOutput.data);
+      log("postOutput ->", postOutput.data);
 
       res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
     } catch (error: unknown) {
@@ -280,9 +280,7 @@ export class PostsController {
 
       log("command ->", command.payload);
 
-      const result = await this.postsService.upsertPostLikeStatus(
-        command.payload
-      );
+      const result = await this.postsService.upsertPostLike(command.payload);
 
       if (!result.isSuccess()) {
         return res

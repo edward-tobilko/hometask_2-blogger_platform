@@ -1,10 +1,12 @@
-import { LikeStatus } from "@core/types/like-status.enum";
+import { Types } from "mongoose";
+
+// import { LikeStatus } from "@core/types/like-status.enum";
 import { CreatePostDtoEntity } from "../value-objects/create-post-dto.entity";
 import { UpdatePostDtoEntity } from "../value-objects/update-post-dto.entity";
 import { ValidationError } from "@core/errors/application.error";
 
 export class PostEntity {
-  private readonly _id: string | null;
+  private readonly _id: string;
 
   private _title: string;
   private _shortDescription: string;
@@ -17,18 +19,15 @@ export class PostEntity {
   private _extendedLikesInfo: {
     likesCount: number;
     dislikesCount: number;
-    myStatus: LikeStatus;
-    newestLikes: [
-      {
-        addedAt: Date;
-        userId: string;
-        login: string;
-      },
-    ];
+    newestLikes: Array<{
+      addedAt: Date;
+      userId: string;
+      login: string;
+    }>;
   };
 
   private constructor(props: {
-    id: string | null;
+    id: string;
 
     title: string;
     shortDescription: string;
@@ -41,14 +40,11 @@ export class PostEntity {
     extendedLikesInfo: {
       likesCount: number;
       dislikesCount: number;
-      myStatus: LikeStatus;
-      newestLikes: [
-        {
-          addedAt: Date;
-          userId: string;
-          login: string;
-        },
-      ];
+      newestLikes: Array<{
+        addedAt: Date;
+        userId: string;
+        login: string;
+      }>;
     };
   }) {
     this._id = props.id;
@@ -114,14 +110,11 @@ export class PostEntity {
     extendedLikesInfo: {
       likesCount: number;
       dislikesCount: number;
-      myStatus: LikeStatus;
-      newestLikes: [
-        {
-          addedAt: Date;
-          userId: string;
-          login: string;
-        },
-      ];
+      newestLikes: Array<{
+        addedAt: Date;
+        userId: string;
+        login: string;
+      }>;
     };
   }): PostEntity {
     return new PostEntity(props);
@@ -133,7 +126,7 @@ export class PostEntity {
     PostEntity.validateContent(dto.content);
 
     const newPost = new PostEntity({
-      id: null, // Будет установлен при сохранении
+      id: new Types.ObjectId().toString(),
       title: dto.title,
       shortDescription: dto.shortDescription,
       content: dto.content,
@@ -145,14 +138,7 @@ export class PostEntity {
       extendedLikesInfo: {
         likesCount: 0,
         dislikesCount: 0,
-        myStatus: LikeStatus.None,
-        newestLikes: [
-          {
-            addedAt: new Date(),
-            userId: "userId",
-            login: "login",
-          },
-        ],
+        newestLikes: [],
       },
     });
 
