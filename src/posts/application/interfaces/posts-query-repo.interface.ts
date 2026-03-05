@@ -1,16 +1,20 @@
 import { ClientSession } from "mongoose";
 
 import { PostCommentsListPaginatedOutput } from "posts/application/output/post-comments-list-type.output";
-import { PostsListPaginatedOutput } from "posts/application/output/posts-list-type.output";
 import { GetPostCommentsListQueryHandler } from "posts/application/query-handlers/get-post-comments-list.query-handler";
 import { GetPostsListQueryHandler } from "posts/application/query-handlers/get-posts-list.query-handler";
 import { PostEntity } from "posts/domain/entities/post.entity";
-import { PostLikeLean } from "posts/infrastructure/schemas/post-like.schema";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 export interface IPostsQueryRepo {
   getPostsList(
-    queryParam: GetPostsListQueryHandler
-  ): Promise<PostsListPaginatedOutput>;
+    queryParam: GetPostsListQueryHandler,
+    currentUserId?: string
+  ): Promise<{
+    postsEntity: PostEntity[];
+    userLikes: Map<string, LikeStatus>;
+    totalCount: number;
+  }>;
 
   getPostById(
     postId: string,
@@ -21,12 +25,6 @@ export interface IPostsQueryRepo {
     queryParam: GetPostCommentsListQueryHandler,
     currentUserId?: string
   ): Promise<PostCommentsListPaginatedOutput | null>;
-
-  findPostLike(
-    postId: string,
-    userId: string,
-    session: ClientSession
-  ): Promise<PostLikeLean | null>;
 
   getNewestLikes(
     postId: string,

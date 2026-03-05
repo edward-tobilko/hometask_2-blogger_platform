@@ -4,7 +4,7 @@ import { BlogsController } from "blogs/routes/blogs.controller";
 import { PostsController } from "posts/presentation/controllers/posts.controller";
 import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
 import { UsersController } from "users/routes/users-controller";
-import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
+import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
 import { container } from "@core/di/inversify.config";
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
 import { IJWTService } from "auth/interfaces/IJWTService";
@@ -24,7 +24,7 @@ export const resetCompositionRootForTests = () => {
 
 // * Getters
 export const getCustomRateLimitRepo = () =>
-  container.get<ICustomRateLimitRepo>(DiTypes.ICustomRateLimitRepo);
+  container.get<ICustomRateLimit>(DiTypes.ICustomRateLimitRepo);
 
 export const getAuthController = () =>
   container.get<AuthController>(DiTypes.AuthController);

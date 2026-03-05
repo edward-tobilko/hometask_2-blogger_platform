@@ -7,7 +7,8 @@ import { PostEntity } from "posts/domain/entities/post.entity";
 
 export interface IPostsQueryService {
   getPostsList(
-    queryParam: GetPostsListQueryHandler
+    queryParam: GetPostsListQueryHandler,
+    currentUserId?: string
   ): Promise<PostsListPaginatedOutput>;
 
   getPostById(postId: string): Promise<PostEntity | null>;

@@ -11,6 +11,8 @@ import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-ty
 import { GetPostsListQueryHandler } from "../query-handlers/get-posts-list.query-handler";
 import { GetPostCommentsListQueryHandler } from "../query-handlers/get-post-comments-list.query-handler";
 import { PostEntity } from "posts/domain/entities/post.entity";
+import { LikeStatus } from "@core/types/like-status.enum";
+import { PostMapper } from "posts/domain/mappers/post.mapper";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {
@@ -20,9 +22,26 @@ export class PostQueryService implements IPostsQueryService {
   ) {}
 
   async getPostsList(
-    queryParam: GetPostsListQueryHandler
+    queryParam: GetPostsListQueryHandler,
+    currentUserId?: string
   ): Promise<PostsListPaginatedOutput> {
-    return await this.postsQueryRepository.getPostsList(queryParam);
+    const { postsEntity, userLikes, totalCount } =
+      await this.postsQueryRepository.getPostsList(queryParam, currentUserId);
+
+    const items = postsEntity.map((postEntity) => {
+      const myStatus =
+        userLikes.get(postEntity.id.toString()) ?? LikeStatus.None;
+
+      return PostMapper.toViewModel(postEntity, myStatus);
+    });
+
+    return {
+      pagesCount: Math.ceil(totalCount / queryParam.pageSize),
+      page: queryParam.pageNumber,
+      pageSize: queryParam.pageSize,
+      totalCount,
+      items,
+    };
   }
 
   async getPostById(postId: string): Promise<PostEntity | null> {

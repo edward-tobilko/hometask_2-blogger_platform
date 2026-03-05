@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { inject, injectable } from "inversify";
-import { log } from "console";
 
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { DiTypes } from "@core/di/types";
@@ -43,6 +42,9 @@ export class PostsController {
     next: NextFunction
   ) => {
     try {
+      // * Если optionalJwtAccessGuard прошел → userId уже есть
+      const currentUserId = req.user?.id;
+
       const sanitizedQueryParam = matchedData<PostsListRP>(req, {
         locations: ["query"],
         includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
@@ -53,8 +55,10 @@ export class PostsController {
           sanitizedQueryParam
         );
 
-      const postsListOutput =
-        await this.postQueryService.getPostsList(queryParam);
+      const postsListOutput = await this.postQueryService.getPostsList(
+        queryParam,
+        currentUserId // * Передаем userId для вычисления myStatus
+      );
 
       res.status(HTTP_STATUS_CODES.OK_200).json(postsListOutput);
     } catch (error: unknown) {
@@ -144,8 +148,6 @@ export class PostsController {
       const command = createCommand<CreatePostDtoCommand>(sanitizedBodyParam);
 
       const postOutput = await this.postsService.createPost(command);
-
-      log("postOutput ->", postOutput.data);
 
       res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
     } catch (error: unknown) {
@@ -277,8 +279,6 @@ export class PostsController {
         userId: req.user.id, // берем с access token
         likeStatus: sanitizedBody.likeStatus as LikeStatus,
       });
-
-      log("command ->", command.payload);
 
       const result = await this.postsService.upsertPostLike(command.payload);
 

@@ -25,7 +25,7 @@ import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 import { PostOutput } from "../output/post-type.output";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
-import { CommentEntity } from "comments/domain/entities/comment.entity";
+import { LikeEntity } from "@core/domain/like.domain";
 
 @injectable()
 export class PostsService implements IPostsService {
@@ -66,7 +66,7 @@ export class PostsService implements IPostsService {
 
       const savedPost = await this.postsRepository.createPost(post);
 
-      const viewModelPost = PostMapper.toViewModel(savedPost);
+      const viewModelPost = PostMapper.toViewModel(savedPost, LikeStatus.None);
 
       return new ApplicationResult({
         status: ApplicationResultStatus.Success,
@@ -234,9 +234,9 @@ export class PostsService implements IPostsService {
   }
 
   async upsertPostLike(domain: {
-    likeStatus: LikeStatus;
     postId: string;
     userId: string;
+    likeStatus: LikeStatus;
   }): Promise<ApplicationResult<null>> {
     const session = await mongoose.startSession(); // * позволяет объединить несколько запросов в одну транзакцию. Без session каждый updateOne() — это отдельная операция.
 
@@ -265,7 +265,7 @@ export class PostsService implements IPostsService {
         }
 
         // * Получаем предыдущий статус лайка
-        const prevLike = await this.postsQueryRepository.findPostLike(
+        const prevLike = await this.postsRepository.findPostLike(
           domain.postId,
           domain.userId,
           session
@@ -284,8 +284,10 @@ export class PostsService implements IPostsService {
         }
 
         // * Domain: вычисляет изменения счетчиков
-        const { likesChange, disLikesChange } =
-          CommentEntity.calculateLikeDislike(prevStatus, domain.likeStatus);
+        const { likesChange, disLikesChange } = LikeEntity.calculateLikeDislike(
+          prevStatus,
+          domain.likeStatus
+        );
 
         // * Обновляем счетчики в посте
         await this.postsRepository.updateLikeCounters(
@@ -321,8 +323,6 @@ export class PostsService implements IPostsService {
           newestLikes,
           session
         );
-
-        console.log("like from service:", domain);
 
         result = new ApplicationResult({
           status: ApplicationResultStatus.Success,

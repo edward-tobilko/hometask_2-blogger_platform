@@ -156,7 +156,7 @@ export class PostEntity {
   }
 
   // * Getters
-  get id(): string | null {
+  get id(): string {
     return this._id;
   }
   get title(): string {

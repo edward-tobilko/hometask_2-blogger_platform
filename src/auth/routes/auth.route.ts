@@ -7,12 +7,12 @@ import { jwtAccessAuthGuard } from "../api/guards/jwt-access-auth.guard";
 import { registrationAuthRPValidation } from "./request-payload-validations/registration-auth.request-payload-validation";
 import { AuthController } from "./auth.controller";
 import { customRateLimiterMiddleware } from "@core/middlewares/custom-rate-limiter.middleware";
-import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
+import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { newPasswordRPV } from "./request-payload-validations/new-password.rpv";
 
 export const createAuthRouter = (
-  customRateLimitRepo: ICustomRateLimitRepo,
+  customRateLimitRepo: ICustomRateLimit,
   authController: AuthController,
   jwtService: IJWTService
 ) => {

@@ -55,8 +55,8 @@ import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDe
 import { SecurityDevicesService } from "security-devices/applications/security-devices.service";
 import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecurityDevicesQueryService";
 import { SecurityDevicesQueryService } from "security-devices/applications/security-devices-query.service";
-import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
-import { CustomRateLimitRepo } from "@core/repositories/custom-rate-limit.repo";
+import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
+import { CustomRateLimitRepo } from "@core/infrastructure/repositories/custom-rate-limit.repo";
 import { PostQueryService } from "posts/application/services/post-query-service";
 import { CommentsController } from "comments/presentation/controllers/comments.controller";
 import { DiTypes } from "./types";
@@ -158,7 +158,7 @@ container
 
 // * Other
 container
-  .bind<ICustomRateLimitRepo>(DiTypes.ICustomRateLimitRepo)
+  .bind<ICustomRateLimit>(DiTypes.ICustomRateLimitRepo)
   .to(CustomRateLimitRepo);
 
 // * Controllers

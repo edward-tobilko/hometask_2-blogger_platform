@@ -1,12 +1,12 @@
 import { Types } from "mongoose";
 
-import { PostDb, PostDocument } from "posts/infrastructure/schemas/post.schema";
+import { PostDb, PostLean } from "posts/infrastructure/schemas/post.schema";
 import { PostEntity } from "../entities/post.entity";
 import { PostOutput } from "posts/application/output/post-type.output";
 import { LikeStatus } from "@core/types/like-status.enum";
 
 export class PostMapper {
-  static toDomain(doc: PostDocument): PostEntity {
+  static toDomain(doc: PostLean): PostEntity {
     return PostEntity.reconstitute({
       id: doc._id.toString(),
 
@@ -58,7 +58,7 @@ export class PostMapper {
     };
   }
 
-  static toViewModel(entity: PostEntity): PostOutput {
+  static toViewModel(entity: PostEntity, myStatus: LikeStatus): PostOutput {
     return {
       id: entity.id!.toString(),
       title: entity.title,
@@ -72,7 +72,7 @@ export class PostMapper {
       extendedLikesInfo: {
         likesCount: entity.extendedLikesInfo.likesCount,
         dislikesCount: entity.extendedLikesInfo.dislikesCount,
-        myStatus: LikeStatus.None,
+        myStatus,
 
         newestLikes: entity.extendedLikesInfo.newestLikes.map((like) => ({
           addedAt: like.addedAt.toISOString(),

@@ -8,7 +8,7 @@ import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostLikeModel } from "../schemas/post-like.schema";
+import { PostLikeDocument, PostLikeModel } from "../schemas/post-like.schema";
 
 @injectable()
 export class PostsRepository implements IPostsRepo {
@@ -104,6 +104,21 @@ export class PostsRepository implements IPostsRepo {
     return deletedResult.deletedCount === 1;
   }
 
+  async findPostLike(
+    postId: string,
+    userId: string,
+    session: ClientSession
+  ): Promise<PostLikeDocument | null> {
+    const like = await PostLikeModel.findOne({
+      postId: new Types.ObjectId(postId), // string -> ObjectId
+      userId: new Types.ObjectId(userId), // string -> ObjectId
+    })
+      .session(session)
+      .exec();
+
+    return like;
+  }
+
   async updateLikeCounters(
     postId: string,
     like: number,
@@ -138,10 +153,10 @@ export class PostsRepository implements IPostsRepo {
       userId: new Types.ObjectId(domain.userId), // string -> ObjectId
     };
 
-    if (domain.likeStatus === LikeStatus.None) {
-      await PostLikeModel.deleteOne(filter, { session }).exec();
-      return;
-    }
+    // if (domain.likeStatus === LikeStatus.None) {
+    //   await PostLikeModel.deleteOne(filter, { session }).exec();
+    //   return;
+    // }
 
     const update: any = {
       $set: {
@@ -155,10 +170,12 @@ export class PostsRepository implements IPostsRepo {
       update.$set.addedAt = new Date();
     }
 
-    await PostLikeModel.updateOne(filter, update, {
+    const res = await PostLikeModel.updateOne(filter, update, {
       upsert: true,
       session,
     }).exec();
+
+    console.log("res:", res);
   }
 
   async setNewestLikes(

@@ -23,8 +23,8 @@ export interface IPostsService {
   deletePost(id: string): Promise<ApplicationResult<null>>;
 
   upsertPostLike(domain: {
-    likeStatus: LikeStatus;
     postId: string;
     userId: string;
+    likeStatus: LikeStatus;
   }): Promise<ApplicationResult<null>>;
 }

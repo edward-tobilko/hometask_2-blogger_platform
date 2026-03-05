@@ -1,8 +1,6 @@
 import { injectable } from "inversify";
 import { ClientSession, Types as MongooseTypes } from "mongoose";
 
-import { mapToPostListOutput } from "../../application/mappers/map-to-post-list-output.util";
-import { PostsListPaginatedOutput } from "../../application/output/posts-list-type.output";
 import { GetPostsListQueryHandler } from "../../application/query-handlers/get-posts-list.query-handler";
 import { GetPostCommentsListQueryHandler } from "../../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../../application/output/post-comments-list-type.output";
@@ -25,13 +23,18 @@ import { LikeStatus } from "@core/types/like-status.enum";
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepo {
   async getPostsList(
-    queryParam: GetPostsListQueryHandler
-  ): Promise<PostsListPaginatedOutput> {
-    const filter = {};
-
+    queryParam: GetPostsListQueryHandler,
+    currentUserId?: string // * Опционально - для неавторизованных пользователей
+  ): Promise<{
+    postsEntity: PostEntity[];
+    userLikes: Map<string, LikeStatus>;
+    totalCount: number;
+  }> {
     const { pageNumber, pageSize, sortDirection, sortBy } = queryParam;
 
-    const items = await PostModel.find(filter)
+    const filter = {};
+
+    const postsDocs = await PostModel.find(filter)
       .sort({ [sortBy]: sortDirection })
       .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
@@ -40,17 +43,41 @@ export class PostsQueryRepository implements IPostsQueryRepo {
 
     const totalCount = await PostModel.countDocuments(filter);
 
-    return mapToPostListOutput(items, {
-      page: pageNumber,
-      pageSize,
-      totalCount,
-    });
+    const postsEntity = postsDocs.map((postDoc) =>
+      PostMapper.toDomain(postDoc)
+    );
+
+    const userLikes = new Map<string, LikeStatus>();
+
+    if (currentUserId && MongooseTypes.ObjectId.isValid(currentUserId)) {
+      const postIds = postsDocs.map((postDoc) => postDoc._id);
+
+      const filter = {
+        postId: { $in: postIds },
+        userId: new MongooseTypes.ObjectId(currentUserId),
+      };
+
+      const likes = await PostLikeModel.find(filter)
+        .lean<PostLikeLean[]>()
+        .exec();
+
+      likes.forEach((like) => {
+        userLikes.set(like.postId.toString(), like.likeStatus);
+      });
+    }
+
+    return { postsEntity, userLikes, totalCount };
   }
 
-  async getPostById(postId: string): Promise<PostEntity | null> {
+  async getPostById(
+    postId: string,
+    session: ClientSession
+  ): Promise<PostEntity | null> {
     if (!MongooseTypes.ObjectId.isValid(postId)) return null;
 
-    const postInstanceDoc = await PostModel.findById(postId).exec();
+    const postInstanceDoc = await PostModel.findById(postId)
+      .session(session)
+      .exec();
     if (!postInstanceDoc) return null;
 
     return PostMapper.toDomain(postInstanceDoc);
@@ -116,24 +143,6 @@ export class PostsQueryRepository implements IPostsQueryRepo {
     );
 
     return postCommentsOutput;
-  }
-
-  async findPostLike(
-    postId: string,
-    userId: string,
-    session: ClientSession
-  ): Promise<PostLikeLean | null> {
-    const like = await PostLikeModel.findOne({
-      postId: new MongooseTypes.ObjectId(postId), // string -> ObjectId
-      userId: new MongooseTypes.ObjectId(userId), // string -> ObjectId
-    })
-      .session(session)
-      .lean<PostLikeLean>()
-      .exec();
-
-    console.log("like from query repo:", like);
-
-    return like;
   }
 
   async getNewestLikes(

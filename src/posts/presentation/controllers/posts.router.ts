@@ -62,6 +62,7 @@ export const createPostsRouter = (
   // * GET: Returns all posts
   postsRoute.get(
     "",
+    optionalJwtAccessGuard(jwtService),
     queryPaginationAndSortingValidation<PostSortFieldRP>(PostSortFieldRP),
     inputResultMiddlewareValidation,
 

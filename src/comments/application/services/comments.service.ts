@@ -15,7 +15,7 @@ import { ICommentsService } from "comments/application/interfaces/ICommentsServi
 import { ICommentsRepository } from "comments/application/interfaces/ICommentsRepository";
 import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { CommentEntity } from "comments/domain/entities/comment.entity";
+import { LikeEntity } from "@core/domain/like.domain";
 
 @injectable()
 export class CommentsService implements ICommentsService {
@@ -40,8 +40,10 @@ export class CommentsService implements ICommentsService {
 
     try {
       // * Domain
-      const { likesChange, disLikesChange } =
-        CommentEntity.calculateLikeDislike(prevStatus, nextStatus);
+      const { likesChange, disLikesChange } = LikeEntity.calculateLikeDislike(
+        prevStatus,
+        nextStatus
+      );
 
       // * session.withTransaction() - все внутри либо выполнится целиком, либо откатится полностью (если хоть один запросс не сработает: $inc или $upsert).
       await session.withTransaction(async () => {

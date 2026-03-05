@@ -1,10 +1,10 @@
 import { injectable } from "inversify";
 
-import { ICustomRateLimitRepo } from "@core/interfaces/ICustomRateLimitRepo";
-import { CustomRateLimitModel } from "@core/mongoose/custom-rate-limiter.schema";
+import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
+import { CustomRateLimitModel } from "@core/infrastructure/schemas/custom-rate-limiter.schema";
 
 @injectable()
-export class CustomRateLimitRepo implements ICustomRateLimitRepo {
+export class CustomRateLimitRepo implements ICustomRateLimit {
   async addRateLimit(ip: string, url: string): Promise<void> {
     await CustomRateLimitModel.create({ ip, url, date: new Date() });
   }

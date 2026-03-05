@@ -14,6 +14,7 @@ export type PostOutput = {
     likesCount: number;
     dislikesCount: number;
     myStatus: LikeStatus;
+
     newestLikes: Array<{
       addedAt: string;
       userId: string;
