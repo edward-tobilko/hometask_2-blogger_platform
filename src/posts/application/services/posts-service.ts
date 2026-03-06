@@ -289,6 +289,26 @@ export class PostsService implements IPostsService {
           domain.likeStatus
         );
 
+        // * Получаем login из существующего лайка
+        let login = prevLike?.login ?? "";
+
+        if (!login) {
+          // * Если лайка еще не было - получаем из UserService
+          const user = await this.usersQueryService.getUserById(domain.userId);
+
+          if (!user) {
+            // * Если пользователь не найден
+            result = new ApplicationResult({
+              status: ApplicationResultStatus.NotFound,
+              data: null,
+              extensions: [new NotFoundError("User is not found", "userId")],
+            });
+            return;
+          }
+
+          login = user.login;
+        }
+
         // * Обновляем счетчики в посте
         await this.postsRepository.updateLikeCounters(
           domain.postId,
@@ -296,10 +316,6 @@ export class PostsService implements IPostsService {
           disLikesChange,
           session
         );
-
-        // * достаём login пользователя (один запрос)
-        const user = await this.usersQueryService.getUserById(domain.userId);
-        const login = user?.login ?? "";
 
         // * Сохраняем / обновляем лайк пользователя
         await this.postsRepository.upsertPostLike(
@@ -312,7 +328,7 @@ export class PostsService implements IPostsService {
           session
         );
 
-        // * пересобираем newestLikes и пишем в Post
+        // * обновляем newestLikes
         const newestLikes = await this.postsQueryRepository.getNewestLikes(
           domain.postId,
           session
@@ -325,7 +341,7 @@ export class PostsService implements IPostsService {
         );
 
         result = new ApplicationResult({
-          status: ApplicationResultStatus.Success,
+          status: ApplicationResultStatus.NoContent,
           data: null,
           extensions: [],
         });

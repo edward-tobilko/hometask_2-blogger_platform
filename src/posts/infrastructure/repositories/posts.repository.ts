@@ -153,10 +153,12 @@ export class PostsRepository implements IPostsRepo {
       userId: new Types.ObjectId(domain.userId), // string -> ObjectId
     };
 
-    // if (domain.likeStatus === LikeStatus.None) {
-    //   await PostLikeModel.deleteOne(filter, { session }).exec();
-    //   return;
-    // }
+    // * Разная логика для разных статусов
+    if (domain.likeStatus === LikeStatus.None) {
+      // * Удаляем лайк совсем
+      await PostLikeModel.deleteOne(filter, { session }).exec();
+      return;
+    }
 
     const update: any = {
       $set: {
@@ -170,12 +172,10 @@ export class PostsRepository implements IPostsRepo {
       update.$set.addedAt = new Date();
     }
 
-    const res = await PostLikeModel.updateOne(filter, update, {
+    await PostLikeModel.updateOne(filter, update, {
       upsert: true,
       session,
     }).exec();
-
-    console.log("res:", res);
   }
 
   async setNewestLikes(

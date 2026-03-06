@@ -1,5 +1,4 @@
 import { CreatePostCommentDtoEntity } from "../value-objects/create-post-comment-dto.entity";
-import { UpdateCommentDtoEntity } from "../../../comments/domain/value-objects/update-comment-dto.entity";
 import { ValidationError } from "@core/errors/application.error";
 import { Types } from "mongoose";
 
@@ -105,10 +104,6 @@ export class PostCommentEntity {
         dislikesCount: 0,
       },
     });
-  }
-
-  updateComment(dto: UpdateCommentDtoEntity) {
-    this.content = dto.content;
   }
 }
 

@@ -1,7 +1,6 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { ICommentsRepository } from "comments/application/interfaces/ICommentsRepository";
 import {
   PostCommentsLean,
   PostCommentsModel,
@@ -13,6 +12,7 @@ import {
   CommentLikeModel,
 } from "comments/infrastructure/schemas/comment-likes.schema";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
+import { ICommentsRepository } from "comments/application/interfaces/comments-repo.interface";
 
 @injectable()
 export class CommentsRepository implements ICommentsRepository {

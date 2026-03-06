@@ -11,11 +11,11 @@ import { ApplicationResult } from "../../../core/result/application.result";
 import { UpdateCommentDtoCommand } from "../commands/update-comment-dto.command";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import { DiTypes } from "@core/di/types";
-import { ICommentsService } from "comments/application/interfaces/ICommentsService";
-import { ICommentsRepository } from "comments/application/interfaces/ICommentsRepository";
-import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
+import { ICommentsService } from "comments/application/interfaces/comments-service.interface";
+import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { LikeEntity } from "@core/domain/like.domain";
+import { ICommentsRepository } from "../interfaces/comments-repo.interface";
 
 @injectable()
 export class CommentsService implements ICommentsService {
@@ -90,10 +90,6 @@ export class CommentsService implements ICommentsService {
     const dto = command.payload;
 
     // * ищем нужный нам коммент
-    // const existingComment = await this.commentsRepo.getCommentDomainById(
-    //   dto.commentId
-    // );
-
     const existingComment = await this.commentsQueryRepo.findCommentById(
       dto.commentId
     );

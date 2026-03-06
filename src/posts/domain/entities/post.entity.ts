@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 
-// import { LikeStatus } from "@core/types/like-status.enum";
 import { CreatePostDtoEntity } from "../value-objects/create-post-dto.entity";
 import { UpdatePostDtoEntity } from "../value-objects/update-post-dto.entity";
 import { ValidationError } from "@core/errors/application.error";

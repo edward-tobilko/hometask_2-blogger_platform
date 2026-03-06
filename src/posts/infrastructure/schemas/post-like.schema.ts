@@ -41,7 +41,6 @@ const PostLikeSchema = new mongoose.Schema<PostLikeDb>(
     },
     login: { type: String, required: true },
     addedAt: { type: Date, required: true, default: () => new Date() },
-    //   updatedAt: { type: Date, required: true },
   },
   { timestamps: false, versionKey: false }
 );

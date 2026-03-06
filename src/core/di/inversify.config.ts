@@ -38,13 +38,12 @@ import { INodeMailerService } from "auth/interfaces/INodeMailerService";
 import { NodeMailerService } from "auth/adapters/node-mailer-service.adapter";
 import { AuthController } from "auth/routes/auth.controller";
 import { BlogsController } from "blogs/routes/blogs.controller";
-import { ICommentsRepository } from "comments/application/interfaces/ICommentsRepository";
 import { CommentsRepository } from "comments/infrastructure/repositories/comments.repository";
-import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
+import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
 import { CommentsQueryRepo } from "comments/infrastructure/repositories/comment-query.repository";
-import { ICommentsQueryService } from "comments/application/interfaces/ICommentsQueryService";
+import { ICommentsQueryService } from "comments/application/interfaces/comments-query-service.interface";
 import { CommentsQueryService } from "comments/application/services/comments-query.service";
-import { ICommentsService } from "comments/application/interfaces/ICommentsService";
+import { ICommentsService } from "comments/application/interfaces/comments-service.interface";
 import { CommentsService } from "comments/application/services/comments.service";
 import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
 import { SecurityDevicesQueryRepo } from "security-devices/repositories/security-devices-query.repo";
@@ -61,6 +60,7 @@ import { PostQueryService } from "posts/application/services/post-query-service"
 import { CommentsController } from "comments/presentation/controllers/comments.controller";
 import { DiTypes } from "./types";
 import { PostsQueryRepository } from "posts/infrastructure/repositories/post-query.repository";
+import { ICommentsRepository } from "comments/application/interfaces/comments-repo.interface";
 
 export const container = new Container({ defaultScope: "Singleton" });
 

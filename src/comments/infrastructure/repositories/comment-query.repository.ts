@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 
 import { mapToCommentOutput } from "../../application/mappers/map-to-comment-output.mapper";
 import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
-import { ICommentsQueryRepo } from "comments/application/interfaces/ICommentsQueryRepo";
+import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
 import {
   PostCommentsLean,
   PostCommentsModel,

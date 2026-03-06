@@ -155,14 +155,16 @@ export class PostsQueryRepository implements IPostsQueryRepo {
       login: string;
     }>
   > {
-    const likes = await PostLikeModel.find({
+    const filter = {
       postId: new MongooseTypes.ObjectId(postId),
-      likeStatus: LikeStatus.Like, // только лайки
-    })
+      likeStatus: LikeStatus.Like,
+    };
+
+    const likes = await PostLikeModel.find(filter)
       .sort({ addedAt: -1 }) // от новых к старым
       .limit(3) // 3
-      .select({ addedAt: 1, userId: 1, login: 1, _id: 0 })
-      .lean<PostLikeLean[]>()
+      // .select({ addedAt: 1, userId: 1, login: 1, _id: 0 })
+      .lean()
       .session(session)
       .exec();
 

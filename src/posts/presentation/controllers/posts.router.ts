@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { body } from "express-validator";
 
 import {
   paramIdValidation,
@@ -18,6 +19,7 @@ import { createPostBodyInputRPValidation } from "../request-payload-validations/
 import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 export const createPostsRouter = (
   postsController: PostsController,
@@ -31,6 +33,15 @@ export const createPostsRouter = (
     "/:postId/like-status",
     jwtAccessAuthGuard(jwtService),
     paramPostIdValidation,
+
+    body("likeStatus")
+      .isString()
+      .withMessage("likeStatus should be a string")
+      .bail()
+      .custom((value: string) =>
+        Object.values(LikeStatus).includes(value as LikeStatus)
+      )
+      .withMessage("likeStatus must be one of: None, Like, Dislike"),
     inputResultMiddlewareValidation,
 
     postsController.updatePostLikeStatusHandler
