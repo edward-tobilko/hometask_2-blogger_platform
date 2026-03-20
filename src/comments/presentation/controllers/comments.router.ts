@@ -18,16 +18,6 @@ export const createCommentsRouter = (
 ) => {
   const commentsRoute = Router({});
 
-  // * GET: Return comment by id
-  commentsRoute.get(
-    "/:id",
-    paramIdValidation,
-    inputResultMiddlewareValidation,
-    optionalJwtAccessGuard(jwtService), // * Получаем токен для передачи userId для вычисления динамического myStatus
-
-    commentsController.getCommentByIdHandler.bind(commentsController)
-  );
-
   // * PUT: Make like / unlike / dislike / undislike operation
   commentsRoute.put(
     "/:commentId/like-status",
@@ -58,6 +48,16 @@ export const createCommentsRouter = (
     inputResultMiddlewareValidation,
 
     commentsController.deleteCommentHandler.bind(commentsController)
+  );
+
+  // * GET: Return comment by id
+  commentsRoute.get(
+    "/:id",
+    optionalJwtAccessGuard(jwtService), // * Получаем токен для передачи userId для вычисления динамического myStatus
+    paramIdValidation,
+    inputResultMiddlewareValidation,
+
+    commentsController.getCommentByIdHandler.bind(commentsController)
   );
 
   return commentsRoute;

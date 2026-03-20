@@ -1,7 +1,6 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { mapToCommentOutput } from "../../application/mappers/map-to-comment-output.mapper";
 import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
 import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
 import {
@@ -13,12 +12,13 @@ import {
   CommentLikeLean,
   CommentLikeModel,
 } from "comments/infrastructure/schemas/comment-likes.schema";
+import { CommentMapper } from "comments/domain/mappers/comment.mapper";
 
 @injectable()
 export class CommentsQueryRepo implements ICommentsQueryRepo {
   async findCommentById(
     commentId: string,
-    currentUserId?: string // * Опционально - для неавторизованных пользователей
+    currentUserId: string // * Опционально - для неавторизованных пользователей
   ): Promise<IPostCommentOutput | null> {
     if (!Types.ObjectId.isValid(commentId)) return null;
 
@@ -40,11 +40,9 @@ export class CommentsQueryRepo implements ICommentsQueryRepo {
         .lean<CommentLikeLean>()
         .exec();
 
-      if (currentUserLike) {
-        myStatus = currentUserLike.status;
-      }
+      myStatus = currentUserLike?.status ?? LikeStatus.None;
     }
 
-    return mapToCommentOutput(comment, myStatus);
+    return CommentMapper.toViewModel(comment, myStatus);
   }
 }

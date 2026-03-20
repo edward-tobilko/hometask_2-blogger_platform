@@ -6,6 +6,7 @@ import { PostOutput } from "posts/application/output/post-type.output";
 import { LikeStatus } from "@core/types/like-status.enum";
 
 export class PostMapper {
+  // * DB -> Domain
   static toDomain(doc: PostLean): PostEntity {
     return PostEntity.reconstitute({
       id: doc._id.toString(),
@@ -32,6 +33,7 @@ export class PostMapper {
     });
   }
 
+  // * Domain -> DB
   static toDb(entity: PostEntity): PostDb & { _id?: Types.ObjectId } {
     return {
       _id: entity.id ? new Types.ObjectId(entity.id) : undefined,
@@ -58,9 +60,10 @@ export class PostMapper {
     };
   }
 
+  // * DB -> Output
   static toViewModel(entity: PostEntity, myStatus: LikeStatus): PostOutput {
     return {
-      id: entity.id!.toString(),
+      id: entity.id.toString(),
       title: entity.title,
       shortDescription: entity.shortDescription,
       content: entity.content,

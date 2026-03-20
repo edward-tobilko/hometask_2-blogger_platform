@@ -51,7 +51,7 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
       type: String,
       required: true,
       minLength: [20, "Content must be min 20 length symbols"],
-      maxLength: [300, "Content must not exceed 30 characters"],
+      maxLength: [300, "Content must not exceed 300 characters"],
     },
 
     postId: {

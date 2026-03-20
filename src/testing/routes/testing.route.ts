@@ -6,6 +6,8 @@ import { BlogModel } from "blogs/mongoose/blog-schema.mongoose";
 import { PostModel } from "posts/infrastructure/schemas/post.schema";
 import { UserModel } from "users/mongoose/user-schema.mongoose";
 import { PostCommentsModel } from "posts/infrastructure/schemas/post-comments.schema";
+import { PostLikeModel } from "posts/infrastructure/schemas/post-like.schema";
+import { CommentLikeModel } from "comments/infrastructure/schemas/comment-likes.schema";
 
 export const testingRoute = Router({});
 
@@ -21,6 +23,8 @@ testingRoute.delete("", async (_req: Request, res: Response) => {
     PostModel.deleteMany(),
     UserModel.deleteMany(),
     PostCommentsModel.deleteMany(),
+    PostLikeModel.deleteMany(),
+    CommentLikeModel.deleteMany(),
   ]);
 
   res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);

@@ -17,7 +17,7 @@ export class CommentsQueryService implements ICommentsQueryService {
 
   async getCommentById(
     commentId: string,
-    currentUserId?: string
+    currentUserId: string
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
     const comment = await this.commentsQueryRepo.findCommentById(
       commentId,

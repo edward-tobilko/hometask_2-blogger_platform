@@ -2,10 +2,47 @@ import { ValidationError } from "@core/errors/application.error";
 import { UpdateCommentDtoEntity } from "../value-objects/update-comment-dto.entity";
 
 export class CommentEntity {
+  id: string;
   content: string;
+  postId: string;
 
-  constructor(public props: { content: string }) {
+  commentatorInfo: {
+    userId: string;
+    userLogin: string;
+  };
+
+  createdAt: Date;
+
+  likesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+  };
+
+  constructor(
+    public props: {
+      id: string;
+      content: string;
+      postId: string;
+
+      commentatorInfo: {
+        userId: string;
+        userLogin: string;
+      };
+
+      createdAt: Date;
+
+      likesInfo: {
+        likesCount: number;
+        dislikesCount: number;
+      };
+    }
+  ) {
+    this.id = props.id;
     this.content = props.content;
+    this.postId = props.postId;
+    this.commentatorInfo = props.commentatorInfo;
+    this.createdAt = props.createdAt;
+    this.likesInfo = props.likesInfo;
   }
 
   // * Factory validation methods
@@ -21,7 +58,23 @@ export class CommentEntity {
   }
 
   // * Fabric methods
-  static reconstitute(props: { content: string }): CommentEntity {
+  static reconstitute(props: {
+    id: string;
+    content: string;
+    postId: string;
+
+    commentatorInfo: {
+      userId: string;
+      userLogin: string;
+    };
+
+    createdAt: Date;
+
+    likesInfo: {
+      likesCount: number;
+      dislikesCount: number;
+    };
+  }): CommentEntity {
     return new CommentEntity(props);
   }
 

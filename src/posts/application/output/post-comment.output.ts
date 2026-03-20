@@ -9,11 +9,11 @@ export interface IPostCommentOutput {
     userLogin: string;
   };
 
+  createdAt: string;
+
   likesInfo: {
     likesCount: number;
     dislikesCount: number;
     myStatus: LikeStatus;
   };
-
-  createdAt: string;
 }

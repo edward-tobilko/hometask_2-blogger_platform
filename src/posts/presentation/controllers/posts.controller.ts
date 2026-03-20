@@ -176,21 +176,23 @@ export class PostsController {
 
       const user = req.user as { id: string }; // from auth -> api/guards -> JWT guard
 
-      const userById = await this.usersQueryService.getUserById(user.id);
+      const userId = await this.usersQueryService.getUserById(user.id);
 
-      if (!userById) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+      if (!userId) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-      const command = createCommand<CreateCommentForPostDtoCommand>({
+      const payload: CreateCommentForPostDtoCommand = {
         content: sanitizedBodyData.content,
         postId: sanitizedParamsData.postId,
 
         commentatorInfo: {
           userId: user.id,
-          userLogin: userById.login,
+          userLogin: userId.login,
         },
 
         createdAt: new Date(),
-      });
+      };
+
+      const command = createCommand(payload);
 
       const postCommentOutput =
         await this.postsService.createPostComment(command);

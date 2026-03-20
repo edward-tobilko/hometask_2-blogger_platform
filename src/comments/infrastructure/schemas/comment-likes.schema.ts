@@ -39,7 +39,7 @@ const CommentLikeSchema = new mongoose.Schema<CommentLikeDb>(
     },
   },
 
-  { timestamps: true, versionKey: false }
+  { timestamps: false, versionKey: false }
 );
 
 // * Один пользователь может поставить только один like / dislike на комментарий

@@ -13,7 +13,7 @@ import { PostLikeDocument, PostLikeModel } from "../schemas/post-like.schema";
 @injectable()
 export class PostsRepository implements IPostsRepo {
   async createPost(domainPost: PostEntity): Promise<PostEntity> {
-    // * получаем замапенный инстанс дб поста
+    // * получаем замапенный инстанс дб поста (для динамического смены БД: Mongo -> PostgreSQL)
     const postDb = PostMapper.toDb(domainPost);
 
     // * создаем новый объект экземпляра поста

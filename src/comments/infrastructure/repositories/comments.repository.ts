@@ -13,9 +13,25 @@ import {
 } from "comments/infrastructure/schemas/comment-likes.schema";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
 import { ICommentsRepository } from "comments/application/interfaces/comments-repo.interface";
+import { CommentEntity } from "comments/domain/entities/comment.entity";
+import { CommentMapper } from "comments/domain/mappers/comment.mapper";
 
 @injectable()
 export class CommentsRepository implements ICommentsRepository {
+  async findById(commentId: string): Promise<CommentEntity | null> {
+    if (!Types.ObjectId.isValid(commentId)) return null;
+
+    const commentDb = await PostCommentsModel.findById(commentId)
+      .lean<PostCommentsLean>()
+      .exec();
+
+    if (!commentDb) return null;
+
+    return CommentMapper.toDomain(commentDb);
+  }
+
+  async save(comment: CommentEntity): Promise<void> {}
+
   async upsertCommentLikeStatus(
     likeStatus: LikeStatus,
     commentId: string,
