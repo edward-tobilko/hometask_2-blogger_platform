@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { Types } from "mongoose";
+import { Types, ClientSession } from "mongoose";
 
 import {
   PostCommentsLean,
@@ -11,7 +11,6 @@ import {
   CommentLikeLean,
   CommentLikeModel,
 } from "comments/infrastructure/schemas/comment-likes.schema";
-import { RepositoryNotFoundError } from "@core/errors/application.error";
 import { ICommentsRepository } from "comments/application/interfaces/comments-repo.interface";
 import { CommentEntity } from "comments/domain/entities/comment.entity";
 import { CommentMapper } from "comments/domain/mappers/comment.mapper";
@@ -21,34 +20,30 @@ export class CommentsRepository implements ICommentsRepository {
   async findById(commentId: string): Promise<CommentEntity | null> {
     if (!Types.ObjectId.isValid(commentId)) return null;
 
-    const commentDb = await PostCommentsModel.findById(commentId)
+    const commentLean = await PostCommentsModel.findById(commentId)
       .lean<PostCommentsLean>()
       .exec();
 
-    if (!commentDb) return null;
+    if (!commentLean) return null;
 
-    return CommentMapper.toDomain(commentDb);
+    return CommentMapper.toDomain(commentLean);
   }
 
-  async save(comment: CommentEntity): Promise<void> {}
+  async save(commentEntity: CommentEntity): Promise<boolean> {
+    const commentDb = CommentMapper.toDb(commentEntity);
 
-  async upsertCommentLikeStatus(
-    likeStatus: LikeStatus,
+    const result = await PostCommentsModel.updateOne(
+      { _id: new Types.ObjectId(commentEntity.id) },
+      { $set: commentDb }
+    ).exec();
+
+    return result.matchedCount === 1;
+  }
+
+  async findUserLikeStatus(
     commentId: string,
-    userId: string,
-    likesChange: number,
-    disLikesChange: number
-  ): Promise<boolean> {
-    // * Проверяем существование комментария внутри сессии
-    const existingComment = await PostCommentsModel.findById(
-      new Types.ObjectId(commentId)
-    )
-      .lean<PostCommentsLean>()
-      .exec();
-
-    if (!existingComment)
-      throw new RepositoryNotFoundError("COMMENT NOT FOUND");
-
+    userId: string
+  ): Promise<LikeStatus | null> {
     // * Получаем текущий статус лайка пользователя (если есть)
     const existingLike = await CommentLikeModel.findOne({
       commentId: new Types.ObjectId(commentId),
@@ -57,12 +52,19 @@ export class CommentsRepository implements ICommentsRepository {
       .lean<CommentLikeLean>()
       .exec();
 
-    const prevStatus = existingLike?.status || LikeStatus.None;
+    return existingLike?.status || LikeStatus.None;
+  }
 
-    if (prevStatus === likeStatus) return true; // * Ничего не делаем, но возвращаем успех
-
+  async upsertCommentLikeStatus(
+    likeStatus: LikeStatus,
+    commentId: string,
+    userId: string,
+    likesChange: number,
+    disLikesChange: number,
+    session: ClientSession
+  ): Promise<boolean> {
     // * Обновляем счетчики в комментарии
-    await PostCommentsModel.updateOne(
+    const updateCommentResult = await PostCommentsModel.updateOne(
       {
         _id: new Types.ObjectId(commentId),
       },
@@ -71,8 +73,13 @@ export class CommentsRepository implements ICommentsRepository {
           "likesInfo.likesCount": likesChange,
           "likesInfo.dislikesCount": disLikesChange,
         },
-      }
+      },
+      session
     ).exec();
+
+    if (updateCommentResult.matchedCount !== 1) {
+      return false;
+    }
 
     // * Сохраняем / обновляем статус лайка
     await CommentLikeModel.updateOne(
@@ -85,6 +92,7 @@ export class CommentsRepository implements ICommentsRepository {
       },
       {
         upsert: true, // * Создаем, если не существует
+        session,
       }
     ).exec();
 

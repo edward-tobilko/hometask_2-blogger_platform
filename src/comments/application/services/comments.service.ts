@@ -12,18 +12,15 @@ import { UpdateCommentDtoCommand } from "../commands/update-comment-dto.command"
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import { DiTypes } from "@core/di/types";
 import { ICommentsService } from "comments/application/interfaces/comments-service.interface";
-import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { LikeEntity } from "@core/domain/like.domain";
+import { LikeEntity } from "@core/domain/entities/like.entity";
 import { ICommentsRepository } from "../interfaces/comments-repo.interface";
 
 @injectable()
 export class CommentsService implements ICommentsService {
   constructor(
     @inject(DiTypes.ICommentsRepository)
-    private commentsRepo: ICommentsRepository,
-    @inject(DiTypes.ICommentsQueryRepo)
-    private commentsQueryRepo: ICommentsQueryRepo
+    private commentsRepo: ICommentsRepository
   ) {}
 
   async upsertCommentLikeStatus(domain: {
@@ -35,13 +32,35 @@ export class CommentsService implements ICommentsService {
 
     const session = await mongoose.startSession(); // * позволяет объединить несколько запросов в одну транзакцию. Без session каждый updateOne() — это отдельная операция.
 
-    const prevStatus = LikeStatus.Dislike;
-    const nextStatus = LikeStatus.Like;
-
     try {
+      // * Проверяем существование комментария внутри сессии
+      const existingComment = await this.commentsRepo.findById(commentId);
+
+      if (!existingComment) {
+        return new ApplicationResult({
+          status: ApplicationResultStatus.NotFound,
+          data: null,
+          extensions: [new NotFoundError("comment is not found", "commentId")],
+        });
+      }
+
+      const prevStatus = await this.commentsRepo.findUserLikeStatus(
+        commentId,
+        userId
+      );
+      const nextStatus = likeStatus;
+
+      if (prevStatus === nextStatus) {
+        return new ApplicationResult({
+          status: ApplicationResultStatus.NoContent,
+          data: null,
+          extensions: [],
+        });
+      }
+
       // * Domain
       const { likesChange, disLikesChange } = LikeEntity.calculateLikeDislike(
-        prevStatus,
+        prevStatus ?? LikeStatus.None,
         nextStatus
       );
 
@@ -53,7 +72,8 @@ export class CommentsService implements ICommentsService {
           commentId,
           userId,
           likesChange,
-          disLikesChange
+          disLikesChange,
+          session
         );
 
         if (!success) {
@@ -89,10 +109,8 @@ export class CommentsService implements ICommentsService {
   ): Promise<ApplicationResult<null>> {
     const dto = command.payload;
 
-    // * ищем нужный нам коммент
-    const existingComment = await this.commentsQueryRepo.findCommentById(
-      dto.commentId
-    );
+    // * ищем нужный нам коммент (DDD)
+    const existingComment = await this.commentsRepo.findById(dto.commentId);
 
     if (!existingComment) {
       return new ApplicationResult({
@@ -112,13 +130,10 @@ export class CommentsService implements ICommentsService {
       });
     }
 
-    // * обновляем доменную сущность
-    existingComment.content = dto.content;
+    // * обновляем доменную сущность (DDD)
+    existingComment.updateComment(dto.content);
 
-    const updated = await this.commentsRepo.updateComment({
-      commentId: dto.commentId,
-      content: dto.content,
-    });
+    const updated = await this.commentsRepo.save(existingComment);
 
     if (!updated) {
       return new ApplicationResult({
@@ -136,16 +151,12 @@ export class CommentsService implements ICommentsService {
   }
 
   async deleteComment(commentId: string, userId: string): Promise<void> {
-    const comment = await this.commentsQueryRepo.findCommentById(commentId);
+    const comment = await this.commentsRepo.findById(commentId);
 
     if (!comment) throw new NotFoundError("Comment is not found", "commentId"); // 404
 
-    if (comment.commentatorInfo.userId !== userId) {
-      throw new ForbiddenError(
-        "You can't delete someone else's comment",
-        "userId"
-      ); // 403
-    }
+    // * DDD
+    comment.canBeDeletedBy(userId);
 
     const deleted = await this.commentsRepo.deleteComment(commentId);
 

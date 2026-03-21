@@ -1,4 +1,4 @@
-import { CreateBlogRP } from "blogs/routes/request-payload-types/create-blog.request-payload-type";
+import { CreateBlogRP } from "blogs/presentation/request-payload-types/create-blog.request-payload-type";
 
 export function getBlogDtoUtil(): CreateBlogRP {
   return {

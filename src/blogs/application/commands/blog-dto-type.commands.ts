@@ -1,4 +1,4 @@
-import { BlogDtoDomain } from "../../domain/blog-dto.domain";
+import { BlogDtoDomain } from "../../domain/value-objects/blog-dto.domain";
 
 export type CreateBlogDtoCommand = BlogDtoDomain;
 export type UpdateBlogDtoCommand = BlogDtoDomain & { id: string };

@@ -1,4 +1,4 @@
-import { BlogLean } from "blogs/mongoose/blog-schema.mongoose";
+import { BlogLean } from "blogs/infrastructure/schemas/blog.schema";
 import { BlogListPaginatedOutput } from "../output/blog-list-paginated-type.output";
 import { BlogOutput } from "../output/blog-type.output";
 

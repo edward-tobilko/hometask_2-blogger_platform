@@ -2,7 +2,7 @@ import { body } from "express-validator";
 import { ObjectId } from "mongodb";
 
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
-import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
+import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
 
 export const createPostBodyInputRPValidation = (
   blogsQueryService: IBlogsQueryService

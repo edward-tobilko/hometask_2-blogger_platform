@@ -18,7 +18,7 @@ import { CommentMapper } from "comments/domain/mappers/comment.mapper";
 export class CommentsQueryRepo implements ICommentsQueryRepo {
   async findCommentById(
     commentId: string,
-    currentUserId: string // * Опционально - для неавторизованных пользователей
+    currentUserId?: string // * Опционально - для неавторизованных пользователей
   ): Promise<IPostCommentOutput | null> {
     if (!Types.ObjectId.isValid(commentId)) return null;
 

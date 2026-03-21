@@ -2,59 +2,61 @@ import { Types } from "mongoose";
 
 import { LikeStatus } from "@core/types/like-status.enum";
 import { IPostCommentOutput } from "posts/application/output/post-comment.output";
-import { PostCommentsLean } from "posts/infrastructure/schemas/post-comments.schema";
+import {
+  PostCommentsDb,
+  PostCommentsLean,
+} from "posts/infrastructure/schemas/post-comments.schema";
 import { CommentEntity } from "../entities/comment.entity";
 
 export class CommentMapper {
   // * DB -> Output
   static toViewModel(
-    entity: CommentEntity,
+    commentView: PostCommentsLean,
     myStatus: LikeStatus
   ): IPostCommentOutput {
     return {
-      id: entity.id.toString(),
-      content: entity.content,
+      id: commentView._id.toString(),
+      content: commentView.content,
 
       commentatorInfo: {
-        userId: entity.commentatorInfo.userId.toString(),
-        userLogin: entity.commentatorInfo.userLogin,
+        userId: commentView.commentatorInfo.userId.toString(),
+        userLogin: commentView.commentatorInfo.userLogin,
       },
 
-      createdAt: entity.createdAt.toISOString(), // отдаем ту дату, которая в entity
+      createdAt: commentView.createdAt.toISOString(), // отдаем ту дату, которая в entity
 
       likesInfo: {
-        likesCount: entity.likesInfo.likesCount,
-        dislikesCount: entity.likesInfo.dislikesCount,
+        likesCount: commentView.likesInfo.likesCount,
+        dislikesCount: commentView.likesInfo.dislikesCount,
         myStatus, // динамический статус
       },
     };
   }
 
   // * DB -> Domain
-  static toDomain(commentDoc: PostCommentsLean): CommentEntity {
+  static toDomain(commentLean: PostCommentsLean): CommentEntity {
     return CommentEntity.reconstitute({
-      id: commentDoc._id.toString(),
-      content: commentDoc.content,
-      postId: commentDoc.postId.toString(),
+      id: commentLean._id.toString(),
+      content: commentLean.content,
+      postId: commentLean.postId.toString(),
 
       commentatorInfo: {
-        userId: commentDoc.commentatorInfo.userId.toString(),
-        userLogin: commentDoc.commentatorInfo.userLogin,
+        userId: commentLean.commentatorInfo.userId.toString(),
+        userLogin: commentLean.commentatorInfo.userLogin,
       },
 
-      createdAt: commentDoc.createdAt,
+      createdAt: commentLean.createdAt,
 
       likesInfo: {
-        likesCount: commentDoc.likesInfo.likesCount,
-        dislikesCount: commentDoc.likesInfo.dislikesCount,
+        likesCount: commentLean.likesInfo.likesCount,
+        dislikesCount: commentLean.likesInfo.dislikesCount,
       },
     });
   }
 
   // * Domain -> DB
-  static toDb(entity: CommentEntity): PostCommentsLean {
+  static toDb(entity: CommentEntity): PostCommentsDb {
     return {
-      _id: new Types.ObjectId(entity.id),
       content: entity.content,
       postId: new Types.ObjectId(entity.postId),
 

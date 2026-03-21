@@ -1,5 +1,5 @@
 import { BlogOutput } from "../output/blog-type.output";
-import { BlogLean } from "blogs/mongoose/blog-schema.mongoose";
+import { BlogLean } from "blogs/infrastructure/schemas/blog.schema";
 
 export const mapToBlogOutput = (blogDb: BlogLean): BlogOutput => {
   return {

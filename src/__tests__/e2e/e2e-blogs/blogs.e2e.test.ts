@@ -10,7 +10,7 @@ import { getBlogDtoUtil } from "../utils/blogs/get-blog-dto.util";
 import { getBlogByIdUtil } from "../utils/blogs/get-blog-by-id.util";
 import { getPostsForBlogDtoUtil } from "../utils/blogs/get-posts-for-blog-dto.util";
 import { createPostForBlogUtil } from "../utils/blogs/create-post-for-blog.util";
-import { BlogDtoDomain } from "../../../blogs/domain/blog-dto.domain";
+import { BlogDtoDomain } from "../../../blogs/domain/value-objects/blog-dto.domain";
 import { routersPaths } from "../../../core/paths/paths";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";

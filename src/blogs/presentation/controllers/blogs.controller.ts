@@ -4,22 +4,22 @@ import { log } from "console";
 import { inject, injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
-import { BlogsListRP } from "./request-payload-types/blogs-list.request-payload-type";
-import { BlogSortFieldRP } from "./request-payload-types/blog-sort-field.request-payload-type";
+import { BlogsListRP } from "../request-payload-types/blogs-list.request-payload-type";
+import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.request-payload-type";
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { DiTypes } from "@core/di/types";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
 import { PostsListRP } from "posts/presentation/request-payload-types/posts-list.request-payload-types";
 import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-sort-field.request-payload-types";
-import { CreateBlogRP } from "./request-payload-types/create-blog.request-payload-type";
+import { CreateBlogRP } from "../request-payload-types/create-blog.request-payload-type";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { CreateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
 import { CreatePostForBlogRP } from "posts/presentation/request-payload-types/create-post-for-blog.request-payload-types";
 import { CreatePostForBlogDtoCommand } from "posts/application/commands/create-post-for-blog-dto.command";
-import { UpdateBlogRP } from "./request-payload-types/update-blog.request-payload";
-import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
-import { IBlogsService } from "blogs/interfaces/IBlogsService";
+import { UpdateBlogRP } from "../request-payload-types/update-blog.request-payload";
+import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
+import { IBlogsService } from "blogs/application/interfaces/IBlogsService";
 
 @injectable()
 export class BlogsController {

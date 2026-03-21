@@ -1,22 +1,36 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { RepositoryNotFoundError } from "../../core/errors/application.error";
-import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
+import { RepositoryNotFoundError } from "../../../core/errors/application.error";
+import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
 import {
   BlogDb,
   BlogDocument,
   BlogModel,
-} from "blogs/mongoose/blog-schema.mongoose";
+} from "blogs/infrastructure/schemas/blog.schema";
 import {
   PostDb,
   PostDocument,
   PostModel,
 } from "posts/infrastructure/schemas/post.schema";
 import { UpdateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
+import { BlogEntity } from "blogs/domain/entities/blog.entity";
 
 @injectable()
 export class BlogsRepository implements IBlogsRepository {
+  async findById(blogId: string): Promise<BlogEntity | null> {
+    if (!Types.ObjectId.isValid(blogId)) return null;
+
+    return {
+      id: "",
+      name: "",
+      description: "",
+      websiteUrl: "",
+      createdAt: new Date(),
+      isMembership: true,
+    };
+  }
+
   async saveBlog(newBlog: BlogDb): Promise<BlogDocument> {
     // * Проверку на id можно не делать, так как mongoose всегда создает _id (HydratedDocument всегда имеет _id).
     const blogDocument = new BlogModel(newBlog);

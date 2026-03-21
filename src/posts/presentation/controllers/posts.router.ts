@@ -16,7 +16,7 @@ import { jwtAccessAuthGuard } from "../../../auth/api/guards/jwt-access-auth.gua
 import { createCommentDtoRPValidation } from "../request-payload-validations/create-comment-dto.validation";
 import { PostsController } from "./posts.controller";
 import { createPostBodyInputRPValidation } from "../request-payload-validations/post-input-dto-validation.middleware";
-import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
+import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
 import { LikeStatus } from "@core/types/like-status.enum";

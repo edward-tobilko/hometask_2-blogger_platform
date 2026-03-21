@@ -1,21 +1,21 @@
 import { inject, injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
-import { WithMeta } from "../../core/types/with-meta.type";
+import { WithMeta } from "../../../core/types/with-meta.type";
 import {
   CreateBlogDtoCommand,
   UpdateBlogDtoCommand,
-} from "./commands/blog-dto-type.commands";
-import { ApplicationResult } from "../../core/result/application.result";
-import { BlogDomain } from "../domain/blog.domain";
-import { PostOutput } from "../../posts/application/output/post-type.output";
-import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
-import { RepositoryNotFoundError } from "../../core/errors/application.error";
-import { CreatePostForBlogDtoCommand } from "../../posts/application/commands/create-post-for-blog-dto.command";
-import { IBlogsService } from "blogs/interfaces/IBlogsService";
+} from "../commands/blog-dto-type.commands";
+import { ApplicationResult } from "../../../core/result/application.result";
+import { BlogEntity } from "../../domain/entities/blog.entity";
+import { PostOutput } from "../../../posts/application/output/post-type.output";
+import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
+import { RepositoryNotFoundError } from "../../../core/errors/application.error";
+import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/create-post-for-blog-dto.command";
+import { IBlogsService } from "blogs/application/interfaces/IBlogsService";
 import { DiTypes } from "@core/di/types";
-import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
-import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
+import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
+import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
 
 @injectable()
 export class BlogsService implements IBlogsService {
@@ -28,7 +28,7 @@ export class BlogsService implements IBlogsService {
   async createBlog(
     command: WithMeta<CreateBlogDtoCommand>
   ): Promise<ApplicationResult<{ id: string } | null>> {
-    const newBlog = BlogDomain.createBlog(command.payload);
+    const newBlog = BlogEntity.createBlog(command.payload);
 
     const createdBlog = await this.blogsRepository.saveBlog(newBlog);
 

@@ -1,8 +1,9 @@
-import { CreatePostCommentDtoEntity } from "../value-objects/create-post-comment-dto.entity";
-import { ValidationError } from "@core/errors/application.error";
 import { Types } from "mongoose";
 
-export class PostCommentEntity {
+import { CreatePostCommentDtoEntity } from "../value-objects/create-post-comment-dto.entity";
+import { ValidationError } from "@core/errors/application.error";
+
+type PostCommentsProps = {
   id: string;
   content: string;
 
@@ -19,33 +20,34 @@ export class PostCommentEntity {
     likesCount: number;
     dislikesCount: number;
   };
+};
 
-  constructor(
-    public props: {
-      id: string;
-      content: string;
+export class PostCommentEntity {
+  private constructor(private props: PostCommentsProps) {}
 
-      postId: string;
+  // * Getters
+  get id(): string {
+    return this.props.id;
+  }
 
-      commentatorInfo: {
-        userId: string;
-        userLogin: string;
-      };
+  get content(): string {
+    return this.props.content;
+  }
 
-      createdAt: Date;
+  get postId(): string {
+    return this.props.postId;
+  }
 
-      likesInfo: {
-        likesCount: number;
-        dislikesCount: number;
-      };
-    }
-  ) {
-    this.id = props.id;
-    this.content = props.content;
-    this.postId = props.postId;
-    this.commentatorInfo = props.commentatorInfo;
-    this.createdAt = props.createdAt;
-    this.likesInfo = props.likesInfo;
+  get commentatorInfo() {
+    return this.props.commentatorInfo;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
+  get likesInfo() {
+    return this.props.likesInfo;
   }
 
   // * Factory validation methods

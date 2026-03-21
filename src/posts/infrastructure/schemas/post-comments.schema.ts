@@ -24,10 +24,11 @@ export type PostCommentsDb = {
   };
 };
 
+export type PostCommentsDocument = mongoose.HydratedDocument<PostCommentsDb>; // smart document with different methods, middlewares, getters / setters
+export type PostCommentsModelType = mongoose.Model<PostCommentsDb>;
 export type PostCommentsLean = PostCommentsDb & {
   _id: mongoose.Types.ObjectId;
-};
-export type PostCommentsDocument = mongoose.HydratedDocument<PostCommentsDb>;
+}; // for just reading
 
 const LikesInfoSchema = new mongoose.Schema(
   {
@@ -45,7 +46,10 @@ const LikesInfoSchema = new mongoose.Schema(
   { _id: false } // что бы не создавало id для вложенного объекта likesInfo в mongo
 );
 
-const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
+const PostCommentsSchema = new mongoose.Schema<
+  PostCommentsDb,
+  PostCommentsModelType
+>(
   {
     content: {
       type: String,
@@ -85,8 +89,7 @@ const PostCommentsSchema = new mongoose.Schema<PostCommentsDb>(
   }
 );
 
-export const PostCommentsModel = mongoose.model<PostCommentsDb>(
-  "PostComments",
-  PostCommentsSchema,
-  POST_COMMENTS_COLLECTION_NAME
-);
+export const PostCommentsModel = mongoose.model<
+  PostCommentsDb,
+  PostCommentsModelType
+>("PostComments", PostCommentsSchema, POST_COMMENTS_COLLECTION_NAME);

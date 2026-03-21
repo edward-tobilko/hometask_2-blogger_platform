@@ -14,11 +14,15 @@ type CommentLikeDb = {
 };
 
 export type CommentLikeDocument = mongoose.HydratedDocument<CommentLikeDb>;
+export type CommentLikeModelType = mongoose.Model<CommentLikeDb>;
 export type CommentLikeLean = CommentLikeDb & {
   _id: mongoose.Types.ObjectId;
 };
 
-const CommentLikeSchema = new mongoose.Schema<CommentLikeDb>(
+const CommentLikeSchema = new mongoose.Schema<
+  CommentLikeDb,
+  CommentLikeModelType
+>(
   {
     commentId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -45,8 +49,7 @@ const CommentLikeSchema = new mongoose.Schema<CommentLikeDb>(
 // * Один пользователь может поставить только один like / dislike на комментарий
 CommentLikeSchema.index({ commentId: 1, userId: 1 }, { unique: true });
 
-export const CommentLikeModel = mongoose.model<CommentLikeDb>(
-  "CommentLike",
-  CommentLikeSchema,
-  COMMENT_LIKE_STATUS_COLLECTION_NAME
-);
+export const CommentLikeModel = mongoose.model<
+  CommentLikeDb,
+  CommentLikeModelType
+>("CommentLike", CommentLikeSchema, COMMENT_LIKE_STATUS_COLLECTION_NAME);

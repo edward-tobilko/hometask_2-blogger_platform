@@ -18,14 +18,15 @@ import { IPostCommentOutput } from "../output/post-comment.output";
 import { IPostsService } from "posts/application/interfaces/posts-service.interface";
 import { DiTypes } from "@core/di/types";
 import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
-import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
+import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { IPostsQueryRepo } from "../interfaces/posts-query-repo.interface";
 import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 import { PostOutput } from "../output/post-type.output";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
-import { LikeEntity } from "@core/domain/like.domain";
+import { LikeEntity } from "@core/domain/entities/like.entity";
+import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
 
 @injectable()
 export class PostsService implements IPostsService {
@@ -33,6 +34,8 @@ export class PostsService implements IPostsService {
     @inject(DiTypes.IPostsRepository) private postsRepository: IPostsRepo,
     @inject(DiTypes.IBlogsQueryRepository)
     private blogsQueryRepository: IBlogsQueryRepository,
+    @inject(DiTypes.IPostsQueryRepository)
+    private blogsRepository: IBlogsRepository,
     @inject(DiTypes.IPostsQueryRepository)
     private postsQueryRepository: IPostsQueryRepo,
     @inject(DiTypes.IUsersQueryService)
@@ -45,6 +48,9 @@ export class PostsService implements IPostsService {
     const dto = command.payload;
 
     const blog = await this.blogsQueryRepository.findBlogById(dto.blogId);
+    const blog2 = await this.blogsRepository.findById(dto.blogId);
+
+    console.log(blog2);
 
     if (!blog) {
       return new ApplicationResult({

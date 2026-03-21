@@ -1,16 +1,16 @@
 import { Router } from "express";
 import { query } from "express-validator";
 
-import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
-import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
-import { BlogSortFieldRP } from "./request-payload-types/blog-sort-field.request-payload-type";
-import { createBlogDtoRPValidation } from "./request-payload-validations/create-blog-dto.request-payload-validation";
-import { createPostForBlogDtoRPValidation } from "./request-payload-validations/create-post-for-blog-dto.request-payload-validation";
-import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
-import { updateBlogDtoRPValidation } from "./request-payload-validations/update-blog-dto.request-payload-validation";
-import { PostSortFieldRP } from "../../posts/presentation/request-payload-types/post-sort-field.request-payload-types";
-import { BlogsController } from "./blogs.controller";
+import { inputResultMiddlewareValidation } from "core/middlewares/validation/input-result.middleware-validation";
+import { queryPaginationAndSortingValidation } from "core/middlewares/validation/query-pagination-sorting.middleware-validation";
+import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.request-payload-type";
+import { createBlogDtoRPValidation } from "../request-payload-validations/create-blog-dto.request-payload-validation";
+import { createPostForBlogDtoRPValidation } from "../request-payload-validations/create-post-for-blog-dto.request-payload-validation";
+import { paramIdValidation } from "core/middlewares/validation/param-id.middleware-validation";
+import { updateBlogDtoRPValidation } from "../request-payload-validations/update-blog-dto.request-payload-validation";
+import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-sort-field.request-payload-types";
+import { BlogsController } from "../controllers/blogs.controller";
+import { baseAuthGuard } from "auth/api/guards/base-auth.guard";
 
 export const createBlogsRouter = (blogsController: BlogsController) => {
   const blogsRoute = Router({});

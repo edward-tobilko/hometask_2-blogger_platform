@@ -20,10 +20,10 @@ import { routersPaths } from "./core/paths/paths";
 import { createAuthRouter } from "./auth/routes/auth.route";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createUsersRouter } from "users/routes/users.route";
-import { createBlogsRouter } from "blogs/routes/blogs.route";
 import { createSecurityDevicesRouter } from "security-devices/routers/security-devices.router";
 import { appConfig } from "@core/settings/config";
 import { createCommentsRouter } from "comments/presentation/controllers/comments.router";
+import { createBlogsRouter } from "blogs/presentation/routes/blogs.route";
 
 export const setupApp = (app: Express) => {
   app.set(

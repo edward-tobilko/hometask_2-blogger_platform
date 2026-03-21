@@ -18,14 +18,14 @@ import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
 import { PostsRepository } from "posts/infrastructure/repositories/posts.repository";
 import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
 import { IPostsQueryService } from "posts/application/interfaces/posts-query-service.interface";
-import { IBlogsQueryRepository } from "blogs/interfaces/IBlogsQueryRepository";
-import { BlogsQueryRepository } from "blogs/repositories/blog-query.repository";
-import { BlogsRepository } from "blogs/repositories/blogs.repository";
-import { IBlogsRepository } from "blogs/interfaces/IBlogsRepository";
-import { IBlogsQueryService } from "blogs/interfaces/IBlogsQueryService";
-import { BlogsQueryService } from "blogs/application/blog-query.service";
-import { IBlogsService } from "blogs/interfaces/IBlogsService";
-import { BlogsService } from "blogs/application/blogs-service";
+import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
+import { BlogsQueryRepository } from "blogs/infrastructure/repositories/blog-query.repository";
+import { BlogsRepository } from "blogs/infrastructure/repositories/blogs.repository";
+import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
+import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
+import { BlogsQueryService } from "blogs/application/services/blog-query.service";
+import { IBlogsService } from "blogs/application/interfaces/IBlogsService";
+import { BlogsService } from "blogs/application/services/blogs-service";
 import { ISessionRepository } from "auth/interfaces/ISessionRepository";
 import { SessionRepository } from "auth/repositories/session.repository";
 import { SessionQueryRepo } from "auth/repositories/session-query.repo";
@@ -37,7 +37,6 @@ import { JWTService } from "auth/adapters/jwt-service.adapter";
 import { INodeMailerService } from "auth/interfaces/INodeMailerService";
 import { NodeMailerService } from "auth/adapters/node-mailer-service.adapter";
 import { AuthController } from "auth/routes/auth.controller";
-import { BlogsController } from "blogs/routes/blogs.controller";
 import { CommentsRepository } from "comments/infrastructure/repositories/comments.repository";
 import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
 import { CommentsQueryRepo } from "comments/infrastructure/repositories/comment-query.repository";
@@ -61,6 +60,7 @@ import { CommentsController } from "comments/presentation/controllers/comments.c
 import { DiTypes } from "./types";
 import { PostsQueryRepository } from "posts/infrastructure/repositories/post-query.repository";
 import { ICommentsRepository } from "comments/application/interfaces/comments-repo.interface";
+import { BlogsController } from "blogs/presentation/controllers/blogs.controller";
 
 export const container = new Container({ defaultScope: "Singleton" });
 

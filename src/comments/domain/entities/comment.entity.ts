@@ -1,9 +1,12 @@
-import { ValidationError } from "@core/errors/application.error";
-import { UpdateCommentDtoEntity } from "../value-objects/update-comment-dto.entity";
+import {
+  ForbiddenError,
+  ValidationError,
+} from "@core/errors/application.error";
 
-export class CommentEntity {
+type CommentProps = {
   id: string;
   content: string;
+
   postId: string;
 
   commentatorInfo: {
@@ -17,32 +20,34 @@ export class CommentEntity {
     likesCount: number;
     dislikesCount: number;
   };
+};
 
-  constructor(
-    public props: {
-      id: string;
-      content: string;
-      postId: string;
+export class CommentEntity {
+  private constructor(private props: CommentProps) {}
 
-      commentatorInfo: {
-        userId: string;
-        userLogin: string;
-      };
+  // * Getters
+  get id(): string {
+    return this.props.id;
+  }
 
-      createdAt: Date;
+  get content(): string {
+    return this.props.content;
+  }
 
-      likesInfo: {
-        likesCount: number;
-        dislikesCount: number;
-      };
-    }
-  ) {
-    this.id = props.id;
-    this.content = props.content;
-    this.postId = props.postId;
-    this.commentatorInfo = props.commentatorInfo;
-    this.createdAt = props.createdAt;
-    this.likesInfo = props.likesInfo;
+  get postId(): string {
+    return this.props.postId;
+  }
+
+  get commentatorInfo() {
+    return this.props.commentatorInfo;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
+  get likesInfo() {
+    return this.props.likesInfo;
   }
 
   // * Factory validation methods
@@ -78,10 +83,20 @@ export class CommentEntity {
     return new CommentEntity(props);
   }
 
-  updateComment(dto: UpdateCommentDtoEntity) {
-    CommentEntity.validateContent(dto.content);
+  // * Fabric methods
+  updateComment(content: string) {
+    CommentEntity.validateContent(content);
 
-    this.content = dto.content;
+    this.props.content = content;
+  }
+
+  canBeDeletedBy(userId: string): void {
+    if (this.commentatorInfo.userId !== userId) {
+      throw new ForbiddenError(
+        "You can't delete someone else's comment",
+        "userId"
+      ); // 403
+    }
   }
 }
 

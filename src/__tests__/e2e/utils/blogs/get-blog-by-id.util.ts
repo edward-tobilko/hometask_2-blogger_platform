@@ -3,7 +3,7 @@ import { Express } from "express";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { routersPaths } from "@core/paths/paths";
-import { BlogDtoDomain } from "blogs/domain/blog-dto.domain";
+import { BlogDtoDomain } from "blogs/domain/value-objects/blog-dto.domain";
 
 export async function getBlogByIdUtil(
   app: Express,

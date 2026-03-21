@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { SessionModel } from "auth/mongoose/auth-schema.mongoose";
-import { BlogModel } from "blogs/mongoose/blog-schema.mongoose";
+import { BlogModel } from "blogs/infrastructure/schemas/blog.schema";
 import { PostModel } from "posts/infrastructure/schemas/post.schema";
 import { UserModel } from "users/mongoose/user-schema.mongoose";
 import { PostCommentsModel } from "posts/infrastructure/schemas/post-comments.schema";

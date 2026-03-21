@@ -56,6 +56,32 @@ export class PostEntity {
     this._extendedLikesInfo = props.extendedLikesInfo;
   }
 
+  // * Getters
+  get id(): string {
+    return this._id;
+  }
+  get title(): string {
+    return this._title;
+  }
+  get shortDescription(): string {
+    return this._shortDescription;
+  }
+  get content(): string {
+    return this._content;
+  }
+  get blogId(): string {
+    return this._blogId;
+  }
+  get blogName(): string {
+    return this._blogName;
+  }
+  get createdAt(): Date {
+    return this._createdAt;
+  }
+  get extendedLikesInfo() {
+    return this._extendedLikesInfo;
+  }
+
   // * Factory validation methods
   private static validateTitle(title: string) {
     if (!title || title.trim().length === 0)
@@ -152,32 +178,6 @@ export class PostEntity {
     this._title = dto.title;
     this._shortDescription = dto.shortDescription;
     this._content = dto.content;
-  }
-
-  // * Getters
-  get id(): string {
-    return this._id;
-  }
-  get title(): string {
-    return this._title;
-  }
-  get shortDescription(): string {
-    return this._shortDescription;
-  }
-  get content(): string {
-    return this._content;
-  }
-  get blogId(): string {
-    return this._blogId;
-  }
-  get blogName(): string {
-    return this._blogName;
-  }
-  get createdAt(): Date {
-    return this._createdAt;
-  }
-  get extendedLikesInfo() {
-    return this._extendedLikesInfo;
   }
 }
 
