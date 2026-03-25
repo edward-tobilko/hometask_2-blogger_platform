@@ -36,7 +36,7 @@ export class PostMapper {
   // * Domain -> DB
   static toDb(entity: PostEntity): PostDb & { _id?: Types.ObjectId } {
     return {
-      _id: entity.id ? new Types.ObjectId(entity.id) : undefined,
+      _id: entity.id ? new Types.ObjectId() : undefined,
 
       title: entity.title,
       shortDescription: entity.shortDescription,

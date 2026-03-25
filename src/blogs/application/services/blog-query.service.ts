@@ -8,6 +8,8 @@ import { GetBlogsListQueryHandler } from "../query-handlers/get-blogs-list-type.
 import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
 import { DiTypes } from "@core/di/types";
 import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
+import { LikeStatus } from "@core/types/like-status.enum";
+import { PostMapper } from "posts/domain/mappers/post.mapper";
 
 @injectable()
 export class BlogsQueryService implements IBlogsQueryService {
@@ -27,8 +29,31 @@ export class BlogsQueryService implements IBlogsQueryService {
   }
 
   async getPostsListByBlog(
-    queryParam: GetPostsListQueryHandler
+    queryParam: GetPostsListQueryHandler,
+    currentUserId?: string
   ): Promise<PostsListPaginatedOutput> {
-    return await this.blogsQueryRepository.findAllPostsForBlog(queryParam);
+    const { postsEntity, userLikes, totalCount } =
+      await this.blogsQueryRepository.findAllPostsForBlog(
+        queryParam,
+        currentUserId
+      );
+
+    const items = postsEntity.map((postEntity) => {
+      const myStatus =
+        userLikes.get(postEntity.id.toString()) ?? LikeStatus.None;
+
+      return PostMapper.toViewModel(postEntity, myStatus);
+    });
+
+    return {
+      pagesCount: Math.ceil(totalCount / queryParam.pageSize),
+      page: queryParam.pageNumber,
+      pageSize: queryParam.pageSize,
+      totalCount,
+
+      items,
+    };
   }
 }
+
+// ? postsEntity - posts list domain entity

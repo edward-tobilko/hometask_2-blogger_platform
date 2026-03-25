@@ -3,78 +3,72 @@ import { Types } from "mongoose";
 
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
 import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
-import {
-  BlogDb,
-  BlogDocument,
-  BlogModel,
-} from "blogs/infrastructure/schemas/blog.schema";
-import {
-  PostDb,
-  PostDocument,
-  PostModel,
-} from "posts/infrastructure/schemas/post.schema";
-import { UpdateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
+import { BlogLean, BlogModel } from "blogs/infrastructure/schemas/blog.schema";
+import { PostModel } from "posts/infrastructure/schemas/post.schema";
 import { BlogEntity } from "blogs/domain/entities/blog.entity";
+import { BlogMapper } from "blogs/domain/mappers/blog.mapper";
+import { PostEntity } from "posts/domain/entities/post.entity";
+import { PostMapper } from "posts/domain/mappers/post.mapper";
 
 @injectable()
 export class BlogsRepository implements IBlogsRepository {
   async findById(blogId: string): Promise<BlogEntity | null> {
     if (!Types.ObjectId.isValid(blogId)) return null;
 
-    return {
-      id: "",
-      name: "",
-      description: "",
-      websiteUrl: "",
+    const blogLean = await BlogModel.findById(blogId).lean<BlogLean>().exec();
+
+    if (!blogLean) return null;
+
+    return BlogEntity.reconstitute({
+      id: blogLean._id.toString(),
+      name: blogLean.name,
+      description: blogLean.description,
+      websiteUrl: blogLean.websiteUrl,
       createdAt: new Date(),
       isMembership: true,
-    };
+    });
   }
 
-  async saveBlog(newBlog: BlogDb): Promise<BlogDocument> {
-    // * Проверку на id можно не делать, так как mongoose всегда создает _id (HydratedDocument всегда имеет _id).
-    const blogDocument = new BlogModel(newBlog);
+  async createBlog(newBlog: BlogEntity): Promise<BlogEntity> {
+    // * получаем замапенный инстанс дб блога (для динамического смены БД: Mongo -> PostgreSQL)
+    const blogDb = BlogMapper.toDb(newBlog);
+    const blogInstanceDoc = new BlogModel(blogDb);
 
-    await blogDocument.save();
+    await blogInstanceDoc.save();
 
-    return blogDocument;
+    return BlogMapper.toDomain(blogInstanceDoc);
   }
 
-  async updateBlog(dto: UpdateBlogDtoCommand): Promise<BlogDocument> {
-    if (!Types.ObjectId.isValid(dto.id)) {
-      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+  async updateBlog(blogEntity: BlogEntity): Promise<void> {
+    if (!Types.ObjectId.isValid(blogEntity.id)) {
+      throw new RepositoryNotFoundError("Blog id is not valid!", "blogId");
     }
 
-    const updatedRes = await BlogModel.findByIdAndUpdate(
-      dto.id,
-      {
-        $set: {
-          name: dto.name,
-          description: dto.description,
-          websiteUrl: dto.websiteUrl,
-        },
+    const updatedRes = await BlogModel.findByIdAndUpdate(blogEntity.id, {
+      $set: {
+        name: blogEntity.name,
+        description: blogEntity.description,
+        websiteUrl: blogEntity.websiteUrl,
       },
-      { new: true } // * для получения обновленого блога, без "new" вернется старый объект.
-    ).exec(); // * так как почти все методы find... возвр. query object, а не promise, нам нужно доставлять .exec() - который в свою очередь возвр. promise и лучшую типизацию.
+    }).exec(); // * так как почти все методы find... возвр. query object, а не promise, нам нужно доставлять .exec() - который в свою очередь возвр. promise и лучшую типизацию.
 
     if (!updatedRes) {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
-
-    return updatedRes;
   }
 
-  async savePostForBlog(newPostForBlog: PostDb): Promise<PostDocument> {
-    const postDocument = new PostModel(newPostForBlog);
+  async createPostForBlog(postForBlogEntity: PostEntity): Promise<PostEntity> {
+    const postDocument = PostMapper.toDb(postForBlogEntity);
+    const postInstanceDoc = new PostModel(postDocument);
 
-    await postDocument.save();
+    await postInstanceDoc.save();
 
-    return postDocument;
+    return PostMapper.toDomain(postInstanceDoc);
   }
 
   async deleteBlogById(id: string): Promise<void> {
     if (!Types.ObjectId.isValid(id)) {
-      throw new RepositoryNotFoundError("Blog is not valid", "blogId");
+      throw new RepositoryNotFoundError("Blog id is not valid", "blogId");
     }
 
     const deleteResult = await BlogModel.deleteOne({

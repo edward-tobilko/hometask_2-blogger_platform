@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { randomUUID } from "crypto";
 
 import { CreatePostCommentDtoEntity } from "../value-objects/create-post-comment-dto.entity";
 import { ValidationError } from "@core/errors/application.error";
@@ -90,7 +90,7 @@ export class PostCommentEntity {
     PostCommentEntity.validateContent(dto.content);
 
     return new PostCommentEntity({
-      id: new Types.ObjectId().toString(),
+      id: randomUUID(),
       content: dto.content,
       postId: dto.postId,
 

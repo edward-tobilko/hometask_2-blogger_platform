@@ -76,9 +76,7 @@ export class PostsService implements IPostsService {
 
       return new ApplicationResult({
         status: ApplicationResultStatus.Success,
-
         data: viewModelPost,
-
         extensions: [],
       });
     } catch (error) {

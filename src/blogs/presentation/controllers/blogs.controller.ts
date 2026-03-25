@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
-import { log } from "console";
 import { inject, injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
@@ -20,6 +19,7 @@ import { CreatePostForBlogDtoCommand } from "posts/application/commands/create-p
 import { UpdateBlogRP } from "../request-payload-types/update-blog.request-payload";
 import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
 import { IBlogsService } from "blogs/application/interfaces/IBlogsService";
+import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 
 @injectable()
 export class BlogsController {
@@ -48,11 +48,7 @@ export class BlogsController {
       const blogsListOutput =
         await this.blogsQueryService.getBlogsList(queryParamInput);
 
-      log(
-        `Blogs page ${blogsListOutput.page}/${blogsListOutput.pagesCount} - items: ${blogsListOutput.items.length} - total: ${blogsListOutput.totalCount}`
-      );
-
-      res.status(HTTP_STATUS_CODES.OK_200).json(blogsListOutput);
+      return res.status(HTTP_STATUS_CODES.OK_200).json(blogsListOutput);
     } catch (error: unknown) {
       return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
         errorsMessages: [
@@ -70,7 +66,7 @@ export class BlogsController {
 
       if (!blogOutput) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
-      res.status(HTTP_STATUS_CODES.OK_200).json(blogOutput);
+      return res.status(HTTP_STATUS_CODES.OK_200).json(blogOutput);
     } catch (error: unknown) {
       if (error instanceof RepositoryNotFoundError) {
         return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
@@ -85,10 +81,13 @@ export class BlogsController {
   }
 
   async getPostsListForBlogHandler(
-    req: Request<{ id: string }, {}, PostsListRP, {}>,
+    req: Request<{ id: string }>,
     res: Response
   ) {
     try {
+      // * Если optionalJwtAccessGuard прошел → userId уже есть
+      const currentUserId = req.user?.id;
+
       const sanitizedQueryParam = matchedData<PostsListRP>(req, {
         locations: ["query"],
         includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
@@ -98,17 +97,21 @@ export class BlogsController {
         ...setDefaultSortAndPaginationIfNotExist<PostSortFieldRP>(
           sanitizedQueryParam
         ),
+
         blogId: req.params.id,
       };
 
       const postsListByBlogOutput =
-        await this.blogsQueryService.getPostsListByBlog(queryParamInput);
+        await this.blogsQueryService.getPostsListByBlog(
+          queryParamInput,
+          currentUserId // * Передаем userId для вычисления myStatus
+        );
 
-      res.status(HTTP_STATUS_CODES.OK_200).json(postsListByBlogOutput);
+      return res.status(HTTP_STATUS_CODES.OK_200).json(postsListByBlogOutput);
     } catch (error: unknown) {
       if (error instanceof RepositoryNotFoundError) {
         return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-          errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория findAllPostsForBlogQueryRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
+          errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория findBlogByIdQueryRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
         });
       }
 
@@ -133,9 +136,17 @@ export class BlogsController {
 
       const command = createCommand<CreateBlogDtoCommand>(sanitizedParam);
 
-      const createdBlogOutput = await this.blogsService.createBlog(command);
+      const createdBlogResult = await this.blogsService.createBlog(command);
 
-      res.status(HTTP_STATUS_CODES.CREATED_201).json(createdBlogOutput.data);
+      if (createdBlogResult.status === ApplicationResultStatus.NotFound) {
+        return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
+          errorsMessages: [{ message: "Blog does not exist!", field: "id" }],
+        });
+      }
+
+      return res
+        .status(HTTP_STATUS_CODES.CREATED_201)
+        .json(createdBlogResult.data);
     } catch (error: unknown) {
       return res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
     }
@@ -146,9 +157,9 @@ export class BlogsController {
     res: Response
   ) {
     try {
-      console.log("HANDLER PARAMS:", req.params.id); // if id = 1 -> error
+      const blogId = req.params.id;
 
-      if (!MongooseTypes.ObjectId.isValid(req.params.id)) {
+      if (!MongooseTypes.ObjectId.isValid(blogId)) {
         return res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
           errorsMessages: [
             { message: "Incorrect format of ObjectId", field: "id" },
@@ -159,22 +170,19 @@ export class BlogsController {
       const command = createCommand<CreatePostForBlogDtoCommand>({
         ...req.body,
 
-        blogId: req.params.id,
+        blogId,
       });
 
-      const createdPostForBlogOutput =
-        await this.blogsService.createPostForBlog(command);
+      const result = await this.blogsService.createPostForBlog(command);
 
-      res
-        .status(HTTP_STATUS_CODES.CREATED_201)
-        .json(createdPostForBlogOutput.data);
-    } catch (error: unknown) {
-      if (error instanceof RepositoryNotFoundError) {
+      if (result.status === ApplicationResultStatus.NotFound) {
         return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-          errorsMessages: [{ message: (error as Error).message, field: "id" }],
+          errorsMessages: [{ message: "Blog does not exist!", field: "id" }],
         });
       }
 
+      return res.status(HTTP_STATUS_CODES.CREATED_201).json(result.data);
+    } catch (error: unknown) {
       return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
         errorsMessages: [{ message: "Internal Server Error", field: "id" }],
       });
@@ -192,14 +200,8 @@ export class BlogsController {
 
       await this.blogsService.updateBlog(command);
 
-      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+      return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
-      if (error instanceof RepositoryNotFoundError) {
-        return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-          errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория saveBlogRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
-        });
-      }
-
       return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
         errorsMessages: [{ message: "Internal Server Error", field: "id" }],
       });
@@ -214,14 +216,8 @@ export class BlogsController {
 
       await this.blogsService.deleteBlog(command);
 
-      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+      return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
-      if (error instanceof RepositoryNotFoundError) {
-        return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-          errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория deleteBlogRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
-        });
-      }
-
       return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
         errorsMessages: [{ message: "Internal Server Error", field: "id" }],
       });

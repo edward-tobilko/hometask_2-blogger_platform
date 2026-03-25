@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { randomUUID } from "crypto";
 
 import { CreatePostDtoEntity } from "../value-objects/create-post-dto.entity";
 import { UpdatePostDtoEntity } from "../value-objects/update-post-dto.entity";
@@ -151,7 +151,7 @@ export class PostEntity {
     PostEntity.validateContent(dto.content);
 
     const newPost = new PostEntity({
-      id: new Types.ObjectId().toString(),
+      id: randomUUID(),
       title: dto.title,
       shortDescription: dto.shortDescription,
       content: dto.content,
@@ -180,9 +180,3 @@ export class PostEntity {
     this._content = dto.content;
   }
 }
-
-// ? class PostEntity -> updatePost() - бизнес-логика уровня домена, а не просто patch-update в репозитории = Domain - Entity.
-// ? - Используется, когда получаешь PostEntity из, например, Mongo.
-// ? - Получаешь plain object, а хочешь — полноценный экземпляр класса с методами.
-
-// ? static - метод для создания сущности, когда экземпляра еще нет. ОН принадлежит не обьекту, а классу.

@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-import { Types as MongooseTypes } from "mongoose";
 
 import { WithMeta } from "../../../core/types/with-meta.type";
 import {
@@ -10,85 +9,75 @@ import { ApplicationResult } from "../../../core/result/application.result";
 import { BlogEntity } from "../../domain/entities/blog.entity";
 import { PostOutput } from "../../../posts/application/output/post-type.output";
 import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
-import { RepositoryNotFoundError } from "../../../core/errors/application.error";
+import { ApplicationError } from "../../../core/errors/application.error";
 import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/create-post-for-blog-dto.command";
 import { IBlogsService } from "blogs/application/interfaces/IBlogsService";
 import { DiTypes } from "@core/di/types";
 import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
-import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
+import { BlogOutput } from "../output/blog-type.output";
+import { BlogMapper } from "blogs/domain/mappers/blog.mapper";
+import { PostEntity } from "posts/domain/entities/post.entity";
+import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { LikeStatus } from "@core/types/like-status.enum";
 
 @injectable()
 export class BlogsService implements IBlogsService {
   constructor(
-    @inject(DiTypes.IBlogsRepository) private blogsRepository: IBlogsRepository,
-    @inject(DiTypes.IBlogsQueryRepository)
-    private blogsQueryRepository: IBlogsQueryRepository
+    @inject(DiTypes.IBlogsRepository) private blogsRepository: IBlogsRepository
   ) {}
 
   async createBlog(
     command: WithMeta<CreateBlogDtoCommand>
-  ): Promise<ApplicationResult<{ id: string } | null>> {
-    const newBlog = BlogEntity.createBlog(command.payload);
+  ): Promise<ApplicationResult<BlogOutput | null>> {
+    const dto = command.payload;
 
-    const createdBlog = await this.blogsRepository.saveBlog(newBlog);
+    const blogInstance = BlogEntity.createBlog(dto);
+
+    const createdBlog = await this.blogsRepository.createBlog(blogInstance);
+
+    const viewModelBlog = BlogMapper.toViewModel(createdBlog);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: {
-        id: createdBlog._id!.toString(),
-        name: createdBlog.name,
-        description: createdBlog.description,
-        websiteUrl: createdBlog.websiteUrl,
-        createdAt: createdBlog.createdAt.toISOString(),
-        isMembership: createdBlog.isMembership,
-      },
+      data: viewModelBlog,
       extensions: [],
     });
   }
 
   async createPostForBlog(
     command: WithMeta<CreatePostForBlogDtoCommand>
-  ): Promise<ApplicationResult<PostOutput>> {
+  ): Promise<ApplicationResult<PostOutput | null>> {
     const { blogId, title, shortDescription, content } = command.payload;
 
     // * find blog
-    const blog = await this.blogsQueryRepository.findBlogById(blogId);
+    const blogInstance = await this.blogsRepository.findById(blogId);
 
-    if (!blog) {
-      throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
+    if (!blogInstance) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new ApplicationError("Blog does not exist!", "blogId")],
+      });
     }
 
-    // * add blogName to domain dto
-    // const domainDto: CreatePostDtoDomain = {
-    //   ...command.payload,
-
-    //   blogName: blog.name,
-    // };
-
     // * create domain
-    // const newPost = PostDomain.createPost(domainDto);
-
-    // * save
-    const createdPostForBlog = await this.blogsRepository.savePostForBlog({
+    const newPost = PostEntity.createPost({
       title,
       shortDescription,
       content,
+      blogId,
 
-      blogId: new MongooseTypes.ObjectId(blogId),
-      blogName: blog.name,
+      blogName: blogInstance.name,
     });
 
-    const postViewModel: PostOutput = {
-      id: createdPostForBlog._id.toString(),
+    // * save
+    const createdPostForBlog =
+      await this.blogsRepository.createPostForBlog(newPost);
 
-      title: createdPostForBlog.title,
-      shortDescription: createdPostForBlog.shortDescription,
-      content: createdPostForBlog.content,
-
-      blogId: createdPostForBlog.blogId.toString(),
-      blogName: createdPostForBlog.blogName,
-      createdAt: createdPostForBlog.createdAt!.toISOString(),
-    };
+    const postViewModel = PostMapper.toViewModel(
+      createdPostForBlog,
+      LikeStatus.None
+    );
 
     // * return output
     return new ApplicationResult({
@@ -103,7 +92,22 @@ export class BlogsService implements IBlogsService {
   ): Promise<ApplicationResult<null>> {
     const dto = command.payload;
 
-    await this.blogsRepository.updateBlog(dto);
+    // * достаем инстанс блога по id с его методами
+    const existingBlog = await this.blogsRepository.findById(dto.id);
+
+    if (!existingBlog) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new ApplicationError("Blog does not exist!", "blogId")],
+      });
+    }
+
+    // * обновляем доменную сущность
+    existingBlog.updateBlog(dto);
+
+    // * сохраняем изменения
+    await this.blogsRepository.updateBlog(existingBlog);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

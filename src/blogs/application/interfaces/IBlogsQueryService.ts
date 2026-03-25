@@ -12,6 +12,7 @@ export interface IBlogsQueryService {
   getBlogById(blogId: string): Promise<BlogOutput | null>;
 
   getPostsListByBlog(
-    queryParam: GetPostsListQueryHandler
+    queryParam: GetPostsListQueryHandler,
+    currentUserId?: string
   ): Promise<PostsListPaginatedOutput>;
 }

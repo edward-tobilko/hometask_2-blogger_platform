@@ -30,10 +30,11 @@ const BlogSchema = new mongoose.Schema<BlogDb>(
       maxLength: [100, "Name must not exceed 100 characters"],
       match: [/^https:\/\/.+/i, "Website URL must be a valid https URL"],
     },
+    createdAt: { type: Date, required: true },
     isMembership: { type: Boolean, required: true, default: false },
   },
   {
-    timestamps: true,
+    timestamps: false, // createdAt создаем сами
     versionKey: false,
   }
 );

@@ -6,15 +6,16 @@ import {
 } from "blogs/application/commands/blog-dto-type.commands";
 import { CreatePostForBlogDtoCommand } from "posts/application/commands/create-post-for-blog-dto.command";
 import { PostOutput } from "posts/application/output/post-type.output";
+import { BlogOutput } from "../output/blog-type.output";
 
 export interface IBlogsService {
   createBlog(
     command: WithMeta<CreateBlogDtoCommand>
-  ): Promise<ApplicationResult<{ id: string } | null>>;
+  ): Promise<ApplicationResult<BlogOutput | null>>;
 
   createPostForBlog(
     command: WithMeta<CreatePostForBlogDtoCommand>
-  ): Promise<ApplicationResult<PostOutput>>;
+  ): Promise<ApplicationResult<PostOutput | null>>;
 
   updateBlog(
     command: WithMeta<UpdateBlogDtoCommand>

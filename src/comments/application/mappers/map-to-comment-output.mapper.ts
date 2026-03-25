@@ -20,6 +20,6 @@ export const mapToCommentOutput = (
       dislikesCount: commentDomain.likesInfo.dislikesCount,
       myStatus, // динамический статус
     },
-    // createdAt: commentDomain.createdAt.toISOString(),
+    createdAt: commentDomain.createdAt.toISOString(),
   };
 };
