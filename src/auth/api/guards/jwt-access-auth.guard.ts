@@ -3,12 +3,14 @@ import { NextFunction, Request, Response } from "express";
 import { IdType } from "../../../core/types/id";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { IJWTService } from "auth/interfaces/IJWTService";
+import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 
-export function jwtAccessAuthGuard(jwtService: IJWTService) {
+export function jwtAccessAuthGuard(
+  jwtService: IJWTService,
+  sessionQueryRepository: ISessionQueryRepo
+) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
-      console.log("AUTH HEADER:", req.headers.authorization);
-
       const auth = req.headers["authorization"] as string;
 
       if (!auth) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
@@ -21,9 +23,20 @@ export function jwtAccessAuthGuard(jwtService: IJWTService) {
       // * closer
       const payload = await jwtService.verifyAccessToken(token);
 
-      console.log("PAYLOAD:", payload);
+      if (!payload?.userId || !payload.deviceId) {
+        console.log("NO userId OR deviceId");
 
-      if (!payload?.userId) {
+        return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+      }
+
+      const session = await sessionQueryRepository.findByDeviceId(
+        payload.deviceId,
+        payload.userId
+      );
+
+      if (!session) {
+        console.log("SESSION NOT FOUND");
+
         return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
       }
 

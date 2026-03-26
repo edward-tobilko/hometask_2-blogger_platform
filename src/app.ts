@@ -10,6 +10,7 @@ import {
   getJwtService,
   getPostsController,
   getSecurityDevicesController,
+  getSessionQueryRepo,
   getUsersController,
   initCompositionRoot,
 } from "composition-root";
@@ -46,10 +47,10 @@ export const setupApp = (app: Express) => {
   const postsController = getPostsController();
   const securityDevicesController = getSecurityDevicesController();
   const usersController = getUsersController();
-
   const customRateLimitRepo = getCustomRateLimitRepo();
   const blogsQueryService = getBlogsQueryService();
   const jwtService = getJwtService();
+  const sessionQueryRepository = getSessionQueryRepo();
 
   // * Root router
   app.get(routersPaths.root, (_req: Request, res: Response) => {
@@ -74,24 +75,34 @@ export const setupApp = (app: Express) => {
   app.use(
     routersPaths.auth,
 
-    createAuthRouter(customRateLimitRepo, authController, jwtService)
+    createAuthRouter(
+      customRateLimitRepo,
+      authController,
+      jwtService,
+      sessionQueryRepository
+    )
   );
 
   // * Blogs router
-  app.use(routersPaths.blogs, createBlogsRouter(blogsController));
+  app.use(routersPaths.blogs, createBlogsRouter(blogsController, jwtService));
 
   // * Comments router
   app.use(
     routersPaths.comments,
 
-    createCommentsRouter(commentsController, jwtService)
+    createCommentsRouter(commentsController, jwtService, sessionQueryRepository)
   );
 
   // * Posts router
   app.use(
     routersPaths.posts,
 
-    createPostsRouter(postsController, blogsQueryService, jwtService)
+    createPostsRouter(
+      postsController,
+      blogsQueryService,
+      jwtService,
+      sessionQueryRepository
+    )
   );
 
   // * Security devices router

@@ -1,5 +1,6 @@
 export interface IJWTAccessPayload {
   userId: string;
+  deviceId?: string;
 }
 
 export interface IJWTRefreshPayload {
@@ -10,7 +11,7 @@ export interface IJWTRefreshPayload {
 }
 
 export interface IJWTService {
-  createAccessToken(userId: string): Promise<string>;
+  createAccessToken(userId: string, deviceId?: string): Promise<string>;
 
   verifyAccessToken(token: string): Promise<IJWTAccessPayload | null>;
 

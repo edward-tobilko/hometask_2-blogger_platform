@@ -8,7 +8,6 @@ import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.reques
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { DiTypes } from "@core/di/types";
-import { RepositoryNotFoundError } from "@core/errors/application.error";
 import { PostsListRP } from "posts/presentation/request-payload-types/posts-list.request-payload-types";
 import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-sort-field.request-payload-types";
 import { CreateBlogRP } from "../request-payload-types/create-blog.request-payload-type";
@@ -68,12 +67,6 @@ export class BlogsController {
 
       return res.status(HTTP_STATUS_CODES.OK_200).json(blogOutput);
     } catch (error: unknown) {
-      if (error instanceof RepositoryNotFoundError) {
-        return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-          errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория findBlogByIdQueryRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
-        });
-      }
-
       return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
         errorsMessages: [{ message: "Internal Server Error", field: "id" }],
       });
@@ -109,12 +102,6 @@ export class BlogsController {
 
       return res.status(HTTP_STATUS_CODES.OK_200).json(postsListByBlogOutput);
     } catch (error: unknown) {
-      if (error instanceof RepositoryNotFoundError) {
-        return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-          errorsMessages: [{ message: (error as Error).message, field: "id" }], // получаем ошибку "Blog is not exist!"" из репозитория findBlogByIdQueryRepo -> throw new RepositoryNotFoundError("Blog is not exist!");
-        });
-      }
-
       return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
         errorsMessages: [
           { message: "Internal Server Error", field: "query params" },

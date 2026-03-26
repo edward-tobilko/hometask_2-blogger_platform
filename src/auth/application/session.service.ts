@@ -131,7 +131,10 @@ export class AuthService implements IAuthService {
       command.meta.userAgent ?? "Unknown device"
     );
 
-    const accessToken = await this.jwtService.createAccessToken(userId);
+    const accessToken = await this.jwtService.createAccessToken(
+      userId,
+      deviceId
+    );
     const refreshToken = await this.jwtService.createRefreshToken(
       userId,
       deviceId,

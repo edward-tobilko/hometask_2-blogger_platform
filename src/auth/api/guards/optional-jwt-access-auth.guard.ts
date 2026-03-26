@@ -17,9 +17,14 @@ export const optionalJwtAccessGuard = (jwtService: IJWTService) => {
 
       if (payload?.userId) {
         req.user = { id: payload.userId };
+
+        console.log("REQ.USER SET:", req.user);
+      } else {
+        console.log("PAYLOAD HAS NO userId");
       }
     } catch (error: unknown) {
       // * Игнорируем плохой токен, чтобы чтение оставалось публичным
+      console.error("JWT VERIFY ERROR:", error);
     }
 
     return next();

@@ -18,7 +18,7 @@ const CustomRateLimitSchema = new Schema<CustomRateLimitDb>(
   { versionKey: false }
 );
 
-// * TTL index - автоматическое удаление через 60сек.
+// * TTL index - автоматическое удаление записей с бд через 60сек.
 CustomRateLimitSchema.index({ date: 1 }, { expireAfterSeconds: 60 });
 
 CustomRateLimitSchema.index({ ip: 1, url: 1, date: 1 }); // ip + url + date

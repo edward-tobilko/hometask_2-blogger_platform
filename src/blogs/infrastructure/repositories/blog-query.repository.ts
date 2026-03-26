@@ -1,10 +1,8 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { mapToBlogListOutput } from "../../application/mappers/map-to-blog-list-output.util";
 import { BlogListPaginatedOutput } from "../../application/output/blog-list-paginated-type.output";
 import { BlogOutput } from "../../application/output/blog-type.output";
-import { mapToBlogOutput } from "../../application/mappers/map-to-blog-output.mapper";
 import { GetBlogsListQueryHandler } from "../../application/query-handlers/get-blogs-list-type.query-handler";
 import { GetPostsListQueryHandler } from "../../../posts/application/query-handlers/get-posts-list.query-handler";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
@@ -18,6 +16,7 @@ import {
   PostLikeLean,
   PostLikeModel,
 } from "posts/infrastructure/schemas/post-like.schema";
+import { BlogMapper } from "blogs/domain/mappers/blog.mapper";
 
 @injectable()
 export class BlogsQueryRepository implements IBlogsQueryRepository {
@@ -29,47 +28,40 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
 
     const nameTerm = searchNameTerm ? searchNameTerm.trim() : null;
 
-    let filter: Record<string, unknown> = {};
+    const filter = nameTerm
+      ? {
+          name: { $regex: nameTerm, $options: "i" },
+        }
+      : {};
 
-    if (nameTerm) {
-      filter = {
-        // * встроенные операторы mongodb $regex и $options, 'i' - для игнорирования регистра
-        name: { $regex: nameTerm, $options: "i" },
-      };
-    } else {
-      filter = {};
-    }
+    const [items, totalCount] = await Promise.all([
+      BlogModel.find(filter)
+        .sort({ [sortBy]: sortDirection })
 
-    const items = await BlogModel.find(filter)
+        .skip((pageNumber - 1) * pageSize)
 
-      // * "asc" (по возрастанию), то mongo используется 1
-      // * "desc" — то -1 для сортировки по убыванию. - по алфавиту от Я-А, Z-A
-      .sort({ [sortBy]: sortDirection })
+        .limit(pageSize)
+        .lean<BlogLean[]>()
+        .exec(),
 
-      // * пропускаем определённое количество док. перед тем, как вернуть нужный набор данных: Например, страница 3, pageSize=10 → пропускает 20 документов.
-      .skip((pageNumber - 1) * pageSize)
+      BlogModel.countDocuments(filter),
+    ]);
 
-      // * ограничивает количество возвращаемых документов до значения pageSize
-      .limit(pageSize)
-      .lean<BlogLean[]>()
-      .exec();
-
-    const totalCount = await BlogModel.countDocuments(filter);
-
-    const blogsListOutput = mapToBlogListOutput(items, {
-      pageNumber,
-      pageSize,
+    return {
+      pagesCount: Math.ceil(totalCount / pageSize),
+      page: pageNumber,
+      pageSize: pageSize,
       totalCount,
-    });
 
-    return blogsListOutput;
+      items: items.map(BlogMapper.toViewModel),
+    };
   }
 
   async findBlogById(blogId: string): Promise<BlogOutput | null> {
     const blog = await BlogModel.findById(blogId).lean<BlogLean>().exec();
-    if (!blog) throw new RepositoryNotFoundError("Blog is not found", "blog");
+    if (!blog) return null;
 
-    return mapToBlogOutput(blog);
+    return BlogMapper.toViewModel(blog);
   }
 
   async findAllPostsForBlog(
@@ -109,13 +101,8 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
     // * мапим в domain entity
     const postsEntity = cursor.map((postDoc) => PostMapper.toDomain(postDoc));
 
-    console.log("currentUserId:", currentUserId);
     if (currentUserId && Types.ObjectId.isValid(currentUserId)) {
       const postIds = cursor.map((postDoc) => postDoc._id);
-      console.log(
-        "postIds:",
-        postIds.map((id) => id.toString())
-      );
 
       const filter = {
         postId: { $in: postIds },

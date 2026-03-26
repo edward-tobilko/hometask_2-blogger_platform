@@ -10,11 +10,13 @@ import { customRateLimiterMiddleware } from "@core/middlewares/custom-rate-limit
 import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { newPasswordRPV } from "./request-payload-validations/new-password.rpv";
+import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 
 export const createAuthRouter = (
   customRateLimitRepo: ICustomRateLimit,
   authController: AuthController,
-  jwtService: IJWTService
+  jwtService: IJWTService,
+  sessionQueryRepo: ISessionQueryRepo
 ) => {
   const authRoute = Router();
 
@@ -29,7 +31,7 @@ export const createAuthRouter = (
   // * GET: Get info about current user.
   authRoute.get(
     "/me",
-    jwtAccessAuthGuard(jwtService),
+    jwtAccessAuthGuard(jwtService, sessionQueryRepo),
 
     authController.getAuthMeHandler.bind(authController)
   );

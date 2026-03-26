@@ -11,17 +11,19 @@ import {
 } from "@core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "@core/middlewares/validation/input-result.middleware-validation";
 import { jwtAccessAuthGuard } from "auth/api/guards/jwt-access-auth.guard";
+import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 
 export const createCommentsRouter = (
   commentsController: CommentsController,
-  jwtService: IJWTService
+  jwtService: IJWTService,
+  sessionQueryRepository: ISessionQueryRepo
 ) => {
   const commentsRoute = Router({});
 
   // * PUT: Make like / unlike / dislike / undislike operation
   commentsRoute.put(
     "/:commentId/like-status",
-    jwtAccessAuthGuard(jwtService),
+    jwtAccessAuthGuard(jwtService, sessionQueryRepository),
     paramCommentIdValidation,
     updateCommentLikeStatusRPValidation,
     inputResultMiddlewareValidation,
@@ -32,7 +34,7 @@ export const createCommentsRouter = (
   // * PUT: Update existing comment by id with input model
   commentsRoute.put(
     "/:commentId",
-    jwtAccessAuthGuard(jwtService),
+    jwtAccessAuthGuard(jwtService, sessionQueryRepository),
     paramCommentIdValidation,
     updateCommentContentRPValidation,
     inputResultMiddlewareValidation,
@@ -43,7 +45,7 @@ export const createCommentsRouter = (
   // * DELETE: Delete comment specified by id
   commentsRoute.delete(
     "/:commentId",
-    jwtAccessAuthGuard(jwtService),
+    jwtAccessAuthGuard(jwtService, sessionQueryRepository),
     paramCommentIdValidation,
     inputResultMiddlewareValidation,
 

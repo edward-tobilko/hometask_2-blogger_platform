@@ -21,20 +21,40 @@ export class BlogMapper {
       name: blogDoc.name,
       description: blogDoc.description,
       websiteUrl: blogDoc.websiteUrl,
-      createdAt: new Date(),
-      isMembership: false,
+      createdAt: blogDoc.createdAt,
+      isMembership: blogDoc.isMembership,
     });
   }
 
   // * Domain to Output
-  static toViewModel(entity: BlogEntity): BlogOutput {
+  static toViewModel(blog: BlogEntity | BlogLean): BlogOutput {
+    if (blog instanceof BlogEntity) {
+      return {
+        id: blog.id,
+        name: blog.name,
+        description: blog.description,
+        websiteUrl: blog.websiteUrl,
+        createdAt: blog.createdAt.toISOString(),
+        isMembership: blog.isMembership,
+      };
+    }
+
     return {
-      id: entity.id.toString(),
-      name: entity.name,
-      description: entity.description,
-      websiteUrl: entity.websiteUrl,
-      createdAt: entity.createdAt.toISOString(),
-      isMembership: entity.isMembership,
+      id: blog._id.toString(),
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt.toISOString(),
+      isMembership: blog.isMembership,
     };
   }
 }
+
+// ? MongoDB создает поле _id (типа ObjectId), которое фронтенду лучше видеть как id: string.
+
+// ? Эта функция:
+// ? - конвертирует _id → id (в формате string),
+// ? - фильтрует или реорганизует данные под нужный фронтенд-формат,
+// ? - скрывает лишние внутренние поля (как __v, _id, passwordHash и т.п.).
+
+// ? Это best practice: всегда делать mapper (DTO/ViewModel) между базовыми моделями и теми, которые возвращаются клиенту.

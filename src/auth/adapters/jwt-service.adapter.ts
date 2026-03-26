@@ -20,23 +20,26 @@ const RT_TIME: SignOptions["expiresIn"] = (appConfig.RT_TIME ??
 @injectable()
 export class JWTService implements IJWTService {
   // * Access token
-  async createAccessToken(userId: string): Promise<string> {
-    return jwt.sign({ userId } satisfies IJWTAccessPayload, AT_SECRET, {
-      expiresIn: AT_TIME,
-    });
+  async createAccessToken(userId: string, deviceId?: string): Promise<string> {
+    return jwt.sign(
+      { userId, deviceId } satisfies IJWTAccessPayload,
+      AT_SECRET,
+      {
+        expiresIn: AT_TIME,
+      }
+    );
   }
 
   async verifyAccessToken(token: string): Promise<IJWTAccessPayload | null> {
     try {
-      console.log("ACCESS_SECRET exists:", !!process.env.JWT_ACCESS_SECRET);
-
       const result = jwt.verify(token, AT_SECRET) as IJWTAccessPayload;
 
       return {
         userId: result.userId,
+        deviceId: result.deviceId,
       };
     } catch (error: unknown) {
-      // console.error("Token verify some error!");
+      console.error("Token verify some error!");
 
       return null;
     }

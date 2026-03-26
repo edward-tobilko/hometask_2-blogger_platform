@@ -12,11 +12,11 @@ import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-s
 import { BlogsController } from "../controllers/blogs.controller";
 import { baseAuthGuard } from "auth/api/guards/base-auth.guard";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
-import { JWTService } from "auth/adapters/jwt-service.adapter";
+import { IJWTService } from "auth/interfaces/IJWTService";
 
 export const createBlogsRouter = (
   blogsController: BlogsController,
-  jwtService: JWTService
+  jwtService: IJWTService
 ) => {
   const blogsRoute = Router({});
 

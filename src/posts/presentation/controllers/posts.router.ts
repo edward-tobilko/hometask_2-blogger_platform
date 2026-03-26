@@ -20,18 +20,20 @@ import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryServ
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 
 export const createPostsRouter = (
   postsController: PostsController,
   blogsQueryService: IBlogsQueryService,
-  jwtService: IJWTService
+  jwtService: IJWTService,
+  sessionQueryRepository: ISessionQueryRepo
 ) => {
   const postsRoute = Router({});
 
   // * PUT: Make like / unlike / dislike / undislike operation.
   postsRoute.put(
     "/:postId/like-status",
-    jwtAccessAuthGuard(jwtService),
+    jwtAccessAuthGuard(jwtService, sessionQueryRepository),
     paramPostIdValidation,
 
     body("likeStatus")
@@ -63,7 +65,7 @@ export const createPostsRouter = (
   // * POST: Create new comment
   postsRoute.post(
     "/:postId/comments",
-    jwtAccessAuthGuard(jwtService),
+    jwtAccessAuthGuard(jwtService, sessionQueryRepository),
     createCommentDtoRPValidation,
     inputResultMiddlewareValidation,
 

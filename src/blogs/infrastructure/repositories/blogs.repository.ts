@@ -19,14 +19,7 @@ export class BlogsRepository implements IBlogsRepository {
 
     if (!blogLean) return null;
 
-    return BlogEntity.reconstitute({
-      id: blogLean._id.toString(),
-      name: blogLean.name,
-      description: blogLean.description,
-      websiteUrl: blogLean.websiteUrl,
-      createdAt: new Date(),
-      isMembership: true,
-    });
+    return BlogMapper.toDomain(blogLean);
   }
 
   async createBlog(newBlog: BlogEntity): Promise<BlogEntity> {
