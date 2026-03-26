@@ -170,7 +170,7 @@ export class PostEntity {
     return newPost;
   }
 
-  async updatePost(dto: UpdatePostDtoEntity): Promise<void> {
+  updatePost(dto: UpdatePostDtoEntity): void {
     PostEntity.validateTitle(dto.title);
     PostEntity.validateShortDescription(dto.shortDescription);
     PostEntity.validateContent(dto.content);

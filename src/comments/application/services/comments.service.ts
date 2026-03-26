@@ -64,10 +64,12 @@ export class CommentsService implements ICommentsService {
         nextStatus
       );
 
+      let operationSuccess = false;
+
       // * session.withTransaction() - все внутри либо выполнится целиком, либо откатится полностью (если хоть один запросс не сработает: $inc или $upsert).
       await session.withTransaction(async () => {
         // * Обновляем статус в репозитории
-        const success = await this.commentsRepo.upsertCommentLikeStatus(
+        operationSuccess = await this.commentsRepo.upsertCommentLikeStatus(
           likeStatus,
           commentId,
           userId,
@@ -76,15 +78,7 @@ export class CommentsService implements ICommentsService {
           session
         );
 
-        if (!success) {
-          return new ApplicationResult({
-            status: ApplicationResultStatus.NotFound,
-            data: null,
-            extensions: [
-              new NotFoundError("comment is not found", "commentId"),
-            ],
-          });
-        }
+        if (!operationSuccess) throw new Error("Update failed!");
       });
 
       return new ApplicationResult({
@@ -133,7 +127,7 @@ export class CommentsService implements ICommentsService {
     // * обновляем доменную сущность (DDD)
     existingComment.updateComment(dto.content);
 
-    const updated = await this.commentsRepo.save(existingComment);
+    const updated = await this.commentsRepo.updateCommentSave(existingComment);
 
     if (!updated) {
       return new ApplicationResult({

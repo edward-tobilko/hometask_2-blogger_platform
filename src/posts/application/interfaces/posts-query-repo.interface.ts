@@ -18,7 +18,8 @@ export interface IPostsQueryRepo {
 
   getPostById(
     postId: string,
-    session?: ClientSession
+    session?: ClientSession,
+    currentUserId?: string
   ): Promise<PostEntity | null>;
 
   getPostCommentsList(

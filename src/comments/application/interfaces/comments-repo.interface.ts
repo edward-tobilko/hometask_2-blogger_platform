@@ -1,13 +1,10 @@
 import { ClientSession } from "mongoose";
 
 import { LikeStatus } from "@core/types/like-status.enum";
-import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 import { CommentEntity } from "comments/domain/entities/comment.entity";
 
 export interface ICommentsRepository {
   findById(commentId: string): Promise<CommentEntity | null>;
-
-  save(comment: CommentEntity): Promise<boolean>;
 
   findUserLikeStatus(
     commentId: string,
@@ -23,7 +20,7 @@ export interface ICommentsRepository {
     session: ClientSession
   ): Promise<boolean>;
 
-  updateComment(domain: UpdateCommentDtoCommand): Promise<boolean>;
+  updateCommentSave(commentEntity: CommentEntity): Promise<boolean>;
 
   deleteComment(commentId: string): Promise<boolean>;
 }

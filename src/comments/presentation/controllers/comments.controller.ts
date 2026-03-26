@@ -9,16 +9,16 @@ import { DiTypes } from "@core/di/types";
 import { UpdateCommentRP } from "../request-payload-types/update-comment.request-payload-types";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { CommentsQueryService } from "comments/application/services/comments-query.service";
-import { CommentsService } from "comments/application/services/comments.service";
 import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
+import { ICommentsQueryService } from "comments/application/interfaces/comments-query-service.interface";
+import { ICommentsService } from "comments/application/interfaces/comments-service.interface";
 
 @injectable()
 export class CommentsController {
   constructor(
     @inject(DiTypes.ICommentsQueryService)
-    private commentsQueryService: CommentsQueryService,
-    @inject(DiTypes.ICommentsService) private commentsService: CommentsService
+    private commentsQueryService: ICommentsQueryService,
+    @inject(DiTypes.ICommentsService) private commentsService: ICommentsService
   ) {}
 
   async updateCommentLikeStatusHandler(

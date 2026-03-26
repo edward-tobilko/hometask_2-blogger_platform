@@ -26,7 +26,6 @@ import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 import { PostOutput } from "../output/post-type.output";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { LikeEntity } from "@core/domain/entities/like.entity";
-import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
 
 @injectable()
 export class PostsService implements IPostsService {
@@ -34,8 +33,6 @@ export class PostsService implements IPostsService {
     @inject(DiTypes.IPostsRepository) private postsRepository: IPostsRepo,
     @inject(DiTypes.IBlogsQueryRepository)
     private blogsQueryRepository: IBlogsQueryRepository,
-    @inject(DiTypes.IPostsQueryRepository)
-    private blogsRepository: IBlogsRepository,
     @inject(DiTypes.IPostsQueryRepository)
     private postsQueryRepository: IPostsQueryRepo,
     @inject(DiTypes.IUsersQueryService)
@@ -48,9 +45,6 @@ export class PostsService implements IPostsService {
     const dto = command.payload;
 
     const blog = await this.blogsQueryRepository.findBlogById(dto.blogId);
-    const blog2 = await this.blogsRepository.findById(dto.blogId);
-
-    console.log(blog2);
 
     if (!blog) {
       return new ApplicationResult({

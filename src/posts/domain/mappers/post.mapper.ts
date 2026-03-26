@@ -4,6 +4,7 @@ import { PostDb, PostLean } from "posts/infrastructure/schemas/post.schema";
 import { PostEntity } from "../entities/post.entity";
 import { PostOutput } from "posts/application/output/post-type.output";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { PostsListPaginatedOutput } from "posts/application/output/posts-list-type.output";
 
 export class PostMapper {
   // * DB -> Domain
@@ -36,7 +37,7 @@ export class PostMapper {
   // * Domain -> DB
   static toDb(entity: PostEntity): PostDb & { _id?: Types.ObjectId } {
     return {
-      _id: entity.id ? new Types.ObjectId() : undefined,
+      _id: entity.id ? new Types.ObjectId(entity.id) : undefined,
 
       title: entity.title,
       shortDescription: entity.shortDescription,
@@ -60,7 +61,7 @@ export class PostMapper {
     };
   }
 
-  // * DB -> Output
+  // * Domain -> Output
   static toViewModel(entity: PostEntity, myStatus: LikeStatus): PostOutput {
     return {
       id: entity.id.toString(),
@@ -85,6 +86,24 @@ export class PostMapper {
       },
     };
   }
-}
 
-// ? domain <-> database
+  // * Domain -> List Output
+  static toListViewModel(
+    entities: PostEntity[],
+    userLikes: Map<string, LikeStatus>,
+    meta: { page: number; pageSize: number; totalCount: number }
+  ): PostsListPaginatedOutput {
+    return {
+      pagesCount: Math.ceil(meta.totalCount / meta.pageSize),
+      page: meta.page,
+      pageSize: meta.pageSize,
+      totalCount: meta.totalCount,
+
+      items: entities.map((entity) => {
+        const myStatus = userLikes.get(entity.id) ?? LikeStatus.None;
+
+        return PostMapper.toViewModel(entity, myStatus);
+      }),
+    };
+  }
+}

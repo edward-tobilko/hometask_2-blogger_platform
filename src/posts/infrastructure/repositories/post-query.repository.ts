@@ -4,7 +4,6 @@ import { ClientSession, Types as MongooseTypes } from "mongoose";
 import { GetPostsListQueryHandler } from "../../application/query-handlers/get-posts-list.query-handler";
 import { GetPostCommentsListQueryHandler } from "../../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../../application/output/post-comments-list-type.output";
-import { mapToPostCommentsListOutput } from "../../application/mappers/map-to-post-comments-list-output.mapper";
 import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
 import { PostLean, PostModel } from "posts/infrastructure/schemas/post.schema";
 import {
@@ -19,6 +18,7 @@ import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { PostLikeLean, PostLikeModel } from "../schemas/post-like.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { PostCommentsMapper } from "posts/domain/mappers/post-comments.mapper";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepo {
@@ -71,13 +71,20 @@ export class PostsQueryRepository implements IPostsQueryRepo {
 
   async getPostById(
     postId: string,
-    session: ClientSession
+    session?: ClientSession,
+    currentUserId?: string
   ): Promise<PostEntity | null> {
     if (!MongooseTypes.ObjectId.isValid(postId)) return null;
 
-    const postInstanceDoc = await PostModel.findById(postId)
-      .session(session)
-      .exec();
+    let postInstanceDoc = null;
+
+    if (currentUserId && MongooseTypes.ObjectId.isValid(currentUserId)) {
+      postInstanceDoc = await PostModel.findById(postId)
+        .session(session ?? null)
+        .lean<PostLean>()
+        .exec();
+    }
+
     if (!postInstanceDoc) return null;
 
     return PostMapper.toDomain(postInstanceDoc);
@@ -131,18 +138,19 @@ export class PostsQueryRepository implements IPostsQueryRepo {
         .exec();
     }
 
-    const postCommentsOutput = mapToPostCommentsListOutput(
-      postComments,
-      likes,
+    const entities = postComments.map(PostCommentsMapper.toDomain);
 
-      {
-        page: pageNumber,
-        pageSize,
-        totalCount,
-      }
-    );
+    const userLikes = new Map<string, LikeStatus>();
 
-    return postCommentsOutput;
+    (likes ?? []).forEach((like) => {
+      userLikes.set(like.commentId.toString(), like.status);
+    });
+
+    return PostCommentsMapper.toListViewModel(entities, userLikes, {
+      page: pageNumber,
+      pageSize,
+      totalCount,
+    });
   }
 
   async getNewestLikes(

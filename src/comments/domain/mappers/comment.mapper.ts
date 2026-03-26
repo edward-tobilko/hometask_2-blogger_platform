@@ -11,23 +11,23 @@ import { CommentEntity } from "../entities/comment.entity";
 export class CommentMapper {
   // * DB -> Output
   static toViewModel(
-    commentView: PostCommentsLean,
+    commentDomain: PostCommentsLean,
     myStatus: LikeStatus
   ): IPostCommentOutput {
     return {
-      id: commentView._id.toString(),
-      content: commentView.content,
+      id: commentDomain._id.toString(),
+      content: commentDomain.content,
 
       commentatorInfo: {
-        userId: commentView.commentatorInfo.userId.toString(),
-        userLogin: commentView.commentatorInfo.userLogin,
+        userId: commentDomain.commentatorInfo.userId.toString(),
+        userLogin: commentDomain.commentatorInfo.userLogin,
       },
 
-      createdAt: commentView.createdAt.toISOString(), // отдаем ту дату, которая в entity
+      createdAt: commentDomain.createdAt.toISOString(), // отдаем ту дату, которая в entity
 
       likesInfo: {
-        likesCount: commentView.likesInfo.likesCount,
-        dislikesCount: commentView.likesInfo.dislikesCount,
+        likesCount: commentDomain.likesInfo.likesCount,
+        dislikesCount: commentDomain.likesInfo.dislikesCount,
         myStatus, // динамический статус
       },
     };

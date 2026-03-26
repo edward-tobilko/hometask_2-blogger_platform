@@ -10,9 +10,10 @@ import { ApplicationResult } from "@core/result/application.result";
 import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
 import { GetPostsListQueryHandler } from "../query-handlers/get-posts-list.query-handler";
 import { GetPostCommentsListQueryHandler } from "../query-handlers/get-post-comments-list.query-handler";
-import { PostEntity } from "posts/domain/entities/post.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostOutput } from "../output/post-type.output";
+import { ClientSession } from "mongoose";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {
@@ -28,24 +29,39 @@ export class PostQueryService implements IPostsQueryService {
     const { postsEntity, userLikes, totalCount } =
       await this.postsQueryRepository.getPostsList(queryParam, currentUserId);
 
-    const items = postsEntity.map((postEntity) => {
-      const myStatus =
-        userLikes.get(postEntity.id.toString()) ?? LikeStatus.None;
-
-      return PostMapper.toViewModel(postEntity, myStatus);
-    });
-
-    return {
-      pagesCount: Math.ceil(totalCount / queryParam.pageSize),
+    return PostMapper.toListViewModel(postsEntity, userLikes, {
       page: queryParam.pageNumber,
       pageSize: queryParam.pageSize,
       totalCount,
-      items,
-    };
+    });
   }
 
-  async getPostById(postId: string): Promise<PostEntity | null> {
-    return await this.postsQueryRepository.getPostById(postId);
+  async getPostById(
+    postId: string,
+    session?: ClientSession,
+    currentUserId?: string
+  ): Promise<ApplicationResult<PostOutput | null>> {
+    const post = await this.postsQueryRepository.getPostById(
+      postId,
+      session,
+      currentUserId
+    );
+
+    if (!post) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: null,
+        extensions: [new NotFoundError("Post is not found!", "postId")],
+      });
+    }
+
+    const postOutput = PostMapper.toViewModel(post, LikeStatus.None);
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: postOutput,
+      extensions: [],
+    });
   }
 
   async getPostCommentsList(

@@ -5,7 +5,6 @@ import {
   PostCommentsLean,
   PostCommentsModel,
 } from "posts/infrastructure/schemas/post-comments.schema";
-import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
 import { LikeStatus } from "@core/types/like-status.enum";
 import {
   CommentLikeLean,
@@ -29,17 +28,6 @@ export class CommentsRepository implements ICommentsRepository {
     return CommentMapper.toDomain(commentLean);
   }
 
-  async save(commentEntity: CommentEntity): Promise<boolean> {
-    const commentDb = CommentMapper.toDb(commentEntity);
-
-    const result = await PostCommentsModel.updateOne(
-      { _id: new Types.ObjectId(commentEntity.id) },
-      { $set: commentDb }
-    ).exec();
-
-    return result.matchedCount === 1;
-  }
-
   async findUserLikeStatus(
     commentId: string,
     userId: string
@@ -52,7 +40,7 @@ export class CommentsRepository implements ICommentsRepository {
       .lean<CommentLikeLean>()
       .exec();
 
-    return existingLike?.status || LikeStatus.None;
+    return existingLike?.status ?? LikeStatus.None;
   }
 
   async upsertCommentLikeStatus(
@@ -99,20 +87,20 @@ export class CommentsRepository implements ICommentsRepository {
     return true;
   }
 
-  async updateComment(dto: UpdateCommentDtoCommand): Promise<boolean> {
-    if (!Types.ObjectId.isValid(dto.commentId)) return false;
-
-    if (!dto.commentId) return false;
+  async updateCommentSave(commentEntity: CommentEntity): Promise<boolean> {
+    const commentDb = CommentMapper.toDb(commentEntity);
 
     const updateResult = await PostCommentsModel.updateOne(
-      { _id: dto.commentId },
-      { $set: { content: dto.content } }
+      { _id: new Types.ObjectId(commentEntity.id) },
+      { $set: commentDb }
     ).exec();
 
     return updateResult.matchedCount === 1;
   }
 
   async deleteComment(commentId: string): Promise<boolean> {
+    if (!Types.ObjectId.isValid(commentId)) return false;
+
     const comment = await PostCommentsModel.deleteOne({
       _id: new Types.ObjectId(commentId),
     });

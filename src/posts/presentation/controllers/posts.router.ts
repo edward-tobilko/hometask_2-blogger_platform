@@ -95,6 +95,7 @@ export const createPostsRouter = (
   // * GET: Return post by id
   postsRoute.get(
     "/:id",
+    optionalJwtAccessGuard(jwtService),
     paramIdValidation,
     inputResultMiddlewareValidation,
 

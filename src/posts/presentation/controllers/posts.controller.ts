@@ -74,7 +74,12 @@ export class PostsController {
 
   getPostHandler = async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const post = await this.postQueryService.getPostById(req.params.id);
+      const currentUserId = req.user?.id;
+
+      const post = await this.postQueryService.getPostById(
+        req.params.id,
+        currentUserId
+      );
 
       if (!post) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
 
