@@ -8,9 +8,9 @@ import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
 import { container } from "@core/di/inversify.config";
-import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
+import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
 import { Types } from "@core/di/types";
-import { IUsersRepository } from "users/interfaces/IUsersRepository";
+import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 

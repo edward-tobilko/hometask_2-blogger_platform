@@ -3,10 +3,10 @@ import { Express } from "express";
 
 import { routersPaths } from "@core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
-import { UserOutput } from "users/applications/output/user.output";
+import { UserOutput } from "users/application/output/user.output";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { CreateUserRP } from "users/routes/request-payload-types/create-user.request-payload-types";
 import { getUserDto } from "./get-user-dto.util";
+import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 
 const defaultUserDto = getUserDto();
 

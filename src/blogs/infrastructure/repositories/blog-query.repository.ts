@@ -6,7 +6,7 @@ import { BlogOutput } from "../../application/output/blog-type.output";
 import { GetBlogsListQueryHandler } from "../../application/query-handlers/get-blogs-list-type.query-handler";
 import { GetPostsListQueryHandler } from "../../../posts/application/query-handlers/get-posts-list.query-handler";
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
-import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
+import { IBlogsQueryRepository } from "blogs/application/interfaces/blogs-query-repo.interface";
 import { BlogLean, BlogModel } from "blogs/infrastructure/schemas/blog.schema";
 import { PostLean, PostModel } from "posts/infrastructure/schemas/post.schema";
 import { LikeStatus } from "@core/types/like-status.enum";

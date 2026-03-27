@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 
-import { CreateUserRP } from "users/routes/request-payload-types/create-user.request-payload-types";
+import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 
 export function getUserDto(
   payloadValidation?: Partial<CreateUserRP>

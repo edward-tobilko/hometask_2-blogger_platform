@@ -8,7 +8,7 @@ import { getUserDto } from "../utils/users/get-user-dto.util";
 import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
 import { createAuthResendRegistrationEmail } from "../utils/auth/auth-resend-email-confirm.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
-import { UserModel } from "users/mongoose/user-schema.mongoose";
+import { UserModel } from "users/infrastructure/schemas/user-schema";
 
 describe("E2E Auth Registration Email Resending tests", () => {
   const app = express();

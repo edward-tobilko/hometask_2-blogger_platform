@@ -16,8 +16,8 @@ import { CreateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.c
 import { CreatePostForBlogRP } from "posts/presentation/request-payload-types/create-post-for-blog.request-payload-types";
 import { CreatePostForBlogDtoCommand } from "posts/application/commands/create-post-for-blog-dto.command";
 import { UpdateBlogRP } from "../request-payload-types/update-blog.request-payload";
-import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
-import { IBlogsService } from "blogs/application/interfaces/IBlogsService";
+import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
+import { IBlogsService } from "blogs/application/interfaces/blogs-service.interface";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 
 @injectable()

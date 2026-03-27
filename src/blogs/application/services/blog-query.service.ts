@@ -5,9 +5,9 @@ import { GetPostsListQueryHandler } from "../../../posts/application/query-handl
 import { BlogListPaginatedOutput } from "../output/blog-list-paginated-type.output";
 import { BlogOutput } from "../output/blog-type.output";
 import { GetBlogsListQueryHandler } from "../query-handlers/get-blogs-list-type.query-handler";
-import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
+import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
 import { DiTypes } from "@core/di/types";
-import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
+import { IBlogsQueryRepository } from "blogs/application/interfaces/blogs-query-repo.interface";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 

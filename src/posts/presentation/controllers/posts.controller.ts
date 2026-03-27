@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { DiTypes } from "@core/di/types";
-import { IUsersQueryService } from "users/interfaces/IUsersQueryService";
+import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
 import { CreatePostCommentRP } from "../request-payload-types/create-post-comment.request-payload-types";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createCommand } from "@core/helpers/create-command.helper";

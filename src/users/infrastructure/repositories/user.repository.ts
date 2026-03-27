@@ -5,12 +5,12 @@ import {
   IEmailConfirmationUpdate,
   IRecoveryPasswordInfo,
   IUsersRepository,
-} from "users/interfaces/IUsersRepository";
+} from "users/application/interfaces/users-repo.interface";
 import {
   UserDb,
   UserDocument,
   UserModel,
-} from "users/mongoose/user-schema.mongoose";
+} from "users/infrastructure/schemas/user-schema";
 
 @injectable()
 export class UsersRepository implements IUsersRepository {

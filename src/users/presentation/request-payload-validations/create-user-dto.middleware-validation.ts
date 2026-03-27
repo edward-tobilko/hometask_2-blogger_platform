@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 
-import { UsersQueryRepository } from "../../repositories/users-query.repository";
+import { UsersQueryRepository } from "users/infrastructure/repositories/users-query.repository";
 
 const usersQueryRepo = new UsersQueryRepository();
 

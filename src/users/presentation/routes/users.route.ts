@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { query } from "express-validator";
 
-import { queryPaginationAndSortingValidation } from "../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
-import { UserSortFieldRP } from "./request-payload-types/user-sort-field.request-payload-types";
-import { inputResultMiddlewareValidation } from "../../core/middlewares/validation/input-result.middleware-validation";
-import { baseAuthGuard } from "../../auth/api/guards/base-auth.guard";
-import { createUserDtoMiddlewareValidations } from "./middleware-validations/create-user-dto.middleware-validation";
-import { paramIdValidation } from "../../core/middlewares/validation/param-id.middleware-validation";
-import { UsersController } from "./users-controller";
+import { UserSortFieldRP } from "../request-payload-types/user-sort-field.request-payload-types";
+import { createUserDtoMiddlewareValidations } from "../request-payload-validations/create-user-dto.middleware-validation";
+import { baseAuthGuard } from "auth/api/guards/base-auth.guard";
+import { UsersController } from "../controllers/users-controller";
+import { inputResultMiddlewareValidation } from "@core/middlewares/validation/input-result.middleware-validation";
+import { queryPaginationAndSortingValidation } from "@core/middlewares/validation/query-pagination-sorting.middleware-validation";
+import { paramIdValidation } from "@core/middlewares/validation/param-id.middleware-validation";
 
 export const createUsersRouter = (usersController: UsersController) => {
   const usersRoute = Router({});
@@ -23,7 +23,6 @@ export const createUsersRouter = (usersController: UsersController) => {
     inputResultMiddlewareValidation,
 
     usersController.getUsersListHandler.bind(usersController)
-    // usersController.getUsersListHandler
   );
 
   // * POST: Add new user to the system
@@ -34,7 +33,6 @@ export const createUsersRouter = (usersController: UsersController) => {
     inputResultMiddlewareValidation,
 
     usersController.createUserHandler.bind(usersController)
-    // usersController.createUserHandler
   );
 
   // * DELETE: Delete user specified by id
@@ -45,7 +43,6 @@ export const createUsersRouter = (usersController: UsersController) => {
     inputResultMiddlewareValidation,
 
     usersController.deleteUserHandler.bind(usersController)
-    // usersController.deleteUserHandler
   );
 
   return usersRoute;

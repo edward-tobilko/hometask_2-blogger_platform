@@ -1,4 +1,4 @@
-import { IUsersQueryService } from "./../../../users/interfaces/IUsersQueryService";
+import { IUsersQueryService } from "../../../users/application/interfaces/users-query-service.interface";
 import { inject, injectable } from "inversify";
 import mongoose from "mongoose";
 
@@ -24,7 +24,7 @@ import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 import { PostOutput } from "../output/post-type.output";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { LikeEntity } from "@core/domain/entities/like.entity";
-import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
+import { IBlogsRepository } from "blogs/application/interfaces/blogs-repo.interface";
 
 @injectable()
 export class PostsService implements IPostsService {

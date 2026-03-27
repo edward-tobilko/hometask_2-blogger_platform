@@ -2,14 +2,14 @@ import { DiTypes } from "@core/di/types";
 import { AuthController } from "auth/routes/auth.controller";
 import { PostsController } from "posts/presentation/controllers/posts.controller";
 import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
-import { UsersController } from "users/routes/users-controller";
 import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
 import { container } from "@core/di/inversify.config";
-import { IBlogsQueryService } from "blogs/application/interfaces/IBlogsQueryService";
+import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { CommentsController } from "comments/presentation/controllers/comments.controller";
 import { BlogsController } from "blogs/presentation/controllers/blogs.controller";
 import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { UsersController } from "users/presentation/controllers/users-controller";
 
 let inited = false;
 

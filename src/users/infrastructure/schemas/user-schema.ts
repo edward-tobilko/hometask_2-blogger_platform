@@ -6,7 +6,7 @@ import {
   Types as MongooseTypes,
 } from "mongoose";
 
-import { IRecoveryPasswordInfo } from "users/interfaces/IUsersRepository";
+import { IRecoveryPasswordInfo } from "users/application/interfaces/users-repo.interface";
 
 // * Date base type
 export type UserDb = {
@@ -25,8 +25,8 @@ export type UserDb = {
   recoveryPasswordInfo?: IRecoveryPasswordInfo | null;
 };
 
-// * Создание типов для plain objects нужны только для чтения (read), то есть, для query запроссов, для .lean() в query repositories. Нужно для маппинга, что бы не работать с доменом.
-export type UserReadModelType = UserDb & { _id: MongooseTypes.ObjectId };
+// * Создание типов для plain objects нужны только для чтения (read side), то есть, для query запроссов, для .lean() в query repositories. Нужно для маппинга, что бы не работать с доменом.
+export type UserLean = UserDb & { _id: MongooseTypes.ObjectId };
 
 // * Добавляем _id к UserDb
 export type UserDocument = HydratedDocument<UserDb>;

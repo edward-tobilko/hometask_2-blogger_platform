@@ -9,7 +9,7 @@ import { getUserDto } from "../utils/users/get-user-dto.util";
 import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
 import { createAuthConfirmRegistration } from "../utils/auth/auth-confirm-registr.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
-import { UserModel } from "users/mongoose/user-schema.mongoose";
+import { UserModel } from "users/infrastructure/schemas/user-schema";
 
 describe("E2E Auth Registration Confirmation tests", () => {
   const app = express();

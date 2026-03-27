@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-import { UserDb, UserDocument } from "users/mongoose/user-schema.mongoose";
+import { UserDb, UserDocument } from "users/infrastructure/schemas/user-schema";
 
 export interface IEmailConfirmationUpdate {
   confirmationCode: string;

@@ -13,12 +13,12 @@ import { AuthMeOutput } from "auth/application/output/auth-me.output";
 import { LoginAuthRP } from "./request-payload-types/login-auth.request-payload";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.command";
-import { CreateUserRP } from "users/routes/request-payload-types/create-user.request-payload-types";
 import { IJWTService } from "auth/interfaces/IJWTService";
 import { IAuthService } from "auth/interfaces/IAuthService";
-import { IUsersQueryService } from "users/interfaces/IUsersQueryService";
+import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
 import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
 import { NewPasswordRPT } from "./request-payload-types/new-password.rpt";
+import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 
 @injectable()
 export class AuthController {

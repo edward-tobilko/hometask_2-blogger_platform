@@ -1,20 +1,22 @@
 import { inject, injectable } from "inversify";
 
-import { ApplicationResult } from "../../core/result/application.result";
-import { WithMeta } from "../../core/types/with-meta.type";
-import { CreateUserDtoCommand } from "./commands/user-dto.commands";
-import { UserOutput } from "./output/user.output";
-import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
+import { ApplicationResult } from "../../../core/result/application.result";
+import { WithMeta } from "../../../core/types/with-meta.type";
+import { CreateUserDtoCommand } from "../commands/user-dto.commands";
+import { UserOutput } from "../output/user.output";
+import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
 import {
   NotFoundError,
   ValidationError,
-} from "../../core/errors/application.error";
-import { IUsersService } from "users/interfaces/IUsersService";
+} from "../../../core/errors/application.error";
+import { IUsersService } from "users/application/interfaces/users-service.interface";
 import { DiTypes } from "@core/di/types";
-import { IUsersRepository } from "users/interfaces/IUsersRepository";
-import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
+import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
+import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
 import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
-import { UserDb } from "users/mongoose/user-schema.mongoose";
+import { UserDtoDomain } from "users/domain/value-objects/user-dto.domain";
+import { UserEntity } from "users/domain/entities/user.entity";
+import { UserMapper } from "users/domain/mappers/user.mapper";
 
 @injectable()
 export class UsersService implements IUsersService {
@@ -27,59 +29,51 @@ export class UsersService implements IUsersService {
 
   async createUser(
     command: WithMeta<CreateUserDtoCommand>
-  ): Promise<ApplicationResult<UserOutput>> {
-    const dto = command.payload;
-
-    const { email, password, login } = dto;
+  ): Promise<ApplicationResult<UserOutput | null>> {
+    const { email, password, login } = command.payload;
 
     // * Проверка уникальности login / email в BLL
     const existedUserByEmail = await this.usersQueryRepo.findByEmail(email);
 
-    if (existedUserByEmail)
-      throw new ValidationError("Email should be unique", "email", 422);
+    if (existedUserByEmail) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotAllowed,
+        data: null,
+        extensions: [
+          new ValidationError("Email should be unique", "email", 422),
+        ],
+      });
+    }
 
     const existedUserByLogin = await this.usersQueryRepo.findByLogin(login);
 
-    if (existedUserByLogin)
-      throw new ValidationError("Login should be unique", "login", 422);
+    if (existedUserByLogin) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotAllowed,
+        data: null,
+        extensions: [
+          new ValidationError("login should be unique", "login", 422),
+        ],
+      });
+    }
 
     // * Генерация хеша пароля
     const hash = await this.passwordHasher.generateHash(password);
 
-    const userDb: UserDb = {
+    // * DTO для доменной модели
+    const domainDto: UserDtoDomain = {
       login,
+      password: hash,
       email,
-      createdAt: new Date(),
-      passwordHash: hash,
-
-      emailConfirmation: {
-        confirmationCode: "",
-        expirationDate: null,
-        isConfirmed: true,
-      },
-
-      recoveryPasswordInfo: null,
     };
 
-    // // * DTO для доменной модели
-    // const domainDto: UserDtoDomain = {
-    //   login,
-    //   password: hash,
-    //   email,
-    // };
+    // * Создаем доменный обьект
+    const newUser = UserEntity.createAdminUser(domainDto);
 
-    // // * Создаем доменный обьект
-    // const newUser = UserDomain.createAdminUser(domainDto);
+    // * Сохраняем в репозитории
+    const createdUser = await this.usersRepo.createUser(newUser);
 
-    // // * Сохраняем в репозитории
-    const createdUser = await this.usersRepo.createUser(userDb);
-
-    const userOutput: UserOutput = {
-      id: createdUser._id!.toString(),
-      login: createdUser.login,
-      email: createdUser.email,
-      createdAt: createdUser.createdAt.toISOString(),
-    };
+    const userOutput = UserMapper.toViewModel(createdUser);
 
     // * Возвращаем id созданного пользователя
     return new ApplicationResult({

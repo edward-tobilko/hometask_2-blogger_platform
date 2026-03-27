@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { Types } from "mongoose";
 
 import { RepositoryNotFoundError } from "../../../core/errors/application.error";
-import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
+import { IBlogsRepository } from "blogs/application/interfaces/blogs-repo.interface";
 import { BlogLean, BlogModel } from "blogs/infrastructure/schemas/blog.schema";
 import { PostModel } from "posts/infrastructure/schemas/post.schema";
 import { BlogEntity } from "blogs/domain/entities/blog.entity";

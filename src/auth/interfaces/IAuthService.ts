@@ -1,8 +1,8 @@
 import { ApplicationResult } from "@core/result/application.result";
 import { WithMeta } from "@core/types/with-meta.type";
 import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.command";
-import { UserDomain } from "users/domain/user.domain";
-import { UserDb } from "users/mongoose/user-schema.mongoose";
+import { UserDomain } from "users/domain/entities/user.entity";
+import { UserDb } from "users/infrastructure/schemas/user-schema";
 
 export interface IAuthService {
   checkUserCredentials(

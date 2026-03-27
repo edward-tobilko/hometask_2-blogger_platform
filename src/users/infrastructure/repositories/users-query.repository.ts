@@ -1,16 +1,12 @@
 import { injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
-import { mapToUsersListOutput } from "../applications/mappers/users-list-domain-to-output.mapper";
-import { UsersListPaginatedOutput } from "../applications/output/users-list-paginated.output";
-import { GetUsersListQueryHandler } from "../applications/query-handlers/get-users-list.query-handler";
-import { UserOutput } from "../applications/output/user.output";
-import { mapToUserOutput } from "../applications/mappers/user-domain-to-output.mapper";
-import { IUsersQueryRepository } from "users/interfaces/IUsersQueryRepository";
-import {
-  UserModel,
-  UserReadModelType,
-} from "users/mongoose/user-schema.mongoose";
+import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
+import { UserOutput } from "users/application/output/user.output";
+import { UsersListPaginatedOutput } from "users/application/output/users-list-paginated.output";
+import { GetUsersListQueryHandler } from "users/application/query-handlers/get-users-list.query-handler";
+import { UserMapper } from "users/domain/mappers/user.mapper";
+import { UserModel, UserLean } from "users/infrastructure/schemas/user-schema";
 
 @injectable()
 export class UsersQueryRepository implements IUsersQueryRepository {
@@ -46,35 +42,38 @@ export class UsersQueryRepository implements IUsersQueryRepository {
       filter = {};
     }
 
-    const items = await UserModel.find(filter)
-      .sort({ [sortBy]: sortDirection })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .lean()
-      .exec();
+    const [usersDocument, totalCount] = await Promise.all([
+      UserModel.find(filter)
+        .sort({ [sortBy]: sortDirection })
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize)
+        .lean<UserLean[]>()
+        .exec(),
 
-    const totalCount = await UserModel.countDocuments(filter);
+      UserModel.countDocuments(filter),
+    ]);
 
-    const usersListOutput = mapToUsersListOutput(items, {
-      pageNumber,
-      pageSize,
-      totalCount,
-    });
+    const usersEntity = usersDocument.map((userDoc) =>
+      UserMapper.toDomain(userDoc)
+    );
 
-    return usersListOutput;
+    return UserMapper.toViewModelList(
+      { pageNumber, pageSize, totalCount },
+      usersEntity
+    );
   }
 
-  async findByLogin(login: string): Promise<UserReadModelType | null> {
+  async findByLogin(login: string): Promise<UserLean | null> {
     return await UserModel.findOne({ login }).lean().exec();
   }
 
-  async findByEmail(email: string): Promise<UserReadModelType | null> {
+  async findByEmail(email: string): Promise<UserLean | null> {
     return await UserModel.findOne({ email }).lean().exec();
   }
 
   async findUserByEmailAndNotConfirmCode(
     emailConfirmCode: string
-  ): Promise<UserReadModelType | null> {
+  ): Promise<UserLean | null> {
     const userAccount = await UserModel.findOne({
       "emailConfirmation.confirmationCode": emailConfirmCode,
     })
@@ -92,12 +91,10 @@ export class UsersQueryRepository implements IUsersQueryRepository {
 
     if (!user) return null;
 
-    return user ? mapToUserOutput(user) : null;
+    return user;
   }
 
-  async findUserByRecoveryCode(
-    recoveryCode: string
-  ): Promise<UserReadModelType | null> {
+  async findUserByRecoveryCode(recoveryCode: string): Promise<UserLean | null> {
     const document = await UserModel.findOne({
       "recoveryPasswordInfo.recoveryCode": recoveryCode,
     })

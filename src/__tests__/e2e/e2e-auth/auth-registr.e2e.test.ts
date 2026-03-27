@@ -7,10 +7,10 @@ import { routersPaths } from "@core/paths/paths";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
-import { UserDtoDomain } from "users/domain/user-dto.domain";
+import { UserDtoDomain } from "users/domain/value-objects/user-dto.domain";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";
-import { UserModel } from "users/mongoose/user-schema.mongoose";
+import { UserModel } from "users/infrastructure/schemas/user-schema";
 
 const testUserDto: UserDtoDomain = getUserDto();
 
