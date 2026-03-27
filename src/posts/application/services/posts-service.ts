@@ -9,7 +9,6 @@ import {
   ApplicationError,
   InternalServerError,
   NotFoundError,
-  RepositoryNotFoundError,
 } from "../../../core/errors/application.error";
 import { CreatePostDtoCommand } from "../commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "../commands/update-post-dto.command";
@@ -18,7 +17,6 @@ import { IPostCommentOutput } from "../output/post-comment.output";
 import { IPostsService } from "posts/application/interfaces/posts-service.interface";
 import { DiTypes } from "@core/di/types";
 import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
-import { IBlogsQueryRepository } from "blogs/application/interfaces/IBlogsQueryRepository";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { IPostsQueryRepo } from "../interfaces/posts-query-repo.interface";
 import { PostEntity } from "posts/domain/entities/post.entity";
@@ -26,13 +24,14 @@ import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 import { PostOutput } from "../output/post-type.output";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { LikeEntity } from "@core/domain/entities/like.entity";
+import { IBlogsRepository } from "blogs/application/interfaces/IBlogsRepository";
 
 @injectable()
 export class PostsService implements IPostsService {
   constructor(
     @inject(DiTypes.IPostsRepository) private postsRepository: IPostsRepo,
-    @inject(DiTypes.IBlogsQueryRepository)
-    private blogsQueryRepository: IBlogsQueryRepository,
+    @inject(DiTypes.IBlogsRepository)
+    private blogsRepository: IBlogsRepository,
     @inject(DiTypes.IPostsQueryRepository)
     private postsQueryRepository: IPostsQueryRepo,
     @inject(DiTypes.IUsersQueryService)
@@ -44,7 +43,8 @@ export class PostsService implements IPostsService {
   ): Promise<ApplicationResult<PostOutput | null>> {
     const dto = command.payload;
 
-    const blog = await this.blogsQueryRepository.findBlogById(dto.blogId);
+    // * write репозиторий возвращает Entity
+    const blog = await this.blogsRepository.findById(dto.blogId);
 
     if (!blog) {
       return new ApplicationResult({
@@ -54,32 +54,24 @@ export class PostsService implements IPostsService {
       });
     }
 
-    try {
-      const post = PostEntity.createPost({
-        title: dto.title,
-        shortDescription: dto.shortDescription,
-        content: dto.content,
-        blogId: dto.blogId,
+    const post = PostEntity.createPost({
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId: dto.blogId,
 
-        blogName: blog.name,
-      });
+      blogName: blog.name,
+    });
 
-      const savedPost = await this.postsRepository.createPost(post);
+    const savedPost = await this.postsRepository.createPost(post);
 
-      const viewModelPost = PostMapper.toViewModel(savedPost, LikeStatus.None);
+    const viewModelPost = PostMapper.toViewModel(savedPost, LikeStatus.None);
 
-      return new ApplicationResult({
-        status: ApplicationResultStatus.Success,
-        data: viewModelPost,
-        extensions: [],
-      });
-    } catch (error) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
-        data: null,
-        extensions: [new ApplicationError("Validation error", "post", 400)],
-      });
-    }
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: viewModelPost,
+      extensions: [],
+    });
   }
 
   async createPostComment(
@@ -87,7 +79,7 @@ export class PostsService implements IPostsService {
   ): Promise<ApplicationResult<IPostCommentOutput | null>> {
     const { postId, content, commentatorInfo } = command.payload;
 
-    const existingPost = await this.postsQueryRepository.getPostById(postId);
+    const existingPost = await this.postsRepository.findById(postId);
 
     if (!existingPost) {
       return new ApplicationResult({
@@ -97,64 +89,52 @@ export class PostsService implements IPostsService {
       });
     }
 
-    try {
-      const commentPost = PostCommentEntity.createCommentForPost({
-        content,
-        postId,
-        commentatorInfo: {
-          userId: commentatorInfo.userId,
-          userLogin: commentatorInfo.userLogin,
-        },
-      });
+    const commentPost = PostCommentEntity.createCommentForPost({
+      content,
+      postId,
+      commentatorInfo: {
+        userId: commentatorInfo.userId,
+        userLogin: commentatorInfo.userLogin,
+      },
+    });
 
-      const createdComment =
-        await this.postsRepository.createPostComment(commentPost);
+    const createdComment =
+      await this.postsRepository.createPostComment(commentPost);
 
-      if (!createdComment) {
-        return new ApplicationResult({
-          status: ApplicationResultStatus.NotFound,
-          data: null,
-          extensions: [
-            new NotFoundError("Comment is not found", "commentId", 404),
-          ],
-        });
-      }
-
-      if (!createdComment.id)
-        throw new RepositoryNotFoundError(
-          `Comment was not saved correctly: ${createdComment.id} is missing`
-        );
-
+    if (!createdComment) {
       return new ApplicationResult({
-        status: ApplicationResultStatus.Success,
-
-        data: {
-          id: createdComment.id.toString(),
-          content,
-
-          commentatorInfo: {
-            userId: createdComment.commentatorInfo.userId.toString(),
-            userLogin: createdComment.commentatorInfo.userLogin,
-          },
-
-          likesInfo: {
-            likesCount: createdComment.likesInfo.likesCount,
-            dislikesCount: createdComment.likesInfo.dislikesCount,
-            myStatus: LikeStatus.None,
-          },
-
-          createdAt: createdComment.createdAt!.toISOString(),
-        },
-
-        extensions: [],
-      });
-    } catch (error) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
+        status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [new ApplicationError("Validation error", "post", 400)],
+        extensions: [
+          new NotFoundError("Comment is not found", "commentId", 404),
+        ],
       });
     }
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+
+      // * ручной маппинг (просто для наглядности)
+      data: {
+        id: createdComment.id.toString(),
+        content,
+
+        commentatorInfo: {
+          userId: createdComment.commentatorInfo.userId.toString(),
+          userLogin: createdComment.commentatorInfo.userLogin,
+        },
+
+        likesInfo: {
+          likesCount: createdComment.likesInfo.likesCount,
+          dislikesCount: createdComment.likesInfo.dislikesCount,
+          myStatus: LikeStatus.None,
+        },
+
+        createdAt: createdComment.createdAt!.toISOString(),
+      },
+
+      extensions: [],
+    });
   }
 
   async updatePost(
@@ -162,7 +142,7 @@ export class PostsService implements IPostsService {
   ): Promise<ApplicationResult<null>> {
     const { id, blogId } = command.payload;
 
-    const existingPost = await this.postsQueryRepository.getPostById(id);
+    const existingPost = await this.postsRepository.findById(id);
 
     if (!existingPost) {
       return new ApplicationResult({
@@ -182,35 +162,25 @@ export class PostsService implements IPostsService {
       });
     }
 
-    try {
-      // * обновляем доменную сущность
-      existingPost.updatePost(command.payload);
+    // * обновляем доменную сущность
+    existingPost.updatePost(command.payload);
 
-      // * сохраняем изменения
-      const updatedPost = await this.postsRepository.updatePost(existingPost);
+    // * сохраняем изменения
+    const updatedPost = await this.postsRepository.updatePost(existingPost);
 
-      if (!updatedPost) {
-        return new ApplicationResult({
-          status: ApplicationResultStatus.NotFound,
-          data: null,
-          extensions: [new ApplicationError("Post is not found", "postId")],
-        });
-      }
-
+    if (!updatedPost) {
       return new ApplicationResult({
-        status: ApplicationResultStatus.Success,
+        status: ApplicationResultStatus.NotFound,
         data: null,
-        extensions: [],
-      });
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Validation error";
-      return new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
-        data: null,
-        extensions: [new ApplicationError(message, "post", 400)],
+        extensions: [new ApplicationError("Post is not found", "postId")],
       });
     }
+
+    return new ApplicationResult({
+      status: ApplicationResultStatus.Success,
+      data: null,
+      extensions: [],
+    });
   }
 
   async deletePost(id: string): Promise<ApplicationResult<null>> {
@@ -247,7 +217,7 @@ export class PostsService implements IPostsService {
 
       await session.withTransaction(async () => {
         // * Получаем пост (проверяем существование)
-        const existingPost = await this.postsQueryRepository.getPostById(
+        const existingPost = await this.postsRepository.findById(
           domain.postId,
           session
         );
@@ -269,7 +239,7 @@ export class PostsService implements IPostsService {
           session
         );
 
-        const prevStatus = prevLike?.likeStatus || LikeStatus.None;
+        const prevStatus = prevLike?.likeStatus ?? LikeStatus.None;
 
         // * Если статус не изменился - ничего не делаем
         if (prevStatus === domain.likeStatus) {

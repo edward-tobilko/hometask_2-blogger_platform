@@ -109,29 +109,15 @@ export class BlogsQueryRepository implements IBlogsQueryRepository {
         userId: new Types.ObjectId(currentUserId),
       };
 
-      console.log("likes filter:", {
-        postId: { $in: postIds.map((id) => id.toString()) },
-        userId: currentUserId,
-      });
-
       // * достаем лайки конкретного юзера
       const likes = await PostLikeModel.find(filter)
         .lean<PostLikeLean[]>()
         .exec();
 
-      console.log("likes found:", likes);
-
       likes.forEach((like) => {
         userLikes.set(like.postId.toString(), like.likeStatus);
       });
-
-      console.log("userLikes map:", Array.from(userLikes.entries()));
     }
-
-    console.log(
-      "postEntity ids:",
-      postsEntity.map((p) => p.id.toString())
-    );
 
     return { postsEntity, userLikes, totalCount };
   }

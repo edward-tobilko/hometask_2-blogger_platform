@@ -34,14 +34,16 @@ export class PostsQueryRepository implements IPostsQueryRepo {
 
     const filter = {};
 
-    const postsDocs = await PostModel.find(filter)
-      .sort({ [sortBy]: sortDirection })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
-      .lean<PostLean[]>()
-      .exec();
+    const [postsDocs, totalCount] = await Promise.all([
+      PostModel.find(filter)
+        .sort({ [sortBy]: sortDirection })
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize)
+        .lean<PostLean[]>()
+        .exec(),
 
-    const totalCount = await PostModel.countDocuments(filter);
+      PostModel.countDocuments(filter),
+    ]);
 
     const postsEntity = postsDocs.map((postDoc) =>
       PostMapper.toDomain(postDoc)
@@ -69,21 +71,12 @@ export class PostsQueryRepository implements IPostsQueryRepo {
     return { postsEntity, userLikes, totalCount };
   }
 
-  async getPostById(
-    postId: string,
-    session?: ClientSession,
-    currentUserId?: string
-  ): Promise<PostEntity | null> {
+  async getPostById(postId: string): Promise<PostEntity | null> {
     if (!MongooseTypes.ObjectId.isValid(postId)) return null;
 
-    let postInstanceDoc = null;
-
-    if (currentUserId && MongooseTypes.ObjectId.isValid(currentUserId)) {
-      postInstanceDoc = await PostModel.findById(postId)
-        .session(session ?? null)
-        .lean<PostLean>()
-        .exec();
-    }
+    const postInstanceDoc = await PostModel.findById(postId)
+      .lean<PostLean>()
+      .exec();
 
     if (!postInstanceDoc) return null;
 

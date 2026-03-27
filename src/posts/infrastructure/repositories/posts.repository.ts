@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { ClientSession, Types } from "mongoose";
 
 import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
-import { PostModel } from "posts/infrastructure/schemas/post.schema";
+import { PostLean, PostModel } from "posts/infrastructure/schemas/post.schema";
 import { PostCommentsModel } from "posts/infrastructure/schemas/post-comments.schema";
 import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
@@ -12,6 +12,22 @@ import { PostLikeDocument, PostLikeModel } from "../schemas/post-like.schema";
 
 @injectable()
 export class PostsRepository implements IPostsRepo {
+  async findById(
+    postId: string,
+    session?: ClientSession
+  ): Promise<PostEntity | null> {
+    if (!Types.ObjectId.isValid(postId)) return null;
+
+    const postDocument = await PostModel.findById(postId)
+      .session(session ?? null)
+      .lean<PostLean>()
+      .exec();
+
+    if (!postDocument) return null;
+
+    return PostMapper.toDomain(postDocument);
+  }
+
   async createPost(domainPost: PostEntity): Promise<PostEntity> {
     // * получаем замапенный инстанс дб поста (для динамического смены БД: Mongo -> PostgreSQL)
     const postDb = PostMapper.toDb(domainPost);
@@ -47,6 +63,7 @@ export class PostsRepository implements IPostsRepo {
     await postCommentInstanceDoc.save();
 
     return PostCommentEntity.reconstitute({
+      // * ручной маппинг (просто для наглядности)
       id: postCommentInstanceDoc._id.toString(),
       content: postCommentInstanceDoc.content,
       postId: postCommentInstanceDoc.postId.toString(),
@@ -72,7 +89,10 @@ export class PostsRepository implements IPostsRepo {
 
     // * Обновляем только если blogId совпадает
     const updatedResult = await PostModel.updateOne(
-      { _id: postDb._id, blogId: new Types.ObjectId(postDb.blogId) },
+      {
+        _id: new Types.ObjectId(post.id),
+        blogId: new Types.ObjectId(postDb.blogId),
+      },
       {
         $set: {
           title: postDb.title,
@@ -85,7 +105,7 @@ export class PostsRepository implements IPostsRepo {
     // * Если post не обновлен
     if (updatedResult.matchedCount === 0) {
       // * Дополнительная проверка: существует ли post
-      await PostModel.exists({ _id: postDb._id }).exec();
+      await PostModel.exists({ _id: new Types.ObjectId(post.id) }).exec();
 
       // * Если поста нет - false
       return false;
@@ -107,13 +127,13 @@ export class PostsRepository implements IPostsRepo {
   async findPostLike(
     postId: string,
     userId: string,
-    session: ClientSession
+    session?: ClientSession
   ): Promise<PostLikeDocument | null> {
     const like = await PostLikeModel.findOne({
       postId: new Types.ObjectId(postId), // string -> ObjectId
       userId: new Types.ObjectId(userId), // string -> ObjectId
     })
-      .session(session)
+      .session(session ?? null)
       .exec();
 
     return like;
@@ -160,7 +180,7 @@ export class PostsRepository implements IPostsRepo {
       return;
     }
 
-    const update: any = {
+    const update: { $set: Record<string, unknown> } = {
       $set: {
         likeStatus: domain.likeStatus,
         login: domain.login,

@@ -13,13 +13,15 @@ import { GetPostCommentsListQueryHandler } from "../query-handlers/get-post-comm
 import { LikeStatus } from "@core/types/like-status.enum";
 import { PostMapper } from "posts/domain/mappers/post.mapper";
 import { PostOutput } from "../output/post-type.output";
-import { ClientSession } from "mongoose";
+import { IPostsRepo } from "../interfaces/posts-repo.interface";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {
   constructor(
     @inject(DiTypes.IPostsQueryRepository)
-    private postsQueryRepository: IPostsQueryRepo
+    private postsQueryRepository: IPostsQueryRepo,
+
+    @inject(DiTypes.IPostsRepository) private postsRepo: IPostsRepo
   ) {}
 
   async getPostsList(
@@ -38,12 +40,10 @@ export class PostQueryService implements IPostsQueryService {
 
   async getPostById(
     postId: string,
-    session?: ClientSession,
     currentUserId?: string
   ): Promise<ApplicationResult<PostOutput | null>> {
     const post = await this.postsQueryRepository.getPostById(
       postId,
-      session,
       currentUserId
     );
 
@@ -55,7 +55,16 @@ export class PostQueryService implements IPostsQueryService {
       });
     }
 
-    const postOutput = PostMapper.toViewModel(post, LikeStatus.None);
+    let myStatus = LikeStatus.None;
+
+    if (currentUserId) {
+      // * лайк конкретного юзера
+      const like = await this.postsRepo.findPostLike(postId, currentUserId);
+
+      myStatus = like?.likeStatus ?? LikeStatus.None;
+    }
+
+    const postOutput = PostMapper.toViewModel(post, myStatus);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

@@ -6,6 +6,7 @@ import { PostEntity } from "posts/domain/entities/post.entity";
 import { PostLikeDocument } from "posts/infrastructure/schemas/post-like.schema";
 
 export interface IPostsRepo {
+  findById(postId: string, session?: ClientSession): Promise<PostEntity | null>;
   createPost(newPost: PostEntity): Promise<PostEntity>;
 
   createPostComment(
@@ -19,7 +20,7 @@ export interface IPostsRepo {
   findPostLike(
     postId: string,
     userId: string,
-    session: ClientSession
+    session?: ClientSession
   ): Promise<PostLikeDocument | null>;
 
   updateLikeCounters(

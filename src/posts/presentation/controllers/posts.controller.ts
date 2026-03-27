@@ -36,54 +36,35 @@ export class PostsController {
   ) {}
 
   // * arrow-handler, что бы не биндить в роутере
-  getPostsListHandler = async (
-    req: Request<{}, {}, {}, {}>,
-    res: Response,
-    next: NextFunction
+  updatePostLikeStatusHandler = async (
+    req: Request<{ postId: string }>,
+    res: Response
   ) => {
     try {
-      // * Если optionalJwtAccessGuard прошел → userId уже есть
-      const currentUserId = req.user?.id;
-
-      const sanitizedQueryParam = matchedData<PostsListRP>(req, {
-        locations: ["query"],
-        includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
+      const sanitizedBody = matchedData<{ likeStatus: string }>(req, {
+        locations: ["body"],
+        includeOptionals: false,
       });
 
-      const queryParam =
-        setDefaultSortAndPaginationIfNotExist<PostSortFieldRP>(
-          sanitizedQueryParam
-        );
-
-      const postsListOutput = await this.postQueryService.getPostsList(
-        queryParam,
-        currentUserId // * Передаем userId для вычисления myStatus
-      );
-
-      res.status(HTTP_STATUS_CODES.OK_200).json(postsListOutput);
-    } catch (error: unknown) {
-      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-        errorsMessages: [
-          { message: "Internal Server Error", field: "query params" },
-        ],
+      const command = createCommand<{
+        postId: string;
+        userId: string;
+        likeStatus: LikeStatus;
+      }>({
+        postId: req.params.postId,
+        userId: req.user.id, // берем с access token
+        likeStatus: sanitizedBody.likeStatus as LikeStatus,
       });
 
-      next(error);
-    }
-  };
+      const result = await this.postsService.upsertPostLike(command.payload);
 
-  getPostHandler = async (req: Request<{ id: string }>, res: Response) => {
-    try {
-      const currentUserId = req.user?.id;
+      if (!result.isSuccess()) {
+        return res
+          .status(mapApplicationStatusToHttpStatus(result.status))
+          .json({ errorsMessages: result.extensions });
+      }
 
-      const post = await this.postQueryService.getPostById(
-        req.params.id,
-        currentUserId
-      );
-
-      if (!post) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
-
-      res.status(HTTP_STATUS_CODES.OK_200).json(post);
+      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
     } catch (error: unknown) {
       console.log("ERROR HANDLER:", error);
 
@@ -92,7 +73,7 @@ export class PostsController {
   };
 
   getPostCommentsHandler = async (
-    req: Request<{ postId: string }, {}, GetPostCommentsListQueryHandler, {}>,
+    req: Request<{ postId: string }>,
     res: Response
   ) => {
     try {
@@ -139,33 +120,8 @@ export class PostsController {
     }
   };
 
-  createPostHandler = async (
-    req: Request<{}, {}, CreatePostRP, {}>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const sanitizedBodyParam = matchedData<CreatePostRP>(req, {
-        locations: ["body"],
-        includeOptionals: false,
-      });
-
-      const command = createCommand<CreatePostDtoCommand>(sanitizedBodyParam);
-
-      const postOutput = await this.postsService.createPost(command);
-
-      res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
-    } catch (error: unknown) {
-      console.log("ERROR HANDLER:", error);
-
-      res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
-
-      next(error);
-    }
-  };
-
   createCommentHandler = async (
-    req: Request<{ postId: string }, {}, CreatePostCommentRP, {}>,
+    req: Request<{ postId: string }>,
     res: Response
   ) => {
     try {
@@ -194,7 +150,7 @@ export class PostsController {
           userLogin: userId.login,
         },
 
-        createdAt: new Date(),
+        // createdAt: new Date(), // added from PostCommentEntity
       };
 
       const command = createCommand(payload);
@@ -216,19 +172,87 @@ export class PostsController {
     }
   };
 
-  deletePostHandler = async (req: Request<{ id: string }>, res: Response) => {
+  getPostsListHandler = async (
+    req: Request<{}, {}, {}, {}>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const id = req.params.id;
+      // * Если optionalJwtAccessGuard прошел → userId уже есть
+      const currentUserId = req.user?.id;
 
-      const result = await this.postsService.deletePost(id);
+      const sanitizedQueryParam = matchedData<PostsListRP>(req, {
+        locations: ["query"],
+        includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
+      });
 
-      if (!result.isSuccess()) {
+      const queryParam =
+        setDefaultSortAndPaginationIfNotExist<PostSortFieldRP>(
+          sanitizedQueryParam
+        );
+
+      const postsListOutput = await this.postQueryService.getPostsList(
+        queryParam,
+        currentUserId // * Передаем userId для вычисления myStatus
+      );
+
+      res.status(HTTP_STATUS_CODES.OK_200).json(postsListOutput);
+    } catch (error: unknown) {
+      res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
+        errorsMessages: [
+          { message: "Internal Server Error", field: "query params" },
+        ],
+      });
+
+      next(error);
+    }
+  };
+
+  createPostHandler = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const sanitizedBodyParam = matchedData<CreatePostRP>(req, {
+        locations: ["body"],
+        includeOptionals: false,
+      });
+
+      const command = createCommand<CreatePostDtoCommand>(sanitizedBodyParam);
+
+      const postOutput = await this.postsService.createPost(command);
+
+      if (!postOutput.isSuccess()) {
         return res
-          .status(mapApplicationStatusToHttpStatus(result.status))
-          .json({ errorsMessages: result.extensions });
+          .status(mapApplicationStatusToHttpStatus(postOutput.status))
+          .json({ errorsMessages: postOutput.extensions });
       }
 
-      res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
+      res.status(HTTP_STATUS_CODES.CREATED_201).json(postOutput.data);
+    } catch (error: unknown) {
+      console.log("ERROR HANDLER:", error);
+
+      res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
+
+      next(error);
+    }
+  };
+
+  getPostHandler = async (req: Request<{ id: string }>, res: Response) => {
+    try {
+      const currentUserId = req.user?.id;
+      const id = req.params.id;
+
+      const post = await this.postQueryService.getPostById(id, currentUserId);
+
+      if (!post.isSuccess()) {
+        return res
+          .status(mapApplicationStatusToHttpStatus(post.status))
+          .json({ errorsMessages: post.extensions });
+      }
+
+      res.status(HTTP_STATUS_CODES.OK_200).json(post);
     } catch (error: unknown) {
       console.log("ERROR HANDLER:", error);
 
@@ -236,14 +260,11 @@ export class PostsController {
     }
   };
 
-  updatePostHandler = async (
-    req: Request<{ id: string }, {}, UpdatePostRP, {}>,
-    res: Response
-  ) => {
+  updatePostHandler = async (req: Request<{ id: string }>, res: Response) => {
     try {
       const sanitizedBody = matchedData<UpdatePostRP>(req, {
         locations: ["body"],
-        includeOptionals: true,
+        includeOptionals: false,
       });
 
       const command = createCommand<UpdatePostDtoCommand>({
@@ -267,27 +288,11 @@ export class PostsController {
     }
   };
 
-  updatePostLikeStatusHandler = async (
-    req: Request<{ postId: string }, {}, { likeStatus: string }, {}>,
-    res: Response
-  ) => {
+  deletePostHandler = async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const sanitizedBody = matchedData<{ likeStatus: string }>(req, {
-        locations: ["body"],
-        includeOptionals: false,
-      });
+      const id = req.params.id;
 
-      const command = createCommand<{
-        postId: string;
-        userId: string;
-        likeStatus: LikeStatus;
-      }>({
-        postId: req.params.postId,
-        userId: req.user.id, // берем с access token
-        likeStatus: sanitizedBody.likeStatus as LikeStatus,
-      });
-
-      const result = await this.postsService.upsertPostLike(command.payload);
+      const result = await this.postsService.deletePost(id);
 
       if (!result.isSuccess()) {
         return res

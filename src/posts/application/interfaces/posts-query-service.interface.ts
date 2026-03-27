@@ -1,5 +1,3 @@
-import { ClientSession } from "mongoose";
-
 import { ApplicationResult } from "@core/result/application.result";
 import { PostCommentsListPaginatedOutput } from "posts/application/output/post-comments-list-type.output";
 import { PostsListPaginatedOutput } from "posts/application/output/posts-list-type.output";
@@ -15,7 +13,6 @@ export interface IPostsQueryService {
 
   getPostById(
     postId: string,
-    session?: ClientSession,
     currentUserId?: string
   ): Promise<ApplicationResult<PostOutput | null>>;
 

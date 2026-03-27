@@ -18,7 +18,6 @@ export interface IPostsQueryRepo {
 
   getPostById(
     postId: string,
-    session?: ClientSession,
     currentUserId?: string
   ): Promise<PostEntity | null>;
 
