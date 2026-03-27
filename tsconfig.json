@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "rootDir": "src",
-    "types": ["jest", "node", "reflect-metadata"],
+    "types": ["jest", "node", "reflect-metadata", "pino"],
 
     "strict": true,
     "skipLibCheck": true,
