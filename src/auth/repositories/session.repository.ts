@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { ISessionRepository } from "auth/interfaces/ISessionRepository";
+import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
 import { SessionDb, SessionModel } from "auth/mongoose/auth-schema.mongoose";
 
 @injectable()

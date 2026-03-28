@@ -3,34 +3,21 @@ import { add } from "date-fns";
 import { inject, injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
-import { WithMeta } from "../../core/types/with-meta.type";
-import { LoginAuthDtoCommand } from "./commands/login-auth-dto.command";
-import { ApplicationResult } from "../../core/result/application.result";
-import { UserEntity } from "../../users/domain/entities/user.entity";
-import { ApplicationResultStatus } from "../../core/result/types/application-result-status.enum";
-import {
-  ApplicationError,
-  BadRequest,
-  NotFoundError,
-  UnauthorizedError,
-} from "../../core/errors/application.error";
 import { emailExamples } from "auth/adapters/email-examples.adapter";
 import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
 import { getSessionExpirationDate } from "auth/helpers/get-session-expire-date.helper";
-import { IAuthService } from "auth/interfaces/IAuthService";
+import { IAuthService } from "auth/application/interfaces/auth-service.interface";
 import { DiTypes } from "@core/di/types";
 import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
-import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
-import { ISessionRepository } from "auth/interfaces/ISessionRepository";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
-import { IJWTService } from "auth/interfaces/IJWTService";
+import { IPasswordHasher } from "auth/application/interfaces/password-hasher.interface";
+import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
-import { INodeMailerService } from "auth/interfaces/INodeMailerService";
-import {
-  UserDb,
-  UserReadModelType,
-} from "users/infrastructure/schemas/user-schema";
+import { INodeMailerService } from "auth/application/interfaces/node-mailer-service.interface";
+import { UserDb } from "users/infrastructure/schemas/user-schema";
 import { appConfig } from "@core/settings/config";
+import { WithMeta } from "@core/types/with-meta.type";
 
 @injectable()
 export class AuthService implements IAuthService {

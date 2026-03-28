@@ -1,8 +1,9 @@
-import { FieldsOnly } from "../../core/types/fields-only.type";
+import { randomUUID } from "crypto";
 
-// * BLL - SessionDomain - бизнес модель
-export class SessionDomain {
-  id?: string;
+import { FieldsOnly } from "../../../core/types/fields-only.type";
+
+type SessionEntityProp = {
+  id: string;
 
   login: string;
 
@@ -17,20 +18,15 @@ export class SessionDomain {
   createdAt: Date;
 
   refreshIat: number; // проверяет, последний ли был выданий токен
+};
 
-  constructor(dto: FieldsOnly<SessionDomain>) {
-    this.userId = dto.userId;
-    this.login = dto.login;
-    this.deviceId = dto.deviceId;
-    this.sessionId = dto.sessionId;
-    this.ip = dto.ip;
-    this.userDeviceName = dto.userDeviceName;
+// * BLL - SessionDomain - бизнес модель
+export class SessionEntity {
+  private constructor(private props: FieldsOnly<SessionEntityProp>) {}
 
-    this.lastActiveDate = dto.lastActiveDate;
-    this.expiresAt = dto.expiresAt;
-    this.createdAt = dto.createdAt;
-
-    this.refreshIat = dto.refreshIat;
+  // * Getters
+  get id() {
+    return this.props.id;
   }
 
   static saveMe(dto: {
@@ -42,8 +38,9 @@ export class SessionDomain {
     userDeviceName: string;
     expiresAt: Date;
     refreshIat: number;
-  }): SessionDomain {
-    return new SessionDomain({
+  }): SessionEntity {
+    return new SessionEntity({
+      id: randomUUID(),
       userId: dto.userId,
       login: dto.login,
 

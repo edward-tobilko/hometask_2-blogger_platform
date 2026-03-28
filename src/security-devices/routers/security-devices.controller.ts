@@ -6,8 +6,8 @@ import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { DiTypes } from "@core/di/types";
-import { IJWTService } from "auth/interfaces/IJWTService";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecurityDevicesQueryService";
 import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDevicesService";
 import { ApplicationError } from "@core/errors/application.error";

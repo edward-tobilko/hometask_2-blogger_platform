@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { injectable } from "inversify";
 import crypto from "crypto";
 
-import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
+import { IPasswordHasher } from "auth/application/interfaces/password-hasher.interface";
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS ?? 10);
 

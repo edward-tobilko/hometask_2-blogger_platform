@@ -6,7 +6,7 @@ import { ApplicationResultStatus } from "@core/result/types/application-result-s
 import { DiTypes } from "@core/di/types";
 import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDevicesService";
 import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 
 @injectable()
 export class SecurityDevicesService implements ISecurityDevicesService {

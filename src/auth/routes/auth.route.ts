@@ -8,9 +8,9 @@ import { registrationAuthRPValidation } from "./request-payload-validations/regi
 import { AuthController } from "./auth.controller";
 import { customRateLimiterMiddleware } from "@core/middlewares/custom-rate-limiter.middleware";
 import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
-import { IJWTService } from "auth/interfaces/IJWTService";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { newPasswordRPV } from "./request-payload-validations/new-password.rpv";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 
 export const createAuthRouter = (
   customRateLimitRepo: ICustomRateLimit,

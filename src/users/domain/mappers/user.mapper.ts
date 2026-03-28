@@ -35,12 +35,7 @@ export class UserMapper {
         isConfirmed: entity.emailConfirmation.isConfirmed,
       },
 
-      recoveryPasswordInfo: {
-        recoveryCode:
-          entity.recoveryPasswordInfo?.recoveryCode ?? "recoveryCode",
-        expirationDate:
-          entity.recoveryPasswordInfo?.expirationDate ?? new Date(),
-      },
+      recoveryPasswordInfo: entity.recoveryPasswordInfo ?? null,
     };
   }
 

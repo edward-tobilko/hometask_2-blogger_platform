@@ -12,7 +12,7 @@ import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-s
 import { BlogsController } from "../controllers/blogs.controller";
 import { baseAuthGuard } from "auth/api/guards/base-auth.guard";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
-import { IJWTService } from "auth/interfaces/IJWTService";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 
 export const createBlogsRouter = (
   blogsController: BlogsController,

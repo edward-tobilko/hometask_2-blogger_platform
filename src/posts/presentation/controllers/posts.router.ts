@@ -17,10 +17,10 @@ import { createCommentDtoRPValidation } from "../request-payload-validations/cre
 import { PostsController } from "./posts.controller";
 import { createPostBodyInputRPValidation } from "../request-payload-validations/post-input-dto-validation.middleware";
 import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
-import { IJWTService } from "auth/interfaces/IJWTService";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 
 export const createPostsRouter = (
   postsController: PostsController,

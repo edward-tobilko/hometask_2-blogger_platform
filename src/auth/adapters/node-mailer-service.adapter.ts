@@ -3,7 +3,7 @@ import { log } from "console";
 import { injectable } from "inversify";
 
 import { appConfig } from "@core/settings/config";
-import { INodeMailerService } from "auth/interfaces/INodeMailerService";
+import { INodeMailerService } from "auth/application/interfaces/node-mailer-service.interface";
 
 let transporter = nodemailer.createTransport({
   // host: appConfig.SMTP_HOST,

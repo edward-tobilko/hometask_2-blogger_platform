@@ -1,4 +1,3 @@
-import { USERS_COLLECTION_NAME } from "db/collection-names.db";
 import {
   HydratedDocument,
   Schema,
@@ -6,6 +5,7 @@ import {
   Types as MongooseTypes,
 } from "mongoose";
 
+import { USERS_COLLECTION_NAME } from "db/collection-names.db";
 import { IRecoveryPasswordInfo } from "users/application/interfaces/users-repo.interface";
 
 // * Date base type

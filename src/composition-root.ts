@@ -5,10 +5,10 @@ import { SecurityDevicesController } from "security-devices/routers/security-dev
 import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
 import { container } from "@core/di/inversify.config";
 import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
-import { IJWTService } from "auth/interfaces/IJWTService";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { CommentsController } from "comments/presentation/controllers/comments.controller";
 import { BlogsController } from "blogs/presentation/controllers/blogs.controller";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 import { UsersController } from "users/presentation/controllers/users-controller";
 
 let inited = false;

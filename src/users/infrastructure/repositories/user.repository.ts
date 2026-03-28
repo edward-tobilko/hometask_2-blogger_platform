@@ -6,22 +6,21 @@ import {
   IRecoveryPasswordInfo,
   IUsersRepository,
 } from "users/application/interfaces/users-repo.interface";
-import {
-  UserDb,
-  UserDocument,
-  UserModel,
-} from "users/infrastructure/schemas/user-schema";
+import { UserModel } from "users/infrastructure/schemas/user-schema";
+import { UserEntity } from "users/domain/entities/user.entity";
+import { UserMapper } from "users/domain/mappers/user.mapper";
 
 @injectable()
 export class UsersRepository implements IUsersRepository {
-  async createUser(user: UserDb): Promise<UserDocument> {
+  async createUser(userEntity: UserEntity): Promise<UserEntity> {
     // * Создаем экземпляр модели юзера и передаем ему объект user, для того что бы передать модели наши поля, которые нам нужны (обязательно все, так как монгус по валидации потом не пропустит).
-    const userDocument = new UserModel(user);
+    const userDb = UserMapper.toDb(userEntity);
+    const userDocument = new UserModel(userDb);
 
     // * Сохраняем с пом. meta методом mongoose нашь екземпляр
     await userDocument.save();
 
-    return userDocument;
+    return UserMapper.toDomain(userDocument);
   }
 
   async deleteUser(id: string): Promise<boolean> {

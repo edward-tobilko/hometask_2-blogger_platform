@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 import { SessionLean, SessionModel } from "auth/mongoose/auth-schema.mongoose";
 
 @injectable()

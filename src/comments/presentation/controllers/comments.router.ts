@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { updateCommentContentRPValidation } from "../request-payload-validations/update-comment-content.rpv";
-import { IJWTService } from "auth/interfaces/IJWTService";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { updateCommentLikeStatusRPValidation } from "../request-payload-validations/update-comment-likeStatus.rpv";
 import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
 import { CommentsController } from "./comments.controller";
@@ -11,7 +11,7 @@ import {
 } from "@core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "@core/middlewares/validation/input-result.middleware-validation";
 import { jwtAccessAuthGuard } from "auth/api/guards/jwt-access-auth.guard";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 
 export const createCommentsRouter = (
   commentsController: CommentsController,

@@ -91,7 +91,9 @@ export class UsersQueryRepository implements IUsersQueryRepository {
 
     if (!user) return null;
 
-    return user;
+    const userDomain = UserMapper.toDomain(user);
+
+    return UserMapper.toViewModel(userDomain);
   }
 
   async findUserByRecoveryCode(recoveryCode: string): Promise<UserLean | null> {

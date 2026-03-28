@@ -13,10 +13,11 @@ import { IUsersService } from "users/application/interfaces/users-service.interf
 import { DiTypes } from "@core/di/types";
 import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
 import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
-import { IPasswordHasher } from "auth/interfaces/IPasswordHasher";
+import { IPasswordHasher } from "auth/application/interfaces/password-hasher.interface";
 import { UserDtoDomain } from "users/domain/value-objects/user-dto.domain";
 import { UserEntity } from "users/domain/entities/user.entity";
 import { UserMapper } from "users/domain/mappers/user.mapper";
+// import { log } from "logger";
 
 @injectable()
 export class UsersService implements IUsersService {
@@ -85,32 +86,22 @@ export class UsersService implements IUsersService {
 
   async deleteUser(
     command: WithMeta<{ id: string }>
-  ): Promise<ApplicationResult<boolean>> {
+  ): Promise<ApplicationResult<null>> {
     const id = command.payload.id;
-
-    const userId = await this.usersQueryRepo.findUserById(id);
-
-    if (!userId) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.NotFound,
-        data: false,
-        extensions: [new NotFoundError("User is not found!", "userId")],
-      });
-    }
 
     const deleted = await this.usersRepo.deleteUser(id);
 
     if (!deleted) {
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
-        data: false,
+        data: null,
         extensions: [new NotFoundError("Bad request", "userId")],
       });
     }
 
     return new ApplicationResult({
       status: ApplicationResultStatus.NoContent,
-      data: true,
+      data: null,
       extensions: [],
     });
   }

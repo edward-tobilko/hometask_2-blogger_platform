@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 
-import { UserDb, UserDocument } from "users/infrastructure/schemas/user-schema";
+import { UserEntity } from "users/domain/entities/user.entity";
 
 export interface IEmailConfirmationUpdate {
   confirmationCode: string;
@@ -14,7 +14,7 @@ export interface IRecoveryPasswordInfo {
 }
 
 export interface IUsersRepository {
-  createUser(user: UserDb): Promise<UserDocument>;
+  createUser(user: UserEntity): Promise<UserEntity>;
 
   deleteUser(id: string): Promise<boolean>;
 

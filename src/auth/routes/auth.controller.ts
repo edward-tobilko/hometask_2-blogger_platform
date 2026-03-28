@@ -13,10 +13,10 @@ import { AuthMeOutput } from "auth/application/output/auth-me.output";
 import { LoginAuthRP } from "./request-payload-types/login-auth.request-payload";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.command";
-import { IJWTService } from "auth/interfaces/IJWTService";
-import { IAuthService } from "auth/interfaces/IAuthService";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
+import { IAuthService } from "auth/application/interfaces/auth-service.interface";
 import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
-import { ISessionQueryRepo } from "auth/interfaces/ISessionQueryRepo";
+import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 import { NewPasswordRPT } from "./request-payload-types/new-password.rpt";
 import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 

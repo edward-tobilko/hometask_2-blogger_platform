@@ -56,24 +56,70 @@ export class UserEntity {
   }
 
   // * Factory validation methods
-  private static validateLogin(login: string) {
+  private static validateLogin(login: string): void {
     if (!login || login.trim().length === 0)
       throw new ValidationError("Login is required", "login", 400);
 
-    if (login.length > 10)
+    const normalizedLogin = login.trim();
+
+    if (normalizedLogin.length > 10)
       throw new ValidationError(
         "Login must not exceed 10 characters",
         "login",
         400
       );
 
-    if (login.length < 3)
+    if (normalizedLogin.length < 3)
       throw new ValidationError(
-        "Login must not exceed 3 characters",
+        "Login must be at least 3 characters",
         "login",
         400
       );
+
+    if (!login.match(/^[a-zA-Z0-9_-]*$/))
+      throw new ValidationError("Login must be valid!", "login", 400);
   }
+
+  private static validateEmail(email: string): void {
+    if (!email || email.trim().length === 0)
+      throw new ValidationError("Email is required", "email", 400);
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    if (!emailRegex.test(normalizedEmail))
+      throw new ValidationError("Email must be valid", "email", 400);
+  }
+
+  private static validatePasswordHash(passwordHash: string): void {
+    if (!passwordHash || passwordHash.trim().length === 0) {
+      throw new ValidationError("Password hash is required", "password", 400);
+    }
+  }
+
+  // private static validateEmailConfirmation(
+  //   emailConfirmation: UserEntityProps["emailConfirmation"]
+  // ): void {
+  //   if (!emailConfirmation.confirmationCode) {
+  //     throw new ValidationError(
+  //       "Confirmation code is required for unconfirmed user",
+  //       "confirmationCode",
+  //       400
+  //     );
+  //   }
+
+  //   if (!emailConfirmation.expirationDate) {
+  //     throw new ValidationError(
+  //       "Expiration date is required for unconfirmed user",
+  //       "expirationDate",
+  //       400
+  //     );
+  //   }
+
+  //   if (emailConfirmation.isConfirmed) {
+  //     return;
+  //   }
+  // }
 
   // * Factory methods
   static reconstitute(props: {
@@ -97,6 +143,8 @@ export class UserEntity {
 
   static createUser(dto: UserDtoDomain): UserEntity {
     UserEntity.validateLogin(dto.login);
+    UserEntity.validateEmail(dto.email);
+    UserEntity.validatePasswordHash(dto.password);
 
     return new UserEntity({
       id: randomUUID(),
@@ -121,6 +169,16 @@ export class UserEntity {
 
   // * для POST / users ( админ создал — сразу emailConfirmation -> isConfirmed = true )
   static createAdminUser(dto: UserDtoDomain): UserEntity {
+    const emailConfirmation = {
+      confirmationCode: "",
+      expirationDate: null,
+      isConfirmed: true,
+    };
+
+    UserEntity.validateLogin(dto.login);
+    UserEntity.validateEmail(dto.email);
+    UserEntity.validatePasswordHash(dto.password);
+
     return new UserEntity({
       id: randomUUID(),
       login: dto.login,
@@ -129,11 +187,7 @@ export class UserEntity {
 
       passwordHash: dto.password,
 
-      emailConfirmation: {
-        confirmationCode: "",
-        expirationDate: null,
-        isConfirmed: true,
-      },
+      emailConfirmation,
 
       recoveryPasswordInfo: null,
     });

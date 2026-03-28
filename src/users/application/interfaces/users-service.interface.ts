@@ -10,5 +10,5 @@ export interface IUsersService {
 
   deleteUser(
     command: WithMeta<{ id: string }>
-  ): Promise<ApplicationResult<boolean>>;
+  ): Promise<ApplicationResult<null>>;
 }
