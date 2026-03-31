@@ -12,11 +12,5 @@ export interface IUsersQueryRepository {
 
   findByEmail(email: string): Promise<UserLean | null>;
 
-  findUserByEmailAndNotConfirmCode(
-    emailConfirmCode: string
-  ): Promise<UserLean | null>;
-
   findUserById(userId: string): Promise<UserOutput | null>;
-
-  findUserByRecoveryCode(recoveryCode: string): Promise<UserLean | null>;
 }

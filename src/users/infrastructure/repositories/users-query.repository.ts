@@ -71,18 +71,6 @@ export class UsersQueryRepository implements IUsersQueryRepository {
     return await UserModel.findOne({ email }).lean().exec();
   }
 
-  async findUserByEmailAndNotConfirmCode(
-    emailConfirmCode: string
-  ): Promise<UserLean | null> {
-    const userAccount = await UserModel.findOne({
-      "emailConfirmation.confirmationCode": emailConfirmCode,
-    })
-      .lean()
-      .exec();
-
-    return userAccount;
-  }
-
   async findUserById(userId: string): Promise<UserOutput | null> {
     // * Проверяем, является ли ObjectId действительным
     if (!MongooseTypes.ObjectId.isValid(userId)) return null;
@@ -94,16 +82,6 @@ export class UsersQueryRepository implements IUsersQueryRepository {
     const userDomain = UserMapper.toDomain(user);
 
     return UserMapper.toViewModel(userDomain);
-  }
-
-  async findUserByRecoveryCode(recoveryCode: string): Promise<UserLean | null> {
-    const document = await UserModel.findOne({
-      "recoveryPasswordInfo.recoveryCode": recoveryCode,
-    })
-      .lean()
-      .exec();
-
-    return document;
   }
 }
 

@@ -2,11 +2,44 @@ import { injectable } from "inversify";
 import { Types } from "mongoose";
 
 import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
-import { SessionModel } from "auth/infrastructure/schemas/auth.schema";
+import {
+  SessionLean,
+  SessionModel,
+} from "auth/infrastructure/schemas/auth.schema";
 import { SessionEntity } from "auth/domain/entities/session.entity";
+import { SessionMapper } from "auth/domain/mappers/session.mapper";
 
 @injectable()
 export class SessionRepository implements ISessionRepository {
+  async findBySessionId(sessionId: string): Promise<SessionEntity | null> {
+    const sessionDocument = await SessionModel.findOne({ sessionId })
+      .lean<SessionLean>()
+      .exec();
+
+    if (!sessionDocument) return null;
+
+    return SessionMapper.toDomain(sessionDocument);
+  }
+
+  async findByDeviceId(
+    deviceId: string,
+    userId?: string
+  ): Promise<SessionEntity | null> {
+    const filter: { deviceId: string; userId?: Types.ObjectId } = { deviceId };
+
+    if (userId) {
+      filter.userId = new Types.ObjectId(userId);
+    }
+
+    const sessionDoc = await SessionModel.findOne(filter)
+      .lean<SessionLean>()
+      .exec();
+
+    if (!sessionDoc) return null;
+
+    return SessionMapper.toDomain(sessionDoc);
+  }
+
   async upsertLoginSession(session: SessionEntity): Promise<void> {
     await SessionModel.updateOne(
       {

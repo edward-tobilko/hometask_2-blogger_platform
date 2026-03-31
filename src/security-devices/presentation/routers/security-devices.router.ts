@@ -2,16 +2,22 @@ import { Router } from "express";
 import { param } from "express-validator";
 
 import { inputResultMiddlewareValidation } from "@core/middlewares/validation/input-result.middleware-validation";
-import { SecurityDevicesController } from "./security-devices.controller";
+import { SecurityDevicesController } from "../controllers/security-devices.controller";
+import { jwtRefreshAuthGuard } from "auth/presentation/guards/jwt-refresh-auth.guard";
+import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
+import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
 
 export const createSecurityDevicesRouter = (
-  securityDevicesController: SecurityDevicesController
+  securityDevicesController: SecurityDevicesController,
+  jwtService: IJWTService,
+  sessionRepo: ISessionRepository
 ) => {
   const securityDevicesRouter = Router({});
 
   // * GET: Returns all devices with active sessions for current user.
   securityDevicesRouter.get(
     "",
+    jwtRefreshAuthGuard(jwtService, sessionRepo),
 
     securityDevicesController.getSecurityDevicesHandler.bind(
       securityDevicesController

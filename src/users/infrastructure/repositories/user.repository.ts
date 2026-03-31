@@ -1,17 +1,70 @@
 import { Types as MongooseTypes } from "mongoose";
 import { injectable } from "inversify";
 
-import {
-  IEmailConfirmationUpdate,
-  IRecoveryPasswordInfo,
-  IUsersRepository,
-} from "users/application/interfaces/users-repo.interface";
-import { UserModel } from "users/infrastructure/schemas/user-schema";
+import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
+import { UserLean, UserModel } from "users/infrastructure/schemas/user-schema";
 import { UserEntity } from "users/domain/entities/user.entity";
 import { UserMapper } from "users/domain/mappers/user.mapper";
 
 @injectable()
 export class UsersRepository implements IUsersRepository {
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    const userDocument = await UserModel.findOne({ email })
+      .lean<UserLean>()
+      .exec();
+
+    if (!userDocument) return null;
+
+    return UserMapper.toDomain(userDocument);
+  }
+
+  async findUserByRecoveryCode(
+    recoveryCode: string
+  ): Promise<UserEntity | null> {
+    const document = await UserModel.findOne({
+      "recoveryPasswordInfo.recoveryCode": recoveryCode,
+    })
+      .lean<UserLean>()
+      .exec();
+
+    if (!document) return null;
+
+    return UserMapper.toDomain(document);
+  }
+
+  async findUserByEmailAndNotConfirmCode(
+    emailConfirmCode: string
+  ): Promise<UserEntity | null> {
+    const userDoc = await UserModel.findOne({
+      "emailConfirmation.confirmationCode": emailConfirmCode,
+    })
+      .lean<UserLean>()
+      .exec();
+
+    if (!userDoc) return null;
+
+    return UserMapper.toDomain(userDoc);
+  }
+
+  async save(userEntity: UserEntity): Promise<void> {
+    await UserModel.updateOne(
+      { _id: new MongooseTypes.ObjectId(userEntity.id) },
+      {
+        $set: {
+          passwordHash: userEntity.passwordHash,
+          recoveryPasswordInfo: userEntity.recoveryPasswordInfo ?? null,
+
+          "emailConfirmation.isConfirmed":
+            userEntity.emailConfirmation.isConfirmed,
+          "emailConfirmation.confirmationCode":
+            userEntity.emailConfirmation.confirmationCode,
+          "emailConfirmation.expirationDate":
+            userEntity.emailConfirmation.expirationDate,
+        },
+      }
+    ).exec();
+  }
+
   async createUser(userEntity: UserEntity): Promise<UserEntity> {
     // * Создаем экземпляр модели юзера и передаем ему объект user, для того что бы передать модели наши поля, которые нам нужны (обязательно все, так как монгус по валидации потом не пропустит).
     const userDb = UserMapper.toDb(userEntity);
@@ -30,75 +83,5 @@ export class UsersRepository implements IUsersRepository {
     const isDeleted = await UserModel.deleteOne({ _id: id });
 
     return isDeleted.deletedCount === 1;
-  }
-
-  async updateEmailUserConfirmationStatus(
-    userId: MongooseTypes.ObjectId
-  ): Promise<boolean> {
-    const result = await UserModel.updateOne(
-      { _id: userId },
-
-      {
-        $set: {
-          "emailConfirmation.isConfirmed": true,
-        },
-      }
-    );
-
-    return result.matchedCount === 1;
-  }
-
-  async updateEmailUserConfirmation(
-    userId: MongooseTypes.ObjectId,
-    emailConfirmation: IEmailConfirmationUpdate
-  ): Promise<boolean> {
-    const result = await UserModel.updateOne(
-      { _id: userId },
-
-      {
-        $set: {
-          "emailConfirmation.confirmationCode":
-            emailConfirmation.confirmationCode,
-          "emailConfirmation.expirationDate": emailConfirmation.expirationDate,
-          // "emailConfirmation.isConfirmed": true,
-        },
-      }
-    );
-
-    return result.matchedCount === 1;
-  }
-
-  async sendRecoveryPasswordEmail(
-    userId: MongooseTypes.ObjectId,
-    emailRecoveryInfo: IRecoveryPasswordInfo
-  ): Promise<void> {
-    await UserModel.updateOne(
-      { _id: userId },
-
-      {
-        $set: {
-          recoveryPasswordInfo: {
-            recoveryCode: emailRecoveryInfo.recoveryCode,
-            expirationDate: emailRecoveryInfo.expirationDate,
-          },
-        },
-      }
-    );
-  }
-
-  async updatePasswordAndClearRecovery(
-    userId: MongooseTypes.ObjectId,
-    newHash: string
-  ): Promise<boolean> {
-    const result = await UserModel.updateOne(
-      { _id: userId },
-
-      {
-        $set: { passwordHash: newHash },
-        $unset: { recoveryPasswordInfo: "" }, // field "recoveryPasswordInfo" from UserDomain - затираем его после установки нового пароля
-      }
-    );
-
-    return result.matchedCount === 1;
   }
 }

@@ -1,28 +1,29 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { mapSessionToSecurityDevicesListOutput } from "security-devices/applications/mappers/map-session-to-security-devices-list.mapper";
 import { SecurityDevicesListOutput } from "security-devices/applications/output/security-devices-type.output";
-import { ISecurityDevicesQueryRepo } from "security-devices/interfaces/ISecurityDevicesQueryRepo";
+import { ISecurityDevicesQueryRepo } from "security-devices/applications/interfaces/security-devices-query-repo.interface";
 import {
   SessionLean,
   SessionModel,
 } from "auth/infrastructure/schemas/auth.schema";
+import { SecurityDevicesMapper } from "security-devices/domain/mappers/security-devices.mapper";
 
 @injectable()
 export class SecurityDevicesQueryRepo implements ISecurityDevicesQueryRepo {
   async findAllSecurityDevicesByUserId(
     userId: string
-  ): Promise<SecurityDevicesListOutput> {
+  ): Promise<SecurityDevicesListOutput | null> {
     const sessionsByUserId = await SessionModel.find({
       userId: new Types.ObjectId(userId),
     })
       .lean<SessionLean[]>()
       .exec();
 
-    const securityDevicesListOutput =
-      mapSessionToSecurityDevicesListOutput(sessionsByUserId);
+    if (!sessionsByUserId) return null;
 
-    return securityDevicesListOutput;
+    return SecurityDevicesMapper.mapSessionToSecurityDevicesListOutput(
+      sessionsByUserId
+    );
   }
 }

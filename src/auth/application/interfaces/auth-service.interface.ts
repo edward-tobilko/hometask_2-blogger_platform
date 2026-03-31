@@ -28,21 +28,18 @@ export interface IAuthService {
 
   resendRegistrationEmail(email: string): Promise<ApplicationResult<null>>;
 
-  getRefreshTokens(
+  getRefreshToken(
     oldRefreshToken: string
   ): Promise<
     ApplicationResult<{ accessToken: string; refreshToken: string } | null>
   >;
 
-  logout(sessionId: string): Promise<ApplicationResult<boolean>>;
-
-  refreshTokens(oldRefreshToken: string): Promise<
-    ApplicationResult<{
-      userId: string;
-      newAccessToken: string;
-      newRefreshToken: string;
-    } | null>
-  >;
+  logout(payload: {
+    sessionId: string;
+    deviceId: string;
+    userId: string;
+    iat: number;
+  }): Promise<ApplicationResult<boolean>>;
 
   passwordRecovery(email: string): Promise<void>;
 

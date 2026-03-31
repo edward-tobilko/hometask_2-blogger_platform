@@ -3,5 +3,5 @@ import { SecurityDevicesListOutput } from "security-devices/applications/output/
 export interface ISecurityDevicesQueryRepo {
   findAllSecurityDevicesByUserId(
     userId: string
-  ): Promise<SecurityDevicesListOutput>;
+  ): Promise<SecurityDevicesListOutput | null>;
 }

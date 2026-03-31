@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { injectable } from "inversify";
 
-import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
+import { ISecurityDevicesRepo } from "security-devices/applications/interfaces/security-devices-repo.interface";
 import { SessionModel } from "auth/infrastructure/schemas/auth.schema";
 
 @injectable()

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { matchedData } from "express-validator";
-import { log } from "node:console";
 
 import { DiTypes } from "@core/di/types";
 import { ApplicationError } from "@core/errors/application.error";
@@ -16,7 +15,6 @@ import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.co
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { IAuthService } from "auth/application/interfaces/auth-service.interface";
 import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
-import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 import { NewPasswordRP } from "../request-payload-types/new-password.request-payload-type";
 import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 
@@ -26,8 +24,6 @@ export class AuthController {
     @inject(DiTypes.IAuthService) private authService: IAuthService,
     @inject(DiTypes.IUsersQueryService)
     private usersQueryService: IUsersQueryService,
-    @inject(DiTypes.ISessionQueryRepo)
-    private sessionQueryRepo: ISessionQueryRepo,
     @inject(DiTypes.IJWTService) private jwtService: IJWTService
   ) {}
 
@@ -103,8 +99,6 @@ export class AuthController {
         recoveryCode
       );
 
-      log("result", result);
-
       if (result.status !== ApplicationResultStatus.NoContent) {
         return res
           .status(mapApplicationStatusToHttpStatus(result.status))
@@ -127,10 +121,11 @@ export class AuthController {
   async refreshTokenHandler(req: Request, res: Response) {
     try {
       const oldRefreshTokenFromCookie = req.cookies.refreshToken;
+
       if (!oldRefreshTokenFromCookie)
         return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-      const result = await this.authService.getRefreshTokens(
+      const result = await this.authService.getRefreshToken(
         oldRefreshTokenFromCookie
       );
 
@@ -144,8 +139,6 @@ export class AuthController {
         httpOnly: true,
         sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук (lax - выключено)
       });
-
-      log("refresh success ->", result.data);
 
       // * возвращаем новый accessToken
       res
@@ -256,22 +249,14 @@ export class AuthController {
         return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
       const payload = await this.jwtService.verifyRefreshToken(refreshToken);
+
       if (!payload) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
 
-      const { deviceId, userId, iat } = payload;
+      const result = await this.authService.logout(payload);
 
-      const session = await this.sessionQueryRepo.findByDeviceId(deviceId);
-      if (!session) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-
-      if (
-        session.userId.toString() !== userId ||
-        session.deviceId !== deviceId ||
-        session.refreshIat !== iat
-      ) {
-        return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+      if (!result.isSuccess()) {
+        return res.sendStatus(mapApplicationStatusToHttpStatus(result.status));
       }
-
-      await this.authService.logout(payload.sessionId);
 
       res.clearCookie("refreshToken");
       res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
@@ -285,49 +270,7 @@ export class AuthController {
   async getAuthMeHandler(req: Request, res: Response) {
     try {
       // * Если jwtAuthGuard прошел → userId уже есть
-      const userId = req.user?.id;
-
-      // * Если userId отсутствует → достаем refreshToken из cookie
-      if (!userId) {
-        const refreshToken = req.cookies.refreshToken;
-
-        if (!refreshToken) {
-          return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-        }
-
-        const resultTokens = await this.authService.refreshTokens(refreshToken);
-
-        if (
-          resultTokens.status !== ApplicationResultStatus.Success ||
-          !resultTokens.data
-        )
-          return res
-            .status(mapApplicationStatusToHttpStatus(resultTokens.status))
-            .json({
-              errorsMessages: resultTokens.extensions.map(
-                (err: ApplicationError) => ({
-                  message: err.message,
-                  field: err.field,
-                })
-              ),
-            });
-
-        const { newAccessToken, newRefreshToken } = resultTokens.data!;
-
-        // * Устанавлеваем cookie с новым refresh
-        res.cookie("refreshToken", newRefreshToken, {
-          httpOnly: true, // нету доступа для JS
-          secure: process.env.NODE_ENV === "production" || false, // для https = true
-          sameSite: "strict", // нужна для защиты от кросс-доменных подмен кук
-          path: "/",
-          // maxAge: 20 * 1000, // 20s как в swagger (но лучше брать с appConfig.RT_TIME)
-        });
-
-        // * Отправляем accessToken (либо в headers, либо в body)
-        // res.setHeader("x-access-token", newAccessToken)
-
-        res.json({ accessToken: newAccessToken });
-      }
+      const userId = req.user.id;
 
       // * Достаем юзера
       const me = await this.usersQueryService.getUserById(userId);

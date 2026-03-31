@@ -1,7 +1,7 @@
 import { DiTypes } from "@core/di/types";
 import { AuthController } from "auth/presentation/controllers/auth.controller";
 import { PostsController } from "posts/presentation/controllers/posts.controller";
-import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
+import { SecurityDevicesController } from "security-devices/presentation/controllers/security-devices.controller";
 import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";
 import { container } from "@core/di/inversify.config";
 import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";

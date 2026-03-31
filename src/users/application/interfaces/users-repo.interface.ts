@@ -1,5 +1,3 @@
-import { Types } from "mongoose";
-
 import { UserEntity } from "users/domain/entities/user.entity";
 
 export interface IEmailConfirmationUpdate {
@@ -14,24 +12,17 @@ export interface IRecoveryPasswordInfo {
 }
 
 export interface IUsersRepository {
+  findByEmail(email: string): Promise<UserEntity | null>;
+
+  findUserByRecoveryCode(recoveryCode: string): Promise<UserEntity | null>;
+
+  findUserByEmailAndNotConfirmCode(
+    emailConfirmCode: string
+  ): Promise<UserEntity | null>;
+
+  save(userEntity: UserEntity): Promise<void>;
+
   createUser(user: UserEntity): Promise<UserEntity>;
 
   deleteUser(id: string): Promise<boolean>;
-
-  updateEmailUserConfirmationStatus(userId: Types.ObjectId): Promise<boolean>;
-
-  updateEmailUserConfirmation(
-    userId: Types.ObjectId,
-    emailConfirmation: IEmailConfirmationUpdate
-  ): Promise<boolean>;
-
-  sendRecoveryPasswordEmail(
-    userId: Types.ObjectId,
-    emailRecoveryPass: IRecoveryPasswordInfo
-  ): Promise<void>;
-
-  updatePasswordAndClearRecovery(
-    userId: Types.ObjectId,
-    newHash: string
-  ): Promise<boolean>;
 }

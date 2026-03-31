@@ -7,9 +7,8 @@ import { ApplicationResultStatus } from "@core/result/types/application-result-s
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { DiTypes } from "@core/di/types";
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
-import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
-import { ISecurityDevicesQueryService } from "security-devices/interfaces/ISecurityDevicesQueryService";
-import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDevicesService";
+import { ISecurityDevicesQueryService } from "security-devices/applications/interfaces/security-devices-query-service.interface";
+import { ISecurityDevicesService } from "security-devices/applications/interfaces/security-devices-service.interface";
 import { ApplicationError } from "@core/errors/application.error";
 import { createCommand } from "@core/helpers/create-command.helper";
 
@@ -17,8 +16,6 @@ import { createCommand } from "@core/helpers/create-command.helper";
 export class SecurityDevicesController {
   constructor(
     @inject(DiTypes.IJWTService) private jwtService: IJWTService,
-    @inject(DiTypes.ISessionQueryRepo)
-    private sessionQueryRepo: ISessionQueryRepo,
     @inject(DiTypes.ISecurityDevicesQueryService)
     private securityDevicesQueryService: ISecurityDevicesQueryService,
     @inject(DiTypes.ISecurityDevicesService)
@@ -27,24 +24,7 @@ export class SecurityDevicesController {
 
   async getSecurityDevicesHandler(req: Request, res: Response) {
     try {
-      const refreshToken = req.cookies.refreshToken;
-      if (!refreshToken)
-        return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-
-      const payload = await this.jwtService.verifyRefreshToken(refreshToken);
-      if (!payload) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-
-      const { sessionId, userId, deviceId } = payload;
-
-      const session = await this.sessionQueryRepo.findBySessionId(sessionId);
-      if (!session) return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-
-      if (
-        session.userId.toString() !== userId ||
-        session.deviceId !== deviceId
-      ) {
-        return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
-      }
+      const userId = req.user.id;
 
       const result =
         await this.securityDevicesQueryService.getAllSecurityDevices(userId);

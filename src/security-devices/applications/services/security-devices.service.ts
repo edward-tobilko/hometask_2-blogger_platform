@@ -4,8 +4,8 @@ import { ForbiddenError, NotFoundError } from "@core/errors/application.error";
 import { ApplicationResult } from "@core/result/application.result";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { DiTypes } from "@core/di/types";
-import { ISecurityDevicesService } from "security-devices/interfaces/ISecurityDevicesService";
-import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
+import { ISecurityDevicesService } from "security-devices/applications/interfaces/security-devices-service.interface";
+import { ISecurityDevicesRepo } from "security-devices/applications/interfaces/security-devices-repo.interface";
 import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 
 @injectable()

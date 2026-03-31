@@ -1,7 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { add } from "date-fns";
 import { inject, injectable } from "inversify";
-// import { Types as MongooseTypes } from "mongoose";
 
 import { emailExamples } from "auth/infrastructure/external-api/email-templates";
 import { parseDeviceName } from "auth/infrastructure/utils/device-parser.util";
@@ -11,11 +9,9 @@ import { DiTypes } from "@core/di/types";
 import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
 import { IPasswordHasher } from "auth/application/interfaces/password-hasher.interface";
 import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
-import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
 import { INodeMailerService } from "auth/application/interfaces/node-mailer-service.interface";
-import { UserDb } from "users/infrastructure/schemas/user-schema";
 import { appConfig } from "@core/settings/config";
 import { WithMeta } from "@core/types/with-meta.type";
 import { LoginAuthDtoCommand } from "../commands/login-auth-dto.command";
@@ -30,6 +26,7 @@ import {
 import { UserEntity } from "users/domain/entities/user.entity";
 import { SessionEntity } from "auth/domain/entities/session.entity";
 import { UserMapper } from "users/domain/mappers/user.mapper";
+import { log } from "logger";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -38,8 +35,6 @@ export class AuthService implements IAuthService {
     private usersQueryRepo: IUsersQueryRepository,
     @inject(DiTypes.IPasswordHasher) private passwordHasher: IPasswordHasher,
     @inject(DiTypes.ISessionRepository) private sessionRepo: ISessionRepository,
-    @inject(DiTypes.ISessionQueryRepo)
-    private sessionQueryRepo: ISessionQueryRepo,
     @inject(DiTypes.IUsersRepository) private usersRepo: IUsersRepository,
     @inject(DiTypes.IJWTService) private jwtService: IJWTService,
     @inject(DiTypes.INodeMailerService)
@@ -122,18 +117,9 @@ export class AuthService implements IAuthService {
       });
     }
 
-    const user = userResult.data; // UserEntity
-
-    if (!user) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
-        data: null,
-        extensions: [new BadRequest("User is not found", "user")],
-      });
-    }
+    const user = userResult.data!; // UserEntity
 
     const userId = user.id.toString();
-    // const mongooseUserId = new MongooseTypes.ObjectId(userId);
     const deviceId = randomUUID();
     const sessionId = randomUUID();
     const ip = command.meta.ip ?? "0.0.0.0";
@@ -168,9 +154,9 @@ export class AuthService implements IAuthService {
       this.jwtService.getExpirationDate(refreshToken) ||
       getSessionExpirationDate(appConfig.RT_TIME ?? "7d");
 
-    // * создаём authMe из user и сохраняем в БД
+    // * Domain
     const session = SessionEntity.saveMe({
-      userId: user.id.toString(),
+      userId,
       login: user.login,
 
       deviceId,
@@ -195,7 +181,7 @@ export class AuthService implements IAuthService {
     login: string,
     password: string,
     email: string
-  ): Promise<ApplicationResult<UserDb | null>> {
+  ): Promise<ApplicationResult<UserEntity | null>> {
     const existingUserByLogin = await this.usersQueryRepo.findByLogin(login);
 
     const existingUserByEmail = await this.usersQueryRepo.findByEmail(email);
@@ -217,7 +203,7 @@ export class AuthService implements IAuthService {
       });
     }
 
-    const passwordHash = await this.passwordHasher.generateHash(password); // создать хэш пароля
+    const passwordHash = await this.passwordHasher.generateHash(password);
 
     let newUser = UserEntity.createUser({
       login,
@@ -247,7 +233,7 @@ export class AuthService implements IAuthService {
 
   async confirmRegistration(code: string): Promise<ApplicationResult<boolean>> {
     const userAccount =
-      await this.usersQueryRepo.findUserByEmailAndNotConfirmCode(code);
+      await this.usersRepo.findUserByEmailAndNotConfirmCode(code);
 
     if (!userAccount)
       return new ApplicationResult({
@@ -256,38 +242,9 @@ export class AuthService implements IAuthService {
         extensions: [new BadRequest("Incorrect code", "code")],
       });
 
-    if (userAccount.emailConfirmation.isConfirmed === true)
-      return new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
-        data: false,
-        extensions: [new BadRequest("Email is confirmed", "code")],
-      });
+    userAccount.confirmEmail(code);
 
-    if (
-      userAccount.emailConfirmation.expirationDate &&
-      userAccount.emailConfirmation.expirationDate < new Date()
-    )
-      return new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
-        data: false,
-        extensions: [
-          new BadRequest(
-            "Expiration date of confirmation code is ended",
-            "code"
-          ),
-        ],
-      });
-
-    const updatedResultConfirmStatus =
-      await this.usersRepo.updateEmailUserConfirmationStatus(userAccount._id!);
-
-    if (!updatedResultConfirmStatus) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.InternalServerError,
-        data: false,
-        extensions: [new ApplicationError("Cannot confirm user", "code")],
-      });
-    }
+    await this.usersRepo.save(userAccount);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,
@@ -299,7 +256,7 @@ export class AuthService implements IAuthService {
   async resendRegistrationEmail(
     email: string
   ): Promise<ApplicationResult<null>> {
-    const userAccount = await this.usersQueryRepo.findByEmail(email);
+    const userAccount = await this.usersRepo.findByEmail(email);
 
     if (!userAccount)
       return new ApplicationResult({
@@ -315,33 +272,14 @@ export class AuthService implements IAuthService {
         extensions: [new ApplicationError("Email is confirmed", "email")],
       });
 
-    // * Генерируем новый код и новый дедлайн
-    const newCode = randomUUID();
-    const newExp = add(new Date(), { hours: 1, minutes: 3 });
+    userAccount.setNewEmailConfirm();
 
-    const updated = await this.usersRepo.updateEmailUserConfirmation(
-      userAccount._id!,
-      {
-        confirmationCode: newCode,
-        expirationDate: newExp,
-        isConfirmed: false,
-      }
-    );
-
-    if (!updated) {
-      return new ApplicationResult({
-        status: ApplicationResultStatus.InternalServerError,
-        data: null,
-        extensions: [
-          new ApplicationError("Cannot update confirmation data", "email", 500),
-        ],
-      });
-    }
+    await this.usersRepo.save(userAccount);
 
     this.nodeMailerService
       .sendRegistrationConfirmationEmail(
         email,
-        newCode,
+        userAccount.emailConfirmation.confirmationCode!,
         emailExamples.registrationEmail
       )
       .catch((error: unknown) => console.error("EMAIL_SEND_ERROR", error));
@@ -353,12 +291,13 @@ export class AuthService implements IAuthService {
     });
   }
 
-  async getRefreshTokens(
+  async getRefreshToken(
     oldRefreshToken: string
   ): Promise<
     ApplicationResult<{ accessToken: string; refreshToken: string } | null>
   > {
     const payload = await this.jwtService.verifyRefreshToken(oldRefreshToken);
+
     if (!payload) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -370,7 +309,8 @@ export class AuthService implements IAuthService {
     const { userId, deviceId, sessionId, iat } = payload;
 
     // * проверка активной сессии (смотреть в browser -> application -> cookie -> session (the firth row)) в БД
-    const session = await this.sessionQueryRepo.findBySessionId(sessionId);
+    const session = await this.sessionRepo.findBySessionId(sessionId);
+
     if (!session) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -403,10 +343,11 @@ export class AuthService implements IAuthService {
       });
     }
 
-    await this.sessionRepo.updateLastActiveDate(sessionId);
-
     // * создаем новую пару токенов
-    const newAccessToken = await this.jwtService.createAccessToken(userId);
+    const newAccessToken = await this.jwtService.createAccessToken(
+      userId,
+      session.deviceId
+    );
     const newRefreshToken = await this.jwtService.createRefreshToken(
       userId,
       deviceId,
@@ -416,6 +357,7 @@ export class AuthService implements IAuthService {
     // * получаем iat нового refresh и сохраняем в сессию -> старый становится недействительным
     const newPayload =
       await this.jwtService.verifyRefreshToken(newRefreshToken);
+
     if (!newPayload) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -424,12 +366,12 @@ export class AuthService implements IAuthService {
       });
     }
 
-    const updated = await this.sessionRepo.updateRefreshIat(
-      sessionId,
-      newPayload.iat
-    );
+    const [_, updatedRefreshIat] = await Promise.all([
+      this.sessionRepo.updateLastActiveDate(sessionId),
+      this.sessionRepo.updateRefreshIat(sessionId, newPayload.iat),
+    ]);
 
-    if (!updated) {
+    if (!updatedRefreshIat) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
@@ -444,8 +386,35 @@ export class AuthService implements IAuthService {
     });
   }
 
-  async logout(sessionId: string): Promise<ApplicationResult<boolean>> {
-    const deleted = await this.sessionRepo.deleteBySessionId(sessionId);
+  async logout(payload: {
+    sessionId: string;
+    deviceId: string;
+    userId: string;
+    iat: number;
+  }): Promise<ApplicationResult<boolean>> {
+    const session = await this.sessionRepo.findByDeviceId(payload.deviceId);
+
+    if (!session) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: false,
+        extensions: [new UnauthorizedError("Session not found")],
+      });
+    }
+
+    if (
+      session.userId !== payload.userId ||
+      session.deviceId !== payload.deviceId ||
+      session.refreshIat !== payload.iat
+    ) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.Unauthorized,
+        data: false,
+        extensions: [new UnauthorizedError("Unauthorized")],
+      });
+    }
+
+    const deleted = await this.sessionRepo.deleteBySessionId(payload.sessionId);
 
     if (!deleted) {
       return new ApplicationResult({
@@ -462,64 +431,25 @@ export class AuthService implements IAuthService {
     });
   }
 
-  async refreshTokens(oldRefreshToken: string): Promise<
-    ApplicationResult<{
-      userId: string;
-      newAccessToken: string;
-      newRefreshToken: string;
-    } | null>
-  > {
-    // * Проверяем refresh token и получаем userId
-    const refreshPayload =
-      await this.jwtService.verifyRefreshToken(oldRefreshToken);
-
-    if (!refreshPayload)
-      return new ApplicationResult({
-        status: ApplicationResultStatus.Unauthorized,
-        data: null,
-        extensions: [new UnauthorizedError("No Unauthorized")],
-      });
-
-    const userId = refreshPayload.userId;
-
-    // * Создаем новые токены
-    const newAccessToken = await this.jwtService.createAccessToken(userId);
-    const newRefreshToken = await this.jwtService.createRefreshToken(
-      userId,
-      refreshPayload.deviceId,
-      refreshPayload.sessionId
-    );
-
-    return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
-      data: { userId, newAccessToken, newRefreshToken },
-      extensions: [],
-    });
-  }
-
   async passwordRecovery(email: string): Promise<void> {
-    const user = await this.usersQueryRepo.findByEmail(email);
+    const userEntity = await this.usersRepo.findByEmail(email);
 
     // * не палим, что email не существует
-    if (!user) return;
+    if (!userEntity) return;
 
-    // * Генерируем новый код и новый дедлайн
-    const recoveryCode = randomUUID();
-    const newExpDate = add(new Date(), { hours: 1, minutes: 3 });
+    // * DDD (логика в entity)
+    userEntity.setRecoveryPassword();
 
-    await this.usersRepo.sendRecoveryPasswordEmail(user._id!, {
-      recoveryCode,
-      expirationDate: newExpDate,
-    });
+    await this.usersRepo.save(userEntity);
 
     try {
       await this.nodeMailerService.sendRecoveryPasswordEmail(
         email,
-        recoveryCode,
+        userEntity.recoveryPasswordInfo!.recoveryCode,
         emailExamples.passwordRecoveryEmail
       );
     } catch (error: unknown) {
-      console.error("EMAIL_SEND_ERROR", error);
+      log.error({ error }, "EMAIL_SEND_ERROR");
     }
   }
 
@@ -527,19 +457,10 @@ export class AuthService implements IAuthService {
     newPassword: string,
     recoveryCode: string
   ): Promise<ApplicationResult<void>> {
-    const user = await this.usersQueryRepo.findUserByRecoveryCode(
-      recoveryCode!
-    );
+    const userEntity =
+      await this.usersRepo.findUserByRecoveryCode(recoveryCode);
 
-    const info = user?.recoveryPasswordInfo;
-
-    if (
-      !user?._id ||
-      !info?.recoveryCode ||
-      !info.expirationDate ||
-      info.recoveryCode !== recoveryCode ||
-      info.expirationDate.getTime() < Date.now()
-    )
+    if (!userEntity) {
       return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: null,
@@ -550,10 +471,13 @@ export class AuthService implements IAuthService {
           ),
         ],
       });
+    }
 
     const passwordHash = await this.passwordHasher.generateHash(newPassword);
 
-    await this.usersRepo.updatePasswordAndClearRecovery(user._id, passwordHash);
+    userEntity.checkAndSetNewPassword(passwordHash, recoveryCode);
+
+    await this.usersRepo.save(userEntity);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.NoContent,

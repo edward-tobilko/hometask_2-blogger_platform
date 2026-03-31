@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 
 import { FieldsOnly } from "../../../core/types/fields-only.type";
 import { UserEntity } from "users/domain/entities/user.entity";
+import { ValidationError } from "@core/errors/application.error";
 
 type SessionEntityProp = {
   id: string;
@@ -60,6 +61,21 @@ export class SessionEntity {
   }
 
   // * Factory validation methods
+  private static validateExpiresAt(expiresAt: Date): void {
+    if (expiresAt <= new Date()) {
+      throw new ValidationError(
+        "ExpiresAt must be in the future",
+        "expiresAt",
+        400
+      );
+    }
+  }
+
+  private static validateIp(ip: string): void {
+    if (!ip || ip.trim().length === 0) {
+      throw new ValidationError("IP is required", "ip", 400);
+    }
+  }
 
   // * Fabric methods
   static reconstitute(props: {
@@ -93,6 +109,8 @@ export class SessionEntity {
     refreshIat: number;
   }): SessionEntity {
     UserEntity.validateLogin(dto.login);
+    SessionEntity.validateExpiresAt(dto.expiresAt);
+    SessionEntity.validateIp(dto.ip);
 
     return new SessionEntity({
       id: randomUUID(),

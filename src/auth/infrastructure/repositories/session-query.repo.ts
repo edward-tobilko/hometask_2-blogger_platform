@@ -9,10 +9,6 @@ import {
 
 @injectable()
 export class SessionQueryRepo implements ISessionQueryRepo {
-  async findBySessionId(sessionId: string): Promise<SessionLean | null> {
-    return SessionModel.findOne({ sessionId }).lean<SessionLean>().exec();
-  }
-
   async findByDeviceId(
     deviceId: string,
     userId?: string

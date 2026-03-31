@@ -97,30 +97,6 @@ export class UserEntity {
     }
   }
 
-  // private static validateEmailConfirmation(
-  //   emailConfirmation: UserEntityProps["emailConfirmation"]
-  // ): void {
-  //   if (!emailConfirmation.confirmationCode) {
-  //     throw new ValidationError(
-  //       "Confirmation code is required for unconfirmed user",
-  //       "confirmationCode",
-  //       400
-  //     );
-  //   }
-
-  //   if (!emailConfirmation.expirationDate) {
-  //     throw new ValidationError(
-  //       "Expiration date is required for unconfirmed user",
-  //       "expirationDate",
-  //       400
-  //     );
-  //   }
-
-  //   if (emailConfirmation.isConfirmed) {
-  //     return;
-  //   }
-  // }
-
   // * Factory methods
   static reconstitute(props: {
     id: string;
@@ -191,5 +167,67 @@ export class UserEntity {
 
       recoveryPasswordInfo: null,
     });
+  }
+
+  setRecoveryPassword(): void {
+    // * Генерируем новый код и новый дедлайн
+    this.props.recoveryPasswordInfo = {
+      recoveryCode: randomUUID(),
+      expirationDate: add(new Date(), { hours: 1, minutes: 3 }),
+    };
+  }
+
+  checkAndSetNewPassword(newPassword: string, recoveryCode: string): void {
+    const info = this.recoveryPasswordInfo;
+
+    if (
+      !info?.recoveryCode ||
+      !info.expirationDate ||
+      info.recoveryCode !== recoveryCode ||
+      info.expirationDate.getTime() < Date.now()
+    )
+      throw new ValidationError(
+        "RecoveryCode is incorrect or expired",
+        "recoveryCode",
+        400
+      );
+
+    this.props.passwordHash = newPassword; // hash придет снаружи
+    this.props.recoveryPasswordInfo = null;
+  }
+
+  confirmEmail(code: string): void {
+    if (
+      !this.props.emailConfirmation.confirmationCode ||
+      this.props.emailConfirmation.confirmationCode !== code
+    ) {
+      throw new ValidationError("Incorrect code", "code", 400);
+    }
+
+    if (
+      this.props.emailConfirmation.expirationDate &&
+      this.props.emailConfirmation.expirationDate < new Date()
+    ) {
+      throw new ValidationError(
+        "Expiration date of confirmation code is ended",
+        "code",
+        400
+      );
+    }
+
+    if (this.props.emailConfirmation.isConfirmed)
+      throw new ValidationError("Email is already confirmed", "code", 400);
+
+    this.props.emailConfirmation.confirmationCode = "";
+    this.props.emailConfirmation.expirationDate = null;
+    this.props.emailConfirmation.isConfirmed = true;
+  }
+
+  setNewEmailConfirm(): void {
+    this.props.emailConfirmation = {
+      confirmationCode: randomUUID(),
+      expirationDate: add(new Date(), { hours: 1, minutes: 3 }),
+      isConfirmed: false,
+    };
   }
 }
