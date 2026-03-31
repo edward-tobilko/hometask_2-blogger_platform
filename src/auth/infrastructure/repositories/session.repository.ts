@@ -1,14 +1,16 @@
 import { injectable } from "inversify";
+import { Types } from "mongoose";
 
 import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
-import { SessionDb, SessionModel } from "auth/mongoose/auth-schema.mongoose";
+import { SessionModel } from "auth/infrastructure/schemas/auth.schema";
+import { SessionEntity } from "auth/domain/entities/session.entity";
 
 @injectable()
 export class SessionRepository implements ISessionRepository {
-  async upsertLoginSession(session: SessionDb): Promise<void> {
+  async upsertLoginSession(session: SessionEntity): Promise<void> {
     await SessionModel.updateOne(
       {
-        userId: session.userId,
+        userId: new Types.ObjectId(session.userId),
         deviceId: session.deviceId,
       }, // key
       {
@@ -24,7 +26,7 @@ export class SessionRepository implements ISessionRepository {
         $setOnInsert: {
           // createdAt: session.createdAt, // автоматически создат нам монгус в schema -> timestamps = true
 
-          userId: session.userId,
+          userId: new Types.ObjectId(session.userId),
           login: session.login,
           deviceId: session.deviceId,
         },

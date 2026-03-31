@@ -4,7 +4,10 @@ import { Types } from "mongoose";
 import { mapSessionToSecurityDevicesListOutput } from "security-devices/applications/mappers/map-session-to-security-devices-list.mapper";
 import { SecurityDevicesListOutput } from "security-devices/applications/output/security-devices-type.output";
 import { ISecurityDevicesQueryRepo } from "security-devices/interfaces/ISecurityDevicesQueryRepo";
-import { SessionLean, SessionModel } from "auth/mongoose/auth-schema.mongoose";
+import {
+  SessionLean,
+  SessionModel,
+} from "auth/infrastructure/schemas/auth.schema";
 
 @injectable()
 export class SecurityDevicesQueryRepo implements ISecurityDevicesQueryRepo {

@@ -1,7 +1,7 @@
-import { SessionDb } from "auth/mongoose/auth-schema.mongoose";
+import { SessionEntity } from "auth/domain/entities/session.entity";
 
 export interface ISessionRepository {
-  upsertLoginSession(session: SessionDb): Promise<void>;
+  upsertLoginSession(session: SessionEntity): Promise<void>;
 
   updateLastActiveDate(sessionId: string): Promise<boolean>;
 

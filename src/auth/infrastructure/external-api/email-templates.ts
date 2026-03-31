@@ -13,3 +13,5 @@ export const emailExamples = {
         </p>`;
   },
 };
+
+// ? emailExamples — шаблоны для внешнего сервиса (NodeMailer), инфраструктурный слой.

@@ -10,14 +10,14 @@ import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { AuthMeOutput } from "auth/application/output/auth-me.output";
-import { LoginAuthRP } from "./request-payload-types/login-auth.request-payload";
+import { LoginAuthRP } from "../request-payload-types/login-auth.request-payload-type";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.command";
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { IAuthService } from "auth/application/interfaces/auth-service.interface";
 import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
 import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
-import { NewPasswordRPT } from "./request-payload-types/new-password.rpt";
+import { NewPasswordRP } from "../request-payload-types/new-password.request-payload-type";
 import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 
 @injectable()
@@ -91,12 +91,9 @@ export class AuthController {
     }
   }
 
-  async newPasswordHandler(
-    req: Request<{}, {}, NewPasswordRPT, {}>,
-    res: Response
-  ) {
+  async newPasswordHandler(req: Request, res: Response) {
     try {
-      const { newPassword, recoveryCode } = matchedData<NewPasswordRPT>(req, {
+      const { newPassword, recoveryCode } = matchedData<NewPasswordRP>(req, {
         locations: ["body"],
         includeOptionals: false,
       });

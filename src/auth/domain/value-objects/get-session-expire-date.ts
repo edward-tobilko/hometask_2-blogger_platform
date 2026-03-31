@@ -6,3 +6,5 @@ export const getSessionExpirationDate = (ttl: string): Date => {
 
   return new Date(Date.now() + ttlMSec);
 };
+
+// ? getSessionExpirationDate — это бизнес-логика. Когда истекает сессия — это доменное правило, не зависит от БД или внешних сервисов.

@@ -46,7 +46,10 @@ export class PostCommentEntity {
     return this.props.createdAt;
   }
 
-  get likesInfo() {
+  get likesInfo(): {
+    likesCount: number;
+    dislikesCount: number;
+  } {
     return this.props.likesInfo;
   }
 

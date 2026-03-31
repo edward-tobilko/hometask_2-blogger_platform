@@ -56,7 +56,7 @@ export class UserEntity {
   }
 
   // * Factory validation methods
-  private static validateLogin(login: string): void {
+  static validateLogin(login: string): void {
     if (!login || login.trim().length === 0)
       throw new ValidationError("Login is required", "login", 400);
 
@@ -80,7 +80,7 @@ export class UserEntity {
       throw new ValidationError("Login must be valid!", "login", 400);
   }
 
-  private static validateEmail(email: string): void {
+  static validateEmail(email: string): void {
     if (!email || email.trim().length === 0)
       throw new ValidationError("Email is required", "email", 400);
 

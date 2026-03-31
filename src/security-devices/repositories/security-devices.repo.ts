@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { injectable } from "inversify";
 
 import { ISecurityDevicesRepo } from "security-devices/interfaces/ISecurityDevicesRepo";
-import { SessionModel } from "auth/mongoose/auth-schema.mongoose";
+import { SessionModel } from "auth/infrastructure/schemas/auth.schema";
 
 @injectable()
 export class SecurityDevicesRepo implements ISecurityDevicesRepo {

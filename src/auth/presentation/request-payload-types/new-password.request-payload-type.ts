@@ -1,4 +1,4 @@
-export type NewPasswordRPT = {
+export type NewPasswordRP = {
   newPassword: string;
   recoveryCode: string;
 };

@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { jwtAccessAuthGuard } from "auth/api/guards/jwt-access-auth.guard";
-import { JWTService } from "auth/adapters/jwt-service.adapter";
+import { jwtAccessAuthGuard } from "auth/presentation/guards/jwt-access-auth.guard";
+import { JWTService } from "auth/application/services/jwt-service.adapter";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 
 jest.mock("auth/adapters/jwt-service.adapter");

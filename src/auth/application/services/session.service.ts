@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { add } from "date-fns";
 import { inject, injectable } from "inversify";
-import { Types as MongooseTypes } from "mongoose";
+// import { Types as MongooseTypes } from "mongoose";
 
-import { emailExamples } from "auth/adapters/email-examples.adapter";
-import { parseDeviceName } from "auth/helpers/parser-device-name.helper";
-import { getSessionExpirationDate } from "auth/helpers/get-session-expire-date.helper";
+import { emailExamples } from "auth/infrastructure/external-api/email-templates";
+import { parseDeviceName } from "auth/infrastructure/utils/device-parser.util";
+import { getSessionExpirationDate } from "auth/domain/value-objects/get-session-expire-date";
 import { IAuthService } from "auth/application/interfaces/auth-service.interface";
 import { DiTypes } from "@core/di/types";
 import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
@@ -18,6 +18,18 @@ import { INodeMailerService } from "auth/application/interfaces/node-mailer-serv
 import { UserDb } from "users/infrastructure/schemas/user-schema";
 import { appConfig } from "@core/settings/config";
 import { WithMeta } from "@core/types/with-meta.type";
+import { LoginAuthDtoCommand } from "../commands/login-auth-dto.command";
+import { ApplicationResult } from "@core/result/application.result";
+import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
+import {
+  ApplicationError,
+  BadRequest,
+  NotFoundError,
+  UnauthorizedError,
+} from "@core/errors/application.error";
+import { UserEntity } from "users/domain/entities/user.entity";
+import { SessionEntity } from "auth/domain/entities/session.entity";
+import { UserMapper } from "users/domain/mappers/user.mapper";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -36,17 +48,17 @@ export class AuthService implements IAuthService {
 
   async checkUserCredentials(
     command: WithMeta<LoginAuthDtoCommand>
-  ): Promise<ApplicationResult<UserReadModelType>> {
+  ): Promise<ApplicationResult<UserEntity | null>> {
     const { loginOrEmail, password } = command.payload;
 
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginOrEmail);
 
-    const user = isEmail
+    const userDoc = isEmail
       ? await this.usersQueryRepo.findByEmail(loginOrEmail)
       : await this.usersQueryRepo.findByLogin(loginOrEmail);
 
-    if (!user) {
-      return new ApplicationResult<UserReadModelType>({
+    if (!userDoc) {
+      return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
         extensions: [
@@ -55,8 +67,8 @@ export class AuthService implements IAuthService {
       });
     }
 
-    if (!user.emailConfirmation.isConfirmed) {
-      return new ApplicationResult<UserReadModelType>({
+    if (!userDoc.emailConfirmation.isConfirmed) {
+      return new ApplicationResult({
         status: ApplicationResultStatus.BadRequest,
         data: null,
         extensions: [
@@ -67,20 +79,22 @@ export class AuthService implements IAuthService {
 
     const isPassCorrect = await this.passwordHasher.checkPassword(
       password,
-      user.passwordHash
+      userDoc.passwordHash
     );
 
     if (!isPassCorrect) {
-      return new ApplicationResult<UserReadModelType>({
+      return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
         data: null,
         extensions: [new UnauthorizedError("Wrong password!", "password")],
       });
     }
 
-    return new ApplicationResult<UserReadModelType>({
+    const userEntity = UserMapper.toDomain(userDoc);
+
+    return new ApplicationResult({
       status: ApplicationResultStatus.Success,
-      data: user,
+      data: userEntity,
       extensions: [],
     });
   }
@@ -108,10 +122,18 @@ export class AuthService implements IAuthService {
       });
     }
 
-    const user = userResult.data!; // UserDomain
+    const user = userResult.data; // UserEntity
 
-    const userId = user!._id.toString();
-    const mongooseUserId = new MongooseTypes.ObjectId(userId);
+    if (!user) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.BadRequest,
+        data: null,
+        extensions: [new BadRequest("User is not found", "user")],
+      });
+    }
+
+    const userId = user.id.toString();
+    // const mongooseUserId = new MongooseTypes.ObjectId(userId);
     const deviceId = randomUUID();
     const sessionId = randomUUID();
     const ip = command.meta.ip ?? "0.0.0.0";
@@ -133,6 +155,7 @@ export class AuthService implements IAuthService {
 
     const refreshPayload =
       await this.jwtService.verifyRefreshToken(refreshToken);
+
     if (!refreshPayload) {
       return new ApplicationResult({
         status: ApplicationResultStatus.Unauthorized,
@@ -145,35 +168,21 @@ export class AuthService implements IAuthService {
       this.jwtService.getExpirationDate(refreshToken) ||
       getSessionExpirationDate(appConfig.RT_TIME ?? "7d");
 
-    // // * создаём authMe из user и сохраняем в БД
-    // const session = SessionDomain.saveMe({
-    //   userId: user.id!.toString(),
-    //   login: user.login,
-
-    //   deviceId,
-    //   sessionId,
-    //   userDeviceName,
-    //   ip,
-    //   expiresAt,
-
-    //   refreshIat: refreshPayload.iat,
-    // });
-
-    await this.sessionRepo.upsertLoginSession({
-      userId: mongooseUserId,
+    // * создаём authMe из user и сохраняем в БД
+    const session = SessionEntity.saveMe({
+      userId: user.id.toString(),
       login: user.login,
 
-      sessionId,
       deviceId,
-      ip,
+      sessionId,
       userDeviceName,
-      refreshToken,
-
-      lastActiveDate: new Date(),
+      ip,
       expiresAt,
-      // createdAt: new Date(), // автоматически создат нам монгус в schema -> timestamps = true
+
       refreshIat: refreshPayload.iat,
     });
+
+    await this.sessionRepo.upsertLoginSession(session);
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

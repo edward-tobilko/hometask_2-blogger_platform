@@ -1,7 +1,7 @@
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import { injectable } from "inversify";
 
-import { appConfig } from "../../core/settings/config";
+import { appConfig } from "../../../core/settings/config";
 import {
   IJWTAccessPayload,
   IJWTRefreshPayload,

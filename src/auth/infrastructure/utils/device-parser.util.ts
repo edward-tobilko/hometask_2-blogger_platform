@@ -19,3 +19,5 @@ export const parseDeviceName = (userAgent: string): string => {
 
   return userAgent.split(" ")[0] || "Unknown device";
 };
+
+// ? parseDeviceName — это инфраструктура. Работает с внешней библиотекой ua-parser-js, парсит HTTP заголовок. Это детали реализации, не бизнес-логика.

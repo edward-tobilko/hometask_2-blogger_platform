@@ -22,3 +22,5 @@ export class CryptoPasswordHasher implements IPasswordHasher {
     return crypto.createHash("sha256").update(refreshToken).digest("hex");
   }
 }
+
+// ? CryptoPasswordHasher - работает с внешней библиотекой (bcrypt/crypto), инфраструктурный слой.

@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { baseAuthGuard } from "auth/api/guards/base-auth.guard";
+import { baseAuthGuard } from "auth/presentation/guards/base-auth.guard";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 // import { appConfig } from "@core/settings/config";
 

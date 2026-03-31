@@ -10,8 +10,8 @@ import { paramIdValidation } from "core/middlewares/validation/param-id.middlewa
 import { updateBlogDtoRPValidation } from "../request-payload-validations/update-blog-dto.request-payload-validation";
 import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-sort-field.request-payload-types";
 import { BlogsController } from "../controllers/blogs.controller";
-import { baseAuthGuard } from "auth/api/guards/base-auth.guard";
-import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
+import { baseAuthGuard } from "auth/presentation/guards/base-auth.guard";
+import { optionalJwtAccessGuard } from "auth/presentation/guards/optional-jwt-access-auth.guard";
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 
 export const createBlogsRouter = (

@@ -7,7 +7,7 @@ import { ISessionQueryRepo } from "auth/application/interfaces/session-query-rep
 
 export function jwtAccessAuthGuard(
   jwtService: IJWTService,
-  sessionQueryRepository: ISessionQueryRepo
+  sessionQueryRepository?: ISessionQueryRepo
 ) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
@@ -29,7 +29,7 @@ export function jwtAccessAuthGuard(
         return res.sendStatus(HTTP_STATUS_CODES.UNAUTHORIZED_401);
       }
 
-      const session = await sessionQueryRepository.findByDeviceId(
+      const session = await sessionQueryRepository!.findByDeviceId(
         payload.deviceId,
         payload.userId
       );

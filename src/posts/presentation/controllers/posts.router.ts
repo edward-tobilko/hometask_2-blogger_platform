@@ -6,19 +6,19 @@ import {
   paramPostIdValidation,
 } from "../../../core/middlewares/validation/param-id.middleware-validation";
 import { inputResultMiddlewareValidation } from "../../../core/middlewares/validation/input-result.middleware-validation";
-import { baseAuthGuard } from "../../../auth/api/guards/base-auth.guard";
+import { baseAuthGuard } from "../../../auth/presentation/guards/base-auth.guard";
 import { queryPaginationAndSortingValidation } from "../../../core/middlewares/validation/query-pagination-sorting.middleware-validation";
 import {
   PostCommentsSortFieldRP,
   PostSortFieldRP,
 } from "../request-payload-types/post-sort-field.request-payload-types";
-import { jwtAccessAuthGuard } from "../../../auth/api/guards/jwt-access-auth.guard";
+import { jwtAccessAuthGuard } from "../../../auth/presentation/guards/jwt-access-auth.guard";
 import { createCommentDtoRPValidation } from "../request-payload-validations/create-comment-dto.validation";
 import { PostsController } from "./posts.controller";
 import { createPostBodyInputRPValidation } from "../request-payload-validations/post-input-dto-validation.middleware";
 import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
-import { optionalJwtAccessGuard } from "auth/api/guards/optional-jwt-access-auth.guard";
+import { optionalJwtAccessGuard } from "auth/presentation/guards/optional-jwt-access-auth.guard";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 

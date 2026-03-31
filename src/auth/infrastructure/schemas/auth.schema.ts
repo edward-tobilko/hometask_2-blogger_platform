@@ -1,13 +1,13 @@
 import {
-  AUTH_LOGIN_COLLECTION_NAME,
-  USERS_COLLECTION_NAME,
-} from "db/collection-names.db";
-import {
   HydratedDocument,
   Schema,
   model,
   Types as MongooseTypes,
 } from "mongoose";
+import {
+  AUTH_LOGIN_COLLECTION_NAME,
+  USERS_COLLECTION_NAME,
+} from "db/collection-names.db";
 
 export type SessionDb = {
   userId: MongooseTypes.ObjectId;
@@ -73,12 +73,6 @@ const SessionSchema = new Schema<SessionDb>(
   }
 );
 
-export const SessionModel = model<SessionDb>(
-  "Session", // имя модели
-  SessionSchema,
-  AUTH_LOGIN_COLLECTION_NAME // точное имя коллекции для записи в Mongo (без добавления "s")
-);
-
 // * TTL что бы «протухшие» сессии убирались автоматически
 SessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
@@ -86,4 +80,12 @@ SessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 SessionSchema.index({ sessionId: 1 }, { unique: true });
 SessionSchema.index({ userId: 1, deviceId: 1 }, { unique: true });
 
+export const SessionModel = model<SessionDb>(
+  "Session", // имя модели
+  SessionSchema,
+  AUTH_LOGIN_COLLECTION_NAME // точное имя коллекции для записи в Mongo (без добавления "s")
+);
+
 // ? ref - ссылка на коллекцию: ref = users collection. Без этой ссылки мы не можем использовать method populate().
+
+// ? Индексы обьявляються до моделей!

@@ -6,7 +6,7 @@ import { IUsersService } from "users/application/interfaces/users-service.interf
 import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
 import { UsersService } from "users/application/services/user.service";
 import { IPasswordHasher } from "auth/application/interfaces/password-hasher.interface";
-import { CryptoPasswordHasher } from "auth/adapters/hasher-service.adapter";
+import { CryptoPasswordHasher } from "auth/infrastructure/external-api/password-hasher";
 import { PostsController } from "posts/presentation/controllers/posts.controller";
 import { PostsService } from "posts/application/services/posts-service";
 import { IPostsService } from "posts/application/interfaces/posts-service.interface";
@@ -23,16 +23,15 @@ import { BlogsQueryService } from "blogs/application/services/blog-query.service
 import { IBlogsService } from "blogs/application/interfaces/blogs-service.interface";
 import { BlogsService } from "blogs/application/services/blogs-service";
 import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
-import { SessionRepository } from "auth/repositories/session.repository";
-import { SessionQueryRepo } from "auth/repositories/session-query.repo";
+import { SessionRepository } from "auth/infrastructure/repositories/session.repository";
+import { SessionQueryRepo } from "auth/infrastructure/repositories/session-query.repo";
 import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
-import { AuthService } from "auth/application/session.service";
 import { IAuthService } from "auth/application/interfaces/auth-service.interface";
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
-import { JWTService } from "auth/adapters/jwt-service.adapter";
+import { JWTService } from "auth/application/services/jwt-service.adapter";
 import { INodeMailerService } from "auth/application/interfaces/node-mailer-service.interface";
-import { NodeMailerService } from "auth/adapters/node-mailer-service.adapter";
-import { AuthController } from "auth/routes/auth.controller";
+import { NodeMailerService } from "auth/infrastructure/external-api/node-mailer-service";
+import { AuthController } from "auth/presentation/controllers/auth.controller";
 import { CommentsRepository } from "comments/infrastructure/repositories/comments.repository";
 import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
 import { CommentsQueryRepo } from "comments/infrastructure/repositories/comment-query.repository";
@@ -61,6 +60,7 @@ import { UsersQueryService } from "users/application/services/users-query.servic
 import { UsersRepository } from "users/infrastructure/repositories/user.repository";
 import { UsersQueryRepository } from "users/infrastructure/repositories/users-query.repository";
 import { UsersController } from "users/presentation/controllers/users-controller";
+import { AuthService } from "auth/application/services/session.service";
 
 export const container = new Container({ defaultScope: "Singleton" });
 

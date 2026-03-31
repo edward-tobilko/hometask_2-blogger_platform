@@ -7,7 +7,7 @@ import { createAuthLogin, getLoginDto } from "../utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
 import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
-import { SessionModel } from "auth/mongoose/auth-schema.mongoose";
+import { SessionModel } from "auth/infrastructure/schemas/auth.schema";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 
 const loginDto = getLoginDto();

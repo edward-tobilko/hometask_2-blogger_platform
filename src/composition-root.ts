@@ -1,5 +1,5 @@
 import { DiTypes } from "@core/di/types";
-import { AuthController } from "auth/routes/auth.controller";
+import { AuthController } from "auth/presentation/controllers/auth.controller";
 import { PostsController } from "posts/presentation/controllers/posts.controller";
 import { SecurityDevicesController } from "security-devices/routers/security-devices.controller";
 import { ICustomRateLimit } from "@core/interfaces/custom-rate-limit.interface";

@@ -7,7 +7,7 @@ import { UserDb } from "users/infrastructure/schemas/user-schema";
 export interface IAuthService {
   checkUserCredentials(
     command: WithMeta<LoginAuthDtoCommand>
-  ): Promise<ApplicationResult<UserEntity>>;
+  ): Promise<ApplicationResult<UserEntity | null>>;
 
   loginUser(command: WithMeta<LoginAuthDtoCommand>): Promise<
     ApplicationResult<{
