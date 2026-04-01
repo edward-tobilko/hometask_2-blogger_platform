@@ -57,16 +57,38 @@ describe("E2E delete user tests", () => {
   });
 
   // * если не существующий id
-  it("should return status 404 if user does not exist", async () => {
+  it("should return status 400 if user does not exist", async () => {
     const fakeId = "507f1f77bcf86cd799439011";
 
-    await deleteUser(app, fakeId).expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+    const response = await deleteUser(app, fakeId).expect(
+      HTTP_STATUS_CODES.BAD_REQUEST_400
+    );
+
+    expect(response.body.errorsMessages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          field: expect.any(String),
+          message: expect.any(String),
+        }),
+      ])
+    );
   });
 
   // * если не валидный id
   it("should return status 404 for invalid id format", async () => {
     const invalidId = "invalid-id-123";
 
-    await deleteUser(app, invalidId).expect(HTTP_STATUS_CODES.NOT_FOUND_404);
+    const response = await deleteUser(app, invalidId).expect(
+      HTTP_STATUS_CODES.NOT_FOUND_404
+    );
+
+    expect(response.body.errorsMessages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          field: expect.any(String),
+          message: expect.any(String),
+        }),
+      ])
+    );
   });
 });

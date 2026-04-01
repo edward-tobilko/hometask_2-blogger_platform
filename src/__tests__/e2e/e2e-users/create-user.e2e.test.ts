@@ -11,6 +11,8 @@ import { getUserDto } from "../utils/users/get-user-dto.util";
 import { routersPaths } from "@core/paths/paths";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";
+import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
+import { getUsersList } from "../utils/users/get-users-list.util";
 
 describe("E2E create user tests", () => {
   const app = express();
@@ -34,6 +36,12 @@ describe("E2E create user tests", () => {
     const createdUser = await createUserBodyDto(app, dto);
 
     expectUserCreatedResponse(createdUser, dto);
+
+    // * List check
+    const usersList = await getUsersList(app);
+
+    expect(usersList.body.items).toHaveLength(1);
+    expect(usersList.body.items[0].id).toBe(createdUser.id);
   });
 
   it.each([
@@ -120,7 +128,9 @@ describe("E2E create user tests", () => {
 
     await createUser(app, dto); // 201
 
-    const duplicateResult = await createUser(app, dto);
+    const duplicateResult = await createUser(app, dto).expect(
+      HTTP_STATUS_CODES.BAD_REQUEST_400
+    );
 
     expect(duplicateResult.body.errorsMessages).toEqual(expect.any(Array));
     expect(duplicateResult.body.errorsMessages.length).toBeGreaterThan(0);
@@ -137,6 +147,9 @@ describe("E2E create user tests", () => {
   it("POST /users -> status 401 - if no Authorization", async () => {
     const dto = getUserDto();
 
-    await request(app).post(`${routersPaths.users}`).send(dto); // 401
+    await request(app)
+      .post(`${routersPaths.users}`)
+      .send(dto)
+      .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 });

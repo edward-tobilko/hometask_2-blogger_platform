@@ -8,6 +8,7 @@ import { createUserBodyDto } from "../utils/users/create-user.util";
 import { getUsersList } from "../utils/users/get-users-list.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";
+import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 
 describe("E2E get users list tests", () => {
   const app = express();
@@ -45,6 +46,14 @@ describe("E2E get users list tests", () => {
     expect(page1.body.pagesCount).toBe(2);
     expect(page1.body.items).toHaveLength(10);
 
+    // * проверяем структуру первого элемента
+    expect(page1.body.items[0]).toEqual({
+      id: expect.any(String),
+      login: expect.any(String),
+      email: expect.any(String),
+      createdAt: expect.any(String),
+    });
+
     // * на 2й сторанице -> pageSize=2 (totalCount=12, pagesCount=2)
     const page2 = await getUsersList(app, {
       query: { pageNumber: 2, pageSize: 10 },
@@ -74,7 +83,14 @@ describe("E2E get users list tests", () => {
     }).expect(HTTP_STATUS_CODES.OK_200);
 
     expect(response.body.totalCount).toBe(1);
+
+    // * проверяем что нашли john
     expect(response.body.items[0].login).toBe("john");
+
+    // * проверяем что jane не попала
+    expect(
+      response.body.items.find((item: CreateUserRP) => item.login === "jane")
+    ).toBeUndefined();
   });
 
   // * searching user by email
@@ -101,7 +117,7 @@ describe("E2E get users list tests", () => {
 
   it("GET /users -> status 401 - if no Basic auth", async () => {
     await request(app)
-      .post(`${routersPaths.users}`)
+      .get(`${routersPaths.users}`)
       .expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 });

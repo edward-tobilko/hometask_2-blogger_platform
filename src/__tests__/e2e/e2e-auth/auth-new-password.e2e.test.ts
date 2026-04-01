@@ -9,7 +9,7 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
 import { container } from "@core/di/inversify.config";
 import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
 import { createAuthLogin } from "../utils/auth/auth-login.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
@@ -49,29 +49,29 @@ describe("E2E: password recovery flow", () => {
 
     // * get confirmation code from mongo by IoC
     const usersQueryRepo = container.get<IUsersQueryRepository>(
-      Types.IUsersQueryRepository
+      DiTypes.IUsersQueryRepository
     );
-    const usersRepo = container.get<IUsersRepository>(Types.IUsersRepository);
+    const usersRepo = container.get<IUsersRepository>(DiTypes.IUsersRepository);
 
     const dbUser = await usersQueryRepo.findByEmail(user.email);
 
     const recoveryCode = dbUser!.recoveryPasswordInfo?.recoveryCode;
+
     if (!recoveryCode) {
       throw new Error("Recovery code not found");
     }
 
-    if (!dbUser || !dbUser._id) {
-      throw new Error("User not found or _id missing");
-    }
+    if (!dbUser) throw new Error("User not found or");
 
     expect(dbUser?._id).toBeTruthy();
     expect(dbUser!.recoveryPasswordInfo?.recoveryCode).toBeTruthy();
 
     // * делаем expirationDate в прошлом (просрочено)
-    await usersRepo.sendRecoveryPasswordEmail(dbUser!._id, {
-      recoveryCode,
-      expirationDate: new Date(Date.now() - 60_000), // 1 минута назад
-    });
+    const userEntity = await usersRepo.findByEmail(user.email);
+
+    userEntity!.forceExpireRecoveryCode();
+
+    await usersRepo.save(userEntity!);
 
     await request(app)
       .post(newPasswordUrl)
@@ -94,7 +94,7 @@ describe("E2E: password recovery flow", () => {
 
     // * get confirmation code from mongo by IoC
     const usersQueryRepo = container.get<IUsersQueryRepository>(
-      Types.IUsersQueryRepository
+      DiTypes.IUsersQueryRepository
     );
 
     const dbUser = await usersQueryRepo.findByEmail(user.email);
@@ -125,13 +125,48 @@ describe("E2E: password recovery flow", () => {
   });
 
   it("POST: /auth/new-password -> 400 if recoveryCode incorrect", async () => {
-    await request(app)
+    const result = await request(app)
       .post(newPasswordUrl)
       .send({
         newPassword: "NewPass123!",
         recoveryCode: "incorrect-recovery-code",
       })
-      .expect(400);
+      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
+
+    expect(result.body.errorsMessages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          field: "recoveryCode",
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it("POST: /auth/new-password -> 400 if recoveryCode already used", async () => {
+    // * get confirmation code from mongo by IoC
+    const usersQueryRepo = container.get<IUsersQueryRepository>(
+      DiTypes.IUsersQueryRepository
+    );
+
+    const user = await setRegisterAndConfirmUser(app);
+
+    await request(app).post(passwordRecoveryUrl).send({ email: user.email });
+
+    const dbUser = await usersQueryRepo.findByEmail(user.email);
+    const recoveryCode = dbUser!.recoveryPasswordInfo?.recoveryCode;
+
+    // * первый раз — успешно
+    await request(app)
+      .post(newPasswordUrl)
+      .send({ newPassword: "NewPass123!", recoveryCode })
+      .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
+
+    // * второй раз с тем же кодом → 400
+    await request(app)
+      .post(newPasswordUrl)
+      .send({ newPassword: "AnotherPass123!", recoveryCode })
+      .expect(HTTP_STATUS_CODES.BAD_REQUEST_400);
   });
 
   it.each([

@@ -57,14 +57,6 @@ describe("E2E Auth refresh-token tests", () => {
     // * проверка accessToken на совместимость с JWT
     expect(typeof refreshResult.body.accessToken).toBe("string");
     expect(refreshResult.body.accessToken.split(".")).toHaveLength(3);
-
-    // const setCookieRaw = getCookieString(refreshResult.headers["set-cookie"]);
-
-    // expect(setCookieRaw.toLowerCase()).toContain("refreshtoken=");
-    // expect(setCookieRaw.toLowerCase()).toContain("httponly");
-    // expect(setCookieRaw.toLowerCase()).toContain("secure");
-    // expect(setCookieRaw.toLowerCase()).toContain("samesite=strict");
-    // expect(setCookieRaw.toLowerCase()).toContain("path=/");
   });
 
   it("POST /auth/refresh-token -> status 401 - if no refreshToken cookie", async () => {
@@ -104,6 +96,12 @@ describe("E2E Auth refresh-token tests", () => {
     // * new refresh must still work
     await setAuthRefreshToken(app, newRefreshCookie).expect(
       HTTP_STATUS_CODES.OK_200
+    );
+  });
+
+  it("POST /auth/refresh-token -> status 401 - with invalid token", async () => {
+    await setAuthRefreshToken(app, "refreshToken=invalid.token.here").expect(
+      HTTP_STATUS_CODES.UNAUTHORIZED_401
     );
   });
 });

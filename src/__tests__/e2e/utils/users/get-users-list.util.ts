@@ -3,9 +3,9 @@ import { Express } from "express";
 
 import { routersPaths } from "@core/paths/paths";
 import { generateBasicAuthToken } from "../generate-admin-auth-token";
-import { UsersListRP } from "users/routes/request-payload-types/get-users-list.request-payload-types";
-import { UserSortFieldRP } from "users/routes/request-payload-types/user-sort-field.request-payload-types";
 import { SortDirections } from "@core/types/sort-directions.enum";
+import { UsersListRP } from "users/presentation/request-payload-types/get-users-list.request-payload-types";
+import { UserSortFieldRP } from "users/presentation/request-payload-types/user-sort-field.request-payload-types";
 
 export function getUsersList(
   app: Express,
