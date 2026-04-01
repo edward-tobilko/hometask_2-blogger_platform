@@ -12,9 +12,9 @@ import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";
 import { UserModel } from "users/infrastructure/schemas/user-schema";
 
-const testUserDto: UserDtoDomain = getUserDto();
-
 describe("E2E Auth Registration tests", () => {
+  const testUserDto: UserDtoDomain = getUserDto();
+
   const app = express();
 
   beforeAll(async () => {
@@ -46,16 +46,18 @@ describe("E2E Auth Registration tests", () => {
 
     // * Минимальная проверка, что пользователь реально создан в БД
     const createdUser = await UserModel.findOne({ email: userDto.email });
+
     expect(createdUser).toBeTruthy();
     expect(createdUser!.emailConfirmation.isConfirmed).toBe(false);
+    expect(createdUser!.emailConfirmation.confirmationCode).toBeTruthy();
+    expect(createdUser!.emailConfirmation.expirationDate).toBeTruthy();
   });
 
   it("POST: /auth/registration -> 400 (duplicate login)", async () => {
     const userDtoFirst = getUserDto();
     const userDtoSecond = {
       ...getUserDto(),
-      login: userDtoFirst.login, // дубликат
-      email: "example2@example.dev",
+      login: userDtoFirst.login,
     };
 
     await createAuthRegisterUser(app, userDtoFirst).expect(
@@ -105,6 +107,11 @@ describe("E2E Auth Registration tests", () => {
   it.each([
     // * login validation
     {
+      name: "login is empty",
+      payload: { ...testUserDto, login: "" },
+      field: "login",
+    },
+    {
       name: "login must be string",
       payload: { ...testUserDto, login: 2 },
       field: "login",
@@ -122,6 +129,11 @@ describe("E2E Auth Registration tests", () => {
 
     // * password validation
     {
+      name: "password is empty",
+      payload: { ...testUserDto, password: "" },
+      field: "password",
+    },
+    {
       name: "password must be string",
       payload: { ...testUserDto, password: 2 },
       field: "password",
@@ -138,6 +150,11 @@ describe("E2E Auth Registration tests", () => {
     },
 
     // * email validation
+    {
+      name: "email is empty",
+      payload: { ...testUserDto, email: "" },
+      field: "email",
+    },
     {
       name: "email must be string",
       payload: { ...testUserDto, email: 2 },

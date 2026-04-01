@@ -1,18 +1,20 @@
 import express from "express";
 import mongoose from "mongoose";
+import request from "supertest";
 
 import { setupApp } from "app";
 import { clearDb } from "../utils/clear-db";
 import { createAuthLogin, getLoginDto } from "../utils/auth/auth-login.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setRegisterAndConfirmUser } from "../utils/auth/registr-and-confirm-user.util";
-import { extractRefreshTokenCookie } from "../utils/cookie/cookies.util";
 import { SessionModel } from "auth/infrastructure/schemas/auth.schema";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
-
-const loginDto = getLoginDto();
+import { getUserDto } from "../utils/users/get-user-dto.util";
+import { routersPaths } from "@core/paths/paths";
 
 describe("E2E Auth Login tests", () => {
+  const loginDto = getLoginDto();
+
   const app = express();
 
   beforeAll(async () => {
@@ -43,13 +45,42 @@ describe("E2E Auth Login tests", () => {
     expect(result.body).toHaveProperty("accessToken");
     expect(typeof result.body.accessToken).toBe("string");
 
-    const cookie = extractRefreshTokenCookie(result.headers["set-cookie"]);
-    expect(cookie.startsWith("refreshToken=")).toBe(true);
+    const rawCookies = result.headers["set-cookie"] as unknown as string[];
+    const refreshCookie = rawCookies.find((c: string) =>
+      c.startsWith("refreshToken=")
+    );
+
+    // * check important attributes
+    expect(refreshCookie).toContain("HttpOnly");
+    expect(refreshCookie).toContain("Path=/");
 
     const sessionsCount = await SessionModel.countDocuments({
       login: userDto.login,
     });
     expect(sessionsCount).toBe(1);
+  });
+
+  it("POST: /auth/login -> status 401 - if email not confirmed", async () => {
+    const dto = getUserDto();
+
+    // * создаём без подтверждения (isConfirmed = false)
+    await request(app)
+      .post(`${routersPaths.auth}/registration`)
+      .send(dto)
+      .expect(HTTP_STATUS_CODES.NO_CONTENT_204);
+
+    // * пытаемся залогиниться без подтверждения email
+    await createAuthLogin(app, {
+      loginOrEmail: dto.login,
+      password: dto.password,
+    }).expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+  });
+
+  it("POST: /auth/login -> status 401 - user does not exist", async () => {
+    await createAuthLogin(app, {
+      loginOrEmail: "nonexistent@test.com",
+      password: "password123",
+    }).expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
   });
 
   it("POST: /auth/login -> status 401 - with wrong password", async () => {

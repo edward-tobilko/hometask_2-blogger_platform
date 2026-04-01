@@ -5,7 +5,7 @@ import { createAuthRegisterUser } from "./auth-registr.util";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createAuthConfirmRegistration } from "./auth-confirm-registr.util";
 import { container } from "@core/di/inversify.config";
-import { Types } from "@core/di/types";
+import { DiTypes } from "@core/di/types";
 import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
 
 type RegisterUserTestResult = {
@@ -30,7 +30,7 @@ export async function setRegisterAndConfirmUser(
 
   // * get confirmation code from mongo by IoC
   const usersQueryRepo = container.get<IUsersQueryRepository>(
-    Types.IUsersQueryRepository
+    DiTypes.IUsersQueryRepository
   );
 
   // * take status code from db

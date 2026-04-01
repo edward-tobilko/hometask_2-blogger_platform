@@ -4,12 +4,15 @@ import mongoose from "mongoose";
 import { setupApp } from "app";
 import { clearDb } from "../utils/clear-db";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-
 import { getUserDto } from "../utils/users/get-user-dto.util";
 import { createAuthRegisterUser } from "../utils/auth/auth-registr.util";
 import { createAuthConfirmRegistration } from "../utils/auth/auth-confirm-registr.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { UserModel } from "users/infrastructure/schemas/user-schema";
+import { container } from "@core/di/inversify.config";
+import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
+import { DiTypes } from "@core/di/types";
+import { createAuthLogin } from "../utils/auth/auth-login.util";
 
 describe("E2E Auth Registration Confirmation tests", () => {
   const app = express();
@@ -54,6 +57,11 @@ describe("E2E Auth Registration Confirmation tests", () => {
   });
 
   it.each([
+    {
+      name: "code is empty string",
+      payload: { code: "" },
+      field: "code",
+    },
     {
       name: "code is missing",
       payload: {},
@@ -142,14 +150,13 @@ describe("E2E Auth Registration Confirmation tests", () => {
     const userBefore = await UserModel.findOne({ email: userDto.email });
 
     // * make code expired
-    await UserModel.updateOne(
-      { email: userDto.email },
-      {
-        $set: {
-          "emailConfirmation.expirationDate": new Date(Date.now() - 60_000),
-        },
-      } // 1 min ago
-    );
+    const usersRepo = container.get<IUsersRepository>(DiTypes.IUsersRepository);
+
+    const userEntity = await usersRepo.findByEmail(userDto.email);
+
+    userEntity!.forceExpireConfirmationCode();
+
+    await usersRepo.save(userEntity!);
 
     const result = await createAuthConfirmRegistration(app, {
       code: userBefore!.emailConfirmation.confirmationCode,
@@ -163,5 +170,31 @@ describe("E2E Auth Registration Confirmation tests", () => {
         }),
       ])
     );
+  });
+
+  it("POST: /auth/registration-confirmation -> after confirmation user can login", async () => {
+    const userDto = getUserDto();
+
+    await createAuthRegisterUser(app, userDto).expect(
+      HTTP_STATUS_CODES.NO_CONTENT_204
+    );
+
+    // * до подтверждения → 401
+    await createAuthLogin(app, {
+      loginOrEmail: userDto.login,
+      password: userDto.password,
+    }).expect(HTTP_STATUS_CODES.UNAUTHORIZED_401);
+
+    const user = await UserModel.findOne({ email: userDto.email });
+
+    await createAuthConfirmRegistration(app, {
+      code: user!.emailConfirmation.confirmationCode,
+    }).expect(HTTP_STATUS_CODES.NO_CONTENT_204);
+
+    // * после подтверждения → 200
+    await createAuthLogin(app, {
+      loginOrEmail: userDto.login,
+      password: userDto.password,
+    }).expect(HTTP_STATUS_CODES.OK_200);
   });
 });

@@ -8,8 +8,6 @@ import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { getUserDto } from "./get-user-dto.util";
 import { CreateUserRP } from "users/presentation/request-payload-types/create-user.request-payload-types";
 
-const defaultUserDto = getUserDto();
-
 export function createUser(app: Express, dto: CreateUserRP) {
   return request(app)
     .post(routersPaths.users)
@@ -19,7 +17,7 @@ export function createUser(app: Express, dto: CreateUserRP) {
 
 export const createUserBodyDto = async (
   app: Express,
-  dto: CreateUserRP = defaultUserDto
+  dto: CreateUserRP = getUserDto()
 ): Promise<UserOutput> => {
   const result = await createUser(app, dto).expect(
     HTTP_STATUS_CODES.CREATED_201
