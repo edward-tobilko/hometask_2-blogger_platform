@@ -27,6 +27,7 @@ export const createSecurityDevicesRouter = (
   // * DELETE: Terminate all other (exclude current) device's sessions.
   securityDevicesRouter.delete(
     "",
+    jwtRefreshAuthGuard(jwtService, sessionRepo),
 
     securityDevicesController.removeSecurityDevicesSessionsHandler.bind(
       securityDevicesController
@@ -36,6 +37,7 @@ export const createSecurityDevicesRouter = (
   // * DELETE: Terminate specified device session.
   securityDevicesRouter.delete(
     "/:deviceId",
+    jwtRefreshAuthGuard(jwtService, sessionRepo),
 
     param("deviceId")
       .exists()

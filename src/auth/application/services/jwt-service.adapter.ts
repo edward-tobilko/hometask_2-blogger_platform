@@ -7,6 +7,7 @@ import {
   IJWTRefreshPayload,
   IJWTService,
 } from "auth/application/interfaces/jwt-service.interface";
+import { log } from "logger";
 
 const AT_SECRET: Secret = appConfig.AT_SECRET; // type Secret - проверяет, чтобы не было AT_SECRET = null
 const RT_SECRET: Secret = appConfig.RT_SECRET as unknown as Secret;
@@ -66,6 +67,8 @@ export class JWTService implements IJWTService {
     try {
       const result = jwt.verify(token, RT_SECRET) as IJWTRefreshPayload;
 
+      log.info({ result }, "result from verifyRefreshToken");
+
       return {
         userId: result.userId,
         deviceId: result.deviceId,
@@ -73,6 +76,8 @@ export class JWTService implements IJWTService {
         iat: result.iat,
       };
     } catch (error: unknown) {
+      log.error({ error }, "verifyRefreshToken failed"); // ← добавь
+
       return null;
     }
   }

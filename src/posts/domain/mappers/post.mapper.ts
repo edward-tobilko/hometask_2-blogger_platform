@@ -21,11 +21,11 @@ export class PostMapper {
       createdAt: doc.createdAt,
 
       extendedLikesInfo: {
-        likesCount: doc.extendedLikesInfo.likesCount ?? 0,
-        dislikesCount: doc.extendedLikesInfo.dislikesCount ?? 0,
+        likesCount: doc.extendedLikesInfo?.likesCount ?? 0,
+        dislikesCount: doc.extendedLikesInfo?.dislikesCount ?? 0,
 
         // * берем из mongo
-        newestLikes: (doc.extendedLikesInfo.newestLikes ?? []).map((like) => ({
+        newestLikes: (doc.extendedLikesInfo?.newestLikes ?? []).map((like) => ({
           addedAt: like.addedAt,
           userId: like.userId.toString(),
           login: like.login,

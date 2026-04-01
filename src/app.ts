@@ -11,6 +11,7 @@ import {
   getPostsController,
   getSecurityDevicesController,
   getSessionQueryRepo,
+  getSessionRepo,
   getUsersController,
   initCompositionRoot,
 } from "composition-root";
@@ -51,6 +52,7 @@ export const setupApp = (app: Express) => {
   const blogsQueryService = getBlogsQueryService();
   const jwtService = getJwtService();
   const sessionQueryRepository = getSessionQueryRepo();
+  const sessionRepository = getSessionRepo();
 
   // * Root router
   app.get(routersPaths.root, (_req: Request, res: Response) => {
@@ -109,7 +111,11 @@ export const setupApp = (app: Express) => {
   app.use(
     routersPaths.securityDevices,
 
-    createSecurityDevicesRouter(securityDevicesController)
+    createSecurityDevicesRouter(
+      securityDevicesController,
+      jwtService,
+      sessionRepository
+    )
   );
 
   // * Users router

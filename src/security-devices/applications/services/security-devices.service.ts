@@ -6,38 +6,32 @@ import { ApplicationResultStatus } from "@core/result/types/application-result-s
 import { DiTypes } from "@core/di/types";
 import { ISecurityDevicesService } from "security-devices/applications/interfaces/security-devices-service.interface";
 import { ISecurityDevicesRepo } from "security-devices/applications/interfaces/security-devices-repo.interface";
-import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
+import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
 
 @injectable()
 export class SecurityDevicesService implements ISecurityDevicesService {
   constructor(
     @inject(DiTypes.ISecurityDevicesRepo)
     private securityDevicesRepo: ISecurityDevicesRepo,
-    @inject(DiTypes.ISessionQueryRepo)
-    private sessionQueryRepo: ISessionQueryRepo
+    @inject(DiTypes.ISessionRepository)
+    private sessionRepo: ISessionRepository
   ) {}
 
   async removeAllSecurityDevicesExceptCurrent(
     userId: string,
     currentDeviceId: string
-  ): Promise<ApplicationResult<boolean>> {
+  ): Promise<void> {
     await this.securityDevicesRepo.removeAllSecurityDevicesExceptCurrent(
       userId,
       currentDeviceId
     );
-
-    return new ApplicationResult({
-      status: ApplicationResultStatus.Success,
-      data: true,
-      extensions: [],
-    });
   }
 
   async removeSecurityDeviceById(
     deviceId: string,
     currentUserId: string
   ): Promise<ApplicationResult<boolean>> {
-    const session = await this.sessionQueryRepo.findByDeviceId(deviceId);
+    const session = await this.sessionRepo.findByDeviceId(deviceId);
 
     if (!session) {
       return new ApplicationResult({
@@ -60,6 +54,14 @@ export class SecurityDevicesService implements ISecurityDevicesService {
 
     const deletedDevice =
       await this.securityDevicesRepo.removeSecurityDeviceById(deviceId);
+
+    if (!deletedDevice) {
+      return new ApplicationResult({
+        status: ApplicationResultStatus.NotFound,
+        data: false,
+        extensions: [new NotFoundError("Device not found", "deviceId")],
+      });
+    }
 
     return new ApplicationResult({
       status: ApplicationResultStatus.Success,

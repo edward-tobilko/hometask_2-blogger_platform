@@ -24,6 +24,7 @@ import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto
 import { UpdatePostRP } from "../request-payload-types/update-post.request-payload-types";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { log } from "logger";
 
 @injectable()
 export class PostsController {
@@ -246,15 +247,17 @@ export class PostsController {
 
       const post = await this.postQueryService.getPostById(id, currentUserId);
 
+      log.debug({ post }, "post from getPostHandler");
+
       if (!post.isSuccess()) {
         return res
           .status(mapApplicationStatusToHttpStatus(post.status))
           .json({ errorsMessages: post.extensions });
       }
 
-      res.status(HTTP_STATUS_CODES.OK_200).json(post);
+      res.status(HTTP_STATUS_CODES.OK_200).json(post.data);
     } catch (error: unknown) {
-      console.log("ERROR HANDLER:", error);
+      log.error({ error }, "getPostHandler error");
 
       errorsHandler(error, req, res);
     }

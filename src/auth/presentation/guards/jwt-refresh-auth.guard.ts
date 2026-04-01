@@ -47,7 +47,7 @@ export function jwtRefreshAuthGuard(
 
       req.user = { id: userId } as IdType; // req.user adding from express.d.ts
       req.deviceId = deviceId as string;
-      req.session = { deviceId, sessionId };
+      req.sessionData = { deviceId, sessionId };
 
       next();
     } catch (error: unknown) {

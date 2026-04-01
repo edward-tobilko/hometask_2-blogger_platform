@@ -4,7 +4,7 @@ export interface ISecurityDevicesService {
   removeAllSecurityDevicesExceptCurrent(
     userId: string,
     currentDeviceId: string
-  ): Promise<ApplicationResult<boolean>>;
+  ): Promise<void>;
 
   removeSecurityDeviceById(
     deviceId: string,

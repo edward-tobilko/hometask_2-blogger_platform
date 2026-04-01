@@ -10,6 +10,7 @@ import { CommentsController } from "comments/presentation/controllers/comments.c
 import { BlogsController } from "blogs/presentation/controllers/blogs.controller";
 import { ISessionQueryRepo } from "auth/application/interfaces/session-query-repo.interface";
 import { UsersController } from "users/presentation/controllers/users-controller";
+import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
 
 let inited = false;
 
@@ -53,6 +54,9 @@ export const getJwtService = () =>
 
 export const getSessionQueryRepo = () =>
   container.get<ISessionQueryRepo>(DiTypes.ISessionQueryRepo);
+
+export const getSessionRepo = () =>
+  container.get<ISessionRepository>(DiTypes.ISessionRepository);
 
 // ? В чем преимущества использования таких getters?:
 // ? 1. Упрощение тестирования: можно легко подменить реализацию контроллера на мок или стабы.
