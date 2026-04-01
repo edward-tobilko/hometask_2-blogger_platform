@@ -71,7 +71,7 @@ export class UsersRepository implements IUsersRepository {
     const userDocument = new UserModel(userDb);
 
     // * Сохраняем с пом. meta методом mongoose нашь екземпляр
-    await userDocument.save();
+    await userDocument.save(); // Active Record паттерн
 
     return UserMapper.toDomain(userDocument);
   }

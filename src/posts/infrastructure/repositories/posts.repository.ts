@@ -35,7 +35,7 @@ export class PostsRepository implements IPostsRepo {
     // * создаем новый объект экземпляра поста
     const postInstanceDoc = new PostModel(postDb);
 
-    await postInstanceDoc.save();
+    await postInstanceDoc.save(); // Active Record паттерн
 
     return PostMapper.toDomain(postInstanceDoc);
   }
@@ -60,7 +60,7 @@ export class PostsRepository implements IPostsRepo {
       // * likesInfo подтянится с модельки
     });
 
-    await postCommentInstanceDoc.save();
+    await postCommentInstanceDoc.save(); // Active Record паттерн
 
     return PostCommentEntity.reconstitute({
       // * ручной маппинг (просто для наглядности)
