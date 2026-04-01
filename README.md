@@ -117,4 +117,3 @@ DISABLE_RATE_LIMIT=false
 <img width="457" height="576" alt="Screenshot 2026-03-31 at 8 14 28 PM" src="https://github.com/user-attachments/assets/6dfa4dee-b71b-49ee-99a6-5db18530cab8" />
 
 [Download Sprint_3_week_4.pdf](https://github.com/user-attachments/files/26392248/Sprint_3_week_4.pdf)
-print_3_week_3.pdf)
