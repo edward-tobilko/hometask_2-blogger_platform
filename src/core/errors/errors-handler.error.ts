@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { createErrorMessages } from "./create-error-messages.error";
 import { HTTP_STATUS_CODES } from "../result/types/http-status-codes.enum";
 import { ApplicationError } from "./application.error";
-import { log } from "logger";
+import { log } from "@core/logger/logger";
 
 export const errorsHandler = (
   err: unknown,

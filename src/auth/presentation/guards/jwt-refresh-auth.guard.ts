@@ -4,7 +4,7 @@ import { IdType } from "../../../core/types/id";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
 import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
-import { log } from "logger";
+import { log } from "@core/logger/logger";
 
 export function jwtRefreshAuthGuard(
   jwtService: IJWTService,
