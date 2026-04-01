@@ -27,7 +27,7 @@ export class BlogsRepository implements IBlogsRepository {
     const blogDb = BlogMapper.toDb(newBlog);
     const blogInstanceDoc = new BlogModel(blogDb);
 
-    await blogInstanceDoc.save();
+    await blogInstanceDoc.save(); // Active Record паттерн
 
     return BlogMapper.toDomain(blogInstanceDoc);
   }
@@ -54,7 +54,7 @@ export class BlogsRepository implements IBlogsRepository {
     const postDocument = PostMapper.toDb(postForBlogEntity);
     const postInstanceDoc = new PostModel(postDocument);
 
-    await postInstanceDoc.save();
+    await postInstanceDoc.save(); // Active Record паттерн
 
     return PostMapper.toDomain(postInstanceDoc);
   }
