@@ -197,6 +197,9 @@ export class UserEntity {
   }
 
   confirmEmail(code: string): void {
+    if (this.props.emailConfirmation.isConfirmed)
+      throw new ValidationError("Email is already confirmed", "code", 400);
+
     if (
       !this.props.emailConfirmation.confirmationCode ||
       this.props.emailConfirmation.confirmationCode !== code
@@ -205,7 +208,7 @@ export class UserEntity {
     }
 
     if (
-      this.props.emailConfirmation.expirationDate &&
+      !this.props.emailConfirmation.expirationDate ||
       this.props.emailConfirmation.expirationDate < new Date()
     ) {
       throw new ValidationError(
@@ -214,9 +217,6 @@ export class UserEntity {
         400
       );
     }
-
-    if (this.props.emailConfirmation.isConfirmed)
-      throw new ValidationError("Email is already confirmed", "code", 400);
 
     this.props.emailConfirmation.confirmationCode = "";
     this.props.emailConfirmation.expirationDate = null;
@@ -229,5 +229,18 @@ export class UserEntity {
       expirationDate: add(new Date(), { hours: 1, minutes: 3 }),
       isConfirmed: false,
     };
+  }
+
+  // * Method for tests
+  forceExpireRecoveryCode(): void {
+    if (this.props.recoveryPasswordInfo) {
+      this.props.recoveryPasswordInfo.expirationDate = new Date(
+        Date.now() - 60_000
+      );
+    }
+  }
+
+  forceExpireConfirmationCode(): void {
+    this.props.emailConfirmation.expirationDate = new Date(Date.now() - 60_000);
   }
 }

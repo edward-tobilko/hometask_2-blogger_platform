@@ -7,7 +7,7 @@ import {
   IJWTRefreshPayload,
   IJWTService,
 } from "auth/application/interfaces/jwt-service.interface";
-import { log } from "logger";
+import { log } from "@core/logger/logger";
 
 const AT_SECRET: Secret = appConfig.AT_SECRET; // type Secret - проверяет, чтобы не было AT_SECRET = null
 const RT_SECRET: Secret = appConfig.RT_SECRET as unknown as Secret;

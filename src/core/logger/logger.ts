@@ -3,13 +3,16 @@ import pino from "pino";
 import { appConfig } from "@core/settings/config";
 
 export const log = pino({
-  transport: {
-    target: "pino-pretty",
-    options: {
-      colorize: true,
-      translateTime: "SYS:standard",
+  ...(appConfig.NODE_ENV !== "test" && {
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "SYS:standard",
+      },
     },
-  },
+  }),
+
   level: appConfig.NODE_ENV === "production" ? "info" : "debug",
 });
 

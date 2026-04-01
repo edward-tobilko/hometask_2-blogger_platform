@@ -24,7 +24,9 @@ module.exports = {
     "^security-devices/(.*)$": "<rootDir>/src/security-devices/$1",
 
     "^__tests__/(.*)$": "<rootDir>/src/__tests__/$1",
+    "^core/(.*)$": "<rootDir>/src/core/$1",
     "^@core/(.*)$": "<rootDir>/src/core/$1",
     "^composition-root$": "<rootDir>/src/composition-root.ts",
+    "^logger$": "<rootDir>/src/core/logger/logger.ts",
   },
 };

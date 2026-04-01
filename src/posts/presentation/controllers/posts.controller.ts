@@ -24,7 +24,7 @@ import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto
 import { UpdatePostRP } from "../request-payload-types/update-post.request-payload-types";
 import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { log } from "logger";
+import { log } from "@core/logger/logger";
 
 @injectable()
 export class PostsController {

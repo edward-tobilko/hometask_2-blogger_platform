@@ -26,7 +26,7 @@ import {
 import { UserEntity } from "users/domain/entities/user.entity";
 import { SessionEntity } from "auth/domain/entities/session.entity";
 import { UserMapper } from "users/domain/mappers/user.mapper";
-import { log } from "logger";
+import { log } from "@core/logger/logger";
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -64,7 +64,7 @@ export class AuthService implements IAuthService {
 
     if (!userDoc.emailConfirmation.isConfirmed) {
       return new ApplicationResult({
-        status: ApplicationResultStatus.BadRequest,
+        status: ApplicationResultStatus.Unauthorized,
         data: null,
         extensions: [
           new UnauthorizedError("Your profile is not verified", "isConfirmed"),
