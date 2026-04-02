@@ -4,21 +4,21 @@ import { ClientSession, Types as MongooseTypes } from "mongoose";
 import { GetPostsListQueryHandler } from "../../application/query-handlers/get-posts-list.query-handler";
 import { GetPostCommentsListQueryHandler } from "../../application/query-handlers/get-post-comments-list.query-handler";
 import { PostCommentsListPaginatedOutput } from "../../application/output/post-comments-list-type.output";
-import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
-import { PostLean, PostModel } from "posts/infrastructure/schemas/post.schema";
+import { IPostsQueryRepo } from "@posts/application/interfaces/posts-query-repo.interface";
+import { PostLean, PostModel } from "@posts/infrastructure/schemas/post.schema";
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/infrastructure/schemas/post-comments.schema";
+} from "@posts/infrastructure/schemas/post-comments.schema";
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/infrastructure/schemas/comment-likes.schema";
-import { PostEntity } from "posts/domain/entities/post.entity";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
+} from "@comments/infrastructure/schemas/comment-likes.schema";
+import { PostEntity } from "@posts/domain/entities/post.entity";
 import { PostLikeLean, PostLikeModel } from "../schemas/post-like.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostCommentsMapper } from "posts/domain/mappers/post-comments.mapper";
+import { PostCommentsMapper } from "../mappers/post-comments.mapper";
+import { PostMapper } from "../mappers/post.mapper";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepo {

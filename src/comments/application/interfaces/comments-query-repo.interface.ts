@@ -1,4 +1,4 @@
-import { IPostCommentOutput } from "posts/application/output/post-comment.output";
+import { IPostCommentOutput } from "@posts/application/output/post-comment.output";
 
 export interface ICommentsQueryRepo {
   findCommentById(

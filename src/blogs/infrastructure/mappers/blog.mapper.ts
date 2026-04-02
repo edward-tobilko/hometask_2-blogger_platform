@@ -1,6 +1,6 @@
-import { BlogDb, BlogLean } from "blogs/infrastructure/schemas/blog.schema";
-import { BlogEntity } from "../entities/blog.entity";
-import { BlogOutput } from "blogs/application/output/blog-type.output";
+import { BlogDb, BlogLean } from "@blogs/infrastructure/schemas/blog.schema";
+import { BlogOutput } from "@blogs/application/output/blog-type.output";
+import { BlogEntity } from "@blogs/domain/entities/blog.entity";
 
 export class BlogMapper {
   // * Domain to Db

@@ -1,4 +1,4 @@
-import { PaginationSorting } from "../../../core/types/pagination-sorting.type";
+import { PaginationSorting } from "@core/types/pagination-sorting.type";
 import { PostCommentsSortFieldRP } from "../../presentation/request-payload-types/post-sort-field.request-payload-types";
 
 export type GetPostCommentsListQueryHandler =

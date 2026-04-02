@@ -1,13 +1,13 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
+import { ISessionRepository } from "@auth/application/interfaces/session-repo.interface";
 import {
   SessionLean,
   SessionModel,
-} from "auth/infrastructure/schemas/auth.schema";
-import { SessionEntity } from "auth/domain/entities/session.entity";
-import { SessionMapper } from "auth/domain/mappers/session.mapper";
+} from "@auth/infrastructure/schemas/auth.schema";
+import { SessionEntity } from "@auth/domain/entities/session.entity";
+import { SessionMapper } from "@auth/infrastructure/mappers/session.mapper";
 
 @injectable()
 export class SessionRepository implements ISessionRepository {

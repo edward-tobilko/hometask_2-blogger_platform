@@ -8,16 +8,16 @@ import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.reques
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { DiTypes } from "@core/di/types";
-import { PostsListRP } from "posts/presentation/request-payload-types/posts-list.request-payload-types";
-import { PostSortFieldRP } from "posts/presentation/request-payload-types/post-sort-field.request-payload-types";
+import { PostsListRP } from "@posts/presentation/request-payload-types/posts-list.request-payload-types";
+import { PostSortFieldRP } from "@posts/presentation/request-payload-types/post-sort-field.request-payload-types";
 import { CreateBlogRP } from "../request-payload-types/create-blog.request-payload-type";
 import { createCommand } from "@core/helpers/create-command.helper";
-import { CreateBlogDtoCommand } from "blogs/application/commands/blog-dto-type.commands";
-import { CreatePostForBlogRP } from "posts/presentation/request-payload-types/create-post-for-blog.request-payload-types";
-import { CreatePostForBlogDtoCommand } from "posts/application/commands/create-post-for-blog-dto.command";
+import { CreateBlogDtoCommand } from "@blogs/application/commands/blog-dto-type.commands";
+import { CreatePostForBlogRP } from "@posts/presentation/request-payload-types/create-post-for-blog.request-payload-types";
+import { CreatePostForBlogDtoCommand } from "@posts/application/commands/create-post-for-blog-dto.command";
 import { UpdateBlogRP } from "../request-payload-types/update-blog.request-payload";
-import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
-import { IBlogsService } from "blogs/application/interfaces/blogs-service.interface";
+import { IBlogsQueryService } from "@blogs/application/interfaces/blogs-query-service.interface";
+import { IBlogsService } from "@blogs/application/interfaces/blogs-service.interface";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 
 @injectable()

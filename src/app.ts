@@ -17,15 +17,15 @@ import {
 } from "composition-root";
 
 import { testingRoute } from "./testing/routes/testing.route";
-import { createPostsRouter } from "./posts/presentation/controllers/posts.router";
-import { routersPaths } from "./core/paths/paths";
-import { createAuthRouter } from "./auth/presentation/routers/auth.route";
+import { createPostsRouter } from "@posts/presentation/controllers/posts.router";
+import { routersPaths } from "@core/paths/paths";
+import { createAuthRouter } from "@auth/presentation/routers/auth.route";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { createSecurityDevicesRouter } from "security-devices/presentation/routers/security-devices.router";
+import { createSecurityDevicesRouter } from "@security-devices/presentation/routers/security-devices.router";
 import { appConfig } from "@core/settings/config";
-import { createCommentsRouter } from "comments/presentation/controllers/comments.router";
-import { createBlogsRouter } from "blogs/presentation/routes/blogs.route";
-import { createUsersRouter } from "users/presentation/routes/users.route";
+import { createCommentsRouter } from "@comments/presentation/controllers/comments.router";
+import { createBlogsRouter } from "@blogs/presentation/routes/blogs.route";
+import { createUsersRouter } from "@users/presentation/routes/users.route";
 
 export const setupApp = (app: Express) => {
   app.set(

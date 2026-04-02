@@ -1,4 +1,4 @@
-import { UserEntity } from "users/domain/entities/user.entity";
+import { UserEntity } from "@users/domain/entities/user.entity";
 
 export interface IEmailConfirmationUpdate {
   confirmationCode: string;

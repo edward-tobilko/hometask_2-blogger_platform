@@ -15,9 +15,8 @@ import { routersPaths } from "../../../core/paths/paths";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";
 
-const adminToken = generateBasicAuthToken();
-
 describe("E2E Blogs API tests", () => {
+  const adminToken = generateBasicAuthToken();
   const app = express();
 
   const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();

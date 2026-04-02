@@ -1,14 +1,14 @@
 import { injectable } from "inversify";
 import { ClientSession, Types } from "mongoose";
 
-import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
-import { PostLean, PostModel } from "posts/infrastructure/schemas/post.schema";
-import { PostCommentsModel } from "posts/infrastructure/schemas/post-comments.schema";
-import { PostEntity } from "posts/domain/entities/post.entity";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
-import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
+import { IPostsRepo } from "@posts/application/interfaces/posts-repo.interface";
+import { PostLean, PostModel } from "@posts/infrastructure/schemas/post.schema";
+import { PostCommentsModel } from "@posts/infrastructure/schemas/post-comments.schema";
+import { PostEntity } from "@posts/domain/entities/post.entity";
+import { PostCommentEntity } from "@posts/domain/entities/post-comment.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { PostLikeDocument, PostLikeModel } from "../schemas/post-like.schema";
+import { PostMapper } from "../mappers/post.mapper";
 
 @injectable()
 export class PostsRepository implements IPostsRepo {

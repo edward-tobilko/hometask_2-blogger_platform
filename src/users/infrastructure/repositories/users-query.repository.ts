@@ -1,12 +1,12 @@
 import { injectable } from "inversify";
 import { Types as MongooseTypes } from "mongoose";
 
-import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
-import { UserOutput } from "users/application/output/user.output";
-import { UsersListPaginatedOutput } from "users/application/output/users-list-paginated.output";
-import { GetUsersListQueryHandler } from "users/application/query-handlers/get-users-list.query-handler";
-import { UserMapper } from "users/domain/mappers/user.mapper";
-import { UserModel, UserLean } from "users/infrastructure/schemas/user-schema";
+import { IUsersQueryRepository } from "@users/application/interfaces/users-query-repo.interface";
+import { UserOutput } from "@users/application/output/user.output";
+import { UsersListPaginatedOutput } from "@users/application/output/users-list-paginated.output";
+import { GetUsersListQueryHandler } from "@users/application/query-handlers/get-users-list.query-handler";
+import { UserMapper } from "@users/infrastructure/mappers/user.mapper";
+import { UserModel, UserLean } from "@users/infrastructure/schemas/user-schema";
 
 @injectable()
 export class UsersQueryRepository implements IUsersQueryRepository {

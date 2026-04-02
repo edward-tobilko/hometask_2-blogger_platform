@@ -1,30 +1,30 @@
-import { IUsersQueryService } from "../../../users/application/interfaces/users-query-service.interface";
 import { inject, injectable } from "inversify";
 import mongoose from "mongoose";
 
-import { WithMeta } from "../../../core/types/with-meta.type";
-import { ApplicationResult } from "../../../core/result/application.result";
-import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
+import { IUsersQueryService } from "@users/application/interfaces/users-query-service.interface";
+import { WithMeta } from "@core/types/with-meta.type";
+import { ApplicationResult } from "@core/result/application.result";
+import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import {
   ApplicationError,
   InternalServerError,
   NotFoundError,
-} from "../../../core/errors/application.error";
+} from "@core/errors/application.error";
 import { CreatePostDtoCommand } from "../commands/create-post-dto.command";
 import { UpdatePostDtoCommand } from "../commands/update-post-dto.command";
 import { CreateCommentForPostDtoCommand } from "../commands/create-comment-for-post-dto.command";
 import { IPostCommentOutput } from "../output/post-comment.output";
-import { IPostsService } from "posts/application/interfaces/posts-service.interface";
+import { IPostsService } from "@posts/application/interfaces/posts-service.interface";
 import { DiTypes } from "@core/di/types";
-import { IPostsRepo } from "posts/application/interfaces/posts-repo.interface";
+import { IPostsRepo } from "@posts/application/interfaces/posts-repo.interface";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { IPostsQueryRepo } from "../interfaces/posts-query-repo.interface";
-import { PostEntity } from "posts/domain/entities/post.entity";
+import { PostEntity } from "@posts/domain/entities/post.entity";
 import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
 import { PostOutput } from "../output/post-type.output";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
 import { LikeEntity } from "@core/domain/entities/like.entity";
-import { IBlogsRepository } from "blogs/application/interfaces/blogs-repo.interface";
+import { IBlogsRepository } from "@blogs/application/interfaces/blogs-repo.interface";
 
 @injectable()
 export class PostsService implements IPostsService {

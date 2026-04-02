@@ -3,7 +3,7 @@ import { query } from "express-validator";
 
 import { UserSortFieldRP } from "../request-payload-types/user-sort-field.request-payload-types";
 import { createUserDtoMiddlewareValidations } from "../request-payload-validations/create-user-dto.middleware-validation";
-import { baseAuthGuard } from "auth/presentation/guards/base-auth.guard";
+import { baseAuthGuard } from "@auth/presentation/guards/base-auth.guard";
 import { UsersController } from "../controllers/users-controller";
 import { inputResultMiddlewareValidation } from "@core/middlewares/validation/input-result.middleware-validation";
 import { queryPaginationAndSortingValidation } from "@core/middlewares/validation/query-pagination-sorting.middleware-validation";

@@ -1,9 +1,9 @@
 import { ClientSession } from "mongoose";
 
-import { PostCommentsListPaginatedOutput } from "posts/application/output/post-comments-list-type.output";
-import { GetPostCommentsListQueryHandler } from "posts/application/query-handlers/get-post-comments-list.query-handler";
-import { GetPostsListQueryHandler } from "posts/application/query-handlers/get-posts-list.query-handler";
-import { PostEntity } from "posts/domain/entities/post.entity";
+import { PostCommentsListPaginatedOutput } from "@posts/application/output/post-comments-list-type.output";
+import { GetPostCommentsListQueryHandler } from "@posts/application/query-handlers/get-post-comments-list.query-handler";
+import { GetPostsListQueryHandler } from "@posts/application/query-handlers/get-posts-list.query-handler";
+import { PostEntity } from "@posts/domain/entities/post.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
 
 export interface IPostsQueryRepo {

@@ -1,18 +1,18 @@
 import { injectable } from "inversify";
 import { Types } from "mongoose";
 
-import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
-import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
+import { IPostCommentOutput } from "@posts/application/output/post-comment.output";
+import { ICommentsQueryRepo } from "@comments/application/interfaces/comments-query-repo.interface";
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/infrastructure/schemas/post-comments.schema";
+} from "@posts/infrastructure/schemas/post-comments.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/infrastructure/schemas/comment-likes.schema";
-import { CommentMapper } from "comments/domain/mappers/comment.mapper";
+} from "@comments/infrastructure/schemas/comment-likes.schema";
+import { CommentMapper } from "@comments/infrastructure/mappers/comment.mapper";
 
 @injectable()
 export class CommentsQueryRepo implements ICommentsQueryRepo {

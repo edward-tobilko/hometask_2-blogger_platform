@@ -6,9 +6,9 @@ import { IBlogsRepository } from "blogs/application/interfaces/blogs-repo.interf
 import { BlogLean, BlogModel } from "blogs/infrastructure/schemas/blog.schema";
 import { PostModel } from "posts/infrastructure/schemas/post.schema";
 import { BlogEntity } from "blogs/domain/entities/blog.entity";
-import { BlogMapper } from "blogs/domain/mappers/blog.mapper";
+import { BlogMapper } from "blogs/infrastructure/mappers/blog.mapper";
 import { PostEntity } from "posts/domain/entities/post.entity";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostMapper } from "posts/infrastructure/mappers/post.mapper";
 
 @injectable()
 export class BlogsRepository implements IBlogsRepository {

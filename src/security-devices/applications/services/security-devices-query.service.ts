@@ -3,9 +3,9 @@ import { inject, injectable } from "inversify";
 import { ApplicationResult } from "@core/result/application.result";
 import { SecurityDevicesListOutput } from "../output/security-devices-type.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
-import { ISecurityDevicesQueryService } from "security-devices/applications/interfaces/security-devices-query-service.interface";
+import { ISecurityDevicesQueryService } from "@security-devices/applications/interfaces/security-devices-query-service.interface";
 import { DiTypes } from "@core/di/types";
-import { ISecurityDevicesQueryRepo } from "security-devices/applications/interfaces/security-devices-query-repo.interface";
+import { ISecurityDevicesQueryRepo } from "@security-devices/applications/interfaces/security-devices-query-repo.interface";
 
 @injectable()
 export class SecurityDevicesQueryService

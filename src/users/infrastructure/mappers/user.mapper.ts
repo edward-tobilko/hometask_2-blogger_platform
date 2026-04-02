@@ -1,7 +1,7 @@
-import { UserDb, UserLean } from "users/infrastructure/schemas/user-schema";
-import { UserEntity } from "../entities/user.entity";
-import { UsersListPaginatedOutput } from "users/application/output/users-list-paginated.output";
-import { UserOutput } from "users/application/output/user.output";
+import { UserDb, UserLean } from "@users/infrastructure/schemas/user-schema";
+import { UserEntity } from "../../domain/entities/user.entity";
+import { UsersListPaginatedOutput } from "@users/application/output/users-list-paginated.output";
+import { UserOutput } from "@users/application/output/user.output";
 
 export class UserMapper {
   // * DB -> Domain

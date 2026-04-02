@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 
-import { FieldsOnly } from "../../../core/types/fields-only.type";
+import { FieldsOnly } from "@core/types/fields-only.type";
 import { BlogDtoDomain } from "../value-objects/blog-dto.domain";
 import { ValidationError } from "@core/errors/application.error";
 

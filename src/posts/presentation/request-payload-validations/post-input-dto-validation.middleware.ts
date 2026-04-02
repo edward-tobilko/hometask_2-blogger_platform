@@ -1,8 +1,8 @@
 import { body } from "express-validator";
-import { ObjectId } from "mongodb";
 
-import { RepositoryNotFoundError } from "../../../core/errors/application.error";
-import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
+import { RepositoryNotFoundError } from "@core/errors/application.error";
+import { IBlogsQueryService } from "@blogs/application/interfaces/blogs-query-service.interface";
+import { Types } from "mongoose";
 
 export const createPostBodyInputRPValidation = (
   blogsQueryService: IBlogsQueryService
@@ -60,7 +60,7 @@ export const createPostBodyInputRPValidation = (
     .notEmpty()
     .withMessage("Blog id is required")
     .bail()
-    .custom((id) => ObjectId.isValid(id))
+    .custom((id) => Types.ObjectId.isValid(id))
     .withMessage("Blog id must be a valid Mongo ObjectId")
     .bail()
     .custom(async (id: string) => {

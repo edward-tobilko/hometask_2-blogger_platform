@@ -1,12 +1,12 @@
 import { Types } from "mongoose";
 
 import { LikeStatus } from "@core/types/like-status.enum";
-import { IPostCommentOutput } from "posts/application/output/post-comment.output";
+import { IPostCommentOutput } from "@posts/application/output/post-comment.output";
 import {
   PostCommentsDb,
   PostCommentsLean,
-} from "posts/infrastructure/schemas/post-comments.schema";
-import { CommentEntity } from "../entities/comment.entity";
+} from "@posts/infrastructure/schemas/post-comments.schema";
+import { CommentEntity } from "@comments/domain/entities/comment.entity";
 
 export class CommentMapper {
   // * DB -> Output

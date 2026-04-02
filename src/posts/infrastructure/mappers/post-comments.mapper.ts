@@ -1,8 +1,8 @@
-import { PostCommentsListPaginatedOutput } from "posts/application/output/post-comments-list-type.output";
-import { PostCommentEntity } from "../entities/post-comment.entity";
-import { IPostCommentOutput } from "posts/application/output/post-comment.output";
+import { PostCommentsListPaginatedOutput } from "@posts/application/output/post-comments-list-type.output";
+import { IPostCommentOutput } from "@posts/application/output/post-comment.output";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostCommentsLean } from "posts/infrastructure/schemas/post-comments.schema";
+import { PostCommentsLean } from "@posts/infrastructure/schemas/post-comments.schema";
+import { PostCommentEntity } from "@posts/domain/entities/post-comment.entity";
 
 export class PostCommentsMapper {
   // * DB -> Domain

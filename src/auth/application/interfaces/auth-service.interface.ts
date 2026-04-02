@@ -1,8 +1,8 @@
 import { ApplicationResult } from "@core/result/application.result";
 import { WithMeta } from "@core/types/with-meta.type";
-import { LoginAuthDtoCommand } from "auth/application/commands/login-auth-dto.command";
-import { UserEntity } from "users/domain/entities/user.entity";
-import { UserDb } from "users/infrastructure/schemas/user-schema";
+import { UserEntity } from "@users/domain/entities/user.entity";
+import { UserDb } from "@users/infrastructure/schemas/user-schema";
+import { LoginAuthDtoCommand } from "../commands/login-auth-dto.command";
 
 export interface IAuthService {
   checkUserCredentials(

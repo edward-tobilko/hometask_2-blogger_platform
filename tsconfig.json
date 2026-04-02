@@ -25,9 +25,16 @@
     "baseUrl": "src",
 
     "paths": {
-      "@core/*": ["core/*"], // для удобного импорта файлов
-      "@tests/*": ["src/__tests__/*"],
-      "composition-root": ["composition-root.ts"]
+      // * для удобного импорта файлов
+      "@core/*": ["core/*"],
+      "@tests/*": ["__tests__/*"],
+      "composition-root": ["composition-root.ts"],
+      "@users/*": ["users/*"],
+      "@security-devices/*": ["security-devices/*"],
+      "@posts/*": ["posts/*"],
+      "@comments/*": ["comments/*"],
+      "@blogs/*": ["blogs/*"],
+      "@auth/*": ["auth/*"]
     }
   },
 

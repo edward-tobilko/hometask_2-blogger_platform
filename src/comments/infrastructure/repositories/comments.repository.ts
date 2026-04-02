@@ -4,15 +4,15 @@ import { Types, ClientSession } from "mongoose";
 import {
   PostCommentsLean,
   PostCommentsModel,
-} from "posts/infrastructure/schemas/post-comments.schema";
+} from "@posts/infrastructure/schemas/post-comments.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
 import {
   CommentLikeLean,
   CommentLikeModel,
-} from "comments/infrastructure/schemas/comment-likes.schema";
-import { ICommentsRepository } from "comments/application/interfaces/comments-repo.interface";
-import { CommentEntity } from "comments/domain/entities/comment.entity";
-import { CommentMapper } from "comments/domain/mappers/comment.mapper";
+} from "@comments/infrastructure/schemas/comment-likes.schema";
+import { ICommentsRepository } from "@comments/application/interfaces/comments-repo.interface";
+import { CommentEntity } from "@comments/domain/entities/comment.entity";
+import { CommentMapper } from "@comments/infrastructure/mappers/comment.mapper";
 
 @injectable()
 export class CommentsRepository implements ICommentsRepository {

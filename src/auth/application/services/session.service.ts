@@ -25,7 +25,7 @@ import {
 } from "@core/errors/application.error";
 import { UserEntity } from "users/domain/entities/user.entity";
 import { SessionEntity } from "auth/domain/entities/session.entity";
-import { UserMapper } from "users/domain/mappers/user.mapper";
+import { UserMapper } from "users/infrastructure/mappers/user.mapper";
 import { log } from "@core/logger/logger";
 
 @injectable()

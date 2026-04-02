@@ -1,4 +1,4 @@
-import { SessionLean } from "auth/infrastructure/schemas/auth.schema";
+import { SessionLean } from "@auth/infrastructure/schemas/auth.schema";
 
 export interface ISessionQueryRepo {
   findByDeviceId(

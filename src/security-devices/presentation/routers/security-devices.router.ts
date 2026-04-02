@@ -3,9 +3,9 @@ import { param } from "express-validator";
 
 import { inputResultMiddlewareValidation } from "@core/middlewares/validation/input-result.middleware-validation";
 import { SecurityDevicesController } from "../controllers/security-devices.controller";
-import { jwtRefreshAuthGuard } from "auth/presentation/guards/jwt-refresh-auth.guard";
-import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
-import { ISessionRepository } from "auth/application/interfaces/session-repo.interface";
+import { jwtRefreshAuthGuard } from "@auth/presentation/guards/jwt-refresh-auth.guard";
+import { IJWTService } from "@auth/application/interfaces/jwt-service.interface";
+import { ISessionRepository } from "@auth/application/interfaces/session-repo.interface";
 
 export const createSecurityDevicesRouter = (
   securityDevicesController: SecurityDevicesController,

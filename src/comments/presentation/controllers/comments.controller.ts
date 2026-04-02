@@ -9,9 +9,9 @@ import { DiTypes } from "@core/di/types";
 import { UpdateCommentRP } from "../request-payload-types/update-comment.request-payload-types";
 import { createCommand } from "@core/helpers/create-command.helper";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { UpdateCommentDtoCommand } from "comments/application/commands/update-comment-dto.command";
-import { ICommentsQueryService } from "comments/application/interfaces/comments-query-service.interface";
-import { ICommentsService } from "comments/application/interfaces/comments-service.interface";
+import { UpdateCommentDtoCommand } from "@comments/application/commands/update-comment-dto.command";
+import { ICommentsQueryService } from "@comments/application/interfaces/comments-query-service.interface";
+import { ICommentsService } from "@comments/application/interfaces/comments-service.interface";
 
 @injectable()
 export class CommentsController {

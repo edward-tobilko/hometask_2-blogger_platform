@@ -4,19 +4,19 @@ import { Types } from "mongoose";
 import { BlogListPaginatedOutput } from "../../application/output/blog-list-paginated-type.output";
 import { BlogOutput } from "../../application/output/blog-type.output";
 import { GetBlogsListQueryHandler } from "../../application/query-handlers/get-blogs-list-type.query-handler";
-import { GetPostsListQueryHandler } from "../../../posts/application/query-handlers/get-posts-list.query-handler";
-import { RepositoryNotFoundError } from "../../../core/errors/application.error";
-import { IBlogsQueryRepository } from "blogs/application/interfaces/blogs-query-repo.interface";
-import { BlogLean, BlogModel } from "blogs/infrastructure/schemas/blog.schema";
-import { PostLean, PostModel } from "posts/infrastructure/schemas/post.schema";
+import { GetPostsListQueryHandler } from "@posts/application/query-handlers/get-posts-list.query-handler";
+import { RepositoryNotFoundError } from "@core/errors/application.error";
+import { IBlogsQueryRepository } from "@blogs/application/interfaces/blogs-query-repo.interface";
+import { BlogLean, BlogModel } from "@blogs/infrastructure/schemas/blog.schema";
+import { PostLean, PostModel } from "@posts/infrastructure/schemas/post.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostEntity } from "posts/domain/entities/post.entity";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostEntity } from "@posts/domain/entities/post.entity";
+import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
 import {
   PostLikeLean,
   PostLikeModel,
-} from "posts/infrastructure/schemas/post-like.schema";
-import { BlogMapper } from "blogs/domain/mappers/blog.mapper";
+} from "@posts/infrastructure/schemas/post-like.schema";
+import { BlogMapper } from "@blogs/infrastructure/mappers/blog.mapper";
 
 @injectable()
 export class BlogsQueryRepository implements IBlogsQueryRepository {

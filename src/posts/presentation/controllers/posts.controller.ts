@@ -4,25 +4,25 @@ import { inject, injectable } from "inversify";
 
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { DiTypes } from "@core/di/types";
-import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
+import { IUsersQueryService } from "@users/application/interfaces/users-query-service.interface";
 import { CreatePostCommentRP } from "../request-payload-types/create-post-comment.request-payload-types";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { createCommand } from "@core/helpers/create-command.helper";
-import { CreateCommentForPostDtoCommand } from "posts/application/commands/create-comment-for-post-dto.command";
+import { CreateCommentForPostDtoCommand } from "@posts/application/commands/create-comment-for-post-dto.command";
 import { errorsHandler } from "@core/errors/errors-handler.error";
-import { IPostsService } from "posts/application/interfaces/posts-service.interface";
+import { IPostsService } from "@posts/application/interfaces/posts-service.interface";
 import { PostsListRP } from "../request-payload-types/posts-list.request-payload-types";
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import {
   PostCommentsSortFieldRP,
   PostSortFieldRP,
 } from "../request-payload-types/post-sort-field.request-payload-types";
-import { IPostsQueryService } from "posts/application/interfaces/posts-query-service.interface";
-import { GetPostCommentsListQueryHandler } from "posts/application/query-handlers/get-post-comments-list.query-handler";
+import { IPostsQueryService } from "@posts/application/interfaces/posts-query-service.interface";
+import { GetPostCommentsListQueryHandler } from "@posts/application/query-handlers/get-post-comments-list.query-handler";
 import { CreatePostRP } from "../request-payload-types/create-post.request-payload-types";
 import { CreatePostDtoCommand } from "posts/application/commands/create-post-dto.command";
 import { UpdatePostRP } from "../request-payload-types/update-post.request-payload-types";
-import { UpdatePostDtoCommand } from "posts/application/commands/update-post-dto.command";
+import { UpdatePostDtoCommand } from "@posts/application/commands/update-post-dto.command";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { log } from "@core/logger/logger";
 
