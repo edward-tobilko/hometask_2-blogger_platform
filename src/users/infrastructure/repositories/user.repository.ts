@@ -1,10 +1,10 @@
 import { Types as MongooseTypes } from "mongoose";
 import { injectable } from "inversify";
 
-import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
-import { UserLean, UserModel } from "users/infrastructure/schemas/user-schema";
-import { UserEntity } from "users/domain/entities/user.entity";
-import { UserMapper } from "users/domain/mappers/user.mapper";
+import { IUsersRepository } from "@users/application/interfaces/users-repo.interface";
+import { UserLean, UserModel } from "@users/infrastructure/schemas/user-schema";
+import { UserEntity } from "@users/domain/entities/user.entity";
+import { UserMapper } from "@users/infrastructure/mappers/user.mapper";
 
 @injectable()
 export class UsersRepository implements IUsersRepository {

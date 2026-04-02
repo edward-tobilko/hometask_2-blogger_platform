@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
 import { add } from "date-fns";
 
-import { FieldsOnly } from "../../../core/types/fields-only.type";
+import { FieldsOnly } from "@core/types/fields-only.type";
 import { UserDtoDomain } from "../value-objects/user-dto.domain";
-import { IRecoveryPasswordInfo } from "users/application/interfaces/users-repo.interface";
+import { IRecoveryPasswordInfo } from "@users/application/interfaces/users-repo.interface";
 import { ValidationError } from "@core/errors/application.error";
 
 type UserEntityProps = {

@@ -1,15 +1,15 @@
 import { inject, injectable } from "inversify";
 
-import { PostsListPaginatedOutput } from "../../../posts/application/output/posts-list-type.output";
-import { GetPostsListQueryHandler } from "../../../posts/application/query-handlers/get-posts-list.query-handler";
 import { BlogListPaginatedOutput } from "../output/blog-list-paginated-type.output";
+import { IBlogsQueryService } from "@blogs/application/interfaces/blogs-query-service.interface";
+import { DiTypes } from "@core/di/types";
+import { LikeStatus } from "@core/types/like-status.enum";
+import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
+import { IBlogsQueryRepository } from "../interfaces/blogs-query-repo.interface";
+import { PostsListPaginatedOutput } from "@posts/application/output/posts-list-type.output";
+import { GetPostsListQueryHandler } from "@posts/application/query-handlers/get-posts-list.query-handler";
 import { BlogOutput } from "../output/blog-type.output";
 import { GetBlogsListQueryHandler } from "../query-handlers/get-blogs-list-type.query-handler";
-import { IBlogsQueryService } from "blogs/application/interfaces/blogs-query-service.interface";
-import { DiTypes } from "@core/di/types";
-import { IBlogsQueryRepository } from "blogs/application/interfaces/blogs-query-repo.interface";
-import { LikeStatus } from "@core/types/like-status.enum";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
 
 @injectable()
 export class BlogsQueryService implements IBlogsQueryService {

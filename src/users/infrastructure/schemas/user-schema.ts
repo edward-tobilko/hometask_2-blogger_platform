@@ -6,7 +6,7 @@ import {
 } from "mongoose";
 
 import { USERS_COLLECTION_NAME } from "db/collection-names.db";
-import { IRecoveryPasswordInfo } from "users/application/interfaces/users-repo.interface";
+import { IRecoveryPasswordInfo } from "@users/application/interfaces/users-repo.interface";
 
 // * Date base type
 export type UserDb = {

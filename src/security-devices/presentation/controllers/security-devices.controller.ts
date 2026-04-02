@@ -6,8 +6,8 @@ import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { DiTypes } from "@core/di/types";
-import { ISecurityDevicesQueryService } from "security-devices/applications/interfaces/security-devices-query-service.interface";
-import { ISecurityDevicesService } from "security-devices/applications/interfaces/security-devices-service.interface";
+import { ISecurityDevicesQueryService } from "@security-devices/applications/interfaces/security-devices-query-service.interface";
+import { ISecurityDevicesService } from "@security-devices/applications/interfaces/security-devices-service.interface";
 import { ApplicationError } from "@core/errors/application.error";
 
 @injectable()

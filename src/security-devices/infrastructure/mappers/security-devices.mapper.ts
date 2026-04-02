@@ -1,8 +1,8 @@
-import { SessionLean } from "auth/infrastructure/schemas/auth.schema";
+import { SessionLean } from "@auth/infrastructure/schemas/auth.schema";
 import {
   ISecurityDevicesOutput,
   SecurityDevicesListOutput,
-} from "security-devices/applications/output/security-devices-type.output";
+} from "@security-devices/applications/output/security-devices-type.output";
 
 export class SecurityDevicesMapper {
   static mapSessionToSecurityDevicesListOutput(

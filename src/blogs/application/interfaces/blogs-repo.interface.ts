@@ -1,5 +1,5 @@
-import { BlogEntity } from "blogs/domain/entities/blog.entity";
-import { PostEntity } from "posts/domain/entities/post.entity";
+import { BlogEntity } from "@blogs/domain/entities/blog.entity";
+import { PostEntity } from "@posts/domain/entities/post.entity";
 
 export interface IBlogsRepository {
   findById(blogId: string): Promise<BlogEntity | null>;

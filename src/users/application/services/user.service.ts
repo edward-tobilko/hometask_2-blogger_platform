@@ -1,23 +1,19 @@
 import { inject, injectable } from "inversify";
 
-import { ApplicationResult } from "../../../core/result/application.result";
-import { WithMeta } from "../../../core/types/with-meta.type";
+import { ApplicationResult } from "@core/result/application.result";
+import { WithMeta } from "@core/types/with-meta.type";
 import { CreateUserDtoCommand } from "../commands/user-dto.commands";
 import { UserOutput } from "../output/user.output";
-import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
-import {
-  NotFoundError,
-  ValidationError,
-} from "../../../core/errors/application.error";
-import { IUsersService } from "users/application/interfaces/users-service.interface";
+import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
+import { NotFoundError, ValidationError } from "@core/errors/application.error";
+import { IUsersService } from "@users/application/interfaces/users-service.interface";
 import { DiTypes } from "@core/di/types";
-import { IUsersRepository } from "users/application/interfaces/users-repo.interface";
-import { IUsersQueryRepository } from "users/application/interfaces/users-query-repo.interface";
-import { IPasswordHasher } from "auth/application/interfaces/password-hasher.interface";
-import { UserDtoDomain } from "users/domain/value-objects/user-dto.domain";
-import { UserEntity } from "users/domain/entities/user.entity";
-import { UserMapper } from "users/domain/mappers/user.mapper";
-// import { log } from "logger";
+import { IUsersRepository } from "@users/application/interfaces/users-repo.interface";
+import { IUsersQueryRepository } from "@users/application/interfaces/users-query-repo.interface";
+import { IPasswordHasher } from "@auth/application/interfaces/password-hasher.interface";
+import { UserDtoDomain } from "@users/domain/value-objects/user-dto.domain";
+import { UserEntity } from "@users/domain/entities/user.entity";
+import { UserMapper } from "@users/infrastructure/mappers/user.mapper";
 
 @injectable()
 export class UsersService implements IUsersService {

@@ -1,9 +1,9 @@
 import { ClientSession } from "mongoose";
 
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostCommentEntity } from "posts/domain/entities/post-comment.entity";
-import { PostEntity } from "posts/domain/entities/post.entity";
-import { PostLikeDocument } from "posts/infrastructure/schemas/post-like.schema";
+import { PostCommentEntity } from "@posts/domain/entities/post-comment.entity";
+import { PostEntity } from "@posts/domain/entities/post.entity";
+import { PostLikeDocument } from "@posts/infrastructure/schemas/post-like.schema";
 
 export interface IPostsRepo {
   findById(postId: string, session?: ClientSession): Promise<PostEntity | null>;

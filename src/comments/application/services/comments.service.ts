@@ -1,17 +1,17 @@
 import { inject, injectable } from "inversify";
 import mongoose from "mongoose";
 
-import { WithMeta } from "../../../core/types/with-meta.type";
+import { WithMeta } from "@core/types/with-meta.type";
 import {
   ForbiddenError,
   InternalServerError,
   NotFoundError,
-} from "../../../core/errors/application.error";
-import { ApplicationResult } from "../../../core/result/application.result";
+} from "@core/errors/application.error";
+import { ApplicationResult } from "@core/result/application.result";
 import { UpdateCommentDtoCommand } from "../commands/update-comment-dto.command";
-import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
+import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { DiTypes } from "@core/di/types";
-import { ICommentsService } from "comments/application/interfaces/comments-service.interface";
+import { ICommentsService } from "@comments/application/interfaces/comments-service.interface";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { LikeEntity } from "@core/domain/entities/like.entity";
 import { ICommentsRepository } from "../interfaces/comments-repo.interface";

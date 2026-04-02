@@ -4,13 +4,13 @@ import { inject, injectable } from "inversify";
 
 import { errorsHandler } from "@core/errors/errors-handler.error";
 import { createCommand } from "@core/helpers/create-command.helper";
-import { CreateUserDtoCommand } from "users/application/commands/user-dto.commands";
+import { CreateUserDtoCommand } from "@users/application/commands/user-dto.commands";
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
 import { setDefaultSortAndPaginationIfNotExist } from "@core/helpers/set-default-sort-pagination.helper";
 import { mapApplicationStatusToHttpStatus } from "@core/result/map-app-status-to-http.result";
 import { DiTypes } from "@core/di/types";
-import { IUsersService } from "users/application/interfaces/users-service.interface";
-import { IUsersQueryService } from "users/application/interfaces/users-query-service.interface";
+import { IUsersService } from "@users/application/interfaces/users-service.interface";
+import { IUsersQueryService } from "@users/application/interfaces/users-query-service.interface";
 import { CreateUserRP } from "../request-payload-types/create-user.request-payload-types";
 import { UsersListRP } from "../request-payload-types/get-users-list.request-payload-types";
 import { UserSortFieldRP } from "../request-payload-types/user-sort-field.request-payload-types";

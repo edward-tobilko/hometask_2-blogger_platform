@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import { IJWTService } from "auth/application/interfaces/jwt-service.interface";
+import { IJWTService } from "@auth/application/interfaces/jwt-service.interface";
 
 export const optionalJwtAccessGuard = (jwtService: IJWTService) => {
   return async (req: Request, _res: Response, next: NextFunction) => {

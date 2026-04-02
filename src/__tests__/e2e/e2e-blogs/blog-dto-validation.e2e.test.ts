@@ -7,13 +7,13 @@ import { getBlogDtoUtil } from "../utils/blogs/get-blog-dto.util";
 import { createBlogUtil } from "../utils/blogs/create-blog.util";
 import { generateBasicAuthToken } from "../utils/generate-admin-auth-token";
 import { routersPaths } from "../../../core/paths/paths";
-import { BlogDtoDomain } from "../../../blogs/domain/value-objects/blog-dto.domain";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";
-
-const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
+import { BlogDtoDomain } from "@blogs/domain/value-objects/blog-dto.domain";
 
 describe("Create (POST) blogs API body dto validation ", () => {
+  const testBlogDataDto: BlogDtoDomain = getBlogDtoUtil();
+
   const app = express();
 
   beforeAll(async () => {

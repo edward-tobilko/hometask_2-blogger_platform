@@ -1,5 +1,5 @@
 import { body, param } from "express-validator";
-import { ObjectId } from "mongodb";
+import { Types } from "mongoose";
 
 export const createCommentDtoRPValidation = [
   param("postId")
@@ -12,7 +12,7 @@ export const createCommentDtoRPValidation = [
     .withMessage("Post ID must not be empty")
     .bail()
     .custom((postId) => {
-      if (!ObjectId.isValid(postId)) {
+      if (!Types.ObjectId.isValid(postId)) {
         throw new Error("Incorrect format of ObjectId");
       }
       return true;

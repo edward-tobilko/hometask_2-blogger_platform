@@ -3,15 +3,15 @@ import { inject, injectable } from "inversify";
 import { PostsListPaginatedOutput } from "../output/posts-list-type.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { DiTypes } from "@core/di/types";
-import { IPostsQueryService } from "posts/application/interfaces/posts-query-service.interface";
-import { IPostsQueryRepo } from "posts/application/interfaces/posts-query-repo.interface";
+import { IPostsQueryService } from "@posts/application/interfaces/posts-query-service.interface";
+import { IPostsQueryRepo } from "@posts/application/interfaces/posts-query-repo.interface";
 import { NotFoundError } from "@core/errors/application.error";
 import { ApplicationResult } from "@core/result/application.result";
 import { PostCommentsListPaginatedOutput } from "../output/post-comments-list-type.output";
 import { GetPostsListQueryHandler } from "../query-handlers/get-posts-list.query-handler";
 import { GetPostCommentsListQueryHandler } from "../query-handlers/get-post-comments-list.query-handler";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
 import { PostOutput } from "../output/post-type.output";
 import { IPostsRepo } from "../interfaces/posts-repo.interface";
 

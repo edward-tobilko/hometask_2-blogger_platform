@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
 
 import { ApplicationResult } from "@core/result/application.result";
-import { IPostCommentOutput } from "../../../posts/application/output/post-comment.output";
+import { IPostCommentOutput } from "@posts/application/output/post-comment.output";
 import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
 import { NotFoundError } from "@core/errors/application.error";
 import { DiTypes } from "@core/di/types";
-import { ICommentsQueryService } from "comments/application/interfaces/comments-query-service.interface";
-import { ICommentsQueryRepo } from "comments/application/interfaces/comments-query-repo.interface";
+import { ICommentsQueryService } from "@comments/application/interfaces/comments-query-service.interface";
+import { ICommentsQueryRepo } from "@comments/application/interfaces/comments-query-repo.interface";
 
 @injectable()
 export class CommentsQueryService implements ICommentsQueryService {

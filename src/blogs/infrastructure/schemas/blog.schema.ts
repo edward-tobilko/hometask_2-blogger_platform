@@ -1,5 +1,6 @@
-import { BLOG_COLLECTION_NAME } from "db/collection-names.db";
 import mongoose from "mongoose";
+
+import { BLOG_COLLECTION_NAME } from "db/collection-names.db";
 
 export type BlogDb = {
   name: string;

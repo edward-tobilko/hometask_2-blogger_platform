@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
 
-import { PostDb, PostLean } from "posts/infrastructure/schemas/post.schema";
-import { PostEntity } from "../entities/post.entity";
-import { PostOutput } from "posts/application/output/post-type.output";
+import { PostDb, PostLean } from "@posts/infrastructure/schemas/post.schema";
+import { PostOutput } from "@posts/application/output/post-type.output";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostsListPaginatedOutput } from "posts/application/output/posts-list-type.output";
+import { PostsListPaginatedOutput } from "@posts/application/output/posts-list-type.output";
+import { PostEntity } from "@posts/domain/entities/post.entity";
 
 export class PostMapper {
   // * DB -> Domain

@@ -1,4 +1,4 @@
-import { SessionEntity } from "auth/domain/entities/session.entity";
+import { SessionEntity } from "@auth/domain/entities/session.entity";
 
 export interface ISessionRepository {
   findBySessionId(sessionId: string): Promise<SessionEntity | null>;

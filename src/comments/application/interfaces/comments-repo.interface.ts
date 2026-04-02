@@ -1,7 +1,7 @@
 import { ClientSession } from "mongoose";
 
 import { LikeStatus } from "@core/types/like-status.enum";
-import { CommentEntity } from "comments/domain/entities/comment.entity";
+import { CommentEntity } from "@comments/domain/entities/comment.entity";
 
 export interface ICommentsRepository {
   findById(commentId: string): Promise<CommentEntity | null>;

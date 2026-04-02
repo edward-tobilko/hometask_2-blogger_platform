@@ -1,24 +1,24 @@
 import { inject, injectable } from "inversify";
 
-import { WithMeta } from "../../../core/types/with-meta.type";
+import { WithMeta } from "@core/types/with-meta.type";
 import {
   CreateBlogDtoCommand,
   UpdateBlogDtoCommand,
 } from "../commands/blog-dto-type.commands";
-import { ApplicationResult } from "../../../core/result/application.result";
+import { ApplicationResult } from "@core/result/application.result";
 import { BlogEntity } from "../../domain/entities/blog.entity";
-import { PostOutput } from "../../../posts/application/output/post-type.output";
-import { ApplicationResultStatus } from "../../../core/result/types/application-result-status.enum";
-import { ApplicationError } from "../../../core/errors/application.error";
-import { CreatePostForBlogDtoCommand } from "../../../posts/application/commands/create-post-for-blog-dto.command";
-import { IBlogsService } from "blogs/application/interfaces/blogs-service.interface";
+import { PostOutput } from "@posts/application/output/post-type.output";
+import { ApplicationResultStatus } from "@core/result/types/application-result-status.enum";
+import { ApplicationError } from "@core/errors/application.error";
+import { CreatePostForBlogDtoCommand } from "@posts/application/commands/create-post-for-blog-dto.command";
+import { IBlogsService } from "@blogs/application/interfaces/blogs-service.interface";
 import { DiTypes } from "@core/di/types";
-import { IBlogsRepository } from "blogs/application/interfaces/blogs-repo.interface";
+import { IBlogsRepository } from "@blogs/application/interfaces/blogs-repo.interface";
 import { BlogOutput } from "../output/blog-type.output";
-import { BlogMapper } from "blogs/domain/mappers/blog.mapper";
-import { PostEntity } from "posts/domain/entities/post.entity";
-import { PostMapper } from "posts/domain/mappers/post.mapper";
+import { PostEntity } from "@posts/domain/entities/post.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { BlogMapper } from "@blogs/infrastructure/mappers/blog.mapper";
+import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
 
 @injectable()
 export class BlogsService implements IBlogsService {

@@ -12,7 +12,7 @@ import { setAuthRefreshToken } from "../utils/auth/auth-refresh-token.util";
 import { runMongoose, stopMongoose } from "db/mongoose.db";
 import { clearDb } from "../utils/clear-db";
 import { routersPaths } from "@core/paths/paths";
-import { SessionModel } from "auth/infrastructure/schemas/auth.schema";
+import { SessionModel } from "@auth/infrastructure/schemas/auth.schema";
 
 describe("E2E Auth logout tests", () => {
   const app = express();
