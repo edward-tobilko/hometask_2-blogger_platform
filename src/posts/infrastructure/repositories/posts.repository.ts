@@ -1,13 +1,13 @@
 import { injectable } from "inversify";
 import { ClientSession, Types } from "mongoose";
 
-import { IPostsRepo } from "@posts/application/interfaces/posts-repo.interface";
+import { IPostsRepo, PostLikeView } from "@posts/application/interfaces/posts-repo.interface";
 import { PostLean, PostModel } from "@posts/infrastructure/schemas/post.schema";
 import { PostCommentsModel } from "@posts/infrastructure/schemas/post-comments.schema";
 import { PostEntity } from "@posts/domain/entities/post.entity";
 import { PostCommentEntity } from "@posts/domain/entities/post-comment.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
-import { PostLikeDocument, PostLikeModel } from "../schemas/post-like.schema";
+import { PostLikeModel } from "../schemas/post-like.schema";
 import { PostMapper } from "../mappers/post.mapper";
 
 @injectable()
@@ -128,7 +128,7 @@ export class PostsRepository implements IPostsRepo {
     postId: string,
     userId: string,
     session?: ClientSession
-  ): Promise<PostLikeDocument | null> {
+  ): Promise<PostLikeView | null> {
     const like = await PostLikeModel.findOne({
       postId: new Types.ObjectId(postId), // string -> ObjectId
       userId: new Types.ObjectId(userId), // string -> ObjectId
@@ -136,7 +136,9 @@ export class PostsRepository implements IPostsRepo {
       .session(session ?? null)
       .exec();
 
-    return like;
+    if (!like) return null;
+
+    return { likeStatus: like.likeStatus, login: like.login };
   }
 
   async updateLikeCounters(

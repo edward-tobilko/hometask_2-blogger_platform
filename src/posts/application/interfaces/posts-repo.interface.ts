@@ -3,7 +3,11 @@ import { ClientSession } from "mongoose";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { PostCommentEntity } from "@posts/domain/entities/post-comment.entity";
 import { PostEntity } from "@posts/domain/entities/post.entity";
-import { PostLikeDocument } from "@posts/infrastructure/schemas/post-like.schema";
+
+export type PostLikeView = {
+  likeStatus: LikeStatus;
+  login: string;
+};
 
 export interface IPostsRepo {
   findById(postId: string, session?: ClientSession): Promise<PostEntity | null>;
@@ -21,7 +25,7 @@ export interface IPostsRepo {
     postId: string,
     userId: string,
     session?: ClientSession
-  ): Promise<PostLikeDocument | null>;
+  ): Promise<PostLikeView | null>;
 
   updateLikeCounters(
     postId: string,
