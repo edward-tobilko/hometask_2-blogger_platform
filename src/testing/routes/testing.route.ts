@@ -1,13 +1,13 @@
 import { Request, Response, Router } from "express";
 
 import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { SessionModel } from "@auth/infrastructure/schemas/auth.schema";
 import { BlogModel } from "@blogs/infrastructure/schemas/blog.schema";
 import { PostModel } from "@posts/infrastructure/schemas/post.schema";
 import { UserModel } from "@users/infrastructure/schemas/user-schema";
 import { PostCommentsModel } from "@posts/infrastructure/schemas/post-comments.schema";
 import { PostLikeModel } from "@posts/infrastructure/schemas/post-like.schema";
 import { CommentLikeModel } from "@comments/infrastructure/schemas/comment-likes.schema";
+import { SessionModel } from "db/schemas/session-db.schema";
 
 export const testingRoute = Router({});
 
