@@ -6,7 +6,10 @@ import { queryPaginationAndSortingValidation } from "@core/middlewares/validatio
 import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.request-payload-type";
 import { createBlogDtoRPValidation } from "../request-payload-validations/create-blog-dto.request-payload-validation";
 import { createPostForBlogDtoRPValidation } from "../request-payload-validations/create-post-for-blog-dto.request-payload-validation";
-import { paramIdValidation } from "@core/middlewares/validation/param-id.middleware-validation";
+import {
+  blogIdValidation,
+  paramIdValidation,
+} from "@core/middlewares/validation/param-id.middleware-validation";
 import { updateBlogDtoRPValidation } from "../request-payload-validations/update-blog-dto.request-payload-validation";
 import { PostSortFieldRP } from "@posts/presentation/request-payload-types/post-sort-field.request-payload-types";
 import { BlogsController } from "../controllers/blogs.controller";
@@ -70,6 +73,7 @@ export const createBlogsRouter = (
   blogsRoute.post(
     "/:id/posts",
     baseAuthGuard,
+    blogIdValidation,
     createPostForBlogDtoRPValidation,
     inputResultMiddlewareValidation,
 

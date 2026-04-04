@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { matchedData } from "express-validator";
 import { inject, injectable } from "inversify";
-import { Types as MongooseTypes } from "mongoose";
 
 import { BlogsListRP } from "../request-payload-types/blogs-list.request-payload-type";
 import { BlogSortFieldRP } from "../request-payload-types/blog-sort-field.request-payload-type";
@@ -144,20 +143,10 @@ export class BlogsController {
     res: Response
   ) {
     try {
-      const blogId = req.params.id;
-
-      if (!MongooseTypes.ObjectId.isValid(blogId)) {
-        return res.status(HTTP_STATUS_CODES.BAD_REQUEST_400).json({
-          errorsMessages: [
-            { message: "Incorrect format of ObjectId", field: "id" },
-          ],
-        });
-      }
-
       const command = createCommand<CreatePostForBlogDtoCommand>({
         ...req.body,
 
-        blogId,
+        blogId: req.params.id,
       });
 
       const result = await this.blogsService.createPostForBlog(command);

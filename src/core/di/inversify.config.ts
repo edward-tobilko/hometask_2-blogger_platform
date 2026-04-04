@@ -53,7 +53,7 @@ import { CustomRateLimitRepo } from "@core/infrastructure/repositories/custom-ra
 import { PostQueryService } from "@posts/application/services/post-query-service";
 import { CommentsController } from "@comments/presentation/controllers/comments.controller";
 import { DiTypes } from "./types";
-import { PostsQueryRepository } from "@posts/infrastructure/repositories/post-query.repository";
+import { PostsQueryRepository } from "@posts/infrastructure/repositories/posts-query.repository";
 import { ICommentsRepository } from "@comments/application/interfaces/comments-repo.interface";
 import { BlogsController } from "@blogs/presentation/controllers/blogs.controller";
 import { UsersQueryService } from "@users/application/services/users-query.service";

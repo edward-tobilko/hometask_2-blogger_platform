@@ -10,30 +10,20 @@ module.exports = {
   detectOpenHandles: true,
   maxWorkers: 1,
 
-  // Путя alias (должны соответствовать tsconfig)
+  // * Путя alias (должны соответствовать tsconfig)
   moduleNameMapper: {
-    "^app$": "<rootDir>/src/app",
-    "^db/(.*)$": "<rootDir>/src/db/$1",
-    "^users/(.*)$": "<rootDir>/src/users/$1",
+    "^__tests__/(.*)$": "<rootDir>/src/__tests__/$1",
     "^auth/(.*)$": "<rootDir>/src/auth/$1",
     "^blogs/(.*)$": "<rootDir>/src/blogs/$1",
-    "^posts/(.*)$": "<rootDir>/src/posts/$1",
     "^comments/(.*)$": "<rootDir>/src/comments/$1",
+    "^@core/(.*)$": "<rootDir>/src/core/$1",
+    "^db/(.*)$": "<rootDir>/src/db/$1",
+    "^posts/(.*)$": "<rootDir>/src/posts/$1",
+    "^security-devices/(.*)$": "<rootDir>/src/security-devices/$1",
     "^testing/(.*)$": "<rootDir>/src/testing/$1",
     "^types/(.*)$": "<rootDir>/src/types/$1",
-    "^security-devices/(.*)$": "<rootDir>/src/security-devices/$1",
-
-    "^__tests__/(.*)$": "<rootDir>/src/__tests__/$1",
-    "^core/(.*)$": "<rootDir>/src/core/$1",
-    "^@core/(.*)$": "<rootDir>/src/core/$1",
-    "^@users/(.*)$": "<rootDir>/src/users/$1",
-    "^@auth/(.*)$": "<rootDir>/src/auth/$1",
-    "^@blogs/(.*)$": "<rootDir>/src/blogs/$1",
-    "^@posts/(.*)$": "<rootDir>/src/posts/$1",
-    "^@comments/(.*)$": "<rootDir>/src/comments/$1",
-    "^@security-devices/(.*)$": "<rootDir>/src/security-devices/$1",
-    "^@db/(.*)$": "<rootDir>/src/db/$1",
+    "^users/(.*)$": "<rootDir>/src/users/$1",
+    "^app$": "<rootDir>/src/app",
     "^composition-root$": "<rootDir>/src/composition-root.ts",
-    "^logger$": "<rootDir>/src/core/logger/logger.ts",
   },
 };
