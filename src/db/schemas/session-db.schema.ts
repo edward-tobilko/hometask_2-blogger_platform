@@ -7,7 +7,7 @@ import {
 import {
   AUTH_LOGIN_COLLECTION_NAME,
   USERS_COLLECTION_NAME,
-} from "db/collection-names.db";
+} from "db/utils/collection-db-names.util";
 
 export type SessionDb = {
   userId: MongooseTypes.ObjectId;

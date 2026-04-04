@@ -19,6 +19,7 @@ import { PostLikeLean, PostLikeModel } from "../schemas/post-like.schema";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { PostCommentsMapper } from "../mappers/post-comments.mapper";
 import { PostMapper } from "../mappers/post.mapper";
+import { PostLikeView } from "@posts/application/interfaces/posts-repo.interface";
 
 @injectable()
 export class PostsQueryRepository implements IPostsQueryRepo {
@@ -144,6 +145,23 @@ export class PostsQueryRepository implements IPostsQueryRepo {
       pageSize,
       totalCount,
     });
+  }
+
+  async findPostLike(
+    postId: string,
+    userId: string,
+    session?: ClientSession
+  ): Promise<PostLikeView | null> {
+    const like = await PostLikeModel.findOne({
+      postId: new MongooseTypes.ObjectId(postId), // string -> ObjectId
+      userId: new MongooseTypes.ObjectId(userId), // string -> ObjectId
+    })
+      .session(session ?? null)
+      .exec();
+
+    if (!like) return null;
+
+    return { likeStatus: like.likeStatus, login: like.login };
   }
 
   async getNewestLikes(

@@ -19,11 +19,13 @@ import { PostEntity } from "@posts/domain/entities/post.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
 import { BlogMapper } from "@blogs/infrastructure/mappers/blog.mapper";
 import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
+import { IPostsRepo } from "@posts/application/interfaces/posts-repo.interface";
 
 @injectable()
 export class BlogsService implements IBlogsService {
   constructor(
-    @inject(DiTypes.IBlogsRepository) private blogsRepository: IBlogsRepository
+    @inject(DiTypes.IBlogsRepository) private blogsRepository: IBlogsRepository,
+    @inject(DiTypes.IPostsRepository) private postsRepository: IPostsRepo
   ) {}
 
   async createBlog(
@@ -72,7 +74,7 @@ export class BlogsService implements IBlogsService {
 
     // * save
     const createdPostForBlog =
-      await this.blogsRepository.createPostForBlog(newPost);
+      await this.postsRepository.createAndSavePost(newPost);
 
     const postViewModel = PostMapper.toViewModel(
       createdPostForBlog,

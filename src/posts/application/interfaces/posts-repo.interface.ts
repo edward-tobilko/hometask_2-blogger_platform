@@ -11,7 +11,8 @@ export type PostLikeView = {
 
 export interface IPostsRepo {
   findById(postId: string, session?: ClientSession): Promise<PostEntity | null>;
-  createPost(newPost: PostEntity): Promise<PostEntity>;
+
+  createAndSavePost(newPost: PostEntity): Promise<PostEntity>;
 
   createPostComment(
     domain: PostCommentEntity
@@ -20,12 +21,6 @@ export interface IPostsRepo {
   updatePost(post: PostEntity): Promise<boolean>;
 
   deletePost(id: string): Promise<boolean>;
-
-  findPostLike(
-    postId: string,
-    userId: string,
-    session?: ClientSession
-  ): Promise<PostLikeView | null>;
 
   updateLikeCounters(
     postId: string,

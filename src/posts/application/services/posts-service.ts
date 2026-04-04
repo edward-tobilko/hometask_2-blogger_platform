@@ -63,7 +63,7 @@ export class PostsService implements IPostsService {
       blogName: blog.name,
     });
 
-    const savedPost = await this.postsRepository.createPost(post);
+    const savedPost = await this.postsRepository.createAndSavePost(post);
 
     const viewModelPost = PostMapper.toViewModel(savedPost, LikeStatus.None);
 
@@ -233,7 +233,7 @@ export class PostsService implements IPostsService {
         }
 
         // * Получаем предыдущий статус лайка
-        const prevLike = await this.postsRepository.findPostLike(
+        const prevLike = await this.postsQueryRepository.findPostLike(
           domain.postId,
           domain.userId,
           session
