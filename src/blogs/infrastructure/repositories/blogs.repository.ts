@@ -4,11 +4,8 @@ import { Types } from "mongoose";
 import { RepositoryNotFoundError } from "@core/errors/application.error";
 import { IBlogsRepository } from "@blogs/application/interfaces/blogs-repo.interface";
 import { BlogLean, BlogModel } from "@blogs/infrastructure/schemas/blog.schema";
-import { PostModel } from "@posts/infrastructure/schemas/post.schema";
 import { BlogEntity } from "@blogs/domain/entities/blog.entity";
 import { BlogMapper } from "@blogs/infrastructure/mappers/blog.mapper";
-import { PostEntity } from "@posts/domain/entities/post.entity";
-import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
 
 @injectable()
 export class BlogsRepository implements IBlogsRepository {
@@ -48,15 +45,6 @@ export class BlogsRepository implements IBlogsRepository {
     if (!updatedRes) {
       throw new RepositoryNotFoundError("Blog is not exist!", "blogId");
     }
-  }
-
-  async createPostForBlog(postForBlogEntity: PostEntity): Promise<PostEntity> {
-    const postDocument = PostMapper.toDb(postForBlogEntity);
-    const postInstanceDoc = new PostModel(postDocument);
-
-    await postInstanceDoc.save(); // Active Record паттерн
-
-    return PostMapper.toDomain(postInstanceDoc);
   }
 
   async deleteBlogById(id: string): Promise<void> {

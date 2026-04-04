@@ -5,6 +5,7 @@ import { GetPostCommentsListQueryHandler } from "@posts/application/query-handle
 import { GetPostsListQueryHandler } from "@posts/application/query-handlers/get-posts-list.query-handler";
 import { PostEntity } from "@posts/domain/entities/post.entity";
 import { LikeStatus } from "@core/types/like-status.enum";
+import { PostLikeView } from "./posts-repo.interface";
 
 export interface IPostsQueryRepo {
   getPostsList(
@@ -25,6 +26,12 @@ export interface IPostsQueryRepo {
     queryParam: GetPostCommentsListQueryHandler,
     currentUserId?: string
   ): Promise<PostCommentsListPaginatedOutput | null>;
+
+  findPostLike(
+    postId: string,
+    userId: string,
+    session?: ClientSession
+  ): Promise<PostLikeView | null>;
 
   getNewestLikes(
     postId: string,

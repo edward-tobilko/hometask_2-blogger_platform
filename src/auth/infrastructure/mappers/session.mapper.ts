@@ -1,5 +1,5 @@
 import { SessionEntity } from "@auth/domain/entities/session.entity";
-import { SessionLean } from "@auth/infrastructure/schemas/auth.schema";
+import { SessionLean } from "db/schemas/session-db.schema";
 
 export class SessionMapper {
   static toDomain(sessionDoc: SessionLean): SessionEntity {

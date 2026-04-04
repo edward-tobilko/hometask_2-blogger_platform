@@ -1,7 +1,10 @@
 import { injectable } from "inversify";
 import { ClientSession, Types } from "mongoose";
 
-import { IPostsRepo, PostLikeView } from "@posts/application/interfaces/posts-repo.interface";
+import {
+  IPostsRepo,
+  PostLikeView,
+} from "@posts/application/interfaces/posts-repo.interface";
 import { PostLean, PostModel } from "@posts/infrastructure/schemas/post.schema";
 import { PostCommentsModel } from "@posts/infrastructure/schemas/post-comments.schema";
 import { PostEntity } from "@posts/domain/entities/post.entity";
@@ -28,7 +31,7 @@ export class PostsRepository implements IPostsRepo {
     return PostMapper.toDomain(postDocument);
   }
 
-  async createPost(domainPost: PostEntity): Promise<PostEntity> {
+  async createAndSavePost(domainPost: PostEntity): Promise<PostEntity> {
     // * получаем замапенный инстанс дб поста (для динамического смены БД: Mongo -> PostgreSQL)
     const postDb = PostMapper.toDb(domainPost);
 

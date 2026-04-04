@@ -3,11 +3,8 @@ import { Types } from "mongoose";
 
 import { SecurityDevicesListOutput } from "@security-devices/applications/output/security-devices-type.output";
 import { ISecurityDevicesQueryRepo } from "@security-devices/applications/interfaces/security-devices-query-repo.interface";
-import {
-  SessionLean,
-  SessionModel,
-} from "@auth/infrastructure/schemas/auth.schema";
 import { SecurityDevicesMapper } from "@security-devices/infrastructure/mappers/security-devices.mapper";
+import { SessionLean, SessionModel } from "db/schemas/session-db.schema";
 
 @injectable()
 export class SecurityDevicesQueryRepo implements ISecurityDevicesQueryRepo {

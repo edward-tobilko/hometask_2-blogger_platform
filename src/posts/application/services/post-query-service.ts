@@ -13,15 +13,12 @@ import { GetPostCommentsListQueryHandler } from "../query-handlers/get-post-comm
 import { LikeStatus } from "@core/types/like-status.enum";
 import { PostMapper } from "@posts/infrastructure/mappers/post.mapper";
 import { PostOutput } from "../output/post-type.output";
-import { IPostsRepo } from "../interfaces/posts-repo.interface";
 
 @injectable()
 export class PostQueryService implements IPostsQueryService {
   constructor(
     @inject(DiTypes.IPostsQueryRepository)
-    private postsQueryRepository: IPostsQueryRepo,
-
-    @inject(DiTypes.IPostsRepository) private postsRepo: IPostsRepo
+    private postsQueryRepository: IPostsQueryRepo
   ) {}
 
   async getPostsList(
@@ -59,7 +56,10 @@ export class PostQueryService implements IPostsQueryService {
 
     if (currentUserId) {
       // * лайк конкретного юзера
-      const like = await this.postsRepo.findPostLike(postId, currentUserId);
+      const like = await this.postsQueryRepository.findPostLike(
+        postId,
+        currentUserId
+      );
 
       myStatus = like?.likeStatus ?? LikeStatus.None;
     }
