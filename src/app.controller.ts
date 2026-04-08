@@ -1,28 +1,12 @@
-import { Controller, Get, Res } from "@nestjs/common";
-import type { Response } from "express";
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
 
-import { routersPaths } from "@core/paths/paths";
-import { HTTP_STATUS_CODES } from "@core/result/types/http-status-codes.enum";
-import { appConfig } from "@core/settings/config";
-
-@Controller(routersPaths.root)
+@Controller()
 export class AppController {
-  @Get() // декоратор (@) метода Get
-  rootPage(@Res() response: Response) {
-    response.status(HTTP_STATUS_CODES.OK_200).json({
-      status: "ok",
-      name: "Blogger Platform API",
+  constructor(private readonly appService: AppService) {}
 
-      environment: appConfig.NODE_ENV,
-
-      endpoints: {
-        posts: "/api/posts",
-        comments: "/api/comments",
-        users: "/api/users",
-        auth: "/api/auth",
-      },
-
-      timestamp: new Date().toISOString(),
-    });
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
   }
 }
