@@ -11,7 +11,7 @@ async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
     // * Hosting подставляет свой порт, локально — 3000 or 8080
-    const PORT = Number(process.env.PORT) ?? 8080;
+    const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
     const HOST = '0.0.0.0';
 
     app.enableCors({}); // for CORS domain requests
