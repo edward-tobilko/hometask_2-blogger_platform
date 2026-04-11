@@ -13,63 +13,21 @@ import {
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 
-import { BlogsQueryDto } from './dto/blogs-query.dto';
+import { BlogSortFieldRP, BlogsQueryDto } from './dto/blogs-query.dto';
 import { API_ROUTES } from 'src/core/constants/api-routes';
+import { BlogsQueryService } from './blogs.query-service';
+import { setDefaultPagination } from 'src/core/helpers/set-default-pagination.helper';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
-  // constructor(private readonly blogsQueryService: BlogsQueryService) {}
+  constructor(private readonly blogsService: BlogsQueryService) {}
 
   // * GET: Returns blogs with paging
   @Get() // = /blogs: декоратор (@) метода Get, автоматом возвр. status 200
-  getBlogsList(@Res() response: Response, @Query() query: BlogsQueryDto) {
-    try {
-      // const sanitizedQueryParam = matchedData<BlogsListRP>(request, {
-      //   locations: ['query'],
-      //   includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
-      // });
-      // const queryParamInput =
-      //   setDefaultSortAndPaginationIfNotExist<BlogSortFieldRP>(
-      //     sanitizedQueryParam,
-      //   );
-      // const blogsListOutput =
-      //   this.blogsQueryService.getBlogsList(queryParamInput);
+  async getBlogsList(@Query() query: BlogsQueryDto) {
+    const queryParamInput = setDefaultPagination<BlogSortFieldRP>(query);
 
-      response.status(HttpStatus.OK).send({
-        pagesCount: 0,
-        page: 0,
-        pageSize: 0,
-        totalCount: 0,
-        items: [
-          {
-            id: '1',
-            name: 'jon',
-            description: 'desc1',
-            websiteUrl: 'lol@gmail.com',
-            createdAt: '2026-04-09T17:51:31.453Z',
-            isMembership: true,
-          },
-          {
-            id: '2',
-            name: 'tom',
-            description: 'desc2',
-            websiteUrl: 'lol2@gmail.com',
-            createdAt: '2026-04-10T17:51:31.453Z',
-            isMembership: false,
-          },
-        ].filter(
-          (term) =>
-            !query.searchNameTerm ||
-            term.name.indexOf(query.searchNameTerm) > -1,
-        ),
-      });
-    } catch (error: unknown) {
-      response.status(HttpStatus.BAD_REQUEST).send({
-        errorsMessages: [
-          { message: 'Internal Server Error', field: 'query params' },
-        ],
-      });
-    }
+    return await this.blogsService.getBlogsList(queryParamInput);
   }
 
   // * POST: Create new blo
