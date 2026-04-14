@@ -1,17 +1,24 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { BlogsController } from './blogs.controller';
-import { BlogsQueryService } from './blogs.query-service';
-import { Blog, BlogSchema } from './schemas/blogs.schema';
-import { BlogsQueryRepository } from './blogs.query-repository';
+import { BlogsController } from './api/blogs.controller';
+import { BlogsQueryService } from './application/blogs.query-service';
+import { Blog, BlogSchema } from './domain/blog.entity';
+import { BlogsQueryRepository } from './infrastructure/blogs.query-repository';
+import { BlogsService } from './application/blogs.service';
+import { BlogsRepository } from './infrastructure/blogs.repository';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
   ],
   controllers: [BlogsController],
-  providers: [BlogsQueryService, BlogsQueryRepository],
+  providers: [
+    BlogsService,
+    BlogsQueryService,
+    BlogsQueryRepository,
+    BlogsRepository,
+  ],
 
   //   exports: [BlogsService], // тут указываем какие провайдеры будут доступны в другом модуле в случае импорта "видны снаружи"
 })
