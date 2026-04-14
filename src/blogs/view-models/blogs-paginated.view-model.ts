@@ -1,10 +1,12 @@
 import { BlogViewModel } from './blog.view-model';
 
-export type BlogListPaginatedViewModel = {
-  pagesCount: number;
-  page: number;
-  pageSize: number;
-  totalCount: number;
+export class BlogListPaginatedViewModel {
+  constructor(
+    public pagesCount: number,
+    public page: number,
+    public pageSize: number,
+    public totalCount: number,
 
-  items: BlogViewModel[];
-};
+    public items: BlogViewModel[],
+  ) {}
+}

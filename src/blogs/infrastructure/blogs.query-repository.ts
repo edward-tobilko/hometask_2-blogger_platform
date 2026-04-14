@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 
-import { BlogListPaginatedViewModel } from './view-models/blogs-paginated.view-model';
-import { Blog, BlogDocument, BlogLean } from './schemas/blogs.schema';
-import { BlogsQueryDto } from './dto/blogs-query.dto';
-import { BlogViewModel } from './view-models/blog.view-model';
+import { BlogListPaginatedViewModel } from '../view-models/blogs-paginated.view-model';
+import { Blog, BlogLean, BlogModelType } from '../domain/blog.entity';
+import { BlogsQueryDto } from '../api/dto/blogs-query.dto';
+import { BlogViewModel } from '../view-models/blog.view-model';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(
-    @InjectModel(Blog.name) private readonly blogModel: Model<BlogDocument>,
+    @InjectModel(Blog.name)
+    private readonly BlogModel: BlogModelType,
   ) {}
 
   async findBlogs(
@@ -28,8 +28,7 @@ export class BlogsQueryRepository {
       : {};
 
     const [items, totalCount] = await Promise.all([
-      this.blogModel
-        .find(filter)
+      this.BlogModel.find(filter)
         .sort({ [sortBy]: sortDirection })
 
         .skip((pageNumber - 1) * pageSize)
@@ -38,7 +37,7 @@ export class BlogsQueryRepository {
         .lean<BlogLean[]>()
         .exec(), // превращает Mongoose Query в Promise.
 
-      this.blogModel.countDocuments(filter),
+      this.BlogModel.countDocuments(filter),
     ]);
 
     return {
@@ -48,14 +47,14 @@ export class BlogsQueryRepository {
       totalCount,
 
       items: items.map(
-        (blog: BlogLean): BlogViewModel => ({
-          id: blog._id.toString(),
-          name: blog.name,
-          description: blog.description,
-          websiteUrl: blog.websiteUrl,
-          createdAt: blog.createdAt.toISOString(),
-          isMembership: blog.isMembership,
-        }),
+        (blog) =>
+          new BlogViewModel(
+            blog._id.toString(),
+            blog.name,
+            blog.description,
+            blog.websiteUrl,
+            blog.isMembership,
+          ),
       ),
     };
   }

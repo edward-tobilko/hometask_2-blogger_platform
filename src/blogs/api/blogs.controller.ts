@@ -13,51 +13,32 @@ import {
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 
-import { BlogSortFieldRP, BlogsQueryDto } from './dto/blogs-query.dto';
+import { BlogsQueryDto } from './dto/blogs-query.dto';
 import { API_ROUTES } from 'src/core/constants/api-routes';
-import { BlogsQueryService } from './blogs.query-service';
-import { setDefaultPagination } from 'src/core/helpers/set-default-pagination.helper';
+import { BlogsQueryService } from '../application/blogs.query-service';
+import { BlogsService } from '../application/blogs.service';
+import { CreateBlogDto } from './dto/create-blog.dto';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
-  constructor(private readonly blogsService: BlogsQueryService) {}
+  constructor(
+    private readonly blogsQueryService: BlogsQueryService,
+    private blogsService: BlogsService,
+  ) {}
 
   // * GET: Returns blogs with paging
   @Get() // = /blogs: декоратор (@) метода Get, автоматом возвр. status 200
   async getBlogsList(@Query() query: BlogsQueryDto) {
-    const queryParamInput = setDefaultPagination<BlogSortFieldRP>(query);
-
-    return await this.blogsService.getBlogsList(queryParamInput);
+    return await this.blogsQueryService.getBlogsList(query);
   }
 
-  // * POST: Create new blo
+  // * POST: Create new blog
   @Post()
-  createBlog(
+  async createBlog(
     @Body()
-    createBlogDto: {
-      name: string;
-      description: string;
-      websiteUrl: string;
-    },
+    createBlogDto: CreateBlogDto,
   ) {
-    // try {
-    //   const sanitizedParam = matchedData<CreateBlogRP>(req, {
-    //     locations: ['body'],
-    //     includeOptionals: false,
-    //   });
-    //   const command = createCommand<CreateBlogDtoCommand>(sanitizedParam);
-    //   const createdBlogResult = await this.blogsService.createBlog(command);
-    //   if (createdBlogResult.status === ApplicationResultStatus.NotFound) {
-    //     return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-    //       errorsMessages: [{ message: 'Blog does not exist!', field: 'id' }],
-    //     });
-    //   }
-    //   return res
-    //     .status(HTTP_STATUS_CODES.CREATED_201)
-    //     .json(createdBlogResult.data);
-    // } catch (error: unknown) {
-    //   return res.sendStatus(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500);
-    // }
+    return await this.blogsService.createBlog(createBlogDto);
   }
 
   // * GET: Returns all posts for specified blog
