@@ -5,12 +5,8 @@ import {
   DEFAULT_PAGE_NUMBER,
   DEFAULT_PAGE_SIZE,
   DEFAULT_SORT_DIRECTION,
-} from 'src/core/constants/api-routes';
-
-export enum SortDirections {
-  ASC = 'asc', // ascending = (1)
-  DESC = 'desc', // descending = (-1)
-}
+} from 'src/core/constants/consts';
+import { SortDirections } from 'src/core/enums/enums';
 
 export enum BlogSortFieldRP {
   CreatedAt = 'createdAt',
