@@ -10,7 +10,7 @@ import { BlogsModule } from './blogs/blogs.module';
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV}.local`, // чтобы автоматически подхватывался нужный файл (development / test / production)
+      envFilePath: `.env.${process.env.NODE_ENV ?? 'development'}.local`, // чтобы автоматически подхватывался нужный файл (development / test / production)
       isGlobal: true, // чтобы не импортировать ConfigModule в каждый модуль (добавляет модуль в глобальный scope DI). Но!!! Не уго стоит использовать только для инфраструктурных модулей — ConfigModule, LoggerModule, возможно DatabaseModule. Для бизнес-модулей (BlogsModule, PostsModule) — никогда, потому что это ломает инкапсуляцию и понимание связей между модулями.
     }),
 
