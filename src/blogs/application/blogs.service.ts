@@ -8,12 +8,12 @@ import { CreateBlogDto } from '../api/dto/create-blog.dto';
 @Injectable()
 export class BlogsService {
   constructor(
-    @InjectModel(Blog.name) private BlogModel: BlogModelType,
+    @InjectModel(Blog.name) private blogModel: BlogModelType,
     private blogsRepo: BlogsRepository,
   ) {}
 
-  async createBlog(dto: CreateBlogDto): Promise<Blog> {
-    const blogInstance = this.BlogModel.createBlogInstance({
+  async createBlog(dto: CreateBlogDto): Promise<BlogDocument> {
+    const blogInstance = this.blogModel.createBlogInstance({
       name: dto.name,
       description: dto.description,
       websiteUrl: dto.websiteUrl,

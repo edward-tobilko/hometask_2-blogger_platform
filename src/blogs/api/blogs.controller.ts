@@ -18,6 +18,7 @@ import { API_ROUTES } from 'src/core/constants/api-routes';
 import { BlogsQueryService } from '../application/blogs.query-service';
 import { BlogsService } from '../application/blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
+import { BlogViewModel } from './dto/view-models/blog.view-model';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
@@ -38,7 +39,9 @@ export class BlogsController {
     @Body()
     createBlogDto: CreateBlogDto,
   ) {
-    return await this.blogsService.createBlog(createBlogDto);
+    const createdBlogDoc = await this.blogsService.createBlog(createBlogDto);
+
+    return BlogViewModel.mapToViewModel(createdBlogDoc);
   }
 
   // * GET: Returns all posts for specified blog

@@ -19,12 +19,15 @@ export class Blog {
 
   @Prop({
     required: true,
-    maxlength: [100, 'Website url must not exceed 100 characters'],
-    match: [/^https:\/\/.+/i, 'Website URL must be a valid https URL'],
+    maxlength: [100, 'Website URL must not exceed 100 characters'],
+    match: [/^https:\/\/.+/i, 'Website must be a valid https URL'],
   })
   websiteUrl!: string;
 
-  @Prop({ required: true, default: true })
+  @Prop({ index: true }) // ускоряем поиск по индексу в бд = даст нам первые 10 отсортированных елементов
+  createdAt!: Date;
+
+  @Prop({ required: true, default: false })
   isMembership!: boolean;
 
   static createBlogInstance(dto: CreateBlogDomainDto): BlogDocument {
@@ -33,7 +36,7 @@ export class Blog {
     blog.name = dto.name;
     blog.description = dto.description;
     blog.websiteUrl = dto.websiteUrl;
-    blog.isMembership = true;
+    blog.isMembership = false;
 
     return blog as BlogDocument;
   }
