@@ -1,18 +1,18 @@
-import { IsString, Length, Matches } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
-export class CreateBlogDto {
+// * DTO model - response for db
+export class CreatePostForBlogDto {
   @IsString()
-  @Length(1, 15)
-  public name!: string;
-
-  @IsString()
-  @Length(1, 500)
-  public description!: string;
+  @Length(1, 30)
+  title!: string;
 
   @IsString()
   @Length(1, 100)
-  @Matches(/^https:\/\/.+/i)
-  public websiteUrl!: string;
+  shortDescription!: string;
+
+  @IsString()
+  @Length(1, 1000)
+  content!: string;
 }
 
 // ? class-validator - проверяет данные на входе в API, до попадания в бизнес-логику. Так как мы исп. ValidationPipe мы можем безопасно доверять нашим свойствам: "!".

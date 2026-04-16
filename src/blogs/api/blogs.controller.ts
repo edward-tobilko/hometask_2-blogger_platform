@@ -3,15 +3,13 @@ import {
   Controller,
   Delete,
   Get,
-  HttpStatus,
+  HttpCode,
+  NotFoundException,
   Param,
   Post,
   Put,
   Query,
-  Req,
-  Res,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
 
 import { BlogsQueryDto } from './dto/blogs-query.dto';
 import { API_ROUTES } from 'src/core/constants/api-routes';
@@ -19,12 +17,17 @@ import { BlogsQueryService } from '../application/blogs.query-service';
 import { BlogsService } from '../application/blogs.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { BlogViewModel } from './dto/view-models/blog.view-model';
+import { CreatePostForBlogDto } from './dto/create-post-for-blog.dto';
+import { PostsService } from 'src/posts/application/posts.service';
+import { BlogIdForPostsParamDto, BlogIdParamDto } from './dto/blog-params.dto';
+import { UpdateBlogDto } from './dto/update-blog.dto';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
   constructor(
     private readonly blogsQueryService: BlogsQueryService,
     private blogsService: BlogsService,
+    private postsService: PostsService,
   ) {}
 
   // * GET: Returns blogs with paging
@@ -45,53 +48,8 @@ export class BlogsController {
   }
 
   // * GET: Returns all posts for specified blog
-  @Get(':id') // = /blogs:id
-  getBlog(@Param('id') blogId: string) {
-    // try {
-    //   const id = req.params.id;
-    //   const blogOutput = this.blogsQueryService.getBlogById(id);
-    //   if (!blogOutput) return res.sendStatus(HTTP_STATUS_CODES.NOT_FOUND_404);
-    //   return res.status(HTTP_STATUS_CODES.OK_200).json(blogOutput);
-    // } catch (error: unknown) {
-    //   return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-    //     errorsMessages: [{ message: 'Internal Server Error', field: 'id' }],
-    //   });
-    // }
-  }
-
-  // * POST: Create new post for specific blog
-  @Post(':id/posts')
-  createPostForBlogHandler(
-    @Param('id') blogId: string,
-    @Body()
-    createPostForBlogDto: {
-      title: string;
-      shortDescription: string;
-      content: string;
-    },
-  ) {
-    // try {
-    //   const command = createCommand<CreatePostForBlogDtoCommand>({
-    //     ...req.body,
-    //     blogId: req.params.id,
-    //   });
-    //   const result = await this.blogsService.createPostForBlog(command);
-    //   if (result.status === ApplicationResultStatus.NotFound) {
-    //     return res.status(HTTP_STATUS_CODES.NOT_FOUND_404).json({
-    //       errorsMessages: [{ message: 'Blog does not exist!', field: 'id' }],
-    //     });
-    //   }
-    //   return res.status(HTTP_STATUS_CODES.CREATED_201).json(result.data);
-    // } catch (error: unknown) {
-    //   return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-    //     errorsMessages: [{ message: 'Internal Server Error', field: 'id' }],
-    //   });
-    // }
-  }
-
-  // * GET: Returns blog by id
-  @Get(':id/posts')
-  getPostsListForBlog(@Param('id') blogId: string) {
+  @Get(':blogId/posts')
+  getPostsListForBlog(@Param() params: BlogIdForPostsParamDto) {
     // try {
     //   // * Если optionalJwtAccessGuard прошел → userId уже есть
     //   const currentUserId = req.user?.id;
@@ -120,48 +78,44 @@ export class BlogsController {
     // }
   }
 
+  // * POST: Create new post for specific blog
+  @Post(':blogId/posts')
+  async createPostForBlog(
+    @Param() params: BlogIdForPostsParamDto,
+    @Body()
+    dto: CreatePostForBlogDto,
+  ) {
+    return await this.postsService.createPost(params.blogId, dto);
+  }
+
+  // * GET: Returns blog by id
+  @Get(':id') // = /blogs:id
+  async getBlog(@Param() params: BlogIdParamDto) {
+    const blogOutput = await this.blogsQueryService.getBlogById(params.id);
+
+    if (!blogOutput)
+      throw new NotFoundException(
+        `The blog with ID:${params.id} was not found`,
+      );
+
+    return blogOutput;
+  }
+
   // * PUT: Update existing blog by id with input model
   @Put(':id')
-  updateBlogHandler(
-    @Param('id') params: { blogId: string },
+  @HttpCode(204)
+  async updateBlog(
+    @Param() params: BlogIdParamDto,
     @Body()
-    updateBlogDto: { name: string; description: string; websiteUrl: string },
+    updateBlogDto: UpdateBlogDto,
   ) {
-    // try {
-    //   const payload: UpdateBlogRP = req.body;
-    //   const command = createCommand({
-    //     id: req.params.id,
-    //     ...payload,
-    //   });
-    //   await this.blogsService.updateBlog(command);
-    //   return res.sendStatus(HTTP_STATUS_CODES.NO_CONTENT_204);
-    // } catch (error: unknown) {
-    //   return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-    //     errorsMessages: [{ message: "Internal Server Error", field: "id" }],
-    //   });
-    // }
+    await this.blogsService.updateBlog(params.id, updateBlogDto);
   }
 
   // * DELETE: Delete blog specified by id
   @Delete(':id')
-  deleteBlogHandler(
-    @Req() request: Request,
-    @Res() response: Response,
-    @Param('id') blogId: string,
-  ) {
-    try {
-      const id = request.params.id;
-      // const command = createCommand({
-      //   id: req.params.id,
-      // });
-
-      // this.blogsService.deleteBlog(command);
-
-      // response.sendStatus(HttpStatus.NO_CONTENT);
-    } catch (error: unknown) {
-      return response.status(HttpStatus.BAD_REQUEST).send({
-        errorsMessages: [{ message: 'Internal Server Error', field: 'id' }],
-      });
-    }
+  @HttpCode(204)
+  async deleteBlog(@Param() params: BlogIdParamDto) {
+    await this.blogsService.deleteBlog(params.id);
   }
 }

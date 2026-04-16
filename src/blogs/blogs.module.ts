@@ -7,10 +7,13 @@ import { Blog, BlogSchema } from './domain/blog.entity';
 import { BlogsQueryRepository } from './infrastructure/blogs.query-repository';
 import { BlogsService } from './application/blogs.service';
 import { BlogsRepository } from './infrastructure/blogs.repository';
+import { PostsModule } from 'src/posts/posts.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
+
+    PostsModule,
   ],
   controllers: [BlogsController],
   providers: [
@@ -20,7 +23,7 @@ import { BlogsRepository } from './infrastructure/blogs.repository';
     BlogsRepository,
   ],
 
-  //   exports: [BlogsService], // тут указываем какие провайдеры будут доступны в другом модуле в случае импорта "видны снаружи"
+  exports: [BlogsQueryRepository], // тут указываем какие провайдеры будут доступны в другом модуле в случае импорта "видны снаружи"
 })
 export class BlogsModule {}
 

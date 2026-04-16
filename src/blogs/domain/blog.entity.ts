@@ -2,32 +2,36 @@ import mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { CreateBlogDomainDto } from './dto/create-blog.domain-dto';
+import { UpdateBlogDto } from '../api/dto/update-blog.dto';
 
 @Schema({ timestamps: true })
 export class Blog {
   @Prop({
+    type: String,
     required: true,
     maxlength: [15, 'Name must not exceed 15 characters'],
   })
   name!: string;
 
   @Prop({
+    type: String,
     required: true,
     maxlength: [500, 'Description must not exceed 500 characters'],
   })
   description!: string;
 
   @Prop({
+    type: String,
     required: true,
     maxlength: [100, 'Website URL must not exceed 100 characters'],
     match: [/^https:\/\/.+/i, 'Website must be a valid https URL'],
   })
   websiteUrl!: string;
 
-  @Prop({ index: true }) // ускоряем поиск по индексу в бд = даст нам первые 10 отсортированных елементов
+  @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд = даст нам первые 10 отсортированных елементов
   createdAt!: Date;
 
-  @Prop({ required: true, default: false })
+  @Prop({ type: Boolean, required: true, default: false })
   isMembership!: boolean;
 
   static createBlogInstance(dto: CreateBlogDomainDto): BlogDocument {
@@ -39,6 +43,12 @@ export class Blog {
     blog.isMembership = false;
 
     return blog as BlogDocument;
+  }
+
+  update(dto: UpdateBlogDto): void {
+    this.name = dto.name;
+    this.description = dto.description;
+    this.websiteUrl = dto.websiteUrl;
   }
 }
 
