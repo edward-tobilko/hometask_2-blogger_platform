@@ -48,6 +48,17 @@ export class BlogsQueryRepository {
       items.map(BlogViewModel.mapToViewModel),
     );
   }
+
+  async findBlogById(blogId: string): Promise<BlogViewModel | null> {
+    const blogLean = await this.blogModel
+      .findById(blogId)
+      .lean<BlogLean>()
+      .exec();
+
+    if (!blogLean) return null;
+
+    return BlogViewModel.mapToViewModel(blogLean);
+  }
 }
 
 // ? @InjectModel(Blog.name) — специальный декоратор от `@nestjs/mongoose`, который говорит Nest: "вколи сюда модель, зарегистрированную под именем `Blog.name`. Без этого декоратора Nest не знает, какую именно модель ты хочешь.
