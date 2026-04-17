@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { BlogListPaginatedViewModel } from '../api/dto/view-models/blogs-paginated.view-model';
-import { Blog, BlogLean, BlogModelType } from '../domain/blog.entity';
-import { BlogsQueryDto } from '../api/dto/blogs-query.dto';
-import { BlogViewModel } from '../api/dto/view-models/blog.view-model';
+import { PostsPaginatedViewModel } from 'src/posts/api/dto/view-models/posts-paginated.view-model';
+import { PostViewModel } from 'src/posts/api/dto/view-models/post.view-model';
+import { Post, PostLean, PostModel } from 'src/posts/domain/post.entity';
+import { Blog, BlogLean, BlogModelType } from 'src/blogs/domain/blog.entity';
+import { BlogListPaginatedViewModel } from 'src/blogs/api/dto/view-models/blogs-paginated.view-model';
+import { BlogsQueryDto } from 'src/blogs/api/dto/blogs-query.dto';
+import { BlogViewModel } from 'src/blogs/api/dto/view-models/blog.view-model';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,
+    @InjectModel(Post.name) private readonly postModel: PostModel,
   ) {}
 
   async findBlogs(
@@ -58,6 +62,37 @@ export class BlogsQueryRepository {
     if (!blogLean) return null;
 
     return BlogViewModel.mapToViewModel(blogLean);
+  }
+
+  async findPostsForBlog(
+    blogId: string,
+    query: BlogsQueryDto,
+  ): Promise<PostsPaginatedViewModel> {
+    const { sortBy, sortDirection, pageNumber, pageSize } = query;
+
+    // * фильтруем (получаем) все посты этого блога
+    const filter = { blogId: blogId };
+
+    const [items, totalCount] = await Promise.all([
+      this.postModel
+        .find(filter)
+        .sort({ [sortBy]: sortDirection })
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize)
+        .lean<PostLean[]>()
+        .exec(), // превращает Mongoose Query в Promise.
+
+      this.postModel.countDocuments(filter),
+    ]);
+
+    return new PostsPaginatedViewModel(
+      Math.ceil(totalCount / pageSize),
+      pageNumber,
+      pageSize,
+      totalCount,
+
+      items.map(PostViewModel.mapToViewModel),
+    );
   }
 }
 

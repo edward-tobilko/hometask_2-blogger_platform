@@ -24,7 +24,7 @@ export class PostViewModel {
 
   static mapToViewModel(
     post: PostDocument | PostLean,
-    myStatus: LikeStatus,
+    // myStatus: LikeStatus,
   ): PostViewModel {
     const dto = new PostViewModel();
 
@@ -39,7 +39,7 @@ export class PostViewModel {
     dto.extendedLikesInfo = {
       likesCount: post.extendedLikesInfo.likesCount,
       dislikesCount: post.extendedLikesInfo.dislikesCount,
-      myStatus,
+      myStatus: LikeStatus.None, // пока что default (сделаем динамический, когда будет авторизация)
 
       newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
         addedAt: like.addedAt.toISOString(),

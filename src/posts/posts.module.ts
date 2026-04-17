@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { PostsService } from './application/posts.service';
+import { PostsService } from './application/services/posts.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from './domain/post.entity';
 import { Blog, BlogSchema } from 'src/blogs/domain/blog.entity';
+import { PostsRepository } from './infrastructure/repositories/posts.repository';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { Blog, BlogSchema } from 'src/blogs/domain/blog.entity';
       { name: Blog.name, schema: BlogSchema },
     ]),
   ],
-  providers: [PostsService],
-  exports: [PostsService], // чтобы BlogsController мог создавать посты
+  providers: [PostsService, PostsRepository],
+  exports: [PostsService, PostsRepository], // что бы BlogsController мог создавать посты
 })
 export class PostsModule {}
