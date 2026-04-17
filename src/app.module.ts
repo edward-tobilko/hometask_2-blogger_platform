@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BlogsModule } from './blogs/blogs.module';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
@@ -26,7 +27,8 @@ import { BlogsModule } from './blogs/blogs.module';
       }),
     }),
 
-    BlogsModule, // импортируем модуль чтобы переиспользовать его провайдеры (из массива exports)
+    BlogsModule, // импортируем модуль что бы переиспользовать его провайдеры (из массива exports)
+    PostsModule,
   ],
 
   // * обработчики HTTP-запросов (они инжектятся в DI, но не "используются" другими классами — они точка входа HTTP-запросов)

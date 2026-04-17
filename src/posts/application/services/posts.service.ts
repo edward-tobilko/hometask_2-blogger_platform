@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { Blog, BlogModelType } from 'src/blogs/domain/blog.entity';
-import { CreatePostDto } from '../api/dto/create-post.dto';
-import { Post, PostDocument, PostModel } from '../domain/post.entity';
-import { PostsRepository } from '../infrastructure/posts.repository';
+import { CreatePostDto } from '../../api/dto/create-post.dto';
+import { Post, PostDocument, PostModel } from '../../domain/post.entity';
+import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 
 @Injectable()
 export class PostsService {
@@ -15,18 +15,19 @@ export class PostsService {
     private postsRepo: PostsRepository,
   ) {}
 
-  async createPost(blogId: string, dto: CreatePostDto): Promise<PostDocument> {
-    const existingBlog = await this.blogModel.findById(blogId);
+  async createPost(dto: CreatePostDto): Promise<PostDocument> {
+    const existingBlog = await this.blogModel.findById(dto.blogId);
 
     if (!existingBlog) {
-      throw new NotFoundException(`The blog with ID:${blogId} was not found`);
+      throw new NotFoundException(
+        `The blog with ID:${dto.blogId} was not found`,
+      );
     }
 
     const postInstance = this.postModel.createPostInstance({
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId: dto.blogId,
+      ...dto,
+
+      blogName: existingBlog.name, // + опциональное поле с блога
     });
 
     await this.postsRepo.save(postInstance);

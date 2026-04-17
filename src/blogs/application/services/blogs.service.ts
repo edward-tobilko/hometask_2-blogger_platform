@@ -1,16 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { Blog, BlogDocument, BlogModelType } from '../domain/blog.entity';
-import { BlogsRepository } from '../infrastructure/blogs.repository';
-import { CreateBlogDto } from '../api/dto/create-blog.dto';
-import { UpdateBlogDto } from '../api/dto/update-blog.dto';
+import { PostDocument } from 'src/posts/domain/post.entity';
+import { PostsService } from 'src/posts/application/services/posts.service';
+import { CreatePostDomainDto } from 'src/posts/domain/dto/create-post.domain-dto';
+import { BlogsRepository } from 'src/blogs/infrastructure/repositories/blogs.repository';
+import {
+  Blog,
+  BlogDocument,
+  BlogModelType,
+} from 'src/blogs/domain/blog.entity';
+import { CreateBlogDto } from 'src/blogs/api/dto/create-blog.dto';
+import { CreatePostForBlogDto } from 'src/blogs/api/dto/create-post-for-blog.dto';
+import { UpdateBlogDto } from 'src/blogs/api/dto/update-blog.dto';
 
 @Injectable()
 export class BlogsService {
   constructor(
     @InjectModel(Blog.name) private blogModel: BlogModelType,
+
     private blogsRepo: BlogsRepository,
+    private postsService: PostsService,
   ) {}
 
   async createBlog(dto: CreateBlogDto): Promise<BlogDocument> {
@@ -23,6 +33,31 @@ export class BlogsService {
     await this.blogsRepo.save(blogInstance);
 
     return blogInstance;
+  }
+
+  async createPostForBlog(
+    blogId: string,
+    dto: CreatePostForBlogDto,
+  ): Promise<PostDocument> {
+    // * find blog
+    const blogInstance = await this.blogsRepo.findById(blogId);
+
+    if (!blogInstance)
+      throw new NotFoundException(`The blog with ID:${blogId} was not found`);
+
+    // * create domain post
+    const domainPost: CreatePostDomainDto = {
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId,
+      blogName: blogInstance.name,
+    };
+
+    // * get post from post service
+    const post = this.postsService.createPost(domainPost);
+
+    return post;
   }
 
   async updateBlog(

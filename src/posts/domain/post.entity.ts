@@ -1,8 +1,28 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Model, Types } from 'mongoose';
-import { CreatePostDto } from '../api/dto/create-post.dto';
+import { Prop, Schema as NestSchema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, Model, Types, Schema } from 'mongoose';
 
-@Schema({ timestamps: true })
+import { CreatePostDomainDto } from './dto/create-post.domain-dto';
+
+// * Subdocument schemas
+const NewestLikeSchema = new Schema(
+  {
+    addedAt: { type: Date, required: true },
+    userId: { type: String, required: true },
+    login: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const ExtendedLikesInfoSchema = new Schema(
+  {
+    likesCount: { type: Number, required: true, default: 0 },
+    dislikesCount: { type: Number, required: true, default: 0 },
+    newestLikes: { type: [NewestLikeSchema], required: true, default: [] },
+  },
+  { _id: false },
+);
+
+@NestSchema({ timestamps: true })
 export class Post {
   @Prop({
     type: String,
@@ -26,10 +46,10 @@ export class Post {
   content!: string;
 
   @Prop({
-    type: Types.ObjectId,
+    type: String,
     required: true,
   })
-  blogId!: Types.ObjectId;
+  blogId!: string;
 
   @Prop({
     type: String,
@@ -40,6 +60,7 @@ export class Post {
   @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд = даст нам первые 10 отсортированных елементов
   createdAt!: Date;
 
+  @Prop({ type: ExtendedLikesInfoSchema, required: true })
   extendedLikesInfo!: {
     likesCount: number;
     dislikesCount: number;
@@ -51,20 +72,29 @@ export class Post {
     }>;
   };
 
-  static createPostInstance(dto: CreatePostDto): PostDocument {
-    const post = new this(); // this is post / PostModel, NOT PostDocument
+  static createPostInstance(dto: CreatePostDomainDto): PostDocument {
+    const post = new this(); // this is Post / PostModel, NOT PostDocument
 
-    dto.title = post.title;
-    dto.shortDescription = post.shortDescription;
-    dto.content = post.content;
-    dto.blogId = post.blogId.toString();
-    dto.blogName = post.blogName;
+    post.title = dto.title;
+    post.shortDescription = dto.shortDescription;
+    post.content = dto.content;
+    post.blogId = dto.blogId;
+
+    post.blogName = dto.blogName;
+
+    post.extendedLikesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      newestLikes: [],
+    };
 
     return post as PostDocument;
   }
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
+
+PostSchema.loadClass(Post);
 
 export type PostDocument = HydratedDocument<Post>;
 export type PostLean = Post & { _id: Types.ObjectId };

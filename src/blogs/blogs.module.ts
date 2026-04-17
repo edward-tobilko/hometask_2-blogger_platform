@@ -1,17 +1,21 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { BlogsController } from './api/blogs.controller';
-import { BlogsQueryService } from './application/blogs.query-service';
 import { Blog, BlogSchema } from './domain/blog.entity';
-import { BlogsQueryRepository } from './infrastructure/blogs.query-repository';
-import { BlogsService } from './application/blogs.service';
-import { BlogsRepository } from './infrastructure/blogs.repository';
 import { PostsModule } from 'src/posts/posts.module';
+import { Post, PostSchema } from 'src/posts/domain/post.entity';
+import { BlogsController } from './api/controllers/blogs.controller';
+import { BlogsQueryService } from './application/services/blogs.query-service';
+import { BlogsService } from './application/services/blogs.service';
+import { BlogsQueryRepository } from './infrastructure/repositories/blogs.query-repository';
+import { BlogsRepository } from './infrastructure/repositories/blogs.repository';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
+    MongooseModule.forFeature([
+      { name: Blog.name, schema: BlogSchema },
+      { name: Post.name, schema: PostSchema },
+    ]),
 
     PostsModule,
   ],
@@ -23,7 +27,7 @@ import { PostsModule } from 'src/posts/posts.module';
     BlogsRepository,
   ],
 
-  exports: [BlogsQueryRepository], // тут указываем какие провайдеры будут доступны в другом модуле в случае импорта "видны снаружи"
+  exports: [BlogsQueryRepository], // указываем какие провайдеры будут доступны в другом модуле в случае импорта "видны снаружи"
 })
 export class BlogsModule {}
 

@@ -54,10 +54,11 @@ export class Blog {
 
 export const BlogSchema = SchemaFactory.createForClass(Blog); // превращает класс с @Prop декораторами в голую Mongoose-схему. Он переносит только поля-свойства, а методы класса (инстанс-методы и статические) игнорируете.
 
-BlogSchema.loadClass(Blog); // нативный метод Mongoose, не Nest. Он берет class и переносит наши созданные методы в схему монгуса.
+BlogSchema.loadClass(Blog); // нативный метод Mongoose, не Nest. Он берет class и переносит наши созданные methods / statics / virtual в схему монгуса.
 
 export type BlogDocument = mongoose.HydratedDocument<Blog>;
 export type BlogLean = Blog & { _id: mongoose.Types.ObjectId };
+
 export type BlogModelType = mongoose.Model<BlogDocument> & typeof Blog; // типизация модели + статические методы домена
 
 // ? В Nest схема создаеться через декларативный подход через декораторы: @Schema / @Prop.

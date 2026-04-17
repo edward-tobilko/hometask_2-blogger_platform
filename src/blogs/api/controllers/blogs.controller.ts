@@ -11,23 +11,22 @@ import {
   Query,
 } from '@nestjs/common';
 
-import { BlogsQueryDto } from './dto/blogs-query.dto';
 import { API_ROUTES } from 'src/core/constants/api-routes';
-import { BlogsQueryService } from '../application/blogs.query-service';
-import { BlogsService } from '../application/blogs.service';
-import { CreateBlogDto } from './dto/create-blog.dto';
-import { BlogViewModel } from './dto/view-models/blog.view-model';
-import { CreatePostForBlogDto } from './dto/create-post-for-blog.dto';
-import { PostsService } from 'src/posts/application/posts.service';
-import { BlogIdForPostsParamDto, BlogIdParamDto } from './dto/blog-params.dto';
-import { UpdateBlogDto } from './dto/update-blog.dto';
+import { CreateBlogDto } from '../dto/create-blog.dto';
+import { BlogViewModel } from '../dto/view-models/blog.view-model';
+import { CreatePostForBlogDto } from '../dto/create-post-for-blog.dto';
+import { BlogIdForPostsParamDto, BlogIdParamDto } from '../dto/blog-params.dto';
+import { UpdateBlogDto } from '../dto/update-blog.dto';
+import { PostViewModel } from 'src/posts/api/dto/view-models/post.view-model';
+import { BlogsQueryDto } from '../dto/blogs-query.dto';
+import { BlogsService } from 'src/blogs/application/services/blogs.service';
+import { BlogsQueryService } from 'src/blogs/application/services/blogs.query-service';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
   constructor(
     private readonly blogsQueryService: BlogsQueryService,
     private blogsService: BlogsService,
-    private postsService: PostsService,
   ) {}
 
   // * GET: Returns blogs with paging
@@ -49,33 +48,11 @@ export class BlogsController {
 
   // * GET: Returns all posts for specified blog
   @Get(':blogId/posts')
-  getPostsListForBlog(@Param() params: BlogIdForPostsParamDto) {
-    // try {
-    //   // * Если optionalJwtAccessGuard прошел → userId уже есть
-    //   const currentUserId = req.user?.id;
-    //   const sanitizedQueryParam = matchedData<PostsListRP>(req, {
-    //     locations: ["query"],
-    //     includeOptionals: false, // в data будут только те поля, которые реально пришли в запросе и прошли валидацию
-    //   });
-    //   const queryParamInput = {
-    //     ...setDefaultSortAndPaginationIfNotExist<PostSortFieldRP>(
-    //       sanitizedQueryParam
-    //     ),
-    //     blogId: req.params.id,
-    //   };
-    //   const postsListByBlogOutput =
-    //     await this.blogsQueryService.getPostsListByBlog(
-    //       queryParamInput,
-    //       currentUserId // * Передаем userId для вычисления myStatus
-    //     );
-    //   return res.status(HTTP_STATUS_CODES.OK_200).json(postsListByBlogOutput);
-    // } catch (error: unknown) {
-    //   return res.status(HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR_500).json({
-    //     errorsMessages: [
-    //       { message: "Internal Server Error", field: "query params" },
-    //     ],
-    //   });
-    // }
+  async getPostsListForBlog(
+    @Param() params: BlogIdForPostsParamDto,
+    @Query() query: BlogsQueryDto,
+  ) {
+    return await this.blogsQueryService.getPostsForBlog(params.blogId, query);
   }
 
   // * POST: Create new post for specific blog
@@ -85,7 +62,11 @@ export class BlogsController {
     @Body()
     dto: CreatePostForBlogDto,
   ) {
-    return await this.postsService.createPost(params.blogId, dto);
+    const post = await this.blogsService.createPostForBlog(params.blogId, dto);
+
+    const postOutput = PostViewModel.mapToViewModel(post);
+
+    return postOutput;
   }
 
   // * GET: Returns blog by id
