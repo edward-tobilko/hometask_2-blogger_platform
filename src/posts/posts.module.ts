@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Post, PostSchema } from './domain/post.entity';
 import { Blog, BlogSchema } from 'src/blogs/domain/blog.entity';
 import { PostsRepository } from './infrastructure/repositories/posts.repository';
+import { PostsController } from './api/controllers/posts.controller';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PostsRepository } from './infrastructure/repositories/posts.repository'
       { name: Blog.name, schema: BlogSchema },
     ]),
   ],
+  controllers: [PostsController],
   providers: [PostsService, PostsRepository],
   exports: [PostsService, PostsRepository], // что бы BlogsController мог создавать посты
 })

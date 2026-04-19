@@ -24,6 +24,12 @@ export class UsersController {
     private readonly usersQueryService: UsersQueryService,
   ) {}
 
+  // * GET: Returns all users
+  @Get()
+  getUsersList(@Query() queries: UsersQueryDto) {
+    return this.usersQueryService.getUsersList(queries);
+  }
+
   // * POST: Add new user to the system
   @Post()
   async createUser(@Body() dto: CreateUserDto) {
@@ -32,12 +38,6 @@ export class UsersController {
     const userOutput = UserViewDto.mapToViewModel(userInstanceDoc);
 
     return userOutput;
-  }
-
-  // * GET: Returns all users
-  @Get()
-  getUsersList(@Query() queries: UsersQueryDto) {
-    return this.usersQueryService.getUsersList(queries);
   }
 
   // * DELETE: Delete user specified by id

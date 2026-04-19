@@ -23,11 +23,9 @@ export class UsersRepository {
     await user.save();
   }
 
-  async create(hash: string, dto: CreateUserDomainDto): Promise<UserDocument> {
+  async create(dto: CreateUserDomainDto): Promise<UserDocument> {
     const user = this.userModel.createInstance({
       ...dto,
-
-      passwordHash: hash,
     });
 
     await user.save();

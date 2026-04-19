@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 import { AppService, RootPageResponse } from './app.service';
 
@@ -6,6 +6,7 @@ import { AppService, RootPageResponse } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  // * Return root page
   @Get()
   rootPage(): RootPageResponse {
     return this.appService.rootPage();

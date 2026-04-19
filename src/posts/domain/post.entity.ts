@@ -2,6 +2,7 @@ import { Prop, Schema as NestSchema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types, Schema } from 'mongoose';
 
 import { CreatePostDomainDto } from './dto/create-post.domain-dto';
+import { UpdatePostDomainDto } from './dto/update-post.domain-dto';
 
 // * Subdocument schemas
 const NewestLikeSchema = new Schema(
@@ -46,10 +47,10 @@ export class Post {
   content!: string;
 
   @Prop({
-    type: String,
+    type: Types.ObjectId,
     required: true,
   })
-  blogId!: string;
+  blogId!: Types.ObjectId; // for populate and ref
 
   @Prop({
     type: String,
@@ -78,7 +79,7 @@ export class Post {
     post.title = dto.title;
     post.shortDescription = dto.shortDescription;
     post.content = dto.content;
-    post.blogId = dto.blogId;
+    post.blogId = new Types.ObjectId(dto.blogId);
 
     post.blogName = dto.blogName;
 
@@ -89,6 +90,12 @@ export class Post {
     };
 
     return post as PostDocument;
+  }
+
+  updatePost(dto: UpdatePostDomainDto): void {
+    this.title = dto.title;
+    this.shortDescription = dto.shortDescription;
+    this.content = dto.content;
   }
 }
 

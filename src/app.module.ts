@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 import { BlogsModule } from './blogs/blogs.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
+import { TestingDataModule } from './testing/testing-data.module';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
@@ -45,6 +46,7 @@ import { UsersModule } from './users/users.module';
     BlogsModule,
     PostsModule,
     UsersModule,
+    TestingDataModule,
   ],
 
   // * обработчики HTTP-запросов (они инжектятся в DI, но не "используются" другими классами — они точка входа HTTP-запросов)
