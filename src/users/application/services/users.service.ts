@@ -17,8 +17,6 @@ export class UsersService {
   async createUser(dto: CreateUserDto): Promise<UserDocument> {
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
-    await this.usersRepo.findUserByLoginOrEmail(dto.login, dto.email);
-
     const domainDto: CreateUserDomainDto = {
       login: dto.login,
       email: dto.email,
@@ -27,9 +25,7 @@ export class UsersService {
 
     // * проверка для создания юзера с однаковым login or email, так как у нас индексация по login / email в БД, а обьекты целиком не удалены с БД, а только позначены как deletedAt.
     try {
-      const user = await this.usersRepo.create(passwordHash, domainDto);
-
-      return user;
+      return await this.usersRepo.create(domainDto);
     } catch (error: unknown) {
       if (error instanceof Error && 'code' in error && error.code === 11000) {
         throw new BadRequestException(

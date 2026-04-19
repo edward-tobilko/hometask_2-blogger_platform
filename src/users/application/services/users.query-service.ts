@@ -11,6 +11,6 @@ export class UsersQueryService {
   async getUsersList(
     query: UsersQueryDto,
   ): Promise<UsersListPaginatedViewModel> {
-    return await this.usersQueryRepo.findUsersList(query);
+    return this.usersQueryRepo.findUsersList(query);
   }
 }
