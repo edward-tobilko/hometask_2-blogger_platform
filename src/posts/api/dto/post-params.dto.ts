@@ -1,10 +1,6 @@
 import { IsMongoId, IsString } from 'class-validator';
 
-export class PostParamsDto {
-  @IsString()
-  @IsMongoId()
-  id!: string;
-
+export class PostIdParamDto {
   @IsString()
   @IsMongoId()
   postId!: string;

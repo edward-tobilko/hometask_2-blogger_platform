@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 
-// * Subdocument schemas
+// * Sub document schemas
 export const NewestLikeSchema = new Schema(
   {
     addedAt: { type: Date, required: true },
@@ -10,11 +10,27 @@ export const NewestLikeSchema = new Schema(
   { _id: false },
 );
 
-export const LikesInfoSchema = new Schema(
+export const ExtendedLikesInfo = new Schema(
   {
     likesCount: { type: Number, required: true, default: 0 },
     dislikesCount: { type: Number, required: true, default: 0 },
     newestLikes: { type: [NewestLikeSchema], required: true, default: [] },
+  },
+  { _id: false },
+);
+
+export const LikesInfoSchema = new Schema(
+  {
+    likesCount: { type: Number, required: true, default: 0 },
+    dislikesCount: { type: Number, required: true, default: 0 },
+  },
+  { _id: false },
+);
+
+export const CommentatorInfo = new Schema(
+  {
+    userId: { type: String, required: true },
+    userLogin: { type: String, required: true },
   },
   { _id: false },
 );

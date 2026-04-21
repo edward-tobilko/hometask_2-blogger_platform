@@ -3,7 +3,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { AppModule } from '../app.module';
-import { Blog, BlogDocument } from '../blogs/domain/blog.entity';
+import { Blog, BlogDocument } from '../blogs/domain/entities/blog.entity';
 
 async function createSeedBlog() {
   if (process.env.NODE_ENV === 'production') {

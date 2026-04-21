@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import { BlogsQueryDto } from 'src/blogs/api/dto/blogs-query.dto';
-import { BlogViewModel } from 'src/blogs/api/dto/view-models/blog.view-model';
-import { BlogListPaginatedViewModel } from 'src/blogs/api/dto/view-models/blogs-paginated.view-model';
+import { BlogViewModel } from 'src/blogs/api/dto/view/blog.view';
+import { BlogListPaginatedViewModel } from 'src/blogs/api/dto/view/blogs-paginated.view';
 import { BlogsQueryRepository } from 'src/blogs/infrastructure/repositories/blogs.query-repository';
 import { PostsPaginatedViewModel } from 'src/posts/api/dto/view/posts-paginated.view';
 

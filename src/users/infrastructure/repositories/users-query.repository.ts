@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { UsersQueryDto } from 'src/users/api/dto/users-query.dto';
-import { UserViewDto } from 'src/users/api/dto/view-models/user-view-model.dto';
-import { UsersListPaginatedViewModel } from 'src/users/api/dto/view-models/users-paginated.view-model';
-import { User, UserLean, UserModel } from 'src/users/domain/user.entity';
+import { UserViewDto } from 'src/users/api/dto/view/user-view.dto';
+import { UsersListPaginatedViewModel } from 'src/users/api/dto/view/users-paginated.view';
+import {
+  User,
+  UserLean,
+  UserModel,
+} from 'src/users/domain/entities/user.entity';
 
 @Injectable()
 export class UsersQueryRepository {

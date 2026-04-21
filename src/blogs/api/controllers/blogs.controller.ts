@@ -13,7 +13,7 @@ import {
 
 import { API_ROUTES } from 'src/core/constants/api-routes';
 import { CreateBlogDto } from '../dto/create-blog.dto';
-import { BlogViewModel } from '../dto/view-models/blog.view-model';
+import { BlogViewModel } from '../dto/view/blog.view';
 import { CreatePostForBlogDto } from '../dto/create-post-for-blog.dto';
 import { BlogIdForPostsParamDto, BlogIdParamDto } from '../dto/blog-params.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';

@@ -1,14 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
 
-import { LikesInfoSchema } from 'src/core/schemas/schemas';
+import { CommentatorInfo, LikesInfoSchema } from 'src/core/schemas/sub.schemas';
+import { Post } from 'src/posts/domain/entities/post.entity';
 
 @Schema({ timestamps: true })
 export class Comment {
   @Prop({ type: String, required: true })
   content!: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: Types.ObjectId, ref: Post.name, required: true })
+  postId!: Types.ObjectId;
+
+  @Prop({
+    type: CommentatorInfo,
+    required: true,
+  })
   commentatorInfo!: {
     userId: string;
     userLogin: string;
