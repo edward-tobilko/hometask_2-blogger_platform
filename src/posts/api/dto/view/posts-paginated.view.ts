@@ -1,4 +1,4 @@
-import { PostViewModel } from './post.view-model';
+import { PostViewModel } from './post.view';
 
 export class PostsPaginatedViewModel {
   constructor(

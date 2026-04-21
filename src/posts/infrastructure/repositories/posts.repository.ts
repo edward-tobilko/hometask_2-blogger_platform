@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { Post, PostDocument, PostModel } from '../../domain/post.entity';
@@ -8,7 +8,7 @@ export class PostsRepository {
   constructor(@InjectModel(Post.name) private postModel: PostModel) {}
 
   async findById(id: string): Promise<PostDocument | null> {
-    return await this.postModel.findById(id).exec();
+    return this.postModel.findById(id).exec();
   }
 
   async save(postDoc: PostDocument): Promise<void> {

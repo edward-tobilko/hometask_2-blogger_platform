@@ -23,6 +23,7 @@ export class PostViewModel {
   };
 
   static mapToViewModel(
+    this: void, // не реальный параметр функции, просто аннотация для TypeScript / ESLint что бы не ругался
     post: PostDocument | PostLean,
     // myStatus: LikeStatus,
   ): PostViewModel {

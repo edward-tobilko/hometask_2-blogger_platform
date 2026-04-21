@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { PostsPaginatedViewModel } from 'src/posts/api/dto/view-models/posts-paginated.view-model';
-import { PostViewModel } from 'src/posts/api/dto/view-models/post.view-model';
+import { PostsPaginatedViewModel } from 'src/posts/api/dto/view/posts-paginated.view';
+import { PostViewModel } from 'src/posts/api/dto/view/post.view';
 import { Post, PostLean, PostModel } from 'src/posts/domain/post.entity';
 import { Blog, BlogLean, BlogModelType } from 'src/blogs/domain/blog.entity';
 import { BlogListPaginatedViewModel } from 'src/blogs/api/dto/view-models/blogs-paginated.view-model';

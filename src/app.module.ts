@@ -10,6 +10,7 @@ import { BlogsModule } from './blogs/blogs.module';
 import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { TestingDataModule } from './testing/testing-data.module';
+import { CommentsModule } from './comments/modules/comment.module';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
@@ -44,8 +45,10 @@ import { TestingDataModule } from './testing/testing-data.module';
 
     // * импортируем модули, что бы переиспользовать их провайдеры (из массива exports)
     BlogsModule,
+    CommentsModule,
     PostsModule,
     UsersModule,
+
     TestingDataModule,
   ],
 

@@ -1,15 +1,48 @@
-import { Body, Controller, HttpCode, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 
 import { PostsService } from 'src/posts/application/services/posts.service';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { API_ROUTES } from 'src/core/constants/api-routes';
-import { PostViewModel } from '../dto/view-models/post.view-model';
+import { PostViewModel } from '../dto/view/post.view';
 import { PostParamsDto } from '../dto/post-params.dto';
 import { UpdatePostDto } from '../dto/update-post.dto';
+import { PostsQueryService } from 'src/posts/application/services/posts-query.service';
+import { PostsQueryDto } from '../dto/posts-query.dto';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
-  constructor(private postsService: PostsService) {}
+  constructor(
+    private postsService: PostsService,
+    private readonly postsQueryService: PostsQueryService,
+  ) {}
+
+  // * GET: Returns comments for specified post
+  @Get(':postId/comments')
+  getCommentsForPost(
+    @Param() params: PostParamsDto,
+    @Query() queryParams: PostsQueryDto,
+  ) {
+    return this.postsQueryService.getCommentsForPost(
+      params.postId,
+      queryParams,
+    );
+  }
+
+  // * GET: Returns all posts
+  @Get()
+  getPostsList(@Query() queryParams: PostsQueryDto) {
+    return this.postsQueryService.getPostsList(queryParams);
+  }
 
   // * POST: Create new post
   @Post()
@@ -21,12 +54,23 @@ export class PostsController {
     return postOutput;
   }
 
+  // * GET: Return post by id
+  @Get(':id')
+  getPostById(@Param() params: PostParamsDto) {
+    return this.postsQueryService.getPostById(params.id);
+  }
+
   // * PUT: Update existing post by id with input model
   @Put(':id')
   @HttpCode(204)
-  async updatePost(@Param() params: PostParamsDto, @Body() dto: UpdatePostDto) {
-    return await this.postsService.updatePost(params.id, dto);
+  updatePost(@Param() params: PostParamsDto, @Body() dto: UpdatePostDto) {
+    return this.postsService.updatePost(params.id, dto);
   }
 
   // * DELETE: Delete post specified by id
+  @Delete(':id')
+  @HttpCode(204)
+  deletePost(@Param() params: PostParamsDto) {
+    return this.postsService.deletePost(params.id);
+  }
 }
