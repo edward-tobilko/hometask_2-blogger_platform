@@ -23,7 +23,7 @@ import {
   Comment,
   CommentModel,
 } from 'src/comments/domain/entities/comment.entity';
-import { IdParamDto } from 'src/core/dtos/param.dto';
+import { IdParamDto } from 'src/core/dto/param.dto';
 import { Types } from 'mongoose';
 
 @Controller(API_ROUTES.posts)

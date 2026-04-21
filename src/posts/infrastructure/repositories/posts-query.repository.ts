@@ -29,8 +29,8 @@ export class PostsQueryRepository {
     const [items, totalCount] = await Promise.all([
       this.postsModel
         .find({})
-        .sort({ [query.sortBy]: query.sortDirection })
-        .skip((query.pageNumber - 1) * query.pageSize)
+        .sort(query.calculateSort())
+        .skip(query.calculateSkip())
         .limit(query.pageSize)
         .lean<PostLean[]>()
         .exec(),
@@ -72,8 +72,8 @@ export class PostsQueryRepository {
     const [items, totalCount] = await Promise.all([
       this.commentsModel
         .find(filter)
-        .sort({ [query.sortBy]: query.sortDirection })
-        .skip((query.pageNumber - 1) * query.pageSize)
+        .sort(query.calculateSort())
+        .skip(query.calculateSkip())
         .limit(query.pageSize)
         .lean<CommentLean[]>()
         .exec(),

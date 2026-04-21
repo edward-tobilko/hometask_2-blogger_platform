@@ -8,7 +8,9 @@ import {
 } from 'src/core/constants/consts';
 import { SortDirections } from 'src/core/enums/enums';
 
-export class QueryDto {
+export abstract class QueryDto {
+  abstract sortBy: string;
+
   @IsOptional()
   @IsEnum(SortDirections)
   sortDirection: SortDirections = DEFAULT_SORT_DIRECTION;
@@ -29,6 +31,10 @@ export class QueryDto {
 
   calculateSkip() {
     return (this.pageNumber - 1) * this.pageSize;
+  }
+
+  calculateSort() {
+    return { [this.sortBy]: this.sortDirection };
   }
 }
 

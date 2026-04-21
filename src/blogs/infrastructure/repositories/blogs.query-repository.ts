@@ -29,8 +29,7 @@ export class BlogsQueryRepository {
   async findBlogs(
     queryParam: BlogsQueryDto,
   ): Promise<BlogListPaginatedViewModel> {
-    const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize } =
-      queryParam;
+    const { searchNameTerm, pageNumber, pageSize } = queryParam;
 
     const nameTerm = searchNameTerm ? searchNameTerm.trim() : null;
 
@@ -43,8 +42,8 @@ export class BlogsQueryRepository {
     const [items, totalCount] = await Promise.all([
       this.blogModel
         .find(filter)
-        .sort({ [sortBy]: sortDirection })
-        .skip((pageNumber - 1) * pageSize)
+        .sort(queryParam.calculateSort())
+        .skip(queryParam.calculateSkip())
         .limit(pageSize)
         .lean<BlogLean[]>()
         .exec(), // превращает Mongoose Query в Promise.
@@ -77,7 +76,7 @@ export class BlogsQueryRepository {
     blogId: string,
     query: BlogsQueryDto,
   ): Promise<PostsPaginatedViewModel> {
-    const { sortBy, sortDirection, pageNumber, pageSize } = query;
+    const { pageNumber, pageSize } = query;
 
     // * фильтруем (получаем) все посты этого блога
     const filter = { blogId: new Types.ObjectId(blogId) };
@@ -85,8 +84,8 @@ export class BlogsQueryRepository {
     const [items, totalCount] = await Promise.all([
       this.postModel
         .find(filter)
-        .sort({ [sortBy]: sortDirection })
-        .skip((pageNumber - 1) * pageSize)
+        .sort(query.calculateSort())
+        .skip(query.calculateSkip())
         .limit(pageSize)
         .lean<PostLean[]>()
         .exec(), // превращает Mongoose Query в Promise.
