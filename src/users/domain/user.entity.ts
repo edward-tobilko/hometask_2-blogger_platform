@@ -5,17 +5,11 @@ import { CreateUserDomainDto } from './dto/create-user-domain.dto';
 
 @Schema({ timestamps: true })
 export class User {
-  /**
-   * Login of the user (must be uniq)
-   * @type {string}
-   * @required
-   */
-
   @Prop({
     type: String,
     required: true,
     match: /^[a-zA-Z0-9_-]*$/,
-    unique: true, // уникальный индекс, что бы защититься на уровне БД (страховка, если два запроса придут одновременно)
+    unique: true, // уникальный индекс, что бы защититься на уровне БД (страховка, если два однаковых запроса придут одновременно)
   })
   login!: string;
 
@@ -27,7 +21,7 @@ export class User {
       /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
       'Email must be a valid email',
     ],
-    unique: true, // уникальный индекс, что бы защититься на уровне БД (страховка, если два запроса придут одновременно)
+    unique: true, // уникальный индекс, что бы защититься на уровне БД (страховка, если два однаковых запроса придут одновременно)
   })
   email!: string;
 

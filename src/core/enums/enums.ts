@@ -17,6 +17,14 @@ export enum BlogSortFieldRP {
   IsMembership = 'isMembership',
 }
 
+export enum PostSortFieldRP {
+  CreatedAt = 'createdAt',
+  Title = 'title',
+  ShortDescription = 'shortDescription',
+  Content = 'content',
+  BlogName = 'blogName',
+}
+
 export enum UserSortFieldRP {
   CreatedAt = 'createdAt',
   Login = 'login',

@@ -16,6 +16,18 @@ export class PostsService {
     private postsRepo: PostsRepository,
   ) {}
 
+  // * private helper methods (Extract Method)
+  private async findPostOrFail(id: string): Promise<PostDocument> {
+    const post = await this.postsRepo.findById(id);
+
+    if (!post) {
+      throw new NotFoundException(`The post with ID:${id} was not found`);
+    }
+
+    return post;
+  }
+
+  // * contracts main methods
   async createPost(dto: CreatePostDto): Promise<PostDocument> {
     const existingBlog = await this.blogModel
       .findById(dto.blogId)
@@ -42,11 +54,7 @@ export class PostsService {
 
   async updatePost(id: string, dto: UpdatePostDto): Promise<void> {
     // * достаем инстанс поста по id с его методами
-    const existingPost = await this.postsRepo.findById(id);
-
-    if (!existingPost) {
-      throw new NotFoundException(`The post with ID:${id} was not found`);
-    }
+    const existingPost = await this.findPostOrFail(id);
 
     if (existingPost.blogId.toString() !== dto.blogId)
       throw new NotFoundException('Post does not exist in this blog!');
@@ -56,5 +64,11 @@ export class PostsService {
 
     // * сохраняем уже обновленный документ
     await this.postsRepo.save(existingPost);
+  }
+
+  async deletePost(id: string): Promise<void> {
+    await this.findPostOrFail(id);
+
+    return await this.postsRepo.delete(id);
   }
 }

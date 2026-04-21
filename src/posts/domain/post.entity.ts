@@ -1,29 +1,11 @@
-import { Prop, Schema as NestSchema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Model, Types, Schema } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, Model, Types } from 'mongoose';
 
 import { CreatePostDomainDto } from './dto/create-post.domain-dto';
 import { UpdatePostDomainDto } from './dto/update-post.domain-dto';
+import { LikesInfoSchema } from 'src/core/schemas/schemas';
 
-// * Subdocument schemas
-const NewestLikeSchema = new Schema(
-  {
-    addedAt: { type: Date, required: true },
-    userId: { type: String, required: true },
-    login: { type: String, required: true },
-  },
-  { _id: false },
-);
-
-const ExtendedLikesInfoSchema = new Schema(
-  {
-    likesCount: { type: Number, required: true, default: 0 },
-    dislikesCount: { type: Number, required: true, default: 0 },
-    newestLikes: { type: [NewestLikeSchema], required: true, default: [] },
-  },
-  { _id: false },
-);
-
-@NestSchema({ timestamps: true })
+@Schema({ timestamps: true })
 export class Post {
   @Prop({
     type: String,
@@ -61,7 +43,7 @@ export class Post {
   @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд = даст нам первые 10 отсортированных елементов
   createdAt!: Date;
 
-  @Prop({ type: ExtendedLikesInfoSchema, required: true })
+  @Prop({ type: LikesInfoSchema, required: true })
   extendedLikesInfo!: {
     likesCount: number;
     dislikesCount: number;

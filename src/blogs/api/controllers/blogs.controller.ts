@@ -17,7 +17,7 @@ import { BlogViewModel } from '../dto/view-models/blog.view-model';
 import { CreatePostForBlogDto } from '../dto/create-post-for-blog.dto';
 import { BlogIdForPostsParamDto, BlogIdParamDto } from '../dto/blog-params.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
-import { PostViewModel } from 'src/posts/api/dto/view-models/post.view-model';
+import { PostViewModel } from 'src/posts/api/dto/view/post.view';
 import { BlogsQueryDto } from '../dto/blogs-query.dto';
 import { BlogsService } from 'src/blogs/application/services/blogs.service';
 import { BlogsQueryService } from 'src/blogs/application/services/blogs.query-service';

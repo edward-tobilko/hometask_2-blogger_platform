@@ -6,6 +6,8 @@ import { Post, PostSchema } from './domain/post.entity';
 import { Blog, BlogSchema } from 'src/blogs/domain/blog.entity';
 import { PostsRepository } from './infrastructure/repositories/posts.repository';
 import { PostsController } from './api/controllers/posts.controller';
+import { PostsQueryService } from './application/services/posts-query.service';
+import { PostsQueryRepository } from './infrastructure/repositories/posts-query.repository';
 
 @Module({
   imports: [
@@ -15,7 +17,12 @@ import { PostsController } from './api/controllers/posts.controller';
     ]),
   ],
   controllers: [PostsController],
-  providers: [PostsService, PostsRepository],
+  providers: [
+    PostsService,
+    PostsQueryService,
+    PostsRepository,
+    PostsQueryRepository,
+  ],
   exports: [PostsService, PostsRepository], // что бы BlogsController мог создавать посты
 })
 export class PostsModule {}
