@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-import { CreateBlogDomainDto } from './dto/create-blog.domain-dto';
-import { UpdateBlogDto } from '../api/dto/update-blog.dto';
+import { CreateBlogDomainDto } from '../dto/create-blog.domain-dto';
+import { UpdateBlogDto } from '../../api/dto/update-blog.dto';
 
 @Schema({ timestamps: true })
 export class Blog {

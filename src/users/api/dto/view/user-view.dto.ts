@@ -1,4 +1,4 @@
-import { UserDocument, UserLean } from 'src/users/domain/user.entity';
+import { UserDocument, UserLean } from 'src/users/domain/entities/user.entity';
 
 export class UserViewDto {
   id!: string;
@@ -6,7 +6,10 @@ export class UserViewDto {
   email!: string;
   createdAt!: string;
 
-  static mapToViewModel(user: UserDocument | UserLean): UserViewDto {
+  static mapToViewModel(
+    this: void,
+    user: UserDocument | UserLean,
+  ): UserViewDto {
     const dto = new UserViewDto();
 
     dto.id = user._id.toString();

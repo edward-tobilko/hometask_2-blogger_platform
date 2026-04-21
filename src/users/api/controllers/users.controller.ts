@@ -12,10 +12,10 @@ import {
 import { API_ROUTES } from 'src/core/constants/api-routes';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UsersService } from 'src/users/application/services/users.service';
-import { UserViewDto } from '../dto/view-models/user-view-model.dto';
+import { UserViewDto } from '../dto/view/user-view.dto';
 import { UsersQueryDto } from '../dto/users-query.dto';
 import { UsersQueryService } from 'src/users/application/services/users.query-service';
-import { UserIdParamDto } from '../dto/users-param.dto';
+import { IdParamDto } from 'src/core/dtos/param.dto';
 
 @Controller(API_ROUTES.users)
 export class UsersController {
@@ -43,7 +43,7 @@ export class UsersController {
   // * DELETE: Delete user specified by id
   @Delete(':id')
   @HttpCode(204)
-  deleteUser(@Param() params: UserIdParamDto) {
+  deleteUser(@Param() params: IdParamDto) {
     const { id } = params;
 
     return this.usersService.softDeleteUser(id);

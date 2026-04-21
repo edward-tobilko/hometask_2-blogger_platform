@@ -6,9 +6,9 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BlogsModule } from './blogs/blogs.module';
-import { PostsModule } from './posts/posts.module';
-import { UsersModule } from './users/users.module';
+import { BlogsModule } from './blogs/modules/blogs.module';
+import { PostsModule } from './posts/modules/posts.module';
+import { UsersModule } from './users/modules/users.module';
 import { TestingDataModule } from './testing/testing-data.module';
 import { CommentsModule } from './comments/modules/comment.module';
 

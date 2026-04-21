@@ -5,7 +5,7 @@ import {
   BlogModelType,
   BlogDocument,
   Blog,
-} from 'src/blogs/domain/blog.entity';
+} from 'src/blogs/domain/entities/blog.entity';
 
 @Injectable()
 export class BlogsRepository {

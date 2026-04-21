@@ -1,5 +1,5 @@
 import { LikeStatus } from 'src/core/enums/enums';
-import { PostDocument, PostLean } from 'src/posts/domain/post.entity';
+import { PostDocument, PostLean } from 'src/posts/domain/entities/post.entity';
 
 export class PostViewModel {
   id!: string;

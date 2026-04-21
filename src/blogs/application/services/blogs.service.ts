@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { PostDocument } from 'src/posts/domain/post.entity';
+import { PostDocument } from 'src/posts/domain/entities/post.entity';
 import { PostsService } from 'src/posts/application/services/posts.service';
 import { CreatePostDomainDto } from 'src/posts/domain/dto/create-post.domain-dto';
 import { BlogsRepository } from 'src/blogs/infrastructure/repositories/blogs.repository';
@@ -9,7 +9,7 @@ import {
   Blog,
   BlogDocument,
   BlogModelType,
-} from 'src/blogs/domain/blog.entity';
+} from 'src/blogs/domain/entities/blog.entity';
 import { CreateBlogDto } from 'src/blogs/api/dto/create-blog.dto';
 import { CreatePostForBlogDto } from 'src/blogs/api/dto/create-post-for-blog.dto';
 import { UpdateBlogDto } from 'src/blogs/api/dto/update-blog.dto';
@@ -24,15 +24,15 @@ export class BlogsService {
   ) {}
 
   async createBlog(dto: CreateBlogDto): Promise<BlogDocument> {
-    const blogInstance = this.blogModel.createBlogInstance({
+    const createdBlog = this.blogModel.createBlogInstance({
       name: dto.name,
       description: dto.description,
       websiteUrl: dto.websiteUrl,
     });
 
-    await this.blogsRepo.save(blogInstance);
+    await this.blogsRepo.save(createdBlog);
 
-    return blogInstance;
+    return createdBlog;
   }
 
   async createPostForBlog(
@@ -65,22 +65,22 @@ export class BlogsService {
     updateBlogDto: UpdateBlogDto,
   ): Promise<void> {
     // * достаем инстанс блога по id с его методами
-    const existingBlog = await this.blogsRepo.findById(blogId);
+    const blogInstance = await this.blogsRepo.findById(blogId);
 
-    if (!existingBlog)
+    if (!blogInstance)
       throw new NotFoundException(`The blog with ID:${blogId} was not found`);
 
     // * обновляем поля в памяти доменной сущности
-    existingBlog.update(updateBlogDto);
+    blogInstance.update(updateBlogDto);
 
     // * сохраняем уже обновленный документ
-    await this.blogsRepo.save(existingBlog);
+    await this.blogsRepo.save(blogInstance);
   }
 
   async deleteBlog(id: string): Promise<void> {
-    const existingBlog = await this.blogsRepo.findById(id);
+    const blogInstance = await this.blogsRepo.findById(id);
 
-    if (!existingBlog)
+    if (!blogInstance)
       throw new NotFoundException(`The blog with ID:${id} was not found`);
 
     await this.blogsRepo.delete(id);

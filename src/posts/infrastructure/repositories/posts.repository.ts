@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { Post, PostDocument, PostModel } from '../../domain/post.entity';
+import {
+  Post,
+  PostDocument,
+  PostModel,
+} from '../../domain/entities/post.entity';
 
 @Injectable()
 export class PostsRepository {

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
 
-import { CreateUserDomainDto } from './dto/create-user-domain.dto';
+import { CreateUserDomainDto } from '../dto/create-user-domain.dto';
 
 @Schema({ timestamps: true })
 export class User {

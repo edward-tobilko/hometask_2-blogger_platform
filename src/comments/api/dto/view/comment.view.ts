@@ -5,7 +5,7 @@ export class CommentViewModel {
   id!: string;
   content!: string;
 
-  //   postId: string;
+  postId!: string;
 
   commentatorInfo!: {
     userId: string;

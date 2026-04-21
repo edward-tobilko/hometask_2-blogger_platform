@@ -23,9 +23,13 @@ export class QueryDto {
   @IsOptional()
   @IsInt()
   @Min(10)
-  @Max(100) // защита от DoS (Denial of Service = отказ в обслуживании) атак
+  @Max(100) // защита от DoS (Denial of Service) атак
   @Transform(({ value }) => +value)
   pageSize: number = DEFAULT_PAGE_SIZE;
+
+  calculateSkip() {
+    return (this.pageNumber - 1) * this.pageSize;
+  }
 }
 
 // ? При переходе на Nest теперь используем class а не type, так как в рантайме Nest не знает о полях, типах, дефолтах, а class — живёт в рантайме, и именно с ним работают ValidationPipe, Transform-декораторы.

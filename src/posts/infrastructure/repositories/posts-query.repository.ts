@@ -12,7 +12,11 @@ import {
 import { PostsQueryDto } from 'src/posts/api/dto/posts-query.dto';
 import { PostViewModel } from 'src/posts/api/dto/view/post.view';
 import { PostsPaginatedViewModel } from 'src/posts/api/dto/view/posts-paginated.view';
-import { Post, PostLean, PostModel } from 'src/posts/domain/post.entity';
+import {
+  Post,
+  PostLean,
+  PostModel,
+} from 'src/posts/domain/entities/post.entity';
 
 @Injectable()
 export class PostsQueryRepository {

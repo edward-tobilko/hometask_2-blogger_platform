@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { UsersQueryDto } from 'src/users/api/dto/users-query.dto';
-import { UsersListPaginatedViewModel } from 'src/users/api/dto/view-models/users-paginated.view-model';
+import { UsersListPaginatedViewModel } from 'src/users/api/dto/view/users-paginated.view';
 import { UsersQueryRepository } from 'src/users/infrastructure/repositories/users-query.repository';
 
 @Injectable()

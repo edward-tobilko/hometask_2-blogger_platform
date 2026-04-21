@@ -3,11 +3,20 @@ import { InjectModel } from '@nestjs/mongoose';
 
 import { PostsPaginatedViewModel } from 'src/posts/api/dto/view/posts-paginated.view';
 import { PostViewModel } from 'src/posts/api/dto/view/post.view';
-import { Post, PostLean, PostModel } from 'src/posts/domain/post.entity';
-import { Blog, BlogLean, BlogModelType } from 'src/blogs/domain/blog.entity';
-import { BlogListPaginatedViewModel } from 'src/blogs/api/dto/view-models/blogs-paginated.view-model';
+import {
+  Post,
+  PostLean,
+  PostModel,
+} from 'src/posts/domain/entities/post.entity';
+import {
+  Blog,
+  BlogLean,
+  BlogModelType,
+} from 'src/blogs/domain/entities/blog.entity';
+import { BlogListPaginatedViewModel } from 'src/blogs/api/dto/view/blogs-paginated.view';
 import { BlogsQueryDto } from 'src/blogs/api/dto/blogs-query.dto';
-import { BlogViewModel } from 'src/blogs/api/dto/view-models/blog.view-model';
+import { BlogViewModel } from 'src/blogs/api/dto/view/blog.view';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -71,7 +80,7 @@ export class BlogsQueryRepository {
     const { sortBy, sortDirection, pageNumber, pageSize } = query;
 
     // * фильтруем (получаем) все посты этого блога
-    const filter = { blogId: blogId };
+    const filter = { blogId: new Types.ObjectId(blogId) };
 
     const [items, totalCount] = await Promise.all([
       this.postModel

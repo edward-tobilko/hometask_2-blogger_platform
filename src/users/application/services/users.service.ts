@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
 
 import { CreateUserDto } from 'src/users/api/dto/create-user.dto';
 import { CreateUserDomainDto } from 'src/users/domain/dto/create-user-domain.dto';
-import { UserDocument } from 'src/users/domain/user.entity';
+import { UserDocument } from 'src/users/domain/entities/user.entity';
 import { UsersRepository } from 'src/users/infrastructure/repositories/users.repository';
 
 @Injectable()

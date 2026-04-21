@@ -1,4 +1,4 @@
-import { BlogDocument, BlogLean } from '../../../domain/blog.entity';
+import { BlogDocument, BlogLean } from '../../../domain/entities/blog.entity';
 
 export class BlogViewModel {
   id!: string;
@@ -8,7 +8,10 @@ export class BlogViewModel {
   createdAt!: Date;
   isMembership!: boolean;
 
-  static mapToViewModel(blog: BlogDocument | BlogLean): BlogViewModel {
+  static mapToViewModel(
+    this: void,
+    blog: BlogDocument | BlogLean,
+  ): BlogViewModel {
     const dto = new BlogViewModel();
 
     dto.id = blog._id.toString();

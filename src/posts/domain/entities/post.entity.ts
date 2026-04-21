@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
 
-import { CreatePostDomainDto } from './dto/create-post.domain-dto';
-import { UpdatePostDomainDto } from './dto/update-post.domain-dto';
-import { LikesInfoSchema } from 'src/core/schemas/schemas';
+import { CreatePostDomainDto } from '../dto/create-post.domain-dto';
+import { UpdatePostDomainDto } from '../dto/update-post.domain-dto';
+import { ExtendedLikesInfo } from 'src/core/schemas/sub.schemas';
 
 @Schema({ timestamps: true })
 export class Post {
@@ -43,7 +43,7 @@ export class Post {
   @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд = даст нам первые 10 отсортированных елементов
   createdAt!: Date;
 
-  @Prop({ type: LikesInfoSchema, required: true })
+  @Prop({ type: ExtendedLikesInfo, required: true })
   extendedLikesInfo!: {
     likesCount: number;
     dislikesCount: number;
