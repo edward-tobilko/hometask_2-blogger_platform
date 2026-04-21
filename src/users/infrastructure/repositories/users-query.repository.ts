@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
+import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
 import { UsersQueryDto } from 'src/users/api/dto/users-query.dto';
 import { UserViewDto } from 'src/users/api/dto/view/user-view.dto';
-import { UsersListPaginatedViewModel } from 'src/users/api/dto/view/users-paginated.view';
+import { UsersPaginatedViewDto } from 'src/users/api/dto/view/users-paginated-view.dto';
 import {
   User,
   UserLean,
@@ -16,15 +17,8 @@ export class UsersQueryRepository {
 
   async findUsersList(
     query: UsersQueryDto,
-  ): Promise<UsersListPaginatedViewModel> {
-    const {
-      pageNumber,
-      pageSize,
-      sortBy,
-      sortDirection,
-      searchEmailTerm,
-      searchLoginTerm,
-    } = query;
+  ): Promise<PaginatedViewDto<UserViewDto[]>> {
+    const { pageNumber, pageSize, searchEmailTerm, searchLoginTerm } = query;
 
     const loginTerm = searchLoginTerm?.trim();
     const emailTerm = searchEmailTerm?.trim();
@@ -47,8 +41,8 @@ export class UsersQueryRepository {
     const [usersDocument, totalCount] = await Promise.all([
       this.userModel
         .find(filter)
-        .sort({ [sortBy]: sortDirection })
-        .skip((pageNumber - 1) * pageSize)
+        .sort(query.calculateSort())
+        .skip(query.calculateSkip())
         .limit(pageSize)
         .lean<UserLean[]>()
         .exec(),
@@ -56,15 +50,12 @@ export class UsersQueryRepository {
       this.userModel.countDocuments(filter),
     ]);
 
-    const usersOutput = new UsersListPaginatedViewModel(
-      Math.ceil(totalCount / pageSize),
-      pageNumber,
+    return UsersPaginatedViewDto.mapToView({
+      page: pageNumber,
       pageSize,
       totalCount,
 
-      usersDocument.map(UserViewDto.mapToViewModel),
-    );
-
-    return usersOutput;
+      items: usersDocument.map(UserViewDto.mapToViewModel),
+    });
   }
 }

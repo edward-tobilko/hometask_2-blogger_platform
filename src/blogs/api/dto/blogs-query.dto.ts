@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
-import { QueryDto } from 'src/core/dtos/query.dto';
+import { QueryDto } from 'src/core/dto/query.dto';
 import { BlogSortFieldRP } from 'src/core/enums/enums';
 
 export class BlogsQueryDto extends QueryDto {

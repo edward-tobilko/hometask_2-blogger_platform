@@ -15,7 +15,7 @@ import { UsersService } from 'src/users/application/services/users.service';
 import { UserViewDto } from '../dto/view/user-view.dto';
 import { UsersQueryDto } from '../dto/users-query.dto';
 import { UsersQueryService } from 'src/users/application/services/users.query-service';
-import { IdParamDto } from 'src/core/dtos/param.dto';
+import { IdParamDto } from 'src/core/dto/param.dto';
 
 @Controller(API_ROUTES.users)
 export class UsersController {
