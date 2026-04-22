@@ -6,11 +6,9 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BlogsModule } from './blogs/modules/blogs.module';
-import { PostsModule } from './posts/modules/posts.module';
-import { UsersModule } from './users/modules/users.module';
 import { TestingDataModule } from './testing/testing-data.module';
-import { CommentsModule } from './comments/modules/comment.module';
+import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
+import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
@@ -44,10 +42,8 @@ import { CommentsModule } from './comments/modules/comment.module';
     }),
 
     // * импортируем модули, что бы переиспользовать их провайдеры (из массива exports)
-    BlogsModule,
-    CommentsModule,
-    PostsModule,
-    UsersModule,
+    BloggersPlatformModule,
+    UserAccountsModule,
 
     TestingDataModule,
   ],
