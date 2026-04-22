@@ -1,14 +1,23 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { Blog, BlogSchema } from 'src/blogs/domain/entities/blog.entity';
-import { Post, PostSchema } from 'src/posts/domain/entities/post.entity';
-import { User, UserSchema } from 'src/users/domain/entities/user.entity';
 import { TestingDataController } from './testing-data.controller';
+import {
+  UserAccount,
+  UserAccountSchema,
+} from 'src/modules/user-accounts/domain/entities/user.entity';
+import {
+  Post,
+  PostSchema,
+} from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
 import {
   Comment,
   CommentSchema,
-} from 'src/comments/domain/entities/comment.entity';
+} from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
+import {
+  Blog,
+  BlogSchema,
+} from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
 
 @Module({
   imports: [
@@ -16,7 +25,7 @@ import {
       { name: Blog.name, schema: BlogSchema },
       { name: Comment.name, schema: CommentSchema },
       { name: Post.name, schema: PostSchema },
-      { name: User.name, schema: UserSchema },
+      { name: UserAccount.name, schema: UserAccountSchema },
     ]),
   ],
 
