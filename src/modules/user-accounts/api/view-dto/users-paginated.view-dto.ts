@@ -1,5 +1,5 @@
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
-import { UserViewDto } from './user-view.dto';
+import { UserViewDto } from './user.view-dto';
 
 export class UsersPaginatedViewDto extends PaginatedViewDto<UserViewDto[]> {
   items!: UserViewDto[];

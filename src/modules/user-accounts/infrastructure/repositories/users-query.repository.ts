@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
-import { UsersQueryDto } from 'src/modules/user-accounts/api/dto/users-query.dto';
-import { UserViewDto } from 'src/modules/user-accounts/api/dto/view/user-view.dto';
-import { UsersPaginatedViewDto } from 'src/modules/user-accounts/api/dto/view/users-paginated-view.dto';
+import { UsersQueryInputDto } from 'src/modules/user-accounts/api/input-dto/users-query.input-dto';
+import { UserViewDto } from 'src/modules/user-accounts/api/view-dto/user.view-dto';
+import { UsersPaginatedViewDto } from 'src/modules/user-accounts/api/view-dto/users-paginated.view-dto';
 import {
   UserAccount,
   UserAccountLean,
@@ -18,7 +18,7 @@ export class UsersQueryRepository {
   ) {}
 
   async findUsersList(
-    query: UsersQueryDto,
+    query: UsersQueryInputDto,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
     const { pageNumber, pageSize, searchEmailTerm, searchLoginTerm } = query;
 
