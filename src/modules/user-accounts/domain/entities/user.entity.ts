@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
 
-import { CreateUserDomainDto } from '../dto/create-user-domain.dto';
+import { CreateUserInterface } from '../interfaces/create-user-interface';
 
 @Schema({ timestamps: true })
 export class UserAccount {
@@ -21,6 +21,7 @@ export class UserAccount {
       /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
       'Email must be a valid email',
     ],
+    min: 5,
     unique: true, // уникальный индекс, что бы защититься на уровне БД (страховка, если два однаковых запроса придут одновременно)
   })
   email!: string;
@@ -40,7 +41,7 @@ export class UserAccount {
   @Prop({ type: Date, default: null })
   deletedAt!: Date | null;
 
-  static createInstance(dto: CreateUserDomainDto): UserAccountDocument {
+  static createInstance(dto: CreateUserInterface): UserAccountDocument {
     const user = new this(); // -> UserModel
 
     user.login = dto.login;

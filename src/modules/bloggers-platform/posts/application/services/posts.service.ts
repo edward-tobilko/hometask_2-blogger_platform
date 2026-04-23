@@ -6,14 +6,14 @@ import {
   BlogLean,
   BlogModelType,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
-import { CreatePostDto } from '../../api/dto/create-post.dto';
 import {
   Post,
   PostDocument,
   PostModel,
 } from '../../domain/entities/post.entity';
 import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
-import { UpdatePostDto } from 'src/modules/bloggers-platform/posts/api/dto/update-post.dto';
+import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
+import { UpdatePostDomainDto } from '../../domain/dto/update-post.domain-dto';
 
 @Injectable()
 export class PostsService {
@@ -36,7 +36,7 @@ export class PostsService {
   }
 
   // * contracts main methods
-  async createPost(dto: CreatePostDto): Promise<PostDocument> {
+  async createPost(dto: CreatePostDomainDto): Promise<PostDocument> {
     const existingBlog = await this.blogModel
       .findById(dto.blogId)
       .select('name') // что бы не гнать поиск бд по всему обьекту, выбираем только по значению "name" (faster)
@@ -60,7 +60,7 @@ export class PostsService {
     return postInstance;
   }
 
-  async updatePost(id: string, dto: UpdatePostDto): Promise<void> {
+  async updatePost(id: string, dto: UpdatePostDomainDto): Promise<void> {
     // * достаем инстанс поста по id с его методами
     const existingPost = await this.findPostOrFail(id);
 
@@ -77,6 +77,6 @@ export class PostsService {
   async deletePost(id: string): Promise<void> {
     await this.findPostOrFail(id);
 
-    return await this.postsRepo.delete(id);
+    return this.postsRepo.delete(id);
   }
 }

@@ -40,6 +40,8 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+void bootstrap();
 
-// ? logger.error(message: any, stack?: string, context?: string)
+// ? logger.error(message: any, stack?: string, context?: string).
+
+// ? void — оператор, который явно говорит: "я знаю, что это Promise, я намеренно его не жду". ESLint примет это как осознанное решение.

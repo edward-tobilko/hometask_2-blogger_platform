@@ -6,7 +6,7 @@ import {
 import bcrypt from 'bcrypt';
 
 import { CreateUserDto } from 'src/modules/user-accounts/api/dto/create-user.dto';
-import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user-domain.dto';
+import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 
@@ -17,7 +17,7 @@ export class UsersService {
   async createUser(dto: CreateUserDto): Promise<UserAccountDocument> {
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
-    const domainDto: CreateUserDomainDto = {
+    const domainDto: CreateUserInterface = {
       login: dto.login,
       email: dto.email,
       passwordHash,

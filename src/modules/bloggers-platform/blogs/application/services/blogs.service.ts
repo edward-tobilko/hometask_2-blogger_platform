@@ -10,9 +10,9 @@ import {
   BlogDocument,
   BlogModelType,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
-import { CreateBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/create-blog.dto';
 import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/create-post-for-blog.dto';
-import { UpdateBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/update-blog.dto';
+import { CreateBlogDomainDto } from '../../domain/dto/create-blog.domain-dto';
+import { UpdateBlogDomainDto } from '../../domain/dto/update-blog.domain-dto';
 
 @Injectable()
 export class BlogsService {
@@ -23,7 +23,7 @@ export class BlogsService {
     private postsService: PostsService,
   ) {}
 
-  async createBlog(dto: CreateBlogDto): Promise<BlogDocument> {
+  async createBlog(dto: CreateBlogDomainDto): Promise<BlogDocument> {
     const createdBlog = this.blogModel.createBlogInstance({
       name: dto.name,
       description: dto.description,
@@ -46,7 +46,7 @@ export class BlogsService {
       throw new NotFoundException(`The blog with ID:${blogId} was not found`);
 
     // * create domain post
-    const domainPost: CreatePostDomainDto = {
+    const domainPost: CreatePostDomainDto & { blogName: string } = {
       title: dto.title,
       shortDescription: dto.shortDescription,
       content: dto.content,
@@ -55,14 +55,14 @@ export class BlogsService {
     };
 
     // * get post from post service
-    const post = this.postsService.createPost(domainPost);
+    const post = await this.postsService.createPost(domainPost);
 
     return post;
   }
 
   async updateBlog(
     blogId: string,
-    updateBlogDto: UpdateBlogDto,
+    updateBlogDto: UpdateBlogDomainDto,
   ): Promise<void> {
     // * достаем инстанс блога по id с его методами
     const blogInstance = await this.blogsRepo.findById(blogId);

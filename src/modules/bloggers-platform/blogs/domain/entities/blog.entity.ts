@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { CreateBlogDomainDto } from '../dto/create-blog.domain-dto';
-import { UpdateBlogDto } from '../../api/dto/update-blog.dto';
+import { UpdateBlogDomainDto } from '../dto/update-blog.domain-dto';
 
 @Schema({ timestamps: true })
 export class Blog {
@@ -45,7 +45,7 @@ export class Blog {
     return blog as BlogDocument;
   }
 
-  update(dto: UpdateBlogDto): void {
+  update(dto: UpdateBlogDomainDto): void {
     this.name = dto.name;
     this.description = dto.description;
     this.websiteUrl = dto.websiteUrl;

@@ -55,7 +55,9 @@ export class Post {
     }>;
   };
 
-  static createPostInstance(dto: CreatePostDomainDto): PostDocument {
+  static createPostInstance(
+    dto: CreatePostDomainDto & { blogName: string },
+  ): PostDocument {
     const post = new this(); // this is Post / PostModel, NOT PostDocument
 
     post.title = dto.title;

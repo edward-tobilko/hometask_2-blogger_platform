@@ -25,6 +25,8 @@ import {
 } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
 import { IdParamDto } from 'src/core/dto/param.dto';
 import { Types } from 'mongoose';
+import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view/comments-paginated.view';
+import { PostsPaginatedViewModel } from '../dto/view/posts-paginated.view';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -39,7 +41,7 @@ export class PostsController {
   getCommentsForPost(
     @Param() params: PostIdParamDto,
     @Query() queryParams: PostsQueryDto,
-  ) {
+  ): Promise<CommentsPaginatedViewModel> {
     return this.postsQueryService.getCommentsForPost(
       params.postId,
       queryParams,
@@ -48,13 +50,15 @@ export class PostsController {
 
   // * GET: Returns all posts
   @Get()
-  getPostsList(@Query() queryParams: PostsQueryDto) {
+  getPostsList(
+    @Query() queryParams: PostsQueryDto,
+  ): Promise<PostsPaginatedViewModel> {
     return this.postsQueryService.getPostsList(queryParams);
   }
 
   // * POST: Create new post
   @Post()
-  async createPost(@Body() dto: CreatePostDto) {
+  async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
     const postDoc = await this.postsService.createPost(dto);
 
     const postOutput = PostViewModel.mapToViewModel(postDoc);
@@ -64,21 +68,24 @@ export class PostsController {
 
   // * GET: Return post by id
   @Get(':id')
-  getPostById(@Param() params: IdParamDto) {
+  getPostById(@Param() params: IdParamDto): Promise<PostViewModel | null> {
     return this.postsQueryService.getPostById(params.id);
   }
 
   // * PUT: Update existing post by id with input model
   @Put(':id')
   @HttpCode(204)
-  updatePost(@Param() params: IdParamDto, @Body() dto: UpdatePostDto) {
+  updatePost(
+    @Param() params: IdParamDto,
+    @Body() dto: UpdatePostDto,
+  ): Promise<void> {
     return this.postsService.updatePost(params.id, dto);
   }
 
   // * DELETE: Delete post specified by id
   @Delete(':id')
   @HttpCode(204)
-  deletePost(@Param() params: IdParamDto) {
+  deletePost(@Param() params: IdParamDto): Promise<void> {
     return this.postsService.deletePost(params.id);
   }
 
@@ -87,7 +94,7 @@ export class PostsController {
   async createComment(
     @Param() params: PostIdParamDto,
     @Body('content') content: string,
-  ) {
+  ): Promise<any> {
     const comment = await this.commentModel.create({
       content,
       postId: new Types.ObjectId(params.postId),

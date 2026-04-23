@@ -24,7 +24,7 @@ export class TestingDataController {
   constructor(
     @InjectModel(Blog.name) protected blogModel: BlogModelType,
     @InjectModel(Post.name) protected postModel: PostModel,
-    @InjectModel(UserAccount.name) protected userModel: UserAccountModel,
+    @InjectModel(UserAccount.name) protected userAccountModel: UserAccountModel,
     @InjectModel(Comment.name) protected commentModel: CommentModel,
   ) {}
 
@@ -37,7 +37,7 @@ export class TestingDataController {
       this.blogModel.deleteMany({}).exec(),
       this.commentModel.deleteMany().exec(),
       this.postModel.deleteMany({}).exec(),
-      this.userModel.deleteMany({}).exec(),
+      this.userAccountModel.deleteMany({}).exec(),
       // this.postLikeModel.deleteMany(),
       // this.commentLikeModel.deleteMany(),
     ]);
