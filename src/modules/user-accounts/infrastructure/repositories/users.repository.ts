@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user-domain.dto';
+import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 
 import {
   UserAccount,
@@ -29,7 +29,7 @@ export class UsersRepository {
     await user.save();
   }
 
-  async create(dto: CreateUserDomainDto): Promise<UserAccountDocument> {
+  async create(dto: CreateUserInterface): Promise<UserAccountDocument> {
     const user = this.userModel.createInstance({
       ...dto,
     });

@@ -21,6 +21,8 @@ import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/
 import { BlogsQueryDto } from '../dto/blogs-query.dto';
 import { BlogsService } from 'src/modules/bloggers-platform/blogs/application/services/blogs.service';
 import { BlogsQueryService } from 'src/modules/bloggers-platform/blogs/application/services/blogs.query-service';
+import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
+import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/posts-paginated.view';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
@@ -31,7 +33,9 @@ export class BlogsController {
 
   // * GET: Returns blogs with paging
   @Get() // = /blogs: декоратор (@) метода Get, автоматом возвр. status 200
-  async getBlogsList(@Query() query: BlogsQueryDto) {
+  async getBlogsList(
+    @Query() query: BlogsQueryDto,
+  ): Promise<PaginatedViewDto<BlogViewModel[]>> {
     return await this.blogsQueryService.getBlogsList(query);
   }
 
@@ -40,7 +44,7 @@ export class BlogsController {
   async createBlog(
     @Body()
     createBlogDto: CreateBlogDto,
-  ) {
+  ): Promise<BlogViewModel> {
     const createdBlogDoc = await this.blogsService.createBlog(createBlogDto);
 
     return BlogViewModel.mapToViewModel(createdBlogDoc);
@@ -51,7 +55,7 @@ export class BlogsController {
   async getPostsListForBlog(
     @Param() params: BlogIdForPostsParamDto,
     @Query() query: BlogsQueryDto,
-  ) {
+  ): Promise<PostsPaginatedViewModel> {
     return await this.blogsQueryService.getPostsForBlog(params.blogId, query);
   }
 
@@ -61,7 +65,7 @@ export class BlogsController {
     @Param() params: BlogIdForPostsParamDto,
     @Body()
     dto: CreatePostForBlogDto,
-  ) {
+  ): Promise<PostViewModel> {
     const post = await this.blogsService.createPostForBlog(params.blogId, dto);
 
     const postOutput = PostViewModel.mapToViewModel(post);
@@ -71,7 +75,7 @@ export class BlogsController {
 
   // * GET: Returns blog by id
   @Get(':id') // = /blogs:id
-  async getBlog(@Param() params: BlogIdParamDto) {
+  async getBlog(@Param() params: BlogIdParamDto): Promise<BlogViewModel> {
     const blogOutput = await this.blogsQueryService.getBlogById(params.id);
 
     if (!blogOutput)
@@ -89,14 +93,14 @@ export class BlogsController {
     @Param() params: BlogIdParamDto,
     @Body()
     updateBlogDto: UpdateBlogDto,
-  ) {
+  ): Promise<void> {
     await this.blogsService.updateBlog(params.id, updateBlogDto);
   }
 
   // * DELETE: Delete blog specified by id
   @Delete(':id')
   @HttpCode(204)
-  async deleteBlog(@Param() params: BlogIdParamDto) {
+  async deleteBlog(@Param() params: BlogIdParamDto): Promise<void> {
     await this.blogsService.deleteBlog(params.id);
   }
 }

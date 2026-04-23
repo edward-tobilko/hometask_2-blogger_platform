@@ -15,7 +15,7 @@ export class BlogsRepository {
     return await this.blogModel.findById(blogId).exec();
   }
 
-  async save(blog: BlogDocument) {
+  async save(blog: BlogDocument): Promise<void> {
     await blog.save();
   }
 
