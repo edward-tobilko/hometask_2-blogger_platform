@@ -9,6 +9,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 
 import { PostsService } from 'src/modules/bloggers-platform/posts/application/services/posts.service';
 import { CreatePostDto } from '../dto/create-post.dto';
@@ -18,15 +19,14 @@ import { UpdatePostDto } from '../dto/update-post.dto';
 import { PostsQueryService } from 'src/modules/bloggers-platform/posts/application/services/posts-query.service';
 import { PostsQueryDto } from '../dto/posts-query.dto';
 import { PostViewModel } from '../dto/view/post.view';
-import { InjectModel } from '@nestjs/mongoose';
 import {
   Comment,
   CommentModel,
 } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
 import { IdParamDto } from 'src/core/dto/param.dto';
-import { Types } from 'mongoose';
 import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view/comments-paginated.view';
 import { PostsPaginatedViewModel } from '../dto/view/posts-paginated.view';
+import { Types } from 'mongoose';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -94,10 +94,12 @@ export class PostsController {
   async createComment(
     @Param() params: PostIdParamDto,
     @Body('content') content: string,
-  ): Promise<any> {
+  ) {
+    const post = await this.postsQueryService.getPostById(params.postId);
+
     const comment = await this.commentModel.create({
       content,
-      postId: new Types.ObjectId(params.postId),
+      postId: new Types.ObjectId(post!.id),
       commentatorInfo: { userId: 'test-user-id', userLogin: 'test-user-login' },
       likesInfo: {
         likesCount: 0,
