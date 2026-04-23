@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
-import { CreateUserDto } from 'src/modules/user-accounts/api/dto/create-user.dto';
+import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
 import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
@@ -14,7 +14,7 @@ import { UsersRepository } from 'src/modules/user-accounts/infrastructure/reposi
 export class UsersService {
   constructor(protected usersRepo: UsersRepository) {}
 
-  async createUser(dto: CreateUserDto): Promise<UserAccountDocument> {
+  async createUser(dto: CreateUserInputDto): Promise<UserAccountDocument> {
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
     const domainDto: CreateUserInterface = {
