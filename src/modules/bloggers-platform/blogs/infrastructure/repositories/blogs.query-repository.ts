@@ -17,6 +17,7 @@ import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/
 import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/blogs-query.dto';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view/blog.view';
 import { Types } from 'mongoose';
+import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/posts-query.dto';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -74,7 +75,7 @@ export class BlogsQueryRepository {
 
   async findPostsForBlog(
     blogId: string,
-    query: BlogsQueryDto,
+    query: PostsQueryDto,
   ): Promise<PostsPaginatedViewModel> {
     const { pageNumber, pageSize } = query;
 

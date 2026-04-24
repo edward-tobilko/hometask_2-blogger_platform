@@ -32,7 +32,7 @@ export abstract class QueryDto {
 
   @IsOptional()
   @IsInt()
-  @Min(10)
+  @Min(1)
   @Max(100) // защита от DoS (Denial of Service) атак
   @Transform(({ value }) => +value)
   @ApiProperty({

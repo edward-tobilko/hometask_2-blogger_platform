@@ -23,6 +23,7 @@ import { BlogsService } from 'src/modules/bloggers-platform/blogs/application/se
 import { BlogsQueryService } from 'src/modules/bloggers-platform/blogs/application/services/blogs.query-service';
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/posts-paginated.view';
+import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/posts-query.dto';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
@@ -54,7 +55,7 @@ export class BlogsController {
   @Get(':blogId/posts')
   async getPostsListForBlog(
     @Param() params: BlogIdForPostsParamDto,
-    @Query() query: BlogsQueryDto,
+    @Query() query: PostsQueryDto,
   ): Promise<PostsPaginatedViewModel> {
     return await this.blogsQueryService.getPostsForBlog(params.blogId, query);
   }
