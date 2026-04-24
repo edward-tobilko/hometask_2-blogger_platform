@@ -3,7 +3,7 @@
 > Production-ready REST API for a blogging platform built with Node.js, TypeScript, and MongoDB.  
 > Clean DDD architecture with NestJS, CQRS-like pattern, Swagger documentation, and full validation.
 
-🔗 **Live:** [hometask-2-blogger-platform.fly.dev/api](https://hometask-2-blogger-platform.fly.dev/api/blogs)  
+🔗 **Live:** [hometask-2-blogger-platform.fly.dev/api](https://hometask-2-blogger-platform.fly.dev/api/users)  
 📖 **Swagger UI:** [hometask-2-blogger-platform.fly.dev/api](https://hometask-2-blogger-platform.fly.dev/api)
 
 ---
@@ -15,7 +15,6 @@
 | Runtime | Node.js + TypeScript |
 | Framework | NestJS v11 (Platform Express) |
 | Database | MongoDB + Mongoose |
-| Auth | JWT (access + refresh tokens) |
 | Validation | class-validator + class-transformer |
 | API Docs | @nestjs/swagger (Swagger / OpenAPI 3.0) |
 | Rate Limiting | @nestjs/throttler |
@@ -76,10 +75,6 @@ Read path:   Controller → *QueryService  → *QueryRepository
 - **Soft delete** — users have `deletedAt` field, not physically removed
 - **Rate limiting** — Throttler module (5 req / 10 sec per IP)
 - **MongoDB indexes** — `createdAt` indexed on all collections for sorting performance
-- **Like / Dislike system** — posts and comments with newest likes tracking
-- **Email confirmation** — registration flow with email verification
-- **Refresh token rotation** — each refresh issues a new pair, old token invalidated
-- **Session management** — device tracking, terminate specific or all sessions
 
 ---
 
@@ -108,16 +103,12 @@ Read path:   Controller → *QueryService  → *QueryRepository
 | DELETE | `/api/posts/:id` | Delete post (admin) |
 | GET | `/api/posts/:postId/comments` | Get comments for post |
 | POST | `/api/posts/:postId/comments` | Create comment |
-| PUT | `/api/posts/:postId/like-status` | Like / Dislike post |
 
 ### Comments
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/comments/:id` | Get comment by ID |
-| PUT | `/api/comments/:id` | Update comment |
-| DELETE | `/api/comments/:id` | Delete comment |
-| PUT | `/api/comments/:id/like-status` | Like / Dislike comment |
 
 ### Users
 
@@ -126,28 +117,6 @@ Read path:   Controller → *QueryService  → *QueryRepository
 | GET | `/api/users` | Get all users (paginated) |
 | POST | `/api/users` | Create user (admin) |
 | DELETE | `/api/users/:id` | Delete user (soft delete) |
-
-### Auth
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/login` | Login, returns access + refresh tokens |
-| POST | `/api/auth/logout` | Logout, clears session |
-| POST | `/api/auth/refresh-token` | Rotate refresh token |
-| GET | `/api/auth/me` | Get current user info |
-| POST | `/api/auth/registration` | Register new user |
-| POST | `/api/auth/registration-confirmation` | Confirm email |
-| POST | `/api/auth/registration-email-resending` | Resend confirmation email |
-| POST | `/api/auth/password-recovery` | Send recovery email |
-| POST | `/api/auth/new-password` | Set new password |
-
-### Security Devices
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/security/devices` | Get all active sessions |
-| DELETE | `/api/security/devices` | Terminate all other sessions |
-| DELETE | `/api/security/devices/:deviceId` | Terminate specific session |
 
 ### Testing
 
@@ -263,5 +232,3 @@ fly secrets set MONGO_URL=... AT_SECRET=... RT_SECRET=...
 # View logs
 fly logs
 ```
-
-[Download Sprint_4_week_1.pdf](https://github.com/user-attachments/files/26392248/Sprint_3_week_4.pdf)
