@@ -8,6 +8,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
@@ -27,6 +28,12 @@ export class UsersController {
 
   // * GET: Returns all users
   @Get()
+  @ApiOperation({ summary: 'Returns all users' }) // for swagger doc
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: UsersPaginatedViewDto,
+  }) // for swagger doc
   getUsersList(
     @Query() queries: UsersQueryInputDto,
   ): Promise<UsersPaginatedViewDto> {
@@ -35,6 +42,12 @@ export class UsersController {
 
   // * POST: Add new user to the system
   @Post()
+  @ApiOperation({ summary: 'Add new user to the system' }) // for swagger
+  @ApiResponse({
+    status: 201,
+    description: 'Returns the newly created user',
+    type: UserViewDto,
+  }) // for swagger
   async createUser(@Body() dto: CreateUserInputDto): Promise<UserViewDto> {
     const userInstanceDoc = await this.usersService.createUser(dto);
 
@@ -46,6 +59,13 @@ export class UsersController {
   // * DELETE: Delete user specified by id
   @Delete(':id')
   @HttpCode(204)
+  @ApiParam({ name: 'id', description: 'User id', type: String })
+  @ApiOperation({ summary: 'Delete user specified by id' })
+  @ApiResponse({
+    status: 204,
+    description: 'No content',
+  })
+  @ApiResponse({ status: 404, description: 'If specified user is not exists' }) // if error
   deleteUser(@Param() params: IdParamDto): Promise<void> {
     const { id } = params;
 

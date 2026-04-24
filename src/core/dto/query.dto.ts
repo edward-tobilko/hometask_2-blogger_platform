@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 
@@ -13,6 +14,9 @@ export abstract class QueryDto {
 
   @IsOptional()
   @IsEnum(SortDirections)
+  @ApiProperty({
+    default: 'desc',
+  })
   sortDirection: SortDirections = DEFAULT_SORT_DIRECTION;
 
   @IsOptional()
@@ -20,6 +24,10 @@ export abstract class QueryDto {
   @Min(1)
   @Max(100)
   @Transform(({ value }) => +value)
+  @ApiProperty({
+    description: 'pageNumber is number of portions that should be returned',
+    default: 1,
+  })
   pageNumber: number = DEFAULT_PAGE_NUMBER;
 
   @IsOptional()
@@ -27,6 +35,10 @@ export abstract class QueryDto {
   @Min(10)
   @Max(100) // защита от DoS (Denial of Service) атак
   @Transform(({ value }) => +value)
+  @ApiProperty({
+    description: 'pageSize is portions size that should be returned',
+    default: 10,
+  })
   pageSize: number = DEFAULT_PAGE_SIZE;
 
   calculateSkip() {
