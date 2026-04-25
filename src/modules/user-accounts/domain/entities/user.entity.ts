@@ -2,8 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
 
 import { CreateUserInterface } from '../interfaces/create-user-interface';
+import { FullName, NameSchema } from './name.entity';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'user-accounts' })
 export class UserAccount {
   @Prop({
     type: String,
@@ -32,8 +33,8 @@ export class UserAccount {
   @Prop({ type: Boolean, required: true, default: false })
   isEmailConfirmed!: boolean;
 
-  //   @Prop({ type: NameSchema })
-  //   name!: Name;
+  @Prop({ type: NameSchema })
+  name!: FullName;
 
   createdAt!: Date;
   updatedAt!: Date;
@@ -50,12 +51,12 @@ export class UserAccount {
 
     user.isEmailConfirmed = false; // пользователь ВСЕГДА должен после регистрации подтверждить свой Email (инкапсуляция бизнес-логики в доменном слое).
 
-    // user.name = {
-    //   firstName: 'firstName xxx',
-    //   lastName: 'lastName yyy',
-    // };
+    user.name = {
+      firstName: dto.name.firstName,
+      lastName: dto.name.lastName,
+    };
 
-    return user as UserAccountDocument;
+    return user as UserAccountDocument; // указываем явно, что это mongoose document, потому как typescript думает что этот екземпляр = UserAccount class.
   }
 
   makeDeleted() {

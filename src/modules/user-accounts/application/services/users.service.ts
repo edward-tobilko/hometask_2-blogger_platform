@@ -21,6 +21,11 @@ export class UsersService {
       login: dto.login,
       email: dto.email,
       passwordHash,
+
+      name: {
+        firstName: 'linda',
+        lastName: 'melinda',
+      },
     };
 
     // * проверка для создания юзера с однаковым login or email, так как у нас индексация по login / email в БД, а обьекты целиком не удалены с БД, а только позначены как deletedAt.
