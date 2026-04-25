@@ -11,7 +11,7 @@ import { UserAccount, UserAccountSchema } from './domain/entities/user.entity';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: UserAccount.name, schema: UserAccountSchema },
+      { name: UserAccount.name, schema: UserAccountSchema }, // UserAccount.name = token по которому мы его инжектируем в наши сервисы / репо
     ]),
   ],
 

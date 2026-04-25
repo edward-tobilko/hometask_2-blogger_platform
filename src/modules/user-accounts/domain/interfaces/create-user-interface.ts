@@ -3,10 +3,10 @@ export interface CreateUserInterface {
   email: string;
   passwordHash: string;
 
-  //   name!: {
-  //     firstName: string;
-  //     lastName: string;
-  //   };
+  name: {
+    firstName: string;
+    lastName: string;
+  };
 }
 
 // ? если у нас нету методов -> можно использовать interface вместо class.
