@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-// import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -56,10 +56,10 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
     AppService,
 
     // * ограничение количества запросов с одного IP (распространяеться на все роуты, если хотим отдельно на кажный роут -> @UseGuards(ThrottlerGuard) над каждым декоратором (@Post() / @Get() etc...)).
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ThrottlerGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 
   // * что из providers мы "разрешаем использовать" другим модулям (инкапсуляция)
