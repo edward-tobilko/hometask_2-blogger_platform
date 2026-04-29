@@ -24,7 +24,7 @@ import { UsersQueryInputDto } from '../input-dto/users-query.input-dto';
 import { UsersQueryService } from 'src/modules/user-accounts/application/services/users.query-service';
 import { UsersPaginatedViewDto } from '../view-dto/users-paginated.view-dto';
 import { BasicAuthGuard } from '../../guards/basic/basic-auth.guard';
-import { IdValidationTransformationPipe } from 'src/core/pipes/id-validation-transformation.pipe';
+import { IdValidationPipe } from 'src/core/pipes/object-id-validation-transformation.pipe';
 
 @Controller(API_ROUTES.users)
 @UseGuards(BasicAuthGuard)
@@ -75,9 +75,7 @@ export class UsersController {
     description: 'No content',
   })
   @ApiResponse({ status: 404, description: 'If specified user is not exists' }) // if error
-  deleteUser(
-    @Param('id', IdValidationTransformationPipe) id: string,
-  ): Promise<void> {
+  deleteUser(@Param('id', IdValidationPipe) id: string): Promise<void> {
     return this.usersService.softDeleteUser(id);
   }
 }

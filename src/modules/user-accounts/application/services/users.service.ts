@@ -1,14 +1,14 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
 import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
 import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
+import {
+  DomainException,
+  DomainExceptionCode,
+} from 'src/core/exceptions/domain.exceptions';
 
 @Injectable()
 export class UsersService {
@@ -33,9 +33,10 @@ export class UsersService {
       return await this.usersRepo.create(domainDto);
     } catch (error: unknown) {
       if (error instanceof Error && 'code' in error && error.code === 11000) {
-        throw new BadRequestException(
-          'User with this login or email already exists', // -> 400
-        );
+        throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: 'User with this login or email already exists',
+        });
       }
 
       throw error;
@@ -46,7 +47,10 @@ export class UsersService {
     const existingUser = await this.usersRepo.findById(id);
 
     if (!existingUser)
-      throw new NotFoundException(`The user with ID:${id} was not found`);
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The user with ID:${id} was not found`,
+      });
 
     existingUser.makeDeleted();
 
