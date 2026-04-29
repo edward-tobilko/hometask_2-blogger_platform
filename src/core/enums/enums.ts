@@ -8,25 +8,3 @@ export enum LikeStatus {
   Dislike = 'Dislike',
   None = 'None',
 }
-
-export enum BlogSortFieldRP {
-  CreatedAt = 'createdAt',
-  Name = 'name',
-  Description = 'description',
-  WebsiteUrl = 'websiteUrl',
-  IsMembership = 'isMembership',
-}
-
-export enum PostSortFieldRP {
-  CreatedAt = 'createdAt',
-  Title = 'title',
-  ShortDescription = 'shortDescription',
-  Content = 'content',
-  BlogName = 'blogName',
-}
-
-export enum UserSortFieldRP {
-  CreatedAt = 'createdAt',
-  Login = 'login',
-  Email = 'email',
-}
