@@ -7,8 +7,14 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
@@ -16,10 +22,13 @@ import { UsersService } from 'src/modules/user-accounts/application/services/use
 import { UserViewDto } from '../view-dto/user.view-dto';
 import { UsersQueryInputDto } from '../input-dto/users-query.input-dto';
 import { UsersQueryService } from 'src/modules/user-accounts/application/services/users.query-service';
-import { IdParamDto } from 'src/core/dto/param.dto';
 import { UsersPaginatedViewDto } from '../view-dto/users-paginated.view-dto';
+import { BasicAuthGuard } from '../../guards/basic/basic-auth.guard';
+import { IdValidationTransformationPipe } from 'src/core/pipes/id-validation-transformation.pipe';
 
 @Controller(API_ROUTES.users)
+@UseGuards(BasicAuthGuard)
+@ApiBasicAuth('basicAuth')
 export class UsersController {
   constructor(
     private usersService: UsersService,
@@ -66,9 +75,9 @@ export class UsersController {
     description: 'No content',
   })
   @ApiResponse({ status: 404, description: 'If specified user is not exists' }) // if error
-  deleteUser(@Param() params: IdParamDto): Promise<void> {
-    const { id } = params;
-
+  deleteUser(
+    @Param('id', IdValidationTransformationPipe) id: string,
+  ): Promise<void> {
     return this.usersService.softDeleteUser(id);
   }
 }

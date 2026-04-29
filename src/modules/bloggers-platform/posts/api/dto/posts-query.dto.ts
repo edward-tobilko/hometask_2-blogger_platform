@@ -1,10 +1,17 @@
 import { IsEnum, IsOptional } from 'class-validator';
 
 import { QueryDto } from 'src/core/dto/query.dto';
-import { PostSortFieldRP } from 'src/core/enums/enums';
+
+enum PostsSortBy {
+  CreatedAt = 'createdAt',
+  Title = 'title',
+  ShortDescription = 'shortDescription',
+  Content = 'content',
+  BlogName = 'blogName',
+}
 
 export class PostsQueryDto extends QueryDto {
   @IsOptional()
-  @IsEnum(PostSortFieldRP)
-  sortBy: PostSortFieldRP = PostSortFieldRP.CreatedAt;
+  @IsEnum(PostsSortBy)
+  sortBy: PostsSortBy = PostsSortBy.CreatedAt;
 }
