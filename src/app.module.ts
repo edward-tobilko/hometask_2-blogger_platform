@@ -61,7 +61,7 @@ import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exc
 
     // * регистрация глобальных exception filters, важен порядок регистрации! Первым сработает DomainHttpExceptionsFilter! В NestJS глобальные фильтры применяются в порядке LIFO (последний зарегистрированный — первый срабатывает).
     {
-      provide: APP_FILTER,
+      provide: APP_FILTER, // работает через DI-контейнер NestJS, поэтому в фильтр можно инжектить зависимости через конструктор
       useClass: AllHttpExceptionsFilter,
     },
 

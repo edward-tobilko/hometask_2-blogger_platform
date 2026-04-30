@@ -12,6 +12,7 @@ export enum DomainExceptionCode {
   PasswordRecoveryCodeExpired = 14,
 }
 
+// * Extra fields for extensions value: "extensions": []
 export class Extension {
   constructor(
     public message: string,
@@ -21,9 +22,9 @@ export class Extension {
 
 // * Кастомный класс исключения
 export class DomainException extends Error {
-  message: string;
-  code: DomainExceptionCode;
-  extensions: Extension[];
+  message: string; // error text
+  code: DomainExceptionCode; // error code
+  extensions: Extension[]; // дополнительные данные ошибки
 
   constructor(errorInfo: {
     code: DomainExceptionCode;

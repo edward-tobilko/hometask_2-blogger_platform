@@ -50,4 +50,8 @@ export class UsersRepository {
       })
       .exec();
   }
+
+  findByLogin(login: string): Promise<UserAccountDocument | null> {
+    return this.userModel.findOne({ login });
+  }
 }
