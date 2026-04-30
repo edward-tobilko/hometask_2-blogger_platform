@@ -4,7 +4,7 @@ import { isValidObjectId, Types } from 'mongoose';
 import {
   DomainException,
   DomainExceptionCode,
-} from '../exceptions/domain.exceptions';
+} from '../exceptions/domain.exception';
 
 // * Custom pipe example (https://docs.nestjs.com/pipes#custom-pipes)
 @Injectable()

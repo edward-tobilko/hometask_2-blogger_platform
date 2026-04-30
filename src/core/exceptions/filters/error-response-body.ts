@@ -1,4 +1,4 @@
-import { DomainExceptionCode, Extension } from '../domain.exceptions';
+import { DomainExceptionCode, Extension } from '../domain.exception';
 
 export type ErrorResponseBody = {
   timestamp: string;

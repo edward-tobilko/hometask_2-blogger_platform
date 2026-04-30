@@ -1,5 +1,5 @@
+import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { CommentLean } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
-import { LikeStatus } from 'src/core/enums/enums';
 
 export class CommentViewModel {
   id!: string;

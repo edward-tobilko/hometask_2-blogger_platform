@@ -1,17 +1,23 @@
 import { IsString, Length, Matches } from 'class-validator';
 
+import {
+  descriptionConstraints,
+  nameConstraints,
+  websiteUrlConstraints,
+} from 'src/core/constants/constraints';
+
 export class CreateBlogDto {
   @IsString()
-  @Length(1, 15)
+  @Length(nameConstraints.minLength, nameConstraints.maxLength)
   public name!: string;
 
   @IsString()
-  @Length(1, 500)
+  @Length(descriptionConstraints.minLength, descriptionConstraints.maxLength)
   public description!: string;
 
   @IsString()
-  @Length(1, 100)
-  @Matches(/^https:\/\/.+/i)
+  @Length(websiteUrlConstraints.minLength, websiteUrlConstraints.maxLength)
+  @Matches(websiteUrlConstraints.match)
   public websiteUrl!: string;
 }
 
