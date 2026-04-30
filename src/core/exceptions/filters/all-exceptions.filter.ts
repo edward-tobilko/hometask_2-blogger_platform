@@ -12,18 +12,6 @@ import { ErrorResponseBody } from './error-response-body';
 // * Все ошибки (https://docs.nestjs.com/exception-filters#exception-filters-1): Этот фильтр ловит стандартные NestJS исключения — те, что бросает сам фреймворк: ValidationPipe бросает 400, NotFoundException бросает 404 и т.д.
 @Catch(HttpException)
 export class AllHttpExceptionsFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost): void {
-    const context = host.switchToHttp();
-    const request = context.getRequest<Request>();
-    const response = context.getResponse<Response>();
-
-    const message = exception.message || 'Unknown exception occurred.';
-    const status = exception.getStatus(); // берёт статус из самого объекта исключения. Если NestJS кинул 404 — вернётся 404
-    const responseBody = this.buildResponseBody(request.url, message);
-
-    response.status(status).json(responseBody);
-  }
-
   private buildResponseBody(
     requestUrl: string,
     message: string,
@@ -34,7 +22,7 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
       return {
         timestamp: new Date().toISOString(),
         path: null,
-        message: 'Some error occurred',
+        message: '',
         extensions: [],
         code: DomainExceptionCode.InternalServerError,
       };
@@ -47,6 +35,18 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
       extensions: [],
       code: DomainExceptionCode.InternalServerError,
     };
+  }
+
+  catch(exception: HttpException, host: ArgumentsHost): void {
+    const context = host.switchToHttp(); // нужен, чтобы получить request и response (express)
+    const request = context.getRequest<Request>();
+    const response = context.getResponse<Response>();
+
+    const message = exception.message || 'Unknown exception occurred.';
+    const status = exception.getStatus(); // берёт статус из самого объекта исключения. Если NestJS кинул 404 — вернётся 404
+    const responseBody = this.buildResponseBody(request.url, message);
+
+    response.status(status).json(responseBody);
   }
 }
 

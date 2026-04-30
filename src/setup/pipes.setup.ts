@@ -19,14 +19,16 @@ export const errorFormatter = (
   errors: ValidationError[],
   errorMessage?: Extension[],
 ): Extension[] => {
-  const errorsForResponse: Extension[] = errorMessage || []; // errorsForResponse - передаётся по ссылке в рекурсию. Поэтому вложенные ошибки попадают в тот же массив, а не создают новый. Именно для этого нужен параметр errorMessage.
+  const errorsForResponse = errorMessage || []; // errorsForResponse - передаётся по ссылке в рекурсию. Поэтому вложенные ошибки попадают в тот же массив, а не создают новый. Именно для этого нужен параметр errorMessage.
 
+  // * перебираем поля DTO (login, email, isConfirmed...)
   for (const error of errors) {
     if (!error.constraints && error.children?.length) {
       errorFormatter(error.children, errorsForResponse);
     } else if (error.constraints) {
       const constrainKeys = Object.keys(error.constraints);
 
+      // * перебираем нарушения одного вложеного поля (name). Одно поле может нарушать несколько правил одновременно (но у нас stopAtFirstError: true, поэтому будет максимум одно).
       for (const key of constrainKeys) {
         errorsForResponse.push({
           message: error.constraints[key]
@@ -55,12 +57,14 @@ export function pipesSetup(app: INestApplication) {
 
       // * Для преобразования ошибок класс валидатора в необходимый вид (превращает ошибки валидации в DomainException → они попадут в DomainHttpExceptionsFilter → ответ будет в едином формате для всего API).
       exceptionFactory: (errors) => {
+        console.log('exception errors', errors);
+
         const formattedErrors = errorFormatter(errors);
 
         return new DomainException({
           code: DomainExceptionCode.ValidationError,
           message: 'Validation failed',
-          extensions: formattedErrors,
+          extensions: formattedErrors, // массив { message: string, key: string }[], который по сигнатуре совпадает с Extension[].
         });
       },
     }),
