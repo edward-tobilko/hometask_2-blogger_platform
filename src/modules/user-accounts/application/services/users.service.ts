@@ -8,7 +8,7 @@ import { UsersRepository } from 'src/modules/user-accounts/infrastructure/reposi
 import {
   DomainException,
   DomainExceptionCode,
-} from 'src/core/exceptions/domain.exceptions';
+} from 'src/core/exceptions/domain.exception';
 
 @Injectable()
 export class UsersService {

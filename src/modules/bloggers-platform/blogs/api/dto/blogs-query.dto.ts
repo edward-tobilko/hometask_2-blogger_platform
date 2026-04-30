@@ -11,11 +11,11 @@ enum BlogsSortBy {
 }
 
 export class BlogsQueryDto extends QueryDto {
-  @IsOptional()
   @IsEnum(BlogsSortBy)
+  @IsOptional()
   sortBy: BlogsSortBy = BlogsSortBy.CreatedAt;
 
-  @IsOptional()
   @IsString()
-  searchNameTerm?: string;
+  @IsOptional()
+  searchNameTerm: string | null = null;
 }

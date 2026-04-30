@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-import { DomainException, DomainExceptionCode } from '../domain.exceptions';
+import { DomainException, DomainExceptionCode } from '../domain.exception';
 import { ErrorResponseBody } from './error-response-body';
 
 // * Ошибки класса DomainException (instanceof DomainException) (https://docs.nestjs.com/exception-filters#exception-filters-1). Nest перехватит только исключения класса DomainException (через instanceof). Всё остальное пойдёт дальше.

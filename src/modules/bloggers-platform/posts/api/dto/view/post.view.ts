@@ -1,4 +1,4 @@
-import { LikeStatus } from 'src/core/enums/enums';
+import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostDocument, PostLean } from '../../../domain/entities/post.entity';
 
 export class PostViewModel {

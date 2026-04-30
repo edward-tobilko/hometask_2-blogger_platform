@@ -67,7 +67,6 @@ export class UsersController {
 
   // * DELETE: Delete user specified by id
   @Delete(':id')
-  @HttpCode(204)
   @ApiParam({ name: 'id', description: 'User id', type: String })
   @ApiOperation({ summary: 'Delete user specified by id' })
   @ApiResponse({
@@ -75,6 +74,7 @@ export class UsersController {
     description: 'No content',
   })
   @ApiResponse({ status: 404, description: 'If specified user is not exists' }) // if error
+  @HttpCode(204)
   deleteUser(@Param('id', IdValidationPipe) id: string): Promise<void> {
     return this.usersService.softDeleteUser(id);
   }
