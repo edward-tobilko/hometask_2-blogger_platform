@@ -10,28 +10,28 @@ enum UsersSortBy {
 }
 
 export class UsersQueryInputDto extends QueryDto {
-  @IsOptional()
-  @IsEnum(UsersSortBy)
   @ApiProperty({
     default: 'createdAt',
   })
+  @IsOptional()
+  @IsEnum(UsersSortBy)
   sortBy = UsersSortBy.CreatedAt;
 
-  @IsOptional()
-  @IsString()
   @ApiProperty({
     description:
       'Search term for user Login: Login should contains this term in any position',
     default: null,
   })
-  searchLoginTerm: string | null = null;
-
   @IsOptional()
   @IsString()
+  searchLoginTerm: string | null = null;
+
   @ApiProperty({
     description:
       'Search term for user Email: Email should contains this term in any position',
     default: null,
   })
+  @IsOptional()
+  @IsString()
   searchEmailTerm: string | null = null;
 }

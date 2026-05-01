@@ -37,7 +37,7 @@ export class IdValidationPipe implements PipeTransform {
     if (!isValidObjectId(value)) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
-        message: `Invalid Id: ${value}`,
+        message: `Invalid ID: ${value}`,
       });
     }
 
