@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import {
+  DomainException,
+  DomainExceptionCode,
+} from 'src/core/exceptions/domain.exception';
 
 import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/blogs-query.dto';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view/blog.view';
@@ -26,7 +30,10 @@ export class BlogsQueryService {
     const blogInstance = await this.blogsQueryRepo.findBlogById(blogId);
 
     if (!blogInstance)
-      throw new NotFoundException(`The blog with ID:${blogId} was not found`);
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `This blog with ID:${blogId} was not found`,
+      });
 
     return this.blogsQueryRepo.findPostsForBlog(blogId, queryParams);
   }

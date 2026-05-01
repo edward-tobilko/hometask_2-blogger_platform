@@ -18,9 +18,14 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     const response = context.getResponse<Response>();
 
     const status = this.mapToHttpStatus(exception.code);
-    const responseBody = this.buildResponseBody(exception, request.url);
 
-    response.status(status).json(responseBody);
+    response.status(status).json({
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      message: exception.message,
+      code: exception.code,
+      extensions: exception.extensions,
+    } as ErrorResponseBody);
   }
 
   private mapToHttpStatus(code: DomainExceptionCode): number {
@@ -47,19 +52,6 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
       default:
         return HttpStatus.I_AM_A_TEAPOT; // это defensive coding (защитный статус): если появится новый DomainExceptionCode, который не добавили в switch — клиент получит 418 вместо случайного поведения.
     }
-  }
-
-  private buildResponseBody(
-    exception: DomainException,
-    requestUrl: string,
-  ): ErrorResponseBody {
-    return {
-      timestamp: new Date().toISOString(),
-      path: requestUrl,
-      message: exception.message,
-      code: exception.code,
-      extensions: exception.extensions,
-    };
   }
 }
 

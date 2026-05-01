@@ -1,13 +1,11 @@
-import { IsMongoId, IsString } from 'class-validator';
+import { IdValidation } from 'src/core/decorators/id-validation.decorator';
 
 export class BlogIdParamDto {
-  @IsString()
-  @IsMongoId()
+  @IdValidation()
   id!: string;
 }
 
 export class BlogIdForPostsParamDto {
-  @IsString()
-  @IsMongoId()
+  // @IdValidation()
   blogId!: string;
 }

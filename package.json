@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start:dev": "NODE_ENV=development nest start --watch",
-    "start:debug": "NODE_ENV=development nest start --debug --watch",
+    "start:debug": "lsof -ti:3000 | xargs kill -9; lsof -ti:9229 | xargs kill -9; NODE_ENV=development nest start --debug 9229",
     "start:prod": "yarn build && node dist/main",
     "fly": "fly deploy",
     "seed:blogs": "NODE_ENV=development ts-node -r tsconfig-paths/register src/scripts/create-seed-blog.ts",

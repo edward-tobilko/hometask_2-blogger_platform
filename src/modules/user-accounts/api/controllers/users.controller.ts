@@ -51,12 +51,12 @@ export class UsersController {
 
   // * POST: Add new user to the system
   @Post()
-  @ApiOperation({ summary: 'Add new user to the system' }) // for swagger
+  @ApiOperation({ summary: 'Add new user to the system' })
   @ApiResponse({
     status: 201,
     description: 'Returns the newly created user',
     type: UserViewDto,
-  }) // for swagger
+  })
   async createUser(@Body() dto: CreateUserInputDto): Promise<UserViewDto> {
     const userInstanceDoc = await this.usersService.createUser(dto);
 
