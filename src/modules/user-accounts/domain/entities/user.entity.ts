@@ -51,10 +51,10 @@ export class UserAccount {
 
     user.isEmailConfirmed = false; // пользователь ВСЕГДА должен после регистрации подтверждить свой Email (инкапсуляция бизнес-логики в доменном слое).
 
-    user.name = {
-      firstName: dto.name.firstName,
-      lastName: dto.name.lastName,
-    };
+    // user.name = {
+    //   firstName: dto.name.firstName,
+    //   lastName: dto.name.lastName,
+    // };
 
     return user as UserAccountDocument; // указываем явно, что это mongoose document, потому как typescript думает что этот екземпляр = UserAccount class.
   }
