@@ -15,6 +15,7 @@ export class BasicAuthGuard implements CanActivate {
     private reflector: Reflector,
     private config: ConfigService,
   ) {
+    // * Один раз при старте приложения — берем из .env.
     this.validUsername = this.config.get('ADMIN_USERNAME');
     this.validPassword = this.config.get('ADMIN_PASSWORD');
   }
@@ -25,36 +26,41 @@ export class BasicAuthGuard implements CanActivate {
 
     const authHeader = request.headers.authorization;
 
+    // * Reflector читает метаданные декораторов. Если на роуте стоит @Public() — Guard сразу пропускает без проверки.
     const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    if (isPublic) {
-      return true;
-    }
+    if (isPublic) return true; // роут публичный — пропускаем
 
     if (!authHeader || !authHeader.startsWith('Basic ')) {
       throw new DomainException({
-        code: DomainExceptionCode.Unauthorized,
+        code: DomainExceptionCode.Unauthorized, // -> 401
         message: 'unauthorized',
       });
     }
 
-    const base64Credentials = authHeader.split(' ')[1];
+    // ? Basic Auth выглядит так: Authorization: Basic dXNlcjpwYXNz
 
-    const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+    const base64Credentials = authHeader.split(' ')[1]; // берем "dXNlcjpwYXNz"
 
+    const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8'); // → "user:pass"
+
+    // ? Basic Auth — это просто username:password закодированный в Base64.
+
+    // * Используем indexOf(':') а не split(':') — потому что пароль сам может содержать :.
     const colonIndex = decoded.indexOf(':');
 
     const username = decoded.substring(0, colonIndex);
     const password = decoded.substring(colonIndex + 1);
 
+    // * Сравнивает с .env и возвращает результат
     if (username === this.validUsername && password === this.validPassword) {
       return true;
     } else {
       throw new DomainException({
-        code: DomainExceptionCode.Unauthorized,
+        code: DomainExceptionCode.Unauthorized, // -> 401
         message: 'unauthorized',
       });
     }

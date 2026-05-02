@@ -10,6 +10,8 @@ import { UsersQueryService } from './application/services/users.query-service';
 import { UserAccount, UserAccountSchema } from './domain/entities/user.entity';
 import { AuthService } from './application/services/auth.service';
 import { LocalStrategy } from './guards/local/local.strategy';
+import { AuthController } from './api/controllers/auth.controller';
+import { CryptoService } from './application/services/crypto.service';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { LocalStrategy } from './guards/local/local.strategy';
     PassportModule,
   ],
 
-  controllers: [UsersController],
+  controllers: [UsersController, AuthController],
   providers: [
     UsersService,
     UsersQueryService,
@@ -28,6 +30,7 @@ import { LocalStrategy } from './guards/local/local.strategy';
     UsersQueryRepository,
     AuthService,
     LocalStrategy,
+    CryptoService,
   ],
 
   exports: [],
