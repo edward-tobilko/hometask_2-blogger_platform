@@ -1,13 +1,12 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 import { isValidObjectId, Types } from 'mongoose';
 
-import {
-  DomainException,
-  DomainExceptionCode,
-} from '../exceptions/domain.exception';
+import { DomainException } from '../exceptions/domain.exception';
+import { DomainExceptionCode } from '../exceptions/domain.exception-codes';
 
 // * Custom pipe example (https://docs.nestjs.com/pipes#custom-pipes)
 @Injectable()
+// * presentation layer - избавляет от new Types.ObjectId(id) внутри сервиса или репозитория
 export class ObjectIdValidationTransformationPipe implements PipeTransform {
   transform(value: string, metadata: ArgumentMetadata) {
     // * Проверяем, что тип данных в декораторе — ObjectId.

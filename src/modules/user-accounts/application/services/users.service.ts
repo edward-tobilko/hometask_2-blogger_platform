@@ -5,10 +5,8 @@ import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/crea
 import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
-import {
-  DomainException,
-  DomainExceptionCode,
-} from 'src/core/exceptions/domain.exception';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Injectable()
 export class UsersService {

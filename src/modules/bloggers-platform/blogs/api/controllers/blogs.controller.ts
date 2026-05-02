@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -12,18 +11,23 @@ import {
 } from '@nestjs/common';
 
 import { API_ROUTES } from 'src/core/constants/api-routes';
-import { CreateBlogDto } from '../dto/create-blog.dto';
-import { BlogViewModel } from '../dto/view/blog.view';
-import { CreatePostForBlogDto } from '../dto/create-post-for-blog.dto';
-import { BlogIdForPostsParamDto, BlogIdParamDto } from '../dto/blog-params.dto';
-import { UpdateBlogDto } from '../dto/update-blog.dto';
-import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/post.view';
-import { BlogsQueryDto } from '../dto/blogs-query.dto';
+import { CreateBlogDto } from '../dto/input-dto/create-blog.input-dto';
+import { BlogViewModel } from '../dto/view-dto/blog.view-dto';
+import { CreatePostForBlogDto } from '../dto/input-dto/create-post-for-blog.input-dto';
+import {
+  BlogIdForPostsParamDto,
+  BlogIdParamDto,
+} from '../dto/input-dto/blog-params.input-dto';
+import { UpdateBlogDto } from '../dto/input-dto/update-blog.input-dto';
+import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
+import { BlogsQueryDto } from '../dto/input-dto/blogs-query.input-dto';
 import { BlogsService } from 'src/modules/bloggers-platform/blogs/application/services/blogs.service';
 import { BlogsQueryService } from 'src/modules/bloggers-platform/blogs/application/services/blogs.query-service';
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
-import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/posts-paginated.view';
-import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/posts-query.dto';
+import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
+import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
@@ -37,7 +41,7 @@ export class BlogsController {
   async getBlogsList(
     @Query() query: BlogsQueryDto,
   ): Promise<PaginatedViewDto<BlogViewModel[]>> {
-    return await this.blogsQueryService.getBlogsList(query);
+    return this.blogsQueryService.getBlogsList(query);
   }
 
   // * POST: Create new blog
@@ -57,7 +61,7 @@ export class BlogsController {
     @Param() params: BlogIdForPostsParamDto,
     @Query() query: PostsQueryDto,
   ): Promise<PostsPaginatedViewModel> {
-    return await this.blogsQueryService.getPostsForBlog(params.blogId, query);
+    return this.blogsQueryService.getPostsForBlog(params.blogId, query);
   }
 
   // * POST: Create new post for specific blog
@@ -80,9 +84,10 @@ export class BlogsController {
     const blogOutput = await this.blogsQueryService.getBlogById(params.id);
 
     if (!blogOutput)
-      throw new NotFoundException(
-        `The blog with ID:${params.id} was not found`,
-      );
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `This blog with ID:${params.id} was not found`,
+      });
 
     return blogOutput;
   }

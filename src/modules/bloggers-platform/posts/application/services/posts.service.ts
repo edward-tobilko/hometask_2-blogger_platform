@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import {
@@ -14,6 +14,8 @@ import {
 import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
 import { UpdatePostDomainDto } from '../../domain/dto/update-post.domain-dto';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Injectable()
 export class PostsService {
@@ -29,7 +31,10 @@ export class PostsService {
     const post = await this.postsRepo.findById(id);
 
     if (!post) {
-      throw new NotFoundException(`The post with ID:${id} was not found`);
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The post with ID:${id} was not found`,
+      });
     }
 
     return post;
@@ -39,14 +44,15 @@ export class PostsService {
   async createPost(dto: CreatePostDomainDto): Promise<PostDocument> {
     const existingBlog = await this.blogModel
       .findById(dto.blogId)
-      .select('name') // что бы не гнать поиск бд по всему обьекту, выбираем только по значению "name" (faster)
+      .select('name') // что бы не гнать поиск в базе по всему обьекту, выбираем только по значению "name" (faster)
       .lean<BlogLean>()
       .exec();
 
     if (!existingBlog) {
-      throw new NotFoundException(
-        `The blog with ID:${dto.blogId} was not found`,
-      );
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The blog with ID:${dto.blogId} was not found`,
+      });
     }
 
     const postInstance = this.postModel.createPostInstance({
@@ -65,7 +71,10 @@ export class PostsService {
     const existingPost = await this.findPostOrFail(id);
 
     if (existingPost.blogId.toString() !== dto.blogId)
-      throw new NotFoundException('Post does not exist in this blog!');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Post does not exist in this blog!',
+      });
 
     // * обновляем поля в памяти доменной сущности
     existingPost.updatePost(dto);

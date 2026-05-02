@@ -1,4 +1,4 @@
-import { BlogViewModel } from './blog.view';
+import { BlogViewModel } from './blog.view-dto';
 
 export class BlogListPaginatedViewModel {
   constructor(

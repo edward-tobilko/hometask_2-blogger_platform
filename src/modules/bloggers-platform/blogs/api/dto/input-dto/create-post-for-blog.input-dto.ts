@@ -1,26 +1,25 @@
-import { IsString, Length } from 'class-validator';
-
 import {
   contentConstraints,
   shortDescriptionConstraints,
   titleConstraints,
 } from 'src/core/constants/constraints';
+import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
 
 // * DTO model - response for db
 export class CreatePostForBlogDto {
-  @IsString()
-  @Length(titleConstraints.minLength, titleConstraints.maxLength)
+  @IsStringWithLength(titleConstraints.minLength, titleConstraints.maxLength)
   title!: string;
 
-  @IsString()
-  @Length(
+  @IsStringWithLength(
     shortDescriptionConstraints.minLength,
     shortDescriptionConstraints.maxLength,
   )
   shortDescription!: string;
 
-  @IsString()
-  @Length(contentConstraints.minLength, contentConstraints.maxLength)
+  @IsStringWithLength(
+    contentConstraints.minLength,
+    contentConstraints.maxLength,
+  )
   content!: string;
 }
 
