@@ -3,10 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 
-import {
-  DomainException,
-  DomainExceptionCode,
-} from 'src/core/exceptions/domain.exception';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {

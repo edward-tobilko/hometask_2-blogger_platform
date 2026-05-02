@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view/comment.view';
+import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import {
   Comment,
   CommentLean,

@@ -1,7 +1,6 @@
-import { IsMongoId, IsString } from 'class-validator';
+import { IsObjectId } from '../decorators/is-object-id.decorator';
 
 export class IdParamDto {
-  @IsString()
-  @IsMongoId()
+  @IsObjectId()
   id!: string;
 }

@@ -10,23 +10,23 @@ import {
   Query,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
 import { PostsService } from 'src/modules/bloggers-platform/posts/application/services/posts.service';
-import { CreatePostDto } from '../dto/create-post.dto';
+import { CreatePostDto } from '../dto/input-dto/create-post.input-dto';
 import { API_ROUTES } from 'src/core/constants/api-routes';
-import { PostIdParamDto } from '../dto/post-params.dto';
-import { UpdatePostDto } from '../dto/update-post.dto';
 import { PostsQueryService } from 'src/modules/bloggers-platform/posts/application/services/posts-query.service';
-import { PostsQueryDto } from '../dto/posts-query.dto';
-import { PostViewModel } from '../dto/view/post.view';
+import { PostViewModel } from '../dto/view-dto/post.view-dto';
 import {
   Comment,
   CommentModel,
 } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
 import { IdParamDto } from 'src/core/dto/param.dto';
-import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view/comments-paginated.view';
-import { PostsPaginatedViewModel } from '../dto/view/posts-paginated.view';
-import { Types } from 'mongoose';
+import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
+import { PostsPaginatedViewModel } from '../dto/view-dto/posts-paginated.view-dto';
+import { PostsQueryDto } from '../dto/input-dto/posts-query.input-dto';
+import { UpdatePostDto } from '../dto/input-dto/update-post.input-dto';
+import { PostIdParamDto } from '../dto/input-dto/post-id.input-dto';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -90,6 +90,7 @@ export class PostsController {
   }
 
   // * tests ================================================================
+
   @Post(':postId/comments')
   async createComment(
     @Param() params: PostIdParamDto,

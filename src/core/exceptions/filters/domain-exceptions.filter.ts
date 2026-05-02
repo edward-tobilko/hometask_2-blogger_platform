@@ -6,28 +6,13 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-import { DomainException, DomainExceptionCode } from '../domain.exception';
+import { DomainException } from '../domain.exception';
 import { ErrorResponseBody } from './error-response-body';
+import { DomainExceptionCode } from '../domain.exception-codes';
 
 // * Ошибки класса DomainException (instanceof DomainException) (https://docs.nestjs.com/exception-filters#exception-filters-1). Nest перехватит только исключения класса DomainException (через instanceof). Всё остальное пойдёт дальше.
 @Catch(DomainException)
 export class DomainHttpExceptionsFilter implements ExceptionFilter {
-  catch(exception: DomainException, host: ArgumentsHost): void {
-    const context = host.switchToHttp();
-    const request = context.getRequest<Request>();
-    const response = context.getResponse<Response>();
-
-    const status = this.mapToHttpStatus(exception.code);
-
-    response.status(status).json({
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message: exception.message,
-      code: exception.code,
-      extensions: exception.extensions,
-    } as ErrorResponseBody);
-  }
-
   private mapToHttpStatus(code: DomainExceptionCode): number {
     switch (code) {
       case DomainExceptionCode.BadRequest:
@@ -52,6 +37,22 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
       default:
         return HttpStatus.I_AM_A_TEAPOT; // это defensive coding (защитный статус): если появится новый DomainExceptionCode, который не добавили в switch — клиент получит 418 вместо случайного поведения.
     }
+  }
+
+  catch(exception: DomainException, host: ArgumentsHost): void {
+    const context = host.switchToHttp();
+    const request = context.getRequest<Request>();
+    const response = context.getResponse<Response>();
+
+    const status = this.mapToHttpStatus(exception.code);
+
+    response.status(status).json({
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      message: exception.message,
+      code: exception.code,
+      extensions: exception.extensions,
+    } as ErrorResponseBody);
   }
 }
 

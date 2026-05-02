@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 
-import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/posts-paginated.view';
-import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/post.view';
+import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
+import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import {
   Post,
   PostLean,
@@ -13,11 +14,10 @@ import {
   BlogLean,
   BlogModelType,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
-import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view/blogs-paginated.view';
-import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/blogs-query.dto';
-import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view/blog.view';
-import { Types } from 'mongoose';
-import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/posts-query.dto';
+import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blogs-paginated.view-dto';
+import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
+import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
+import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 
 @Injectable()
 export class BlogsQueryRepository {

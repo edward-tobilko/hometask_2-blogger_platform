@@ -2,6 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import { Transform } from 'class-transformer';
 import { IsNumber, IsOptional, Max, Min } from 'class-validator';
 
+// * валидация + трансформация
 export const Query = (min: number, max?: number) =>
   applyDecorators(
     IsOptional(),

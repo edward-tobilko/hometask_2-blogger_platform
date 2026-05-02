@@ -1,11 +1,10 @@
-import { IsMongoId, IsString } from 'class-validator';
+import { IsObjectId } from 'src/core/decorators/is-object-id.decorator';
 
-import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/create-post-for-blog.dto';
+import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/create-post-for-blog.input-dto';
 
 // * DTO model - response for db
 export class CreatePostDto extends CreatePostForBlogDto {
-  @IsString()
-  @IsMongoId()
+  @IsObjectId()
   blogId!: string;
 }
 

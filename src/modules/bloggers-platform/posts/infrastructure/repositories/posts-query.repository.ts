@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
-import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view/comment.view';
-import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view/comments-paginated.view';
+import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
+import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
 import {
   Comment,
   CommentLean,
   CommentModel,
 } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
-import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/posts-query.dto';
-import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/post.view';
-import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/posts-paginated.view';
+import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
+import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
+import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import {
   Post,
   PostLean,

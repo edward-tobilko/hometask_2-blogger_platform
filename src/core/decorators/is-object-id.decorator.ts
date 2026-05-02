@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { IsMongoId, IsString } from 'class-validator';
 
-export const IdValidation = () => {
+// * валидация
+export const IsObjectId = () => {
   return applyDecorators(IsString(), IsMongoId());
 };

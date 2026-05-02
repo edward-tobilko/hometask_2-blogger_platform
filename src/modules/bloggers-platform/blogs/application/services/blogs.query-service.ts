@@ -1,15 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import {
-  DomainException,
-  DomainExceptionCode,
-} from 'src/core/exceptions/domain.exception';
 
-import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/blogs-query.dto';
-import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view/blog.view';
-import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view/blogs-paginated.view';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
+import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
+import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blogs-paginated.view-dto';
 import { BlogsQueryRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/repositories/blogs.query-repository';
-import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/posts-query.dto';
-import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view/posts-paginated.view';
+import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
+import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 
 @Injectable()
 export class BlogsQueryService {

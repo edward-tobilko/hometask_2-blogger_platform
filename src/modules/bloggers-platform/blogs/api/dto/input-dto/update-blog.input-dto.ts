@@ -1,4 +1,4 @@
-import { CreateBlogDto } from './create-blog.dto';
+import { CreateBlogDto } from './create-blog.input-dto';
 
 export class UpdateBlogDto extends CreateBlogDto {}
 

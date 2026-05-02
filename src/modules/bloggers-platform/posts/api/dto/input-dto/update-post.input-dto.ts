@@ -1,4 +1,4 @@
-import { CreatePostDto } from './create-post.dto';
+import { CreatePostDto } from './create-post.input-dto';
 
 export class UpdatePostDto extends CreatePostDto {}
 

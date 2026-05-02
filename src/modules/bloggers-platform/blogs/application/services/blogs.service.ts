@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { PostDocument } from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
@@ -10,9 +10,11 @@ import {
   BlogDocument,
   BlogModelType,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
-import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/create-post-for-blog.dto';
+import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/create-post-for-blog.input-dto';
 import { CreateBlogDomainDto } from '../../domain/dto/create-blog.domain-dto';
 import { UpdateBlogDomainDto } from '../../domain/dto/update-blog.domain-dto';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Injectable()
 export class BlogsService {
@@ -43,7 +45,10 @@ export class BlogsService {
     const blogInstance = await this.blogsRepo.findById(blogId);
 
     if (!blogInstance)
-      throw new NotFoundException(`The blog with ID:${blogId} was not found`);
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `This blog with ID:${blogId} was not found`,
+      });
 
     // * create domain post
     const domainPost: CreatePostDomainDto & { blogName: string } = {
@@ -68,7 +73,10 @@ export class BlogsService {
     const blogInstance = await this.blogsRepo.findById(blogId);
 
     if (!blogInstance)
-      throw new NotFoundException(`The blog with ID:${blogId} was not found`);
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `This blog with ID:${blogId} was not found`,
+      });
 
     // * обновляем поля в памяти доменной сущности
     blogInstance.update(updateBlogDto);
@@ -81,7 +89,10 @@ export class BlogsService {
     const blogInstance = await this.blogsRepo.findById(id);
 
     if (!blogInstance)
-      throw new NotFoundException(`The blog with ID:${id} was not found`);
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `This blog with ID:${id} was not found`,
+      });
 
     await this.blogsRepo.delete(id);
   }

@@ -1,6 +1,26 @@
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostDocument, PostLean } from '../../../domain/entities/post.entity';
 
+// * Создаем отдельные классы во избежания вложенности аннонимных обьектов в аннонимных обьектах (это нужно если мы исп. swagger doc, так как он не умеет обрабатывать вложенные анонимные типы):
+
+// * newestLikes: Array<{ ← анонимный объект внутри анонимного объекта
+// * addedAt: string;
+// * userId: string;
+// * login: string;}>
+
+class NewestLikeViewModel {
+  addedAt!: string;
+  userId!: string;
+  login!: string;
+}
+
+class ExtendedLikesInfoViewModel {
+  likesCount!: number;
+  dislikesCount!: number;
+  myStatus!: LikeStatus;
+  newestLikes!: NewestLikeViewModel[];
+}
+
 export class PostViewModel {
   id!: string;
   title!: string;
@@ -10,17 +30,7 @@ export class PostViewModel {
   blogName!: string;
   createdAt!: string;
 
-  extendedLikesInfo!: {
-    likesCount: number;
-    dislikesCount: number;
-    myStatus: LikeStatus;
-
-    newestLikes: Array<{
-      addedAt: string;
-      userId: string;
-      login: string;
-    }>;
-  };
+  extendedLikesInfo!: ExtendedLikesInfoViewModel;
 
   static mapToViewModel(
     this: void, // не реальный параметр функции, просто аннотация для TypeScript / ESLint что бы не ругался

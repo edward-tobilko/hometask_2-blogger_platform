@@ -6,9 +6,9 @@ import {
 
 import {
   DomainException,
-  DomainExceptionCode,
   Extension,
 } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import {
   IdValidationPipe,
   ObjectIdValidationTransformationPipe,
@@ -28,13 +28,17 @@ export const errorFormatter = (
     } else if (error.constraints) {
       const constrainKeys = Object.keys(error.constraints);
 
+      console.log('constrainKeys ->', constrainKeys); // -> [ 'isMongoId' ]
+
       // * перебираем нарушения одного вложеного поля (name). Одно поле может нарушать несколько правил одновременно (но у нас stopAtFirstError: true, поэтому будет максимум одно).
       for (const key of constrainKeys) {
+        console.log('key ->', key); // -> isMongoId
+
         errorsForResponse.push({
           message: error.constraints[key]
-            ? `${error.constraints[key]}; Received value: ${error?.value}`
+            ? `${error.constraints[key]}; Received value: ${error?.value}` // -> blogId must be a mongodb id; Received value: 1
             : '',
-          key: error.property,
+          key: error.property, // -> blogId
         });
       }
     }
@@ -57,7 +61,7 @@ export function pipesSetup(app: INestApplication) {
 
       // * Для преобразования ошибок класс валидатора в необходимый вид (превращает ошибки валидации в DomainException → они попадут в DomainHttpExceptionsFilter → ответ будет в едином формате для всего API).
       exceptionFactory: (errors) => {
-        console.log('exception errors', errors);
+        console.log('exception errors from "pipes.setup.ts"', errors);
 
         const formattedErrors = errorFormatter(errors);
 

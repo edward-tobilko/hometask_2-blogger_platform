@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-import { DomainExceptionCode } from '../domain.exception';
 import { ErrorResponseBody } from './error-response-body';
+import { DomainExceptionCode } from '../domain.exception-codes';
 
 // * Все ошибки (https://docs.nestjs.com/exception-filters#exception-filters-1): Этот фильтр ловит стандартные NestJS исключения — те, что бросает сам фреймворк: ValidationPipe бросает 400, NotFoundException бросает 404 и т.д.
 @Catch(HttpException)
