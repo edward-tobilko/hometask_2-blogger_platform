@@ -1,8 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
+import { randomUUID } from 'crypto';
 
 import { CreateUserInterface } from '../interfaces/create-user-interface';
-import { FullName, NameSchema } from './name.entity';
+import { FullName, FullNameSchema } from './full-name.entity';
+import {
+  EmailConfirmation,
+  EmailConfirmationSchema,
+} from './email-confirm-code.entity';
 
 @Schema({ timestamps: true, collection: 'user-accounts' })
 export class UserAccount {
@@ -30,11 +35,8 @@ export class UserAccount {
   @Prop({ type: String, required: true })
   passwordHash!: string;
 
-  @Prop({ type: Boolean, required: true, default: false })
-  isEmailConfirmed!: boolean;
-
-  @Prop({ type: NameSchema })
-  name!: FullName;
+  @Prop({ type: FullNameSchema })
+  fullName!: FullName;
 
   createdAt!: Date;
   updatedAt!: Date;
@@ -42,16 +44,57 @@ export class UserAccount {
   @Prop({ type: Date, default: null })
   deletedAt!: Date | null;
 
-  static createInstance(dto: CreateUserInterface): UserAccountDocument {
+  // * обьект для подтв. кода
+  @Prop({ type: EmailConfirmationSchema })
+  emailConfirmation!: EmailConfirmation;
+
+  static createUserInstance(dto: CreateUserInterface): UserAccountDocument {
+    const expirationDate = new Date();
+    // * устанавлеваем дедлайн для кода
+    expirationDate.setHours(expirationDate.getHours() + 1);
+
     const user = new this(); // -> UserModel
 
     user.login = dto.login;
     user.email = dto.email;
     user.passwordHash = dto.passwordHash;
 
-    user.isEmailConfirmed = false; // пользователь ВСЕГДА должен после регистрации подтверждить свой Email (инкапсуляция бизнес-логики в доменном слое).
+    // * пользователь ВСЕГДА должен после регистрации подтверждить свой Email (инкапсуляция бизнес-логики в доменном слое).
+    user.emailConfirmation = {
+      confirmationCode: randomUUID(),
+      emailConfirmationCodeExpiry: expirationDate,
+      isConfirmed: false,
+    };
 
-    // user.name = {
+    // user.fullName = {
+    //   firstName: dto.name.firstName,
+    //   lastName: dto.name.lastName,
+    // };
+
+    return user as UserAccountDocument; // указываем явно, что это mongoose document, потому как typescript думает что этот екземпляр = UserAccount class.
+  }
+
+  static createAdminUserInstance(
+    dto: CreateUserInterface,
+  ): UserAccountDocument {
+    const expirationDate = new Date();
+    // * устанавлеваем дедлайн для кода
+    expirationDate.setHours(expirationDate.getHours() + 1);
+
+    const user = new this(); // -> UserModel
+
+    user.login = dto.login;
+    user.email = dto.email;
+    user.passwordHash = dto.passwordHash;
+
+    // * регистрируем сразу пользователя
+    user.emailConfirmation = {
+      confirmationCode: '',
+      emailConfirmationCodeExpiry: null,
+      isConfirmed: true,
+    };
+
+    // user.fullName = {
     //   firstName: dto.name.firstName,
     //   lastName: dto.name.lastName,
     // };

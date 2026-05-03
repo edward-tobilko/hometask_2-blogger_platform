@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
 
+import { Post } from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
 import {
   CommentatorInfo,
-  LikesInfoSchema,
-} from 'src/core/sub-schemas/sub.schemas';
-import { Post } from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
+  CommentatorInfoSchema,
+} from './commentator-info.entity';
+import { LikesInfoSchema } from '../schemas/likes-info.schema';
 
 @Schema({ timestamps: true })
 export class Comment {
@@ -16,13 +17,10 @@ export class Comment {
   postId!: Types.ObjectId;
 
   @Prop({
-    type: CommentatorInfo,
+    type: CommentatorInfoSchema,
     required: true,
   })
-  commentatorInfo!: {
-    userId: string;
-    userLogin: string;
-  };
+  commentatorInfo!: CommentatorInfo;
 
   @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд = первые 10 отсортированных елементов
   createdAt!: Date;

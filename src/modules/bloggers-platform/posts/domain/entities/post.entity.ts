@@ -3,7 +3,7 @@ import { HydratedDocument, Model, Types } from 'mongoose';
 
 import { CreatePostDomainDto } from '../dto/create-post.domain-dto';
 import { UpdatePostDomainDto } from '../dto/update-post.domain-dto';
-import { ExtendedLikesInfo } from 'src/core/sub-schemas/sub.schemas';
+import { ExtendedLikesInfoSchema } from '../schemas/extended-likes-info.schema';
 
 @Schema({ timestamps: true })
 export class Post {
@@ -43,7 +43,7 @@ export class Post {
   @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд = даст нам первые 10 отсортированных елементов
   createdAt!: Date;
 
-  @Prop({ type: ExtendedLikesInfo, required: true })
+  @Prop({ type: ExtendedLikesInfoSchema, required: true })
   extendedLikesInfo!: {
     likesCount: number;
     dislikesCount: number;

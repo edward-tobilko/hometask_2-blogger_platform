@@ -16,24 +16,17 @@ export class UsersService {
   ) {}
 
   async createUser(dto: CreateUserInputDto): Promise<UserAccountDocument> {
-    const passwordHash = await this.cryptoService.createPasswordHash(
-      dto.password,
-    );
+    const passwordHash = await this.cryptoService.generateHash(dto.password);
 
     const domainDto: CreateUserInterface = {
       login: dto.login,
       email: dto.email,
       passwordHash,
-
-      // name: {
-      //   firstName: 'linda',
-      //   lastName: 'melinda',
-      // },
     };
 
     // * проверка для создания юзера с однаковым login or email, так как у нас индексация по login / email в БД, а обьекты целиком не удалены с БД, а только позначены как deletedAt.
     try {
-      return await this.usersRepo.create(domainDto);
+      return await this.usersRepo.createByAdmin(domainDto);
     } catch (error: unknown) {
       if (error instanceof Error && 'code' in error && error.code === 11000) {
         throw new DomainException({
