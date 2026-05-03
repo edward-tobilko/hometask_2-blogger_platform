@@ -12,6 +12,7 @@ import { AuthService } from './application/services/auth.service';
 import { LocalStrategy } from './guards/local/local.strategy';
 import { AuthController } from './api/controllers/auth.controller';
 import { CryptoService } from './application/services/crypto.service';
+import { NodeMailerService } from './infrastructure/external-services/mailer.external-service';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CryptoService } from './application/services/crypto.service';
     AuthService,
     LocalStrategy,
     CryptoService,
+    NodeMailerService,
   ],
 
   exports: [],

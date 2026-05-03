@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 
+import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 import {
   UserAccount,
   UserAccountDocument,
@@ -30,7 +30,17 @@ export class UsersRepository {
   }
 
   async create(dto: CreateUserInterface): Promise<UserAccountDocument> {
-    const user = this.userModel.createInstance({
+    const user = this.userModel.createUserInstance({
+      ...dto,
+    });
+
+    await user.save();
+
+    return user;
+  }
+
+  async createByAdmin(dto: CreateUserInterface): Promise<UserAccountDocument> {
+    const user = this.userModel.createAdminUserInstance({
       ...dto,
     });
 
@@ -53,5 +63,9 @@ export class UsersRepository {
 
   findByLogin(login: string): Promise<UserAccountDocument | null> {
     return this.userModel.findOne({ login });
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.userModel.deleteOne({ _id: id }).exec();
   }
 }

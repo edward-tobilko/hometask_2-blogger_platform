@@ -9,4 +9,4 @@ export class FullName {
   lastName!: string | null;
 }
 
-export const NameSchema = SchemaFactory.createForClass(FullName);
+export const FullNameSchema = SchemaFactory.createForClass(FullName);

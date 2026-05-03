@@ -13,6 +13,7 @@ export class AuthController {
   @HttpCode(204)
   registration(@Body() dto: CreateUserInputDto): Promise<void> {
     const { login, password, email } = dto;
+
     return this.authService.registerUser(login, password, email);
   }
 }
