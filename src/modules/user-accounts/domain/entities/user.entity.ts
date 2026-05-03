@@ -48,16 +48,22 @@ export class UserAccount {
   @Prop({ type: EmailConfirmationSchema })
   emailConfirmation!: EmailConfirmation;
 
-  static createUserInstance(dto: CreateUserInterface): UserAccountDocument {
-    const expirationDate = new Date();
-    // * устанавлеваем дедлайн для кода
-    expirationDate.setHours(expirationDate.getHours() + 1);
-
+  private static buildBaseUserInstance(dto: CreateUserInterface) {
     const user = new this(); // -> UserModel
 
     user.login = dto.login;
     user.email = dto.email;
     user.passwordHash = dto.passwordHash;
+
+    return user;
+  }
+
+  static createUserInstance(dto: CreateUserInterface): UserAccountDocument {
+    const user = this.buildBaseUserInstance(dto);
+
+    // * устанавлеваем дедлайн для кода
+    const expirationDate = new Date();
+    expirationDate.setHours(expirationDate.getHours() + 1);
 
     // * пользователь ВСЕГДА должен после регистрации подтверждить свой Email (инкапсуляция бизнес-логики в доменном слое).
     user.emailConfirmation = {
@@ -66,40 +72,22 @@ export class UserAccount {
       isConfirmed: false,
     };
 
-    // user.fullName = {
-    //   firstName: dto.name.firstName,
-    //   lastName: dto.name.lastName,
-    // };
-
     return user as UserAccountDocument; // указываем явно, что это mongoose document, потому как typescript думает что этот екземпляр = UserAccount class.
   }
 
   static createAdminUserInstance(
     dto: CreateUserInterface,
   ): UserAccountDocument {
-    const expirationDate = new Date();
-    // * устанавлеваем дедлайн для кода
-    expirationDate.setHours(expirationDate.getHours() + 1);
-
-    const user = new this(); // -> UserModel
-
-    user.login = dto.login;
-    user.email = dto.email;
-    user.passwordHash = dto.passwordHash;
+    const user = this.buildBaseUserInstance(dto);
 
     // * регистрируем сразу пользователя
     user.emailConfirmation = {
-      confirmationCode: '',
+      confirmationCode: null,
       emailConfirmationCodeExpiry: null,
       isConfirmed: true,
     };
 
-    // user.fullName = {
-    //   firstName: dto.name.firstName,
-    //   lastName: dto.name.lastName,
-    // };
-
-    return user as UserAccountDocument; // указываем явно, что это mongoose document, потому как typescript думает что этот екземпляр = UserAccount class.
+    return user as UserAccountDocument;
   }
 
   makeDeleted() {
@@ -109,13 +97,6 @@ export class UserAccount {
 
     this.deletedAt = new Date();
   }
-
-  //   update(dto: UpdateUserDto) {
-  //     if (dto.email !== this.email) {
-  //       this.isEmailConfirmed = false;
-  //     }
-  //     this.email = dto.email;
-  //   }
 }
 
 export const UserAccountSchema = SchemaFactory.createForClass(UserAccount);
