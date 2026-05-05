@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
@@ -10,6 +17,8 @@ import { NewPassword } from '../input-dto/new-password.input-dto';
 import { HttpStatusCodes } from 'src/core/constants/http-codes.constants';
 import { CurrentUserFromRequest } from '../../guards/decorators/params/current-user.decorator';
 import { LocalAuthGuard } from '../../guards/local/local-auth.guard';
+import { JwtAuthGuard } from '../../guards/bearer/jwt-auth.guard';
+import { UserSessionViewDto } from '../view-dto/user-session.view-dto';
 
 @Controller(API_ROUTES.authorization)
 export class AuthController {
@@ -62,5 +71,14 @@ export class AuthController {
     @Body() dto: RegistrationEmailResendingInputDto,
   ): Promise<void> {
     return this.authService.resendConfirmationEmail(dto.email);
+  }
+
+  // * GET: Get info about current user.
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  me(
+    @CurrentUserFromRequest() currentUser: { id: string },
+  ): Promise<UserSessionViewDto> {
+    return this.authService.getMe(currentUser.id);
   }
 }
