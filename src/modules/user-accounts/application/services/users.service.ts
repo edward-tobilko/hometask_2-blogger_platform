@@ -4,7 +4,10 @@ import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/crea
 import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
-import { DomainException } from 'src/core/exceptions/domain.exception';
+import {
+  DomainException,
+  Extension,
+} from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CryptoService } from './crypto.service';
 
@@ -32,6 +35,12 @@ export class UsersService {
         throw new DomainException({
           code: DomainExceptionCode.BadRequest,
           message: 'User with this login or email already exists',
+          extensions: [
+            new Extension(
+              'User with this login or email already exists',
+              'loginOrEmail',
+            ),
+          ], // just for status code 400 (bad request)
         });
       }
 

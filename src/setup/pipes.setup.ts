@@ -9,10 +9,7 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import {
-  IdValidationPipe,
-  ObjectIdValidationTransformationPipe,
-} from 'src/core/pipes/object-id-validation-transformation.pipe';
+import { ObjectIdValidationTransformationPipe } from 'src/core/pipes/object-id-validation-transformation.pipe';
 
 // * функция использует рекурсию для обхода объекта children при вложенных полях при валидации (корректно обрабатывает вложенные объекты в обьекте).
 export const errorFormatter = (
@@ -51,7 +48,6 @@ export function pipesSetup(app: INestApplication) {
   // * Глобальный пайп для валидации и трансформации входящих данных
   app.useGlobalPipes(
     new ObjectIdValidationTransformationPipe(),
-    new IdValidationPipe(),
 
     new ValidationPipe({
       transform: true, // входные данные автоматически преобразуются в экземпляр DTO-класса, разрешает @Transform декораторы работать (без этого, например, строки не превратятся в числа).

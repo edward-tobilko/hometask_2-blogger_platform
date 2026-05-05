@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 
 import { UsersRepository } from '../../infrastructure/repositories/users.repository';
-import { DomainException } from 'src/core/exceptions/domain.exception';
+import {
+  DomainException,
+  Extension,
+} from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CryptoService } from './crypto.service';
 import { CreateUserInterface } from '../../domain/interfaces/create-user-interface';
@@ -28,6 +31,7 @@ export class AuthService {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: `Already registered`,
+        extensions: [new Extension('Already registered', 'loginOrEmail')], // just for status code 400 (bad request)
       });
 
     const passwordHash = await this.cryptoService.generateHash(password);
@@ -56,6 +60,66 @@ export class AuthService {
         code: DomainExceptionCode.InternalServerError,
         message: 'Failed to send confirmation email. Please try again.',
       });
+    }
+  }
+
+  async setConfirmRegister(code: string): Promise<void> {
+    const userAccount = await this.usersRepo.findByConfirmationCode(code);
+
+    if (!userAccount)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Incorrect code',
+        extensions: [new Extension('Incorrect code', 'code')],
+      });
+
+    userAccount.sendConfirmEmail(code);
+
+    await this.usersRepo.save(userAccount);
+  }
+
+  async resendConfirmationEmail(email: string): Promise<void> {
+    const user = await this.usersRepo.findByEmail(email);
+
+    if (!user)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'User with this email does not exist',
+        extensions: [
+          new Extension('User with this email does not exist', 'email'),
+        ],
+      });
+
+    user.resendConfirmationCode();
+
+    await this.mailerService.sendRegistrationConfirmationEmail(
+      user.email,
+      user.emailConfirmation.confirmationCode!,
+      (code: string) => emailTemplates.registrationEmail(code),
+    );
+
+    await this.usersRepo.save(user);
+  }
+  async setNewPasswordRecovery(email: string): Promise<void> {
+    const user = await this.usersRepo.findByEmail(email);
+
+    if (!user) return; // не раскрываем факт существования email
+
+    user.setPasswordRecoveryCode();
+
+    // * по контракту нужно всегда возвращать 204, при ошибке не раскрывая деталей существования email
+    try {
+      await this.mailerService.sendRegistrationConfirmationEmail(
+        user.email,
+        user.passwordRecovery.recoveryCode!,
+        (code: string) => emailTemplates.passwordRecoveryEmail(code),
+      );
+
+      await this.usersRepo.save(user);
+    } catch (error) {
+      console.error('EMAIL_SEND_ERROR', error);
+
+      return; // тихо возвращаем void, клиент получает 204
     }
   }
 
