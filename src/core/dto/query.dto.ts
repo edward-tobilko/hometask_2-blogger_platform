@@ -6,7 +6,7 @@ import {
   DEFAULT_PAGE_NUMBER,
   DEFAULT_PAGE_SIZE,
   DEFAULT_SORT_DIRECTION,
-} from '../constants/pagination';
+} from '../constants/pagination.constants';
 import { Query } from '../decorators/query.decorator';
 
 export abstract class QueryDto {

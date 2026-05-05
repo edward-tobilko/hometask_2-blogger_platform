@@ -1,7 +1,7 @@
 import { Controller, Delete, HttpCode } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { API_ROUTES } from 'src/core/constants/api-routes';
+import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import {
   Blog,
   BlogModelType,

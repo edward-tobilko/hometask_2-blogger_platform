@@ -10,7 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 
-import { API_ROUTES } from 'src/core/constants/api-routes';
+import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateBlogDto } from '../dto/input-dto/create-blog.input-dto';
 import { BlogViewModel } from '../dto/view-dto/blog.view-dto';
 import { CreatePostForBlogDto } from '../dto/input-dto/create-post-for-blog.input-dto';

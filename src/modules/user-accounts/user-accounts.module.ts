@@ -1,6 +1,8 @@
+import type { StringValue } from 'ms';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 
 import { UsersController } from './api/controllers/users.controller';
 import { UsersService } from './application/services/users.service';
@@ -21,6 +23,10 @@ import { NodeMailerService } from './infrastructure/external-services/mailer.ext
     ]),
 
     PassportModule,
+    JwtModule.register({
+      secret: process.env.AT_SECRET,
+      signOptions: { expiresIn: (process.env.AT_TIME ?? '5m') as StringValue },
+    }),
   ],
 
   controllers: [UsersController, AuthController],

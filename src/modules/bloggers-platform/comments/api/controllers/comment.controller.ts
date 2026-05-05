@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 
-import { API_ROUTES } from 'src/core/constants/api-routes';
+import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CommentsQueryService } from 'src/modules/bloggers-platform/comments/application/services/comments-query.services';
 import { CommentViewModel } from '../dto/view-dto/comment.view-dto';
 import { BlogIdParamDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blog-params.input-dto';

@@ -59,6 +59,18 @@ export class UsersRepository {
       .exec();
   }
 
+  findByRecoveryCode(
+    recoveryCode: string,
+  ): Promise<UserAccountDocument | null> {
+    return this.userModel
+      .findOne({
+        'passwordRecovery.recoveryCode': recoveryCode,
+
+        deletedAt: null,
+      })
+      .exec();
+  }
+
   async save(user: UserAccountDocument): Promise<void> {
     await user.save();
   }

@@ -2,7 +2,7 @@ import {
   contentConstraints,
   shortDescriptionConstraints,
   titleConstraints,
-} from 'src/core/constants/constraints';
+} from 'src/core/constants/constraints.constants';
 import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
 
 // * DTO model - response for db

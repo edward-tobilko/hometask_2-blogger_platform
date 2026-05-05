@@ -4,7 +4,7 @@ import {
   descriptionConstraints,
   nameConstraints,
   websiteUrlConstraints,
-} from 'src/core/constants/constraints';
+} from 'src/core/constants/constraints.constants';
 import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
 
 export class CreateBlogDto {
