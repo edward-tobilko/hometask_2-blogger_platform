@@ -18,11 +18,45 @@ export class UsersRepository {
     const existingUser = await this.userModel
       .findOne({
         _id: id,
+
         deletedAt: null, // для того, что бы не находить лишний раз удаленного пользователя
       })
       .exec();
 
     return existingUser;
+  }
+
+  findUserByLoginOrEmail(
+    login: string,
+    email: string,
+  ): Promise<UserAccountDocument | null> {
+    return this.userModel
+      .findOne({
+        $or: [{ login }, { email }],
+
+        deletedAt: null,
+      })
+      .exec();
+  }
+
+  findByEmail(email: string): Promise<UserAccountDocument | null> {
+    return this.userModel.findOne({ email, deletedAt: null }).exec();
+  }
+
+  findByLogin(login: string): Promise<UserAccountDocument | null> {
+    return this.userModel.findOne({ login, deletedAt: null }).exec();
+  }
+
+  findByConfirmationCode(
+    confirmCode: string,
+  ): Promise<UserAccountDocument | null> {
+    return this.userModel
+      .findOne({
+        'emailConfirmation.confirmationCode': confirmCode,
+
+        deletedAt: null,
+      })
+      .exec();
   }
 
   async save(user: UserAccountDocument): Promise<void> {
@@ -47,22 +81,6 @@ export class UsersRepository {
     await user.save();
 
     return user;
-  }
-
-  findUserByLoginOrEmail(
-    login: string,
-    email: string,
-  ): Promise<UserAccountDocument | null> {
-    return this.userModel
-      .findOne({
-        $or: [{ login }, { email }],
-        deletedAt: null,
-      })
-      .exec();
-  }
-
-  findByLogin(login: string): Promise<UserAccountDocument | null> {
-    return this.userModel.findOne({ login });
   }
 
   async delete(id: string): Promise<void> {

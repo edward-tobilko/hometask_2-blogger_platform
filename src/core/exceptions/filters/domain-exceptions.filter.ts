@@ -13,7 +13,7 @@ import { DomainExceptionCode } from '../domain.exception-codes';
 // * Ошибки класса DomainException (instanceof DomainException) (https://docs.nestjs.com/exception-filters#exception-filters-1). Nest перехватит только исключения класса DomainException (через instanceof). Всё остальное пойдёт дальше.
 @Catch(DomainException)
 export class DomainHttpExceptionsFilter implements ExceptionFilter {
-  private mapToHttpStatus(code: DomainExceptionCode): number {
+  private mapToHttpStatus(code: DomainExceptionCode): HttpStatus {
     switch (code) {
       case DomainExceptionCode.BadRequest:
       case DomainExceptionCode.ValidationError:
@@ -45,6 +45,18 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     const response = context.getResponse<Response>();
 
     const status = this.mapToHttpStatus(exception.code);
+
+    // * По контракту (swagger) мы должны маппить 400-ю ошибку под обьект errorsMessages
+    if (status === HttpStatus.BAD_REQUEST) {
+      response.status(status).json({
+        errorsMessages: exception.extensions.map((e) => ({
+          message: e.message,
+          field: e.key,
+        })),
+      });
+
+      return;
+    }
 
     response.status(status).json({
       timestamp: new Date().toISOString(),

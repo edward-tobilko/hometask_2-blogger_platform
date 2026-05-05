@@ -1,13 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Matches } from 'class-validator';
+import { Matches } from 'class-validator';
 
 import {
-  emailConstraints,
   loginConstraints,
   passwordConstraints,
 } from 'src/core/constants/constraints';
+import { IsValidEmail } from 'src/core/decorators/email.decorator';
 import { IsStringWithTrim } from 'src/core/decorators/string-and-trim.decorator';
-import { Trim } from 'src/core/decorators/trim.decorator';
 
 export class CreateUserInputDto {
   @ApiProperty({ example: 'My login' })
@@ -23,11 +22,7 @@ export class CreateUserInputDto {
   password!: string;
 
   @ApiProperty({ example: 'My email' })
-  @Matches(emailConstraints.match, {
-    message: 'Email must be a valid email address',
-  })
-  @Trim()
-  @IsString()
+  @IsValidEmail()
   email!: string;
 }
 

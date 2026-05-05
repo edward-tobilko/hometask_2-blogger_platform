@@ -8,6 +8,15 @@ import {
   EmailConfirmation,
   EmailConfirmationSchema,
 } from './email-confirm-code.entity';
+import {
+  DomainException,
+  Extension,
+} from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import {
+  PasswordRecovery,
+  PasswordRecoverySchema,
+} from './password-recovery.entity';
 
 @Schema({ timestamps: true, collection: 'user-accounts' })
 export class UserAccount {
@@ -44,9 +53,13 @@ export class UserAccount {
   @Prop({ type: Date, default: null })
   deletedAt!: Date | null;
 
-  // * обьект для подтв. кода
+  // * new object for confirmation code
   @Prop({ type: EmailConfirmationSchema })
   emailConfirmation!: EmailConfirmation;
+
+  // * new object for recovery password
+  @Prop({ type: PasswordRecoverySchema })
+  passwordRecovery!: PasswordRecovery;
 
   private static buildBaseUserInstance(dto: CreateUserInterface) {
     const user = new this(); // -> UserModel
@@ -90,12 +103,72 @@ export class UserAccount {
     return user as UserAccountDocument;
   }
 
-  makeDeleted() {
+  makeDeleted(): void {
     if (this.deletedAt !== null) {
       throw new Error('Entity already deleted');
     }
 
     this.deletedAt = new Date();
+  }
+
+  sendConfirmEmail(code: string): void {
+    if (this.emailConfirmation.isConfirmed === true)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Email is already confirmed',
+        extensions: [new Extension('Email is already confirmed', 'code')],
+      });
+
+    if (this.emailConfirmation.confirmationCode !== code)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Confirmation code is incorrect',
+        extensions: [new Extension('Confirmation code is incorrect', 'code')],
+      });
+
+    if (
+      !this.emailConfirmation.emailConfirmationCodeExpiry ||
+      this.emailConfirmation.emailConfirmationCodeExpiry < new Date()
+    )
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Confirmation code is expired or already been applied',
+        extensions: [
+          new Extension(
+            'Confirmation code is expired or already been applied',
+            'code',
+          ),
+        ],
+      });
+
+    this.emailConfirmation.emailConfirmationCodeExpiry = null;
+    this.emailConfirmation.isConfirmed = true;
+  }
+
+  resendConfirmationCode(): void {
+    if (this.emailConfirmation.isConfirmed)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Email is already confirmed',
+        extensions: [new Extension('Email is already confirmed', 'email')],
+      });
+
+    const expirationDate = new Date();
+    expirationDate.setHours(expirationDate.getHours() + 1); // set new deadline
+
+    this.emailConfirmation.confirmationCode = randomUUID();
+    this.emailConfirmation.emailConfirmationCodeExpiry = expirationDate;
+  }
+
+  setPasswordRecoveryCode(): void {
+    // * set deadline for recovery code
+    const expirationDate = new Date();
+    expirationDate.setHours(expirationDate.getHours() + 1);
+
+    this.passwordRecovery = {
+      recoveryCode: randomUUID(),
+      recoveryCodeExpiry: expirationDate,
+    };
   }
 }
 
