@@ -11,6 +11,7 @@ import { CryptoService } from './crypto.service';
 import { CreateUserInterface } from '../../domain/interfaces/create-user-interface';
 import { NodeMailerService } from '../../infrastructure/external-services/mailer.external-service';
 import { emailTemplates } from '../../infrastructure/external-services/email-templates.external-service';
+import { UserSessionViewDto } from '../../api/view-dto/user-session.view-dto';
 
 @Injectable()
 export class AuthService {
@@ -151,6 +152,20 @@ export class AuthService {
     user.setNewPassword(passwordHash);
 
     await this.usersRepo.save(user);
+  }
+
+  async getMe(userId: string): Promise<UserSessionViewDto> {
+    const user = await this.usersRepo.findById(userId);
+
+    // * проверку можно не делать, так как в контроллере -> JwtAuthGuard гард ее делает
+
+    const userSessionView: UserSessionViewDto = {
+      email: user!.email,
+      login: user!.login,
+      userId: user!.id,
+    };
+
+    return userSessionView;
   }
 
   async validateUser(

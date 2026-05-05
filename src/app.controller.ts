@@ -9,6 +9,6 @@ export class AppController {
   // * Return root page
   @Get()
   rootPage(): RootPageResponse {
-    return this.appService.rootPage();
+    return this.appService.getRootPage();
   }
 }

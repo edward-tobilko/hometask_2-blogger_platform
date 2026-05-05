@@ -19,7 +19,7 @@ export interface RootPageResponse {
 
 @Injectable()
 export class AppService {
-  rootPage(): RootPageResponse {
+  getRootPage(): RootPageResponse {
     return {
       name: 'Blogger Platform API',
 
