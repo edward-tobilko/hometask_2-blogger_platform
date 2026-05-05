@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { API_ROUTES } from './core/constants/api-routes';
+import { API_ROUTES } from './core/constants/api-routes.constants';
 
 interface ApiEndpoints {
   blogs: string;

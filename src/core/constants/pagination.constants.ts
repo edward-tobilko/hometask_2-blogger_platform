@@ -1,4 +1,4 @@
-import { SortDirections } from '../enums/sort-directions.enum.ts';
+import { SortDirections } from '../enums/sort-directions.enum.ts.js';
 
 export const DEFAULT_SORT_BY = 'createdAt';
 export const DEFAULT_SORT_DIRECTION = SortDirections.DESC; // "default desc"

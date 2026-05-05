@@ -4,7 +4,7 @@ import { Matches } from 'class-validator';
 import {
   loginConstraints,
   passwordConstraints,
-} from 'src/core/constants/constraints';
+} from 'src/core/constants/constraints.constants';
 import { IsValidEmail } from 'src/core/decorators/email.decorator';
 import { IsStringWithTrim } from 'src/core/decorators/string-and-trim.decorator';
 

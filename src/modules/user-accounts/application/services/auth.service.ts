@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import {
@@ -17,7 +18,14 @@ export class AuthService {
     private usersRepo: UsersRepository,
     private cryptoService: CryptoService,
     private mailerService: NodeMailerService,
+    private jwtService: JwtService,
   ) {}
+
+  login(userId: string): { accessToken: string } {
+    const accessToken = this.jwtService.sign({ userId });
+
+    return { accessToken };
+  }
 
   async registerUser(
     login: string,
@@ -100,7 +108,7 @@ export class AuthService {
 
     await this.usersRepo.save(user);
   }
-  async setNewPasswordRecovery(email: string): Promise<void> {
+  async sendPasswordRecovery(email: string): Promise<void> {
     const user = await this.usersRepo.findByEmail(email);
 
     if (!user) return; // не раскрываем факт существования email
@@ -123,17 +131,45 @@ export class AuthService {
     }
   }
 
+  async setNewPassword(dto: {
+    newPassword: string;
+    recoveryCode: string;
+  }): Promise<void> {
+    const user = await this.usersRepo.findByRecoveryCode(dto.recoveryCode);
+
+    if (!user)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Recovery code is incorrect',
+        extensions: [
+          new Extension('Recovery code is incorrect', 'recoveryCode'),
+        ],
+      });
+
+    const passwordHash = await this.cryptoService.generateHash(dto.newPassword);
+
+    user.setNewPassword(passwordHash);
+
+    await this.usersRepo.save(user);
+  }
+
   async validateUser(
-    login: string,
+    loginOrEmail: string,
     password: string,
   ): Promise<{ id: string } | null> {
-    const user = await this.usersRepo.findByLogin(login);
+    const user = await this.usersRepo.findUserByLoginOrEmail(
+      loginOrEmail,
+      loginOrEmail,
+    );
 
     if (!user) return null;
 
-    const validPassword = password;
+    const isValidPass = await this.cryptoService.compareHash(
+      password,
+      user.passwordHash,
+    );
 
-    if (!validPassword) return null;
+    if (!isValidPass) return null;
 
     return { id: user.id.toString() };
   }

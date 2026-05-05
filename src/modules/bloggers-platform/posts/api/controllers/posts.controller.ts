@@ -14,7 +14,7 @@ import { Types } from 'mongoose';
 
 import { PostsService } from 'src/modules/bloggers-platform/posts/application/services/posts.service';
 import { CreatePostDto } from '../dto/input-dto/create-post.input-dto';
-import { API_ROUTES } from 'src/core/constants/api-routes';
+import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { PostsQueryService } from 'src/modules/bloggers-platform/posts/application/services/posts-query.service';
 import { PostViewModel } from '../dto/view-dto/post.view-dto';
 import {

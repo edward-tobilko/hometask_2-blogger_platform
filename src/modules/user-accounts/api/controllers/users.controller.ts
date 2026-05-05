@@ -16,7 +16,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 
-import { API_ROUTES } from 'src/core/constants/api-routes';
+import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
 import { UsersService } from 'src/modules/user-accounts/application/services/users.service';
 import { UserViewDto } from '../view-dto/user.view-dto';

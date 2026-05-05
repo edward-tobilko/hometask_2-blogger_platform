@@ -170,6 +170,28 @@ export class UserAccount {
       recoveryCodeExpiry: expirationDate,
     };
   }
+
+  setNewPassword(passwordHash: string) {
+    if (
+      !this.passwordRecovery.recoveryCode ||
+      !this.passwordRecovery.recoveryCodeExpiry ||
+      this.passwordRecovery.recoveryCodeExpiry < new Date()
+    )
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Recovery code is expired or incorrect',
+        extensions: [
+          new Extension(
+            'Recovery code is expired or incorrect',
+            'recoveryCode',
+          ),
+        ],
+      });
+
+    this.passwordHash = passwordHash;
+    this.passwordRecovery.recoveryCode = null;
+    this.passwordRecovery.recoveryCodeExpiry = null;
+  }
 }
 
 export const UserAccountSchema = SchemaFactory.createForClass(UserAccount);
