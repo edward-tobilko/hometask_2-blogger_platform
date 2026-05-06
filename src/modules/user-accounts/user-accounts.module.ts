@@ -16,6 +16,7 @@ import { AuthController } from './api/controllers/auth.controller';
 import { CryptoService } from './application/services/crypto.service';
 import { NodeMailerService } from './infrastructure/external-services/mailer.external-service';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
+import { BasicStrategy } from './guards/basic/basic.strategy';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { JwtStrategy } from './guards/bearer/jwt.strategy';
     // * strategies
     LocalStrategy,
     JwtStrategy,
+    BasicStrategy,
   ],
 
   exports: [],

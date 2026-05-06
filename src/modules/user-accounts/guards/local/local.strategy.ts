@@ -15,7 +15,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super({ usernameField: 'loginOrEmail' }); // говорим что поле называется 'loginOrEmail', не 'username'!
   }
 
-  // * validate возвращает то, что впоследствии будет записано в req.user, он принимает свои встроенные поля: username / password.
+  // * validate возвращает то, что впоследствии будет записано в req.user, он принимает свои встроенные поля: username / password, и по этому мы в конструкторе расширяем свое поле: usernameField -> loginOrEmail.
   async validate(username: string, password: string): Promise<{ id: string }> {
     const validatedUser = await this.authService.validateUser(
       username,
