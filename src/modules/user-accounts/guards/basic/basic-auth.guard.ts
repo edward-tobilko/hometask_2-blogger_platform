@@ -1,3 +1,4 @@
+// import { AuthGuard } from '@nestjs/passport';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
@@ -7,6 +8,7 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Injectable()
+// export class BasicAuthGuard extends AuthGuard('basic') {}
 export class BasicAuthGuard implements CanActivate {
   private readonly validUsername: string | undefined;
   private readonly validPassword: string | undefined;

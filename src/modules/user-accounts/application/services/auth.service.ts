@@ -154,7 +154,7 @@ export class AuthService {
     await this.usersRepo.save(user);
   }
 
-  async getMe(userId: string): Promise<UserSessionViewDto> {
+  async getMe(userId: string): Promise<any> {
     const user = await this.usersRepo.findById(userId);
 
     // * проверку можно не делать, так как в контроллере -> JwtAuthGuard гард ее делает

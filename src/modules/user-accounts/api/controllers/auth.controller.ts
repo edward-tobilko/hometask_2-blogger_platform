@@ -15,7 +15,7 @@ import { RegistrationEmailResendingInputDto } from '../input-dto/registration-em
 import { PasswordRecoveryInputDto } from '../input-dto/password-recovery.input-dto';
 import { NewPassword } from '../input-dto/new-password.input-dto';
 import { HttpStatusCodes } from 'src/core/constants/http-codes.constants';
-import { CurrentUserFromRequest } from '../../guards/decorators/params/current-user.decorator';
+import { CurrentUserFromRequest } from '../../guards/decorators/params/current-user.param-decorator';
 import { LocalAuthGuard } from '../../guards/local/local-auth.guard';
 import { JwtAuthGuard } from '../../guards/bearer/jwt-auth.guard';
 import { UserSessionViewDto } from '../view-dto/user-session.view-dto';
