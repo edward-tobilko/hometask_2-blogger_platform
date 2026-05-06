@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional } from 'class-validator';
 
-import { SortDirections } from 'src/core/enums/sort-directions.enum.ts';
 import {
   DEFAULT_PAGE_NUMBER,
   DEFAULT_PAGE_SIZE,
   DEFAULT_SORT_DIRECTION,
 } from '../constants/pagination.constants';
 import { Query } from '../decorators/query.decorator';
+import { SortDirections } from '../enums/sort-directions.enum';
 
 export abstract class QueryDto {
   abstract sortBy: string;
