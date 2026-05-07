@@ -2,6 +2,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Server } from 'http';
 import { Connection } from 'mongoose';
+import { getOptionsToken } from '@nestjs/throttler';
 
 import { AppModule } from 'src/app.module';
 import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
@@ -15,10 +16,12 @@ export const initSettings = async (
   addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
 ) => {
   const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
-    imports: [AppModule],
+    imports: [AppModule], // что бы тестировать РЕАЛЬНОЕ приложение — со всеми pipe, guard, filter
   })
     .overrideProvider(NodeMailerService)
-    .useClass(EmailServiceMock); // заменяем отправку письма на моковую заглушку, что бы письмо не уходило реально
+    .useClass(EmailServiceMock) // заменяем отправку письма на моковую заглушку, что бы письмо не уходило реально
+    .overrideProvider(getOptionsToken()) // ThrottlerGuard - читает настройки через DI токен 'THROTTLER:MODULE_OPTIONS' -> getOptionsToken() - возвращает строку 'THROTTLER:MODULE_OPTIONS'.
+    .useValue([{ limit: 10000, ttl: 60000 }]); // что бы тесты не получали 429
 
   if (addSettingsToModuleBuilder) {
     addSettingsToModuleBuilder(testingModuleBuilder);
@@ -27,7 +30,7 @@ export const initSettings = async (
   const testingAppModule = await testingModuleBuilder.compile();
   const app = testingAppModule.createNestApplication();
 
-  appSetup(app);
+  appSetup(app); // применяем те же настройки что и в проде: global prefix /api, ValidationPipe, ExceptionFilter. Без этого тесты проверяли бы другое приложение, а не то что деплоится.
 
   await app.init();
 
@@ -44,3 +47,5 @@ export const initSettings = async (
     userTestManager,
   };
 };
+
+// ? initSettings - Создаёт и запускает настоящее NestJS приложение для E2E тестов.
