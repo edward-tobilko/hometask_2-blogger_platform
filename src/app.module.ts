@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,37 +10,20 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
 import { CoreModule } from './core/core.module';
 import { AllHttpExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
 import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exceptions.filter';
+import { configModule } from './config/dynamic.config-module';
+import { mongooseModule } from './config/mongoose.module';
+import { throttlerModule } from './config/throttler.module';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV ?? 'development'}.local`, // чтобы автоматически подхватывался нужный файл (development / test / production).
-
-      isGlobal: true, // что бы не импортировать ConfigModule в каждый модуль (добавляет модуль в глобальный scope DI). Но!!! Не уго стоит использовать только для инфраструктурных модулей — ConfigModule, LoggerModule, возможно DatabaseModule. Для бизнес-модулей (BlogsModule, PostsModule) — никогда, потому что это ломает инкапсуляцию и понимание связей между модулями.
-    }),
+    configModule,
 
     // MongooseModule.forRoot('mongodb://localhost/nest'), // forRoot - синхронный метод (для простых кейсов, без настройки путей)
-
-    MongooseModule.forRootAsync({
-      inject: [ConfigService], // говорим, что нам нужен ConfigService (он может валидировать переменные через Joi-схему, и если MONGO_URL пустой, приложение упадёт на старте, а не при первом запросе).
-
-      // * паттерн (хук) который возвращает конфигурационный объект для модуля. Nest вызовет её один раз при старте приложения
-      useFactory: (config: ConfigService) => ({
-        uri: config.get('MONGO_URL'),
-        dbName: config.get('DB_NAME'),
-      }),
-    }),
+    mongooseModule,
 
     // * ограничение количества запросов с одного IP (Максимум 10 запросов за 60 секунд с одного IP).
-    ThrottlerModule.forRoot({
-      throttlers: [
-        {
-          ttl: 10000,
-          limit: 5,
-        },
-      ],
-    }),
+    throttlerModule,
 
     // * импортируем модули, что бы переиспользовать их провайдеры (из массива exports)
     BloggersPlatformModule,
