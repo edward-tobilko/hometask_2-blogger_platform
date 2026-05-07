@@ -3,7 +3,7 @@ import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 import { QueryDto } from 'src/core/dto/query.dto';
 
-enum UsersSortBy {
+export enum UsersSortBy {
   CreatedAt = 'createdAt',
   Login = 'login',
   Email = 'email',
