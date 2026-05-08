@@ -105,11 +105,35 @@ export class UsersTestManager {
     userId: string,
     statusCode: number = HttpStatus.NO_CONTENT,
   ): Promise<unknown> {
-    const res = await request(this.httpServer)
+    const response = await request(this.httpServer)
       .delete(`${this.usersPath}/${userId}`)
       .auth('admin', 'qwerty')
       .expect(statusCode);
 
-    return res.body;
+    return response.body;
+  }
+
+  async getResendRegistrationEmail(
+    email?: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/registration-email-resending`)
+      .send({ email })
+      .expect(statusCode);
+
+    return response.body;
+  }
+
+  async confirmRegistration(
+    code: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/registration-confirmation`)
+      .send({ code })
+      .expect(statusCode);
+
+    return response.body;
   }
 }

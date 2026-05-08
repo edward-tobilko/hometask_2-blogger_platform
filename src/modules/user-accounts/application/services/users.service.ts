@@ -32,15 +32,21 @@ export class UsersService {
       return await this.usersRepo.createByAdmin(domainDto);
     } catch (error: unknown) {
       if (error instanceof Error && 'code' in error && error.code === 11000) {
+        // * эта проверка нужно для теста: парсим поле из ошибки MongoDB (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
+        const duplicatedField =
+          'keyValue' in error && error.keyValue != null
+            ? Object.keys(error.keyValue as object)[0]
+            : 'loginOrEmail';
+
         throw new DomainException({
           code: DomainExceptionCode.BadRequest,
           message: 'User with this login or email already exists',
           extensions: [
             new Extension(
               'User with this login or email already exists',
-              'loginOrEmail',
+              duplicatedField, // just for status code 400 (bad request)
             ),
-          ], // just for status code 400 (bad request)
+          ],
         });
       }
 

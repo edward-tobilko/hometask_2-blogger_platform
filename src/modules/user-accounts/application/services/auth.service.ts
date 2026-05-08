@@ -33,14 +33,22 @@ export class AuthService {
     password: string,
     email: string,
   ): Promise<void> {
-    const existingUserByLoginOrEmail =
-      await this.usersRepo.findUserByLoginOrEmail(login, email);
+    const existingUserByLogin = await this.usersRepo.findByLogin(login);
 
-    if (existingUserByLoginOrEmail)
+    if (existingUserByLogin)
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: `Already registered`,
-        extensions: [new Extension('Already registered', 'loginOrEmail')], // just for status code 400 (bad request)
+        extensions: [new Extension('Already registered', 'login')], // just for status code 400 (bad request)
+      });
+
+    const existingUserByEmail = await this.usersRepo.findByEmail(email);
+
+    if (existingUserByEmail)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: `Already registered`,
+        extensions: [new Extension('Already registered', 'email')], // just for status code 400 (bad request)
       });
 
     const passwordHash = await this.cryptoService.generateHash(password);
