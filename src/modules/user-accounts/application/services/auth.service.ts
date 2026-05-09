@@ -187,7 +187,7 @@ export class AuthService {
 
     if (!user)
       throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
+        code: DomainExceptionCode.Unauthorized,
         message: 'User is not found',
       });
 
@@ -204,7 +204,7 @@ export class AuthService {
 
     if (!isValidPass)
       throw new DomainException({
-        code: DomainExceptionCode.ValidationError,
+        code: DomainExceptionCode.Unauthorized,
         message: 'Your password is not valid',
       });
 
