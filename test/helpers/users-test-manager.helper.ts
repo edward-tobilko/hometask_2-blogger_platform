@@ -12,6 +12,11 @@ import {
 } from 'src/modules/user-accounts/api/input-dto/users-query.input-dto';
 import { SortDirections } from 'src/core/enums/sort-directions.enum';
 import { UsersPaginatedViewDto } from 'src/modules/user-accounts/api/view-dto/users-paginated.view-dto';
+import { Login } from 'src/modules/user-accounts/api/input-dto/login.input-dto';
+import { PasswordRecoveryInputDto } from 'src/modules/user-accounts/api/input-dto/password-recovery.input-dto';
+import { RegistrationConfirmInputDto } from 'src/modules/user-accounts/api/input-dto/registration-confirm.input-dto';
+import { RegistrationEmailResendingInputDto } from 'src/modules/user-accounts/api/input-dto/registration-email-resending.input-dto';
+import { NewPassword } from 'src/modules/user-accounts/api/input-dto/new-password.input-dto';
 
 export class UsersTestManager {
   constructor(private readonly app: INestApplication) {}
@@ -19,48 +24,6 @@ export class UsersTestManager {
   httpServer = this.app.getHttpServer() as Server;
   usersPath = `/${GLOBAL_PREFIX}/users` as string;
   authPath = `/${GLOBAL_PREFIX}/auth` as string;
-
-  async registrationUser(
-    dto: CreateUserInputDto,
-    status: number = HttpStatus.NO_CONTENT,
-  ): Promise<unknown> {
-    const result = await request(this.httpServer)
-      .post(`${this.authPath}/registration`)
-      .send(dto)
-      .expect(status);
-
-    return result.body;
-  }
-
-  async createUser(
-    createModel: CreateUserInputDto,
-    statusCode: number = HttpStatus.CREATED,
-  ): Promise<unknown> {
-    const response = await request(this.httpServer)
-      .post(this.usersPath)
-      .send(createModel)
-      .auth('admin', 'qwerty')
-      .expect(statusCode);
-
-    return response.body;
-  }
-
-  async createSeveralUsers(count: number): Promise<UserViewDto[]> {
-    const users: UserViewDto[] = [];
-
-    for (let i = 1; i <= count; i++) {
-      // * делаем последовательное создание 12-ти юзеров (лучше для тестов)
-      const res = (await this.createUser({
-        login: `user${i}`,
-        password: 'qwerty123',
-        email: `user${i}@example.dev`,
-      })) as UserViewDto;
-
-      users.push(res);
-    }
-
-    return users;
-  }
 
   getUserInputDto(
     payloadValidation?: Record<string, unknown>,
@@ -75,6 +38,60 @@ export class UsersTestManager {
     };
 
     return { ...payloadDto, ...payloadValidation };
+  }
+
+  async login(
+    dto: Login,
+    statusCode: number = HttpStatus.OK,
+  ): Promise<{ accessToken: string }> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/login`)
+      .send(dto)
+      .expect(statusCode);
+
+    return response.body as { accessToken: string };
+  }
+
+  async registrationUser(
+    dto: CreateUserInputDto,
+    status: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/registration`)
+      .send(dto)
+      .expect(status);
+
+    return response.body;
+  }
+
+  async createUser(
+    createModel: CreateUserInputDto,
+    statusCode: number = HttpStatus.CREATED,
+  ): Promise<UserViewDto> {
+    const response = await request(this.httpServer)
+      .post(this.usersPath)
+      .send(createModel)
+      .auth('admin', 'qwerty')
+      .expect(statusCode);
+
+    return response.body as UserViewDto;
+  }
+
+  async createSeveralUsers(count: number): Promise<UserViewDto[]> {
+    const users: UserViewDto[] = [];
+
+    for (let i = 1; i <= count; i++) {
+      // * делаем последовательное создание 12-ти юзеров (лучше для тестов)
+      const res = await this.createUser({
+        login: `user${i}`,
+        password: 'qwerty123',
+        email: `user${i}@example.dev`,
+      });
+
+      users.push(res);
+    }
+
+    return users;
   }
 
   async getUsersPaginatedList(
@@ -114,26 +131,52 @@ export class UsersTestManager {
   }
 
   async getResendRegistrationEmail(
-    email?: string,
+    email: RegistrationEmailResendingInputDto,
     statusCode: number = HttpStatus.NO_CONTENT,
   ): Promise<unknown> {
     const response = await request(this.httpServer)
       .post(`${this.authPath}/registration-email-resending`)
-      .send({ email })
+      .send(email)
       .expect(statusCode);
 
     return response.body;
   }
 
-  async confirmRegistration(
-    code: string,
+  async getConfirmRegistration(
+    code: RegistrationConfirmInputDto,
     statusCode: number = HttpStatus.NO_CONTENT,
   ): Promise<unknown> {
     const response = await request(this.httpServer)
       .post(`${this.authPath}/registration-confirmation`)
-      .send({ code })
+      .send(code)
+      .expect(statusCode);
+
+    return response.body;
+  }
+
+  async getRecoveryPassword(
+    email: PasswordRecoveryInputDto,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/password-recovery`)
+      .send(email)
+      .expect(statusCode);
+
+    return response.body;
+  }
+
+  async getNewPassword(
+    password: NewPassword,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/new-password`)
+      .send(password)
       .expect(statusCode);
 
     return response.body;
   }
 }
+
+// ? там где мы return unknown - потому что по контракту status = 204 (без тела)
