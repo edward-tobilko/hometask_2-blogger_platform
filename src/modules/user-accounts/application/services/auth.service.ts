@@ -185,14 +185,28 @@ export class AuthService {
       loginOrEmail,
     );
 
-    if (!user) return null;
+    if (!user)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'User is not found',
+      });
+
+    if (!user.emailConfirmation.isConfirmed)
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'You should be authorized',
+      });
 
     const isValidPass = await this.cryptoService.compareHash(
       password,
       user.passwordHash,
     );
 
-    if (!isValidPass) return null;
+    if (!isValidPass)
+      throw new DomainException({
+        code: DomainExceptionCode.ValidationError,
+        message: 'Your password is not valid',
+      });
 
     return { id: user.id.toString() };
   }

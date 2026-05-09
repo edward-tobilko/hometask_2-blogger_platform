@@ -6,7 +6,6 @@ import { Server } from 'http';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { UsersTestManager } from 'test/helpers/users-test-manager.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
-import { UserViewDto } from 'src/modules/user-accounts/api/view-dto/user.view-dto';
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { BadRequestError } from '../utils/bad-request-error.util';
 
@@ -133,7 +132,7 @@ describe('Users swagger contract', () => {
     it('status 201 - returns created user and this user appears in list', async () => {
       const dto = userTestManager.getUserInputDto();
 
-      const response = (await userTestManager.createUser(dto)) as UserViewDto;
+      const response = await userTestManager.createUser(dto);
 
       expect(response).toEqual({
         id: expect.any(String),
@@ -212,7 +211,7 @@ describe('Users swagger contract', () => {
         const user = (await userTestManager.createUser(
           dto,
           HttpStatus.BAD_REQUEST,
-        )) as BadRequestError;
+        )) as unknown as BadRequestError;
 
         expect(user.errorsMessages).toEqual(
           expect.arrayContaining([
@@ -233,7 +232,7 @@ describe('Users swagger contract', () => {
       const duplicateResult = (await userTestManager.createUser(
         dto,
         HttpStatus.BAD_REQUEST,
-      )) as BadRequestError;
+      )) as unknown as BadRequestError;
 
       expect(duplicateResult.errorsMessages).toEqual(
         expect.arrayContaining([
@@ -259,7 +258,7 @@ describe('Users swagger contract', () => {
     it('status 204 - should delete user', async () => {
       const dto = userTestManager.getUserInputDto();
 
-      const user = (await userTestManager.createUser(dto)) as UserViewDto;
+      const user = await userTestManager.createUser(dto);
 
       await userTestManager.deleteUser(user.id);
 
@@ -274,7 +273,7 @@ describe('Users swagger contract', () => {
     it('status 401 - without authorization', async () => {
       const dto = userTestManager.getUserInputDto();
 
-      const user = (await userTestManager.createUser(dto)) as UserViewDto;
+      const user = await userTestManager.createUser(dto);
 
       await request(httpServer)
         .delete(`${usersPath}/${user.id}`)
