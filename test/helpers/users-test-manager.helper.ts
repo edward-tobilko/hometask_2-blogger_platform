@@ -12,14 +12,20 @@ import {
 } from 'src/modules/user-accounts/api/input-dto/users-query.input-dto';
 import { SortDirections } from 'src/core/enums/sort-directions.enum';
 import { UsersPaginatedViewDto } from 'src/modules/user-accounts/api/view-dto/users-paginated.view-dto';
-import { Login } from 'src/modules/user-accounts/api/input-dto/login.input-dto';
+import { LoginInputDto } from 'src/modules/user-accounts/api/input-dto/login.input-dto';
 import { PasswordRecoveryInputDto } from 'src/modules/user-accounts/api/input-dto/password-recovery.input-dto';
 import { RegistrationConfirmInputDto } from 'src/modules/user-accounts/api/input-dto/registration-confirm.input-dto';
 import { RegistrationEmailResendingInputDto } from 'src/modules/user-accounts/api/input-dto/registration-email-resending.input-dto';
 import { NewPassword } from 'src/modules/user-accounts/api/input-dto/new-password.input-dto';
+import { UserSessionViewDto } from 'src/modules/user-accounts/api/view-dto/user-session.view-dto';
+import { Model } from 'mongoose';
+import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 
 export class UsersTestManager {
-  constructor(private readonly app: INestApplication) {}
+  constructor(
+    private readonly app: INestApplication,
+    private readonly userModel: Model<UserAccountDocument>,
+  ) {}
 
   httpServer = this.app.getHttpServer() as Server;
   usersPath = `/${GLOBAL_PREFIX}/users` as string;
@@ -40,8 +46,20 @@ export class UsersTestManager {
     return { ...payloadDto, ...payloadValidation };
   }
 
+  async getMe(
+    accessToken?: string,
+    statusCode: number = HttpStatus.OK,
+  ): Promise<UserSessionViewDto> {
+    const response = await request(this.httpServer)
+      .get(`${this.authPath}/me`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(statusCode);
+
+    return response.body as UserSessionViewDto;
+  }
+
   async login(
-    dto: Login,
+    dto: LoginInputDto,
     statusCode: number = HttpStatus.OK,
   ): Promise<{ accessToken: string }> {
     const response = await request(this.httpServer)
@@ -92,6 +110,27 @@ export class UsersTestManager {
     }
 
     return users;
+  }
+
+  async getRegisteredAndConfirmedUser() {
+    // * getting dto
+    const dto = this.getUserInputDto();
+    const { email, login, password } = dto;
+
+    // * registering user in the system
+    await this.registrationUser(dto);
+
+    // * finding user by email
+    const userDb = await this.userModel.findOne({ email: dto.email });
+
+    // * getting confirm code
+    const confirmCode = userDb!.emailConfirmation.confirmationCode!;
+
+    await this.getConfirmRegistration({
+      code: confirmCode,
+    });
+
+    return { email, login, password, confirmCode };
   }
 
   async getUsersPaginatedList(

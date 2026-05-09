@@ -10,6 +10,10 @@ import { appSetup } from 'src/setup/app.setup';
 import { EmailServiceMock } from 'test/mock/email-service.mock';
 import { UsersTestManager } from './users-test-manager.helper';
 import { deleteAllData } from './delete-all-date.helper';
+import {
+  UserAccount,
+  UserAccountDocument,
+} from 'src/modules/user-accounts/domain/entities/user.entity';
 
 export const initSettings = async (
   //* передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -36,7 +40,11 @@ export const initSettings = async (
 
   const databaseConnection = app.get<Connection>(getConnectionToken());
   const httpServer = app.getHttpServer() as Server;
-  const userTestManager = new UsersTestManager(app);
+
+  const UserModel = databaseConnection.model<UserAccountDocument>(
+    UserAccount.name,
+  );
+  const userTestManager = new UsersTestManager(app, UserModel);
 
   await deleteAllData(app);
 
