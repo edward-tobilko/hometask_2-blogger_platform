@@ -14,6 +14,11 @@ import {
   UserAccount,
   UserAccountDocument,
 } from 'src/modules/user-accounts/domain/entities/user.entity';
+import { BlogsTestManager } from './blogs-test-manager.helper';
+import {
+  Blog,
+  BlogDocument,
+} from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
 
 export const initSettings = async (
   //* передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -44,7 +49,10 @@ export const initSettings = async (
   const UserModel = databaseConnection.model<UserAccountDocument>(
     UserAccount.name,
   );
+  const BlogModel = databaseConnection.model<BlogDocument>(Blog.name);
+
   const userTestManager = new UsersTestManager(app, UserModel);
+  const blogTestManager = new BlogsTestManager(app, BlogModel);
 
   await deleteAllData(app);
 
@@ -53,6 +61,7 @@ export const initSettings = async (
     databaseConnection,
     httpServer,
     userTestManager,
+    blogTestManager,
   };
 };
 
