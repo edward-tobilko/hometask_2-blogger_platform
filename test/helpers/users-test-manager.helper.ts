@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Server } from 'http';
 import { randomUUID } from 'crypto';
+import { Model } from 'mongoose';
 
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
@@ -18,7 +19,6 @@ import { RegistrationConfirmInputDto } from 'src/modules/user-accounts/api/input
 import { RegistrationEmailResendingInputDto } from 'src/modules/user-accounts/api/input-dto/registration-email-resending.input-dto';
 import { NewPassword } from 'src/modules/user-accounts/api/input-dto/new-password.input-dto';
 import { UserSessionViewDto } from 'src/modules/user-accounts/api/view-dto/user-session.view-dto';
-import { Model } from 'mongoose';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 
 export class UsersTestManager {
@@ -218,4 +218,4 @@ export class UsersTestManager {
   }
 }
 
-// ? там где мы return unknown - потому что по контракту status = 204 (без тела)
+// ? там где мы return unknown - потому что по контракту status = 204 (без тела), а так же безопастней чем any.
