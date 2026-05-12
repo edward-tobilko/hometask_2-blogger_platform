@@ -8,17 +8,27 @@ import { AppModule } from 'src/app.module';
 import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
 import { appSetup } from 'src/setup/app.setup';
 import { EmailServiceMock } from 'test/mock/email-service.mock';
-import { UsersTestManager } from './users-test-manager.helper';
+import { UserTestManager } from './users-test-manager.helper';
 import { deleteAllData } from './delete-all-date.helper';
 import {
   UserAccount,
   UserAccountDocument,
 } from 'src/modules/user-accounts/domain/entities/user.entity';
-import { BlogsTestManager } from './blogs-test-manager.helper';
+import { BlogTestManager } from './blogs-test-manager.helper';
 import {
   Blog,
   BlogDocument,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
+import {
+  Post,
+  PostDocument,
+} from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
+import { PostTestManager } from './posts-test-manager.helper';
+import {
+  Comment,
+  CommentDocument,
+} from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
+import { CommentTestManager } from './comments-test-manager.helper';
 
 export const initSettings = async (
   //* передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -49,10 +59,14 @@ export const initSettings = async (
   const UserModel = databaseConnection.model<UserAccountDocument>(
     UserAccount.name,
   );
-  const BlogModel = databaseConnection.model<BlogDocument>(Blog.name);
+  databaseConnection.model<BlogDocument>(Blog.name);
+  databaseConnection.model<PostDocument>(Post.name);
+  databaseConnection.model<CommentDocument>(Comment.name);
 
-  const userTestManager = new UsersTestManager(app, UserModel);
-  const blogTestManager = new BlogsTestManager(app, BlogModel);
+  const userTestManager = new UserTestManager(app, UserModel);
+  const postTestManager = new PostTestManager(app);
+  const blogTestManager = new BlogTestManager(app, postTestManager);
+  const commentTestManager = new CommentTestManager(app);
 
   await deleteAllData(app);
 
@@ -62,6 +76,8 @@ export const initSettings = async (
     httpServer,
     userTestManager,
     blogTestManager,
+    postTestManager,
+    commentTestManager,
   };
 };
 

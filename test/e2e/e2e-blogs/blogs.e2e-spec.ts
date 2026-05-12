@@ -1,6 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
-import { BlogsTestManager } from 'test/helpers/blogs-test-manager.helper';
+import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { BadRequestError } from '../utils/bad-request-error.util';
@@ -13,10 +13,12 @@ import {
   websiteUrlConstraints,
 } from 'src/core/constants/constraints.constants';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
+import { SortDirections } from 'src/core/enums/sort-directions.enum';
+import { BlogsSortBy } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
 
 describe('Blogs swagger contract', () => {
   let app: INestApplication;
-  let blogTestManager: BlogsTestManager;
+  let blogTestManager: BlogTestManager;
 
   beforeAll(async () => {
     const result = await initSettings();
@@ -96,6 +98,32 @@ describe('Blogs swagger contract', () => {
       expect(
         response.items.find((item) => item.name === 'javascript'),
       ).toBeUndefined();
+    });
+
+    it('status 200 - sorting blogs by sortDirection and sortBy', async () => {
+      await blogTestManager.createSeveralBlogs(3);
+
+      const ascResult = await blogTestManager.getBlogsPaginatedList({
+        query: {
+          sortDirection: SortDirections.ASC,
+          sortBy: BlogsSortBy.CreatedAt,
+        },
+      });
+      const descResult = await blogTestManager.getBlogsPaginatedList({
+        query: {
+          sortDirection: SortDirections.DESC,
+          sortBy: BlogsSortBy.CreatedAt,
+        },
+      });
+
+      expect(
+        new Date(ascResult.items[0].createdAt) <=
+          new Date(ascResult.items[1].createdAt),
+      ).toBe(true);
+      expect(
+        new Date(descResult.items[0].createdAt) >=
+          new Date(descResult.items[1].createdAt),
+      ).toBe(true);
     });
   });
 
@@ -245,7 +273,7 @@ describe('Blogs swagger contract', () => {
       expect(result.items).toHaveLength(0);
     });
 
-    it('status 404 - if specificited blog is not exists', async () => {
+    it('status 404 - if specificity blog is not exists', async () => {
       const blogDto = blogTestManager.getBlogInputDto();
 
       await blogTestManager.createBlog(blogDto);
@@ -268,7 +296,7 @@ describe('Blogs swagger contract', () => {
     });
 
     it('status 201 - should create post for blog', async () => {
-      const postDto = blogTestManager.getPostInputDto();
+      const postDto = blogTestManager.getPostForBlogInputDto();
       const createdPostForBlogRes = await blogTestManager.createPostForBlog(
         createdBlog.id,
         postDto,
@@ -290,7 +318,7 @@ describe('Blogs swagger contract', () => {
     it('status 404 - if blogId does not exist', async () => {
       const nonExistingBlogId = '507f1f77bcf86cd799439011';
 
-      const postDto = blogTestManager.getPostInputDto();
+      const postDto = blogTestManager.getPostForBlogInputDto();
 
       await blogTestManager.createPostForBlog(
         nonExistingBlogId,
@@ -344,7 +372,7 @@ describe('Blogs swagger contract', () => {
     ] as const)(
       'status 400 - should not create post if the inputModel has incorrect values',
       async ({ payload, field }) => {
-        const postDto = blogTestManager.getPostInputDto(payload);
+        const postDto = blogTestManager.getPostForBlogInputDto(payload);
         const createdPostForBlogResult =
           (await blogTestManager.createPostForBlog(
             createdBlog.id,

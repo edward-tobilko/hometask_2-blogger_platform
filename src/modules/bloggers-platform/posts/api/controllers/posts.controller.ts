@@ -27,6 +27,7 @@ import { PostsPaginatedViewModel } from '../dto/view-dto/posts-paginated.view-dt
 import { PostsQueryDto } from '../dto/input-dto/posts-query.input-dto';
 import { UpdatePostDto } from '../dto/input-dto/update-post.input-dto';
 import { PostIdParamDto } from '../dto/input-dto/post-id.input-dto';
+import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -108,6 +109,6 @@ export class PostsController {
       },
     });
 
-    return comment;
+    return CommentViewModel.mapToViewModel(comment);
   }
 }

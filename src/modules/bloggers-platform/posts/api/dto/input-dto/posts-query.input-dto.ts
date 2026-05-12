@@ -2,7 +2,7 @@ import { IsEnum, IsOptional } from 'class-validator';
 
 import { QueryDto } from 'src/core/dto/query.dto';
 
-enum PostsSortBy {
+export enum PostsSortBy {
   CreatedAt = 'createdAt',
   Title = 'title',
   ShortDescription = 'shortDescription',
