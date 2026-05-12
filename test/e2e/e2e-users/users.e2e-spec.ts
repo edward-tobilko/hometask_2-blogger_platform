@@ -4,16 +4,17 @@ import request from 'supertest';
 import { Server } from 'http';
 
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
-import { UsersTestManager } from 'test/helpers/users-test-manager.helper';
+import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { BadRequestError } from '../utils/bad-request-error.util';
 
 describe('Users swagger contract', () => {
   let app: INestApplication;
-  let userTestManager: UsersTestManager;
   let httpServer: Server;
   let usersPath: string;
+
+  let userTestManager: UserTestManager;
 
   beforeAll(async () => {
     const result = await initSettings((moduleBuilder) =>

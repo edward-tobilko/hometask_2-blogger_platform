@@ -5,7 +5,7 @@ import request from 'supertest';
 import { Model } from 'mongoose';
 import jwt from 'jsonwebtoken';
 
-import { UsersTestManager } from 'test/helpers/users-test-manager.helper';
+import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
@@ -28,9 +28,10 @@ const testRegistrationDto = {
 
 describe('Auth swagger contract', () => {
   let app: INestApplication;
-  let userTestManager: UsersTestManager;
   let httpServer: Server;
   let authPath: string;
+
+  let userTestManager: UserTestManager;
 
   let UserModel: Model<UserAccountDocument>;
 

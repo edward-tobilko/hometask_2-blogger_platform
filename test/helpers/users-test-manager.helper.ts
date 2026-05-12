@@ -21,7 +21,7 @@ import { NewPassword } from 'src/modules/user-accounts/api/input-dto/new-passwor
 import { UserSessionViewDto } from 'src/modules/user-accounts/api/view-dto/user-session.view-dto';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 
-export class UsersTestManager {
+export class UserTestManager {
   constructor(
     private readonly app: INestApplication,
     private readonly userModel: Model<UserAccountDocument>,
@@ -43,7 +43,7 @@ export class UsersTestManager {
       email: `user${uniqueUser}@example.dev`,
     };
 
-    return { ...payloadDto, ...payloadValidation };
+    return { ...payloadDto, ...payloadValidation }; // если одинаковый ключ есть в обоих объектах — правый перезаписывает левый.
   }
 
   async getMe(

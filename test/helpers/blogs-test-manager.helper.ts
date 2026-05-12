@@ -2,11 +2,9 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import request from 'supertest';
 import { Server } from 'http';
-import { Model } from 'mongoose';
 
 import { CreateBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/create-blog.input-dto';
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
-import { BlogDocument } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import {
   BlogsQueryDto,
@@ -18,11 +16,12 @@ import { UpdateBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/input
 import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/create-post-for-blog.input-dto';
 import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
+import { PostTestManager } from './posts-test-manager.helper';
 
-export class BlogsTestManager {
+export class BlogTestManager {
   constructor(
     private readonly app: INestApplication,
-    private readonly blogModel: Model<BlogDocument>,
+    private postTestManager: PostTestManager,
   ) {}
 
   httpServer = this.app.getHttpServer() as Server;
@@ -40,23 +39,16 @@ export class BlogsTestManager {
       websiteUrl: `https://${UNIQUE_WEBSITE}.example.com`,
     };
 
-    return { ...payloadBlogDto, ...payloadValidation };
+    return { ...payloadBlogDto, ...payloadValidation }; // если одинаковый ключ есть в обоих объектах — правый перезаписывает левый.
   }
 
-  getPostInputDto(
-    payloadValidation?: Record<string, unknown>,
-  ): CreatePostForBlogDto {
-    const UNIQUE_TITLE = randomUUID().slice(0, 20);
-    const UNIQUE_SHORT_DESCRIPTION = randomUUID().slice(0, 50);
-    const UNIQUE_CONTENT = randomUUID().slice(0, 100);
+  getPostForBlogInputDto(payloadValidation?: Record<string, unknown>) {
+    const { blogId, ...dto } =
+      this.postTestManager.getPostInputDto(payloadValidation);
 
-    const payloadBlogDto: CreatePostForBlogDto = {
-      title: `Title ${UNIQUE_TITLE}`,
-      shortDescription: `Short description ${UNIQUE_SHORT_DESCRIPTION}`,
-      content: `Content ${UNIQUE_CONTENT}`,
-    };
+    void blogId; // решение по ESLint ('blogId' is assigned a value but never used -> хотя мы blogId исп. в .getPostInputDto)
 
-    return { ...payloadBlogDto, ...payloadValidation };
+    return dto;
   }
 
   async getBlogsPaginatedList(
