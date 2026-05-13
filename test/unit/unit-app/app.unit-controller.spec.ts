@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
+import { AppController } from '../../../src/app.controller';
+import { AppService } from '../../../src/app.service';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -14,7 +15,7 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
+  describe('Root path', () => {
     it('should return root page response with correct structure', () => {
       const result = appController.rootPage();
 
