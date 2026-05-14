@@ -82,3 +82,4 @@ export const initSettings = async (
 };
 
 // ? initSettings - Создаёт и запускает настоящее NestJS приложение для E2E тестов.
+// ? .overrideProvider() - значит, что мы инжектим что то фейковое (перезатираем реальную логику)

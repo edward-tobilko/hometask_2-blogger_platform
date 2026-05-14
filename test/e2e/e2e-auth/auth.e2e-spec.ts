@@ -14,17 +14,12 @@ import {
   UserAccountDocument,
 } from 'src/modules/user-accounts/domain/entities/user.entity';
 import { BadRequestError } from '../utils/bad-request-error.util';
-
-const testRegistrationDto = {
-  login: 'testUser',
-  password: 'password123',
-  email: 'test@example.com',
-};
-
-// const testLoginDto = {
-//   loginOrEmail: 'TekMr6PvRu',
-//   password: 'qwerty123',
-// };
+import { expectErrorField } from '../utils/expect-error-field.util';
+import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
+import {
+  loginConstraints,
+  passwordConstraints,
+} from 'src/core/constants/constraints.constants';
 
 describe('Auth swagger contract', () => {
   let app: INestApplication;
@@ -60,30 +55,29 @@ describe('Auth swagger contract', () => {
   beforeEach(async () => await deleteAllData(app));
 
   describe('Tests for POST /api/auth/registration end-point', () => {
-    it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address', async () => {
-      const dto = userTestManager.getUserInputDto();
+    let result: UserAccountDocument | null;
+    let dto: CreateUserInputDto;
+
+    beforeEach(async () => {
+      dto = userTestManager.getUserInputDto();
 
       await userTestManager.registrationUser(dto);
 
       // * Минимальная проверка, что пользователь реально создан в БД
-      const createdUser = await UserModel.findOne({ email: dto.email });
+      result = await userTestManager.findUserByEmail(dto.email);
+    });
 
-      expect(createdUser).toBeTruthy();
-      expect(createdUser!.emailConfirmation.isConfirmed).toBe(false);
-      expect(createdUser!.emailConfirmation.confirmationCode).toBeTruthy();
+    it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address', async () => {
+      expect(result).toBeTruthy();
+      expect(result!.emailConfirmation.isConfirmed).toBe(false);
+      expect(result!.emailConfirmation.confirmationCode).toBeTruthy();
       expect(
-        createdUser!.emailConfirmation.emailConfirmationCodeExpiry,
+        result!.emailConfirmation.emailConfirmationCodeExpiry,
       ).toBeTruthy();
     });
 
     it('status 400 - if duplicate login)', async () => {
-      const dtoFirst = userTestManager.getUserInputDto();
-      const dtoSecond = {
-        ...userTestManager.getUserInputDto(),
-        login: dtoFirst.login,
-      };
-
-      await userTestManager.registrationUser(dtoFirst);
+      const dtoSecond = userTestManager.getUserInputDto({ login: dto.login });
 
       const failedUserResult = (await userTestManager.registrationUser(
         dtoSecond,
@@ -99,13 +93,7 @@ describe('Auth swagger contract', () => {
     });
 
     it('status 400 - if duplicate email', async () => {
-      const dtoFirst = userTestManager.getUserInputDto();
-      const dtoSecond = {
-        ...userTestManager.getUserInputDto(),
-        email: dtoFirst.email,
-      };
-
-      await userTestManager.registrationUser(dtoFirst);
+      const dtoSecond = userTestManager.getUserInputDto({ email: dto.email });
 
       const failedUserResult = (await userTestManager.registrationUser(
         dtoSecond,
@@ -124,61 +112,61 @@ describe('Auth swagger contract', () => {
       // * login validation
       {
         name: 'login is empty',
-        payload: { ...testRegistrationDto, login: '' },
+        payload: { login: '' },
         field: 'login',
       },
       {
         name: 'login must be string',
-        payload: { ...testRegistrationDto, login: 2 },
+        payload: { login: 2 },
         field: 'login',
       },
       {
         name: 'login length > 10 symbols',
-        payload: { ...testRegistrationDto, login: 'a'.repeat(11) },
+        payload: { login: 'a'.repeat(loginConstraints.maxLength + 1) },
         field: 'login',
       },
       {
         name: 'login length < 3 symbols',
-        payload: { ...testRegistrationDto, login: 'ab' },
+        payload: { login: 'a'.repeat(loginConstraints.minLength - 1) },
         field: 'login',
       },
 
       // * password validation
       {
         name: 'password is empty',
-        payload: { ...testRegistrationDto, password: '' },
+        payload: { password: '' },
         field: 'password',
       },
       {
         name: 'password must be string',
-        payload: { ...testRegistrationDto, password: 2 },
+        payload: { password: 2 },
         field: 'password',
       },
       {
         name: 'password length > 20 symbols',
-        payload: { ...testRegistrationDto, password: 'a'.repeat(21) },
+        payload: { password: 'a'.repeat(passwordConstraints.maxLength + 1) },
         field: 'password',
       },
       {
         name: 'password length < 6 symbols',
-        payload: { ...testRegistrationDto, password: 'a'.repeat(5) },
+        payload: { password: 'a'.repeat(passwordConstraints.minLength - 1) },
         field: 'password',
       },
 
       // * email validation
       {
         name: 'email is empty',
-        payload: { ...testRegistrationDto, email: '' },
+        payload: { email: '' },
         field: 'email',
       },
       {
         name: 'email must be string',
-        payload: { ...testRegistrationDto, email: 2 },
+        payload: { email: 2 },
         field: 'email',
       },
       {
         name: 'email is invalid (random string)',
-        payload: { ...testRegistrationDto, email: 'not-a-url' },
+        payload: { email: 'not-a-url' },
         field: 'email',
       },
     ] as const)(
@@ -191,14 +179,7 @@ describe('Auth swagger contract', () => {
           HttpStatus.BAD_REQUEST,
         )) as BadRequestError;
 
-        expect(createUserResponse.errorsMessages).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({
-              message: expect.any(String),
-              field,
-            }),
-          ]),
-        );
+        expectErrorField(createUserResponse, field);
       },
     );
 
@@ -206,14 +187,19 @@ describe('Auth swagger contract', () => {
   });
 
   describe('Tests for POST /api/auth/registration-email-resending end-point', () => {
-    it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address.', async () => {
-      const dto = userTestManager.getUserInputDto();
+    let userBefore: UserAccountDocument | null;
+    let dto: CreateUserInputDto;
+
+    beforeEach(async () => {
+      dto = userTestManager.getUserInputDto();
 
       // * register user (creates user with isConfirmed=false)
       await userTestManager.registrationUser(dto);
 
-      const userBefore = await UserModel.findOne({ email: dto.email });
+      userBefore = await userTestManager.findUserByEmail(dto.email);
+    });
 
+    it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address.', async () => {
       expect(userBefore).toBeTruthy();
       expect(userBefore!.emailConfirmation.isConfirmed).toBe(false);
 
@@ -226,7 +212,7 @@ describe('Auth swagger contract', () => {
       });
 
       // * confirmation code should be changed
-      const userAfter = await UserModel.findOne({ email: dto.email });
+      const userAfter = await userTestManager.findUserByEmail(dto.email);
 
       expect(userAfter).toBeTruthy();
       expect(userAfter!.emailConfirmation.isConfirmed).toBe(false);
@@ -243,14 +229,7 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            message: expect.any(String),
-            field: 'email',
-          }),
-        ]),
-      );
+      expectErrorField(result, 'email');
     });
 
     it('status 400 - if email already confirmed', async () => {
@@ -261,14 +240,7 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            message: expect.any(String),
-            field: 'email',
-          }),
-        ]),
-      );
+      expectErrorField(result, 'email');
     });
 
     it('status 400 - if email is missing', async () => {
@@ -277,14 +249,7 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            message: expect.any(String),
-            field: 'email',
-          }),
-        ]),
-      );
+      expectErrorField(result, 'email');
     });
 
     it('status 400 - if email is not found', async () => {
@@ -293,42 +258,27 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            message: expect.any(String),
-            field: 'email',
-          }),
-        ]),
-      );
+      expectErrorField(result, 'email');
     });
 
     it('status 204 - if new code confirms email successfully', async () => {
-      const dto = userTestManager.getUserInputDto();
-
-      await userTestManager.registrationUser(dto);
-
       await userTestManager.getResendRegistrationEmail({ email: dto.email });
 
       // * получаем новый код
-      const userAfter = await UserModel.findOne({ email: dto.email });
+      const userAfter = await userTestManager.findUserByEmail(dto.email);
       const newCode = userAfter!.emailConfirmation.confirmationCode;
 
       // * новый код должен заработать
       await userTestManager.getConfirmRegistration({ code: newCode! });
 
       // * isConfirmed = true
-      const userConfirmed = await UserModel.findOne({ email: dto.email });
+      const userConfirmed = await userTestManager.findUserByEmail(dto.email);
 
       expect(userConfirmed!.emailConfirmation.isConfirmed).toBe(true);
     });
 
     it('status 400 - if old code is invalid after resend', async () => {
-      const dto = userTestManager.getUserInputDto();
-
-      await userTestManager.registrationUser(dto);
-
-      const userBefore = await UserModel.findOne({ email: dto.email });
+      const userBefore = await userTestManager.findUserByEmail(dto.email);
       const oldCode = userBefore!.emailConfirmation.confirmationCode;
 
       await userTestManager.getResendRegistrationEmail({ email: dto.email });
@@ -344,13 +294,19 @@ describe('Auth swagger contract', () => {
   });
 
   describe('Tests for POST /api/auth/registration-confirmation end-point', () => {
-    it('status 204 - Email was verified. Account was activated', async () => {
-      const dto = userTestManager.getUserInputDto();
+    let userBefore: UserAccountDocument | null;
+    let dto: CreateUserInputDto;
 
+    beforeEach(async () => {
+      dto = userTestManager.getUserInputDto();
+
+      // * register user (creates user with isConfirmed=false)
       await userTestManager.registrationUser(dto);
 
-      const userBefore = await UserModel.findOne({ email: dto.email });
+      userBefore = await userTestManager.findUserByEmail(dto.email);
+    });
 
+    it('status 204 - Email was verified. Account was activated', async () => {
       expect(userBefore).toBeTruthy();
       expect(userBefore!.emailConfirmation.isConfirmed).toBe(false);
 
@@ -358,30 +314,19 @@ describe('Auth swagger contract', () => {
         code: userBefore!.emailConfirmation.confirmationCode!,
       });
 
-      const userAfter = await UserModel.findOne({ email: dto.email });
+      const userAfter = await userTestManager.findUserByEmail(dto.email);
 
       expect(userAfter).toBeTruthy();
       expect(userAfter!.emailConfirmation.isConfirmed).toBe(true);
     });
 
     it('status 400 - if incorrect code', async () => {
-      const dto = userTestManager.getUserInputDto();
-
-      await userTestManager.registrationUser(dto);
-
       const result = (await userTestManager.getConfirmRegistration(
         { code: 'WRONG_CODE' },
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            message: expect.any(String),
-            field: 'code',
-          }),
-        ]),
-      );
+      expectErrorField(result, 'code');
     });
 
     it('status 400 - if already applied', async () => {
@@ -394,23 +339,10 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            message: expect.any(String),
-            field: 'code',
-          }),
-        ]),
-      );
+      expectErrorField(result, 'code');
     });
 
     it('status 400 - if expired code', async () => {
-      const dto = userTestManager.getUserInputDto();
-
-      await userTestManager.registrationUser(dto);
-
-      const userBefore = await UserModel.findOne({ email: dto.email });
-
       // * make code expired
       await UserModel.updateOne(
         {
@@ -426,28 +358,17 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            message: expect.any(String),
-            field: 'code',
-          }),
-        ]),
-      );
+      expectErrorField(result, 'code');
     });
 
     it('status 204 - if after confirmation user can login', async () => {
-      const dto = userTestManager.getUserInputDto();
-
-      await userTestManager.registrationUser(dto);
-
       // * до подтверждения → 401
       await userTestManager.login(
         { loginOrEmail: dto.login, password: dto.password },
         HttpStatus.UNAUTHORIZED,
       );
 
-      const user = await UserModel.findOne({ email: dto.email });
+      const user = await userTestManager.findUserByEmail(dto.email);
 
       await userTestManager.getConfirmRegistration({
         code: user!.emailConfirmation.confirmationCode!,
@@ -509,9 +430,7 @@ describe('Auth swagger contract', () => {
       await userTestManager.getRecoveryPassword({ email: dto.email });
 
       // * проверяем что recoveryCode появился в БД
-      const dbUser = await UserModel.findOne({
-        email: dto.email,
-      });
+      const dbUser = await userTestManager.findUserByEmail(dto.email);
 
       expect(dbUser!.passwordRecovery.recoveryCode).toBeDefined();
       expect(dbUser!.passwordRecovery.recoveryCodeExpiry).toBeDefined();
@@ -537,9 +456,7 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([expect.objectContaining({ field: 'email' })]),
-      );
+      expectErrorField(result, 'email');
     });
 
     it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
@@ -555,9 +472,7 @@ describe('Auth swagger contract', () => {
       await userTestManager.getRecoveryPassword({ email: user.email });
 
       // * get recovery code from DB
-      const dbUser = await UserModel.findOne({
-        email: user.email,
-      });
+      const dbUser = await userTestManager.findUserByEmail(user.email);
 
       expect(dbUser).toBeTruthy();
       expect(dbUser!.passwordRecovery.recoveryCode).toBeTruthy();
@@ -596,14 +511,7 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
-      expect(result.errorsMessages).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            field: 'recoveryCode',
-            message: expect.any(String),
-          }),
-        ]),
-      );
+      expectErrorField(result, 'recoveryCode');
     });
 
     it('status 400 - if recoveryCode already used', async () => {
@@ -615,9 +523,7 @@ describe('Auth swagger contract', () => {
 
       await userTestManager.getRecoveryPassword({ email: dto.email });
 
-      const dbUser = await UserModel.findOne({
-        email: dto.email,
-      });
+      const dbUser = await userTestManager.findUserByEmail(dto.email);
 
       // * первый раз — 204
       await userTestManager.getNewPassword({
@@ -648,12 +554,18 @@ describe('Auth swagger contract', () => {
       },
       {
         name: 'newPassword length > 20 symbols',
-        payload: { recoveryCode: 'some-code', newPassword: 'a'.repeat(21) },
+        payload: {
+          recoveryCode: 'some-code',
+          newPassword: 'a'.repeat(passwordConstraints.maxLength + 1),
+        },
         field: 'newPassword',
       },
       {
         name: 'newPassword length < 6 symbols',
-        payload: { recoveryCode: 'some-code', newPassword: 'a'.repeat(5) },
+        payload: {
+          recoveryCode: 'some-code',
+          newPassword: 'a'.repeat(passwordConstraints.minLength - 1),
+        },
         field: 'newPassword',
       },
     ] as const)(
@@ -732,27 +644,27 @@ describe('Auth swagger contract', () => {
 
     // it.each([
     //   // * loginOrEmail validation
-    //   //   {
-    //   //     name: 'loginOrEmail length > 500 symbols',
-    //   //     payload: { ...testLoginDto, loginOrEmail: 'a'.repeat(501) },
-    //   //     field: 'loginOrEmail',
-    //   //   },
-    //   //   {
-    //   //     name: 'loginOrEmail length < 3 symbols',
-    //   //     payload: { ...testLoginDto, loginOrEmail: 'ab' },
-    //   //     field: 'loginOrEmail',
-    //   //   },
+    //   {
+    //     name: 'loginOrEmail length > 500 symbols',
+    //     payload: { loginOrEmail: 'a'.repeat(501) },
+    //     field: 'loginOrEmail',
+    //   },
+    //   {
+    //     name: 'loginOrEmail length < 3 symbols',
+    //     payload: { loginOrEmail: 'ab' },
+    //     field: 'loginOrEmail',
+    //   },
     //   // * password validation
-    //   //   {
-    //   //     name: 'password length > 20 symbols',
-    //   //     payload: { ...testLoginDto, password: 'a'.repeat(21) },
-    //   //     field: 'password',
-    //   //   },
-    //   //   {
-    //   //     name: 'password length < 6 symbols',
-    //   //     payload: { ...testLoginDto, password: 'abcde' },
-    //   //     field: 'password',
-    //   //   },
+    //   {
+    //     name: 'password length > 20 symbols',
+    //     payload: { password: 'a'.repeat(21) },
+    //     field: 'password',
+    //   },
+    //   {
+    //     name: 'password length < 6 symbols',
+    //     payload: { password: 'abcde' },
+    //     field: 'password',
+    //   },
     // ] as const)(
     //   'status 400 - fields validation errors)',
     //   async ({ payload, field }) => {

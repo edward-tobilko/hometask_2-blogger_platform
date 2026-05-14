@@ -62,7 +62,7 @@ export class UserAccount {
   passwordRecovery!: PasswordRecovery;
 
   private static buildBaseUserInstance(dto: CreateUserInterface) {
-    const user = new this(); // -> UserModel
+    const user = new this(); // -> UserAccountModel
 
     user.login = dto.login;
     user.email = dto.email;

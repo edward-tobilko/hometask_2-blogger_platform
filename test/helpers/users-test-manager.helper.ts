@@ -216,6 +216,10 @@ export class UserTestManager {
 
     return response.body;
   }
+
+  async findUserByEmail(email: string): Promise<UserAccountDocument | null> {
+    return this.userModel.findOne({ email });
+  }
 }
 
 // ? там где мы return unknown - потому что по контракту status = 204 (без тела), а так же безопастней чем any.
