@@ -27,7 +27,6 @@ export const errorFormatter = (
 
       // * перебираем нарушения одного вложеного поля (name). Одно поле может нарушать несколько правил одновременно (но у нас stopAtFirstError: true, поэтому будет максимум одно).
       for (const key of constrainKeys) {
-
         errorsForResponse.push({
           message: error.constraints[key]
             ? `${error.constraints[key]}; Received value: ${error?.value}` // -> blogId must be a mongodb id; Received value: 1
