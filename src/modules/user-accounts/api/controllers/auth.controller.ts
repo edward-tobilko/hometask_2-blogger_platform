@@ -19,6 +19,7 @@ import { CurrentUserFromRequest } from '../../guards/decorators/params/current-u
 import { LocalAuthGuard } from '../../guards/local/local-auth.guard';
 import { JwtAuthGuard } from '../../guards/bearer/jwt-auth.guard';
 import { UserSessionViewDto } from '../view-dto/user-session.view-dto';
+import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller(API_ROUTES.authorization)
 export class AuthController {
@@ -26,6 +27,16 @@ export class AuthController {
 
   // * POST: Try login user to the system.
   @Post('login')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        loginOrEmail: { type: 'string', example: 'string' },
+        password: { type: 'string', example: 'string' },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Try login user to the system.' })
   @HttpCode(HttpStatusCodes.OK_200)
   @UseGuards(LocalAuthGuard) // LocalAuthGuard запускает LocalStrategy.validate → кладёт { id } в req.user → контроллер берёт id и генерирует токен.
   login(@CurrentUserFromRequest() currentUser: { id: string }): {

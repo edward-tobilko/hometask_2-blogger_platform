@@ -8,7 +8,6 @@ import { UsersController } from './api/controllers/users.controller';
 import { UsersService } from './application/services/users.service';
 import { UsersRepository } from './infrastructure/repositories/users.repository';
 import { UsersQueryRepository } from './infrastructure/repositories/users-query.repository';
-import { UsersQueryService } from './application/services/users.query-service';
 import { UserAccount, UserAccountSchema } from './domain/entities/user.entity';
 import { AuthService } from './application/services/auth.service';
 import { LocalStrategy } from './guards/local/local.strategy';
@@ -17,6 +16,12 @@ import { CryptoService } from './application/services/crypto.service';
 import { NodeMailerService } from './infrastructure/external-services/mailer.external-service';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { BasicStrategy } from './guards/basic/basic.strategy';
+import { CreateUserUseCase } from './application/use-cases/admins/create-user.use-case';
+import { DeleteUserUseCase } from './application/use-cases/admins/delete-user.use-case';
+import { GetUsersListHandler } from './application/queries/get-users-list.query';
+
+const commandHandlers = [CreateUserUseCase, DeleteUserUseCase];
+const queryHandlers = [GetUsersListHandler];
 
 @Module({
   imports: [
@@ -41,8 +46,9 @@ import { BasicStrategy } from './guards/basic/basic.strategy';
   controllers: [UsersController, AuthController],
   providers: [
     // * services
+    ...commandHandlers,
+    ...queryHandlers,
     UsersService,
-    UsersQueryService,
     AuthService,
     CryptoService,
     NodeMailerService,
