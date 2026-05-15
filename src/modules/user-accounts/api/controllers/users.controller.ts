@@ -15,25 +15,30 @@ import {
   ApiParam,
   ApiResponse,
 } from '@nestjs/swagger';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
-import { UsersService } from 'src/modules/user-accounts/application/services/users.service';
 import { UserViewDto } from '../view-dto/user.view-dto';
 import { UsersQueryInputDto } from '../input-dto/users-query.input-dto';
-import { UsersQueryService } from 'src/modules/user-accounts/application/services/users.query-service';
 import { UsersPaginatedViewDto } from '../view-dto/users-paginated.view-dto';
 import { BasicAuthGuard } from '../../guards/basic/basic-auth.guard';
 import { IdValidationPipe } from 'src/core/pipes/object-id-validation-transformation.pipe';
+import { CreateUserCommand } from '../../application/use-cases/admins/create-user.use-case';
+import { DeleteUserCommand } from '../../application/use-cases/admins/delete-user.use-case';
+import { UserAccountDocument } from '../../domain/entities/user.entity';
+import { GetUsersListQuery } from '../../application/queries/get-users-list.query';
 
 @Controller(API_ROUTES.users)
 @UseGuards(BasicAuthGuard)
 @ApiBasicAuth('basicAuth')
 export class UsersController {
   constructor(
-    private usersService: UsersService,
-    private readonly usersQueryService: UsersQueryService,
-  ) {}
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus, // шина команд - сам находит нужный @CommandHandler и вызывает его execute
+  ) {
+    console.log('UsersController created');
+  }
 
   // * GET: Returns all users
   @Get()
@@ -46,7 +51,7 @@ export class UsersController {
   getUsersList(
     @Query() queries: UsersQueryInputDto,
   ): Promise<UsersPaginatedViewDto> {
-    return this.usersQueryService.getUsersList(queries);
+    return this.queryBus.execute(new GetUsersListQuery(queries));
   }
 
   // * POST: Add new user to the system
@@ -58,7 +63,10 @@ export class UsersController {
     type: UserViewDto,
   })
   async createUser(@Body() dto: CreateUserInputDto): Promise<UserViewDto> {
-    const userInstanceDoc = await this.usersService.createUser(dto);
+    const userInstanceDoc = await this.commandBus.execute<
+      CreateUserCommand,
+      UserAccountDocument
+    >(new CreateUserCommand(dto));
 
     const userOutput = UserViewDto.mapToViewModel(userInstanceDoc);
 
@@ -76,6 +84,8 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'If specified user is not exists' }) // if error
   @HttpCode(204)
   deleteUser(@Param('id', IdValidationPipe) id: string): Promise<void> {
-    return this.usersService.softDeleteUser(id);
+    return this.commandBus.execute<DeleteUserCommand>(
+      new DeleteUserCommand(id),
+    );
   }
 }
