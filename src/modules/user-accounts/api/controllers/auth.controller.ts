@@ -1,15 +1,18 @@
+import { ResendConfirmationEmailCommand } from './../../application/use-cases/users/resend-email-register.use-case';
 import {
   Body,
   Controller,
   Get,
   HttpCode,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Response } from 'express';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
-import { AuthService } from '../../application/services/auth.service';
 import { RegistrationConfirmInputDto } from '../input-dto/registration-confirm.input-dto';
 import { RegistrationEmailResendingInputDto } from '../input-dto/registration-email-resending.input-dto';
 import { PasswordRecoveryInputDto } from '../input-dto/password-recovery.input-dto';
@@ -19,60 +22,79 @@ import { CurrentUserFromRequest } from '../../guards/decorators/params/current-u
 import { LocalAuthGuard } from '../../guards/local/local-auth.guard';
 import { JwtAuthGuard } from '../../guards/bearer/jwt-auth.guard';
 import { UserSessionViewDto } from '../view-dto/user-session.view-dto';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { RegisterUserCommand } from '../../application/use-cases/users/register-user.use-case';
+import { ConfirmationRegistrationCommand } from '../../application/use-cases/users/confirm-register.use-case';
+import { PasswordRecoveryCommand } from '../../application/use-cases/users/password-recovery.use-case';
+import { NewPasswordCommand } from '../../application/use-cases/users/new-password.use-case';
+import { LoginCommand } from '../../application/use-cases/users/login.use-case';
+import { MeQuery } from '../../application/queries/me.query';
+import { ApiLoginSwagger } from '../../decorators/auth/swagger/login-swagger.decorator';
 
 @Controller(API_ROUTES.authorization)
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+  ) {}
 
-  // * POST: Try login user to the system.
+  @ApiLoginSwagger('Try login user to the system')
   @Post('login')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        loginOrEmail: { type: 'string', example: 'string' },
-        password: { type: 'string', example: 'string' },
-      },
-    },
-  })
-  @ApiOperation({ summary: 'Try login user to the system.' })
   @HttpCode(HttpStatusCodes.OK_200)
   @UseGuards(LocalAuthGuard) // LocalAuthGuard запускает LocalStrategy.validate → кладёт { id } в req.user → контроллер берёт id и генерирует токен.
-  login(@CurrentUserFromRequest() currentUser: { id: string }): {
+  async login(
+    @CurrentUserFromRequest() currentUser: { id: string },
+    @Res({ passthrough: true })
+    response: Response,
+  ): Promise<{
     accessToken: string;
-  } {
-    return this.authService.login(currentUser.id);
+  }> {
+    const { accessToken, refreshToken, expiresAt } =
+      await this.commandBus.execute<
+        LoginCommand,
+        { accessToken: string; refreshToken: string; expiresAt: number }
+      >(new LoginCommand(currentUser.id));
+
+    response.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: expiresAt,
+    });
+
+    return { accessToken };
   }
 
   // * POST: Password recovery via email confirmation. Email should be sent with RecoveryCode inside.
   @Post('password-recovery')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   passwordRecovery(@Body() dto: PasswordRecoveryInputDto): Promise<void> {
-    return this.authService.sendPasswordRecovery(dto.email);
+    return this.commandBus.execute(new PasswordRecoveryCommand(dto.email));
   }
 
   // * POST: Confirm password recovery.
   @Post('new-password')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   newPassword(@Body() dto: NewPassword): Promise<void> {
-    return this.authService.setNewPassword(dto);
+    return this.commandBus.execute(
+      new NewPasswordCommand(dto.newPassword, dto.recoveryCode),
+    );
   }
 
   // * POST: Confirm registration.
   @Post('registration-confirmation')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   confirmRegistration(@Body() dto: RegistrationConfirmInputDto): Promise<void> {
-    return this.authService.setConfirmRegister(dto.code);
+    return this.commandBus.execute(
+      new ConfirmationRegistrationCommand(dto.code),
+    );
   }
 
   // * POST: Registration in the system. Email with confirmation code will be send to passed email address.
   @Post('registration')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   registration(@Body() dto: CreateUserInputDto): Promise<void> {
-    const { login, password, email } = dto;
-
-    return this.authService.registerUser(login, password, email);
+    return this.commandBus.execute(new RegisterUserCommand(dto));
   }
 
   // * POST: Resend confirmation registration  email if user exist.
@@ -81,7 +103,9 @@ export class AuthController {
   registrationEmailResending(
     @Body() dto: RegistrationEmailResendingInputDto,
   ): Promise<void> {
-    return this.authService.resendConfirmationEmail(dto.email);
+    return this.commandBus.execute(
+      new ResendConfirmationEmailCommand(dto.email),
+    );
   }
 
   // * GET: Get info about current user.
@@ -90,6 +114,6 @@ export class AuthController {
   me(
     @CurrentUserFromRequest() currentUser: { id: string },
   ): Promise<UserSessionViewDto> {
-    return this.authService.getMe(currentUser.id);
+    return this.queryBus.execute(new MeQuery(currentUser.id));
   }
 }

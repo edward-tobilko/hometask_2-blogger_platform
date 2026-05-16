@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
 
 import { UsersController } from './api/controllers/users.controller';
 import { UsersService } from './application/services/users.service';
@@ -19,12 +20,31 @@ import { BasicStrategy } from './guards/basic/basic.strategy';
 import { CreateUserUseCase } from './application/use-cases/admins/create-user.use-case';
 import { DeleteUserUseCase } from './application/use-cases/admins/delete-user.use-case';
 import { GetUsersListHandler } from './application/queries/get-users-list.query';
+import { RegisterUserUseCase } from './application/use-cases/users/register-user.use-case';
+import { ConfirmationRegistrationUseCase } from './application/use-cases/users/confirm-register.use-case';
+import { ResendConfirmationEmailUseCase } from './application/use-cases/users/resend-email-register.use-case';
+import { PasswordRecoveryUseCase } from './application/use-cases/users/password-recovery.use-case';
+import { NewPasswordUseCase } from './application/use-cases/users/new-password.use-case';
+import { LoginUseCase } from './application/use-cases/users/login.use-case';
+import { MeUseCase } from './application/queries/me.query';
 
-const commandHandlers = [CreateUserUseCase, DeleteUserUseCase];
-const queryHandlers = [GetUsersListHandler];
+const queryHandlers = [GetUsersListHandler, MeUseCase];
+
+const commandHandlers = [
+  CreateUserUseCase,
+  DeleteUserUseCase,
+  RegisterUserUseCase,
+  ConfirmationRegistrationUseCase,
+  ResendConfirmationEmailUseCase,
+  PasswordRecoveryUseCase,
+  NewPasswordUseCase,
+  LoginUseCase,
+];
 
 @Module({
   imports: [
+    CqrsModule,
+
     MongooseModule.forFeature([
       { name: UserAccount.name, schema: UserAccountSchema }, // UserAccount.name = token по которому мы его инжектируем в наши сервисы / репо
     ]),
@@ -32,6 +52,7 @@ const queryHandlers = [GetUsersListHandler];
     JwtModule.registerAsync({
       inject: [ConfigService],
 
+      // сетаем конфигы для access token
       useFactory: (config: ConfigService) => ({
         secret: config.get('AT_SECRET'),
         signOptions: {

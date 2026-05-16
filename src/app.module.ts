@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { CqrsModule } from '@nestjs/cqrs';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,8 +17,6 @@ import { throttlerModule } from './config/throttler.module';
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
   imports: [
-    CqrsModule,
-
     configModule,
 
     // MongooseModule.forRoot('mongodb://localhost/nest'), // forRoot - синхронный метод (для простых кейсов, без настройки путей)
