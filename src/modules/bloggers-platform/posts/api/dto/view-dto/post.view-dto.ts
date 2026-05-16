@@ -6,7 +6,8 @@ import { PostDocument, PostLean } from '../../../domain/entities/post.entity';
 // * newestLikes: Array<{ ← анонимный объект внутри анонимного объекта
 // * addedAt: string;
 // * userId: string;
-// * login: string;}>
+// * login: string;
+// * }>
 
 class NewestLikeViewModel {
   addedAt!: string;

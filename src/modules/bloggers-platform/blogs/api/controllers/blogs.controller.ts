@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
@@ -28,6 +29,7 @@ import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
@@ -46,6 +48,7 @@ export class BlogsController {
 
   // * POST: Create new blog
   @Post()
+  @UseGuards(BasicAuthGuard)
   async createBlog(
     @Body()
     createBlogDto: CreateBlogDto,
@@ -66,6 +69,7 @@ export class BlogsController {
 
   // * POST: Create new post for specific blog
   @Post(':blogId/posts')
+  @UseGuards(BasicAuthGuard)
   async createPostForBlog(
     @Param() params: BlogIdForPostsParamDto,
     @Body()
@@ -94,6 +98,7 @@ export class BlogsController {
 
   // * PUT: Update existing blog by id with input model
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async updateBlog(
     @Param() params: BlogIdParamDto,
@@ -105,6 +110,7 @@ export class BlogsController {
 
   // * DELETE: Delete blog specified by id
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async deleteBlog(@Param() params: BlogIdParamDto): Promise<void> {
     await this.blogsService.deleteBlog(params.id);
