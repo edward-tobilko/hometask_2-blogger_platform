@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
@@ -28,6 +29,7 @@ import { PostsQueryDto } from '../dto/input-dto/posts-query.input-dto';
 import { UpdatePostDto } from '../dto/input-dto/update-post.input-dto';
 import { PostIdParamDto } from '../dto/input-dto/post-id.input-dto';
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
+import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -59,6 +61,7 @@ export class PostsController {
 
   // * POST: Create new post
   @Post()
+  @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
     const postDoc = await this.postsService.createPost(dto);
 
@@ -75,6 +78,7 @@ export class PostsController {
 
   // * PUT: Update existing post by id with input model
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   updatePost(
     @Param() params: IdParamDto,
@@ -85,6 +89,7 @@ export class PostsController {
 
   // * DELETE: Delete post specified by id
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   deletePost(@Param() params: IdParamDto): Promise<void> {
     return this.postsService.deletePost(params.id);
