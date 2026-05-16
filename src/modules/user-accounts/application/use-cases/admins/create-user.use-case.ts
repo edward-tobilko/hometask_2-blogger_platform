@@ -11,6 +11,7 @@ import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
 
+// * CreateUserCommand - просто хранение данных в команде. Никакой логики, только данные. Просто контейнер для переноса данных от контроллера к use case.
 export class CreateUserCommand {
   constructor(public dto: CreateUserInputDto) {}
 }
@@ -38,8 +39,8 @@ export class CreateUserUseCase implements ICommandHandler<
     try {
       return await this.usersRepo.createByAdmin(domainDto);
     } catch (error: unknown) {
+      // * эта проверка нужно для теста: парсим поле из ошибки MongoDB (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
       if (error instanceof Error && 'code' in error && error.code === 11000) {
-        // * эта проверка нужно для теста: парсим поле из ошибки MongoDB (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
         const duplicatedField =
           'keyValue' in error && error.keyValue != null
             ? Object.keys(error.keyValue as object)[0]
@@ -61,3 +62,11 @@ export class CreateUserUseCase implements ICommandHandler<
     }
   }
 }
+
+// ? @CommandHandler(CreateUserCommand) - связка.
+
+// ? CreateUserUseCase - обработчик именно CreateUserCommand.
+
+// ? CommandBus в контроллере внутри себя ведёт реестр: команда → обработчик. Когда прилетает CreateUserCommand, шина находит CreateUserUseCase и вызывает его execute().
+
+// ? ICommandHandler<Command, Result> — контракт: первый generic Command — тип команды, которую принимает execute, а второй generic Result — тип того, что execute вернёт.
