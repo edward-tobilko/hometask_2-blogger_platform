@@ -10,33 +10,33 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { PostsService } from 'src/modules/bloggers-platform/posts/application/services/posts.service';
 import { CreatePostDto } from '../dto/input-dto/create-post.input-dto';
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
-import { PostsQueryService } from 'src/modules/bloggers-platform/posts/application/services/posts-query.service';
 import { PostViewModel } from '../dto/view-dto/post.view-dto';
-import {
-  Comment,
-  CommentModel,
-} from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
 import { IdParamDto } from 'src/core/dto/param.dto';
 import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
 import { PostsPaginatedViewModel } from '../dto/view-dto/posts-paginated.view-dto';
 import { PostsQueryDto } from '../dto/input-dto/posts-query.input-dto';
 import { UpdatePostDto } from '../dto/input-dto/update-post.input-dto';
 import { PostIdParamDto } from '../dto/input-dto/post-id.input-dto';
-import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
+import { CreateCommentInputDto } from '../dto/input-dto/create-comment.input-dto';
+import { GetPostByIdQuery } from '../../application/queries/get-post-by-id.query';
+import { GetPostsListQuery } from '../../application/queries/get-posts-list.query';
+import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-postid.query';
+import { CreateCommentCommand } from '../../application/use-cases/create-comment.use-case';
+import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
+import { CurrentUserFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
   constructor(
-    @InjectModel(Comment.name) private commentModel: CommentModel,
+    private queryBus: QueryBus,
+    private commandBus: CommandBus,
     private postsService: PostsService,
-    private readonly postsQueryService: PostsQueryService,
   ) {}
 
   // * GET: Returns comments for specified post
@@ -45,9 +45,21 @@ export class PostsController {
     @Param() params: PostIdParamDto,
     @Query() queryParams: PostsQueryDto,
   ): Promise<CommentsPaginatedViewModel> {
-    return this.postsQueryService.getCommentsForPost(
-      params.postId,
-      queryParams,
+    return this.queryBus.execute(
+      new GetCommentByPostIdQuery(params.postId, queryParams),
+    );
+  }
+
+  // * POST: Create new comment.
+  @Post(':postId/comments')
+  @UseGuards(JwtAuthGuard)
+  createComment(
+    @Param() params: PostIdParamDto,
+    @Body() dto: CreateCommentInputDto,
+    @CurrentUserFromRequest() currentUser: { id: string },
+  ) {
+    return this.commandBus.execute(
+      new CreateCommentCommand(params.postId, dto.content, currentUser.id),
     );
   }
 
@@ -56,7 +68,7 @@ export class PostsController {
   getPostsList(
     @Query() queryParams: PostsQueryDto,
   ): Promise<PostsPaginatedViewModel> {
-    return this.postsQueryService.getPostsList(queryParams);
+    return this.queryBus.execute(new GetPostsListQuery(queryParams));
   }
 
   // * POST: Create new post
@@ -73,7 +85,7 @@ export class PostsController {
   // * GET: Return post by id
   @Get(':id')
   getPostById(@Param() params: IdParamDto): Promise<PostViewModel | null> {
-    return this.postsQueryService.getPostById(params.id);
+    return this.queryBus.execute(new GetPostByIdQuery(params.id));
   }
 
   // * PUT: Update existing post by id with input model
@@ -93,27 +105,5 @@ export class PostsController {
   @HttpCode(204)
   deletePost(@Param() params: IdParamDto): Promise<void> {
     return this.postsService.deletePost(params.id);
-  }
-
-  // * tests ================================================================
-
-  @Post(':postId/comments')
-  async createComment(
-    @Param() params: PostIdParamDto,
-    @Body('content') content: string,
-  ) {
-    const post = await this.postsQueryService.getPostById(params.postId);
-
-    const comment = await this.commentModel.create({
-      content,
-      postId: new Types.ObjectId(post!.id),
-      commentatorInfo: { userId: 'test-user-id', userLogin: 'test-user-login' },
-      likesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-      },
-    });
-
-    return CommentViewModel.mapToViewModel(comment);
   }
 }

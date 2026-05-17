@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CqrsModule } from '@nestjs/cqrs';
 
 import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
 import { Post, PostSchema } from './posts/domain/entities/post.entity';
@@ -16,29 +17,47 @@ import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repos
 import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
 import { PostsService } from './posts/application/services/posts.service';
 import { PostsRepository } from './posts/infrastructure/repositories/posts.repository';
-import { PostsQueryService } from './posts/application/services/posts-query.service';
 import { PostsQueryRepository } from './posts/infrastructure/repositories/posts-query.repository';
 import { CommentsQueryService } from './comments/application/services/comments-query.services';
 import { CommentsQueryRepository } from './comments/infrastructure/repositories/comments-query.repository';
+import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query';
+import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
+import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
+import { CreateCommentUseCase } from './posts/application/use-cases/create-comment.use-case';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module';
+
+const queryHandlers = [
+  GetPostByIdQueryHandler,
+  GetPostsListQueryHandler,
+  GetCommentByPostIdQueryHandler,
+];
+
+const commandHandlers = [CreateCommentUseCase];
 
 @Module({
   imports: [
+    CqrsModule,
+
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
     ]),
+
+    UserAccountsModule,
   ],
 
   controllers: [BlogsController, PostsController, CommentController],
   providers: [
+    ...queryHandlers,
+    ...commandHandlers,
+
     BlogsService,
     BlogsQueryService,
     BlogsRepository,
     BlogsQueryRepository,
 
     PostsService,
-    PostsQueryService,
     PostsRepository,
     PostsQueryRepository,
 

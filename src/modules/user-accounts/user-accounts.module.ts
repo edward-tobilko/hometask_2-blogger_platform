@@ -27,6 +27,7 @@ import { PasswordRecoveryUseCase } from './application/use-cases/users/password-
 import { NewPasswordUseCase } from './application/use-cases/users/new-password.use-case';
 import { LoginUseCase } from './application/use-cases/users/login.use-case';
 import { MeUseCase } from './application/queries/me.query';
+import { UsersExternalQueryRepository } from './infrastructure/external-query/users.external-query-repo';
 
 const queryHandlers = [GetUsersListHandler, MeUseCase];
 
@@ -82,8 +83,11 @@ const commandHandlers = [
     LocalStrategy,
     JwtStrategy,
     BasicStrategy,
+
+    // * externals
+    UsersExternalQueryRepository,
   ],
 
-  exports: [],
+  exports: [UsersExternalQueryRepository],
 })
 export class UserAccountsModule {}
