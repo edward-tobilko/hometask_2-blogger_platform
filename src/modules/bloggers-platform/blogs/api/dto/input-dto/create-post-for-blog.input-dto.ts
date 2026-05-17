@@ -1,9 +1,9 @@
-import {
-  contentConstraints,
-  shortDescriptionConstraints,
-  titleConstraints,
-} from 'src/core/constants/constraints.constants';
 import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
+import {
+  titleConstraints,
+  shortDescriptionConstraints,
+  contentConstraints,
+} from 'src/modules/bloggers-platform/posts/constraints/posts/posts.constraints';
 
 // * DTO model - response for db
 export class CreatePostForBlogDto {

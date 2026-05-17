@@ -74,3 +74,10 @@ The `appConfig` object in `src/core/settings/config.ts` is the single source of 
 - **Unit tests** live in `src/__tests__/unit/`, match `*.unit.(spec|test).ts`, run fast in parallel.
 - **E2E tests** live in `src/__tests__/e2e/`, run sequentially (`maxWorkers: 1`) against a real test-database, use Supertest. Shared test helpers live in `src/__tests__/e2e/utils/`.
 - E2E tests require a running MongoDB instance pointed to by `.env.test.local`.
+
+  ## Working style
+
+  The user writes ALL code independently. Claude MUST NOT write, edit, or create any project files.  
+  Claude's only role: point to the exact file + line + explain what to change and why.
+  Before suggesting any solution, read the relevant code first, then propose the most architecturally correct approach with  
+  trade-offs explained.
