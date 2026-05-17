@@ -5,18 +5,14 @@ export class UserExternalViewDto {
   login!: string;
   email!: string;
   createdAt!: Date;
-  firstName!: string;
-  lastName!: string | null;
 
   static mapToView(user: UserAccountDocument): UserExternalViewDto {
     const dto = new UserExternalViewDto();
 
-    dto.email = user.email;
-    dto.login = user.login;
     dto.id = user._id.toString();
+    dto.login = user.login;
+    dto.email = user.email;
     dto.createdAt = user.createdAt;
-    dto.firstName = user.fullName.firstName;
-    dto.lastName = user.fullName.lastName;
 
     return dto;
   }

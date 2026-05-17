@@ -16,8 +16,6 @@ export class CommentViewModel {
   id!: string;
   content!: string;
 
-  postId!: string;
-
   commentatorInfo!: CommentatorInfo;
 
   createdAt!: string;
