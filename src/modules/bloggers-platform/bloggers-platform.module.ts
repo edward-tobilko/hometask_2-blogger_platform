@@ -12,7 +12,6 @@ import { BlogsController } from './blogs/api/controllers/blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentController } from './comments/api/controllers/comment.controller';
 import { BlogsService } from './blogs/application/services/blogs.service';
-import { BlogsQueryService } from './blogs/application/services/blogs.query-service';
 import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
 import { PostsService } from './posts/application/services/posts.service';
@@ -25,14 +24,28 @@ import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-
 import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
 import { CreateCommentUseCase } from './posts/application/use-cases/create-comment.use-case';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
+import { CommentsRepository } from './comments/infrastructure/repositories/comments.repo';
+import { BlogsExternalQueryRepository } from './blogs/infrastructure/external-query/blogs.external-query-repo';
+import { CreatePostUseCase } from './posts/application/use-cases/create-post.use-case';
+import { UpdatePostByIdUseCase } from './posts/application/use-cases/update-post.use-case';
+import { DeletePostByIdUseCase } from './posts/application/use-cases/delete-post.use-case';
+import { GetBlogsListQueryHandler } from './blogs/application/queries/get-blogs-list.query';
+import { GetPostsForBlogQueryHandler } from './blogs/application/queries/get-posts-for-blog.query';
 
 const queryHandlers = [
   GetPostByIdQueryHandler,
   GetPostsListQueryHandler,
   GetCommentByPostIdQueryHandler,
+  GetBlogsListQueryHandler,
+  GetPostsForBlogQueryHandler,
 ];
 
-const commandHandlers = [CreateCommentUseCase];
+const commandHandlers = [
+  CreateCommentUseCase,
+  CreatePostUseCase,
+  UpdatePostByIdUseCase,
+  DeletePostByIdUseCase,
+];
 
 @Module({
   imports: [
@@ -53,9 +66,9 @@ const commandHandlers = [CreateCommentUseCase];
     ...commandHandlers,
 
     BlogsService,
-    BlogsQueryService,
     BlogsRepository,
     BlogsQueryRepository,
+    BlogsExternalQueryRepository,
 
     PostsService,
     PostsRepository,
@@ -63,6 +76,7 @@ const commandHandlers = [CreateCommentUseCase];
 
     CommentsQueryService,
     CommentsQueryRepository,
+    CommentsRepository,
   ],
 })
 export class BloggersPlatformModule {}

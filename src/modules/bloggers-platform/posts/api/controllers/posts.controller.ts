@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
-import { PostsService } from 'src/modules/bloggers-platform/posts/application/services/posts.service';
 import { CreatePostDto } from '../dto/input-dto/create-post.input-dto';
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { PostViewModel } from '../dto/view-dto/post.view-dto';
@@ -30,13 +29,16 @@ import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-b
 import { CreateCommentCommand } from '../../application/use-cases/create-comment.use-case';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
 import { CurrentUserFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
+import { CreatePostCommand } from '../../application/use-cases/create-post.use-case';
+import { PostDocument } from '../../domain/entities/post.entity';
+import { UpdatePostByIdCommand } from '../../application/use-cases/update-post.use-case';
+import { DeletePostByIdCommand } from '../../application/use-cases/delete-post.use-case';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
   constructor(
     private queryBus: QueryBus,
     private commandBus: CommandBus,
-    private postsService: PostsService,
   ) {}
 
   // * GET: Returns comments for specified post
@@ -75,7 +77,10 @@ export class PostsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
-    const postDoc = await this.postsService.createPost(dto);
+    const postDoc = await this.commandBus.execute<
+      CreatePostCommand,
+      PostDocument
+    >(new CreatePostCommand(dto));
 
     const postOutput = PostViewModel.mapToViewModel(postDoc);
 
@@ -96,7 +101,9 @@ export class PostsController {
     @Param() params: IdParamDto,
     @Body() dto: UpdatePostDto,
   ): Promise<void> {
-    return this.postsService.updatePost(params.id, dto);
+    return this.commandBus.execute<UpdatePostByIdCommand>(
+      new UpdatePostByIdCommand(params.id, dto),
+    );
   }
 
   // * DELETE: Delete post specified by id
@@ -104,6 +111,6 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   deletePost(@Param() params: IdParamDto): Promise<void> {
-    return this.postsService.deletePost(params.id);
+    return this.commandBus.execute(new DeletePostByIdCommand(params.id));
   }
 }

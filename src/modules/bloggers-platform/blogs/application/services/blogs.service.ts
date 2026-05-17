@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { PostDocument } from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
 import { PostsService } from 'src/modules/bloggers-platform/posts/application/services/posts.service';
-import { CreatePostDomainDto } from 'src/modules/bloggers-platform/posts/domain/dto/create-post.domain-dto';
 import { BlogsRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/repositories/blogs.repository';
 import {
   Blog,
   BlogDocument,
   BlogModelType,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
-import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/create-post-for-blog.input-dto';
 import { CreateBlogDomainDto } from '../../domain/dto/create-blog.domain-dto';
 import { UpdateBlogDomainDto } from '../../domain/dto/update-blog.domain-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
@@ -37,33 +34,33 @@ export class BlogsService {
     return createdBlog;
   }
 
-  async createPostForBlog(
-    blogId: string,
-    dto: CreatePostForBlogDto,
-  ): Promise<PostDocument> {
-    // * find blog
-    const blogInstance = await this.blogsRepo.findById(blogId);
+  // async createPostForBlog(
+  //   blogId: string,
+  //   dto: CreatePostForBlogDto,
+  // ): Promise<PostDocument> {
+  //   // * find blog
+  //   const blogInstance = await this.blogsRepo.findById(blogId);
 
-    if (!blogInstance)
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `This blog with ID:${blogId} was not found`,
-      });
+  //   if (!blogInstance)
+  //     throw new DomainException({
+  //       code: DomainExceptionCode.NotFound,
+  //       message: `This blog with ID:${blogId} was not found`,
+  //     });
 
-    // * create domain post
-    const domainPost: CreatePostDomainDto & { blogName: string } = {
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId,
-      blogName: blogInstance.name,
-    };
+  //   // * create domain post
+  //   const domainPost: CreatePostDomainDto & { blogName: string } = {
+  //     title: dto.title,
+  //     shortDescription: dto.shortDescription,
+  //     content: dto.content,
+  //     blogId,
+  //     blogName: blogInstance.name,
+  //   };
 
-    // * get post from post service
-    const post = await this.postsService.createPost(domainPost);
+  //   // * get post from post service
+  //   const post = await this.postsService.createPost(domainPost);
 
-    return post;
-  }
+  //   return post;
+  // }
 
   async updateBlog(
     blogId: string,
