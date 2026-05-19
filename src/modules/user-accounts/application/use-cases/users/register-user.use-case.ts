@@ -5,7 +5,7 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
+import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
 import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
@@ -47,10 +47,10 @@ export class RegisterUserUseCase implements ICommandHandler<
 
     const passwordHash = await this.cryptoService.generateHash(dto.password);
 
-    const domainDto: CreateUserInterface = {
+    const domainDto: CreateUserDomainDto = {
       login: dto.login,
       email: dto.email,
-      passwordHash,
+      password: passwordHash,
     };
 
     try {

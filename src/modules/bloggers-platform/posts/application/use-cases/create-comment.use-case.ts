@@ -38,7 +38,7 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
 
     const user = await this.externalUsersRepo.getByIdOrNotFoundFail(userId);
 
-    const commentDoc = await this.commentsRepo.createComment(
+    const commentDoc = await this.commentsRepo.create(
       postId,
       content,
       user.id,

@@ -1,15 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { UpdatePostDto } from '../../api/dto/input-dto/update-post.input-dto';
 import { PostDocument } from '../../domain/entities/post.entity';
 import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { UpdatePostDomainDto } from '../../domain/dto/update-post.domain-dto';
 
 export class UpdatePostByIdCommand {
   constructor(
     public id: string,
-    public dto: UpdatePostDto,
+    public dto: UpdatePostDomainDto,
   ) {}
 }
 

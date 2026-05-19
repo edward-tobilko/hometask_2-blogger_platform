@@ -17,7 +17,7 @@ import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.
 import { PostsService } from './posts/application/services/posts.service';
 import { PostsRepository } from './posts/infrastructure/repositories/posts.repository';
 import { PostsQueryRepository } from './posts/infrastructure/repositories/posts-query.repository';
-import { CommentsQueryService } from './comments/application/services/comments-query.services';
+import { GetCommentByIdQuery } from './comments/application/queries/comments-query.services';
 import { CommentsQueryRepository } from './comments/infrastructure/repositories/comments-query.repository';
 import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query';
 import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
@@ -31,20 +31,39 @@ import { UpdatePostByIdUseCase } from './posts/application/use-cases/update-post
 import { DeletePostByIdUseCase } from './posts/application/use-cases/delete-post.use-case';
 import { GetBlogsListQueryHandler } from './blogs/application/queries/get-blogs-list.query';
 import { GetPostsForBlogQueryHandler } from './blogs/application/queries/get-posts-for-blog.query';
+import { CreateBlogUseCase } from './blogs/application/use-cases/create-blog.use-case';
+import { UpdateBlogUseCase } from './blogs/application/use-cases/update-blog.use-case';
+import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use-case';
+import { UpdateCommentByIdUseCase } from './comments/application/use-cases/update-comment.use-case';
 
 const queryHandlers = [
+  // * Blogs contract
+  GetBlogsListQueryHandler,
+  GetPostsForBlogQueryHandler,
+
+  // * Posts contract
   GetPostByIdQueryHandler,
   GetPostsListQueryHandler,
   GetCommentByPostIdQueryHandler,
-  GetBlogsListQueryHandler,
-  GetPostsForBlogQueryHandler,
+
+  // * Comments contract
+  GetCommentByIdQuery,
 ];
 
 const commandHandlers = [
-  CreateCommentUseCase,
+  // * Blogs contract
+  CreateBlogUseCase,
+  UpdateBlogUseCase,
+  DeleteBlogUseCase,
+
+  // * Posts contract
   CreatePostUseCase,
   UpdatePostByIdUseCase,
   DeletePostByIdUseCase,
+  CreateCommentUseCase,
+
+  // * Comments contract
+  UpdateCommentByIdUseCase,
 ];
 
 @Module({
@@ -74,7 +93,6 @@ const commandHandlers = [
     PostsRepository,
     PostsQueryRepository,
 
-    CommentsQueryService,
     CommentsQueryRepository,
     CommentsRepository,
   ],

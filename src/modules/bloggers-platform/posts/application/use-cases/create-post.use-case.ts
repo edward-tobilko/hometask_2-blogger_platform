@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { CreatePostDto } from '../../api/dto/input-dto/create-post.input-dto';
 import {
   Post,
   PostDocument,
@@ -11,9 +10,10 @@ import { PostsRepository } from '../../infrastructure/repositories/posts.reposit
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { BlogsExternalQueryRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/external-query/blogs.external-query-repo';
+import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
 
 export class CreatePostCommand {
-  constructor(public dto: CreatePostDto) {}
+  constructor(public dto: CreatePostDomainDto) {}
 }
 
 @CommandHandler(CreatePostCommand)

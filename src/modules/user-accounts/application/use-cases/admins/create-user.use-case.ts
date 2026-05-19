@@ -5,15 +5,14 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
 import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
-import { CreateUserInterface } from 'src/modules/user-accounts/domain/interfaces/create-user-interface';
+import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
 
 // * CreateUserCommand - просто хранение данных в команде. Никакой логики, только данные. Просто контейнер для переноса данных от контроллера к use case.
 export class CreateUserCommand {
-  constructor(public dto: CreateUserInputDto) {}
+  constructor(public dto: CreateUserDomainDto) {}
 }
 
 @CommandHandler(CreateUserCommand)
@@ -29,10 +28,10 @@ export class CreateUserUseCase implements ICommandHandler<
   async execute({ dto }: CreateUserCommand): Promise<UserAccountDocument> {
     const passwordHash = await this.cryptoService.generateHash(dto.password);
 
-    const domainDto: CreateUserInterface = {
+    const domainDto: CreateUserDomainDto = {
       login: dto.login,
       email: dto.email,
-      passwordHash,
+      password: passwordHash,
     };
 
     // * проверка для создания юзера с однаковым login or email, так как у нас индексация по login / email в БД, а обьекты целиком не удалены с БД, а только позначены как deletedAt.
