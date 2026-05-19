@@ -7,6 +7,7 @@ import {
   CommentatorInfoSchema,
 } from './commentator-info.entity';
 import { LikesInfoSchema } from '../schemas/likes-info.schema';
+import { UpdateCommentDomainDto } from '../dto/update-comment.dto';
 
 @Schema({ timestamps: true })
 export class Comment {
@@ -30,6 +31,10 @@ export class Comment {
     likesCount: number;
     dislikesCount: number;
   };
+
+  updateComment(dto: UpdateCommentDomainDto): void {
+    this.content = dto.content;
+  }
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

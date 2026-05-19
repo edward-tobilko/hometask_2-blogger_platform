@@ -30,3 +30,9 @@ export const websiteUrlConstraints = {
   maxLength: 100,
   match: /^https:\/\/.+/i,
 };
+
+// * Comments
+export const contentConstraints = {
+  minLength: 20,
+  maxLength: 300,
+};

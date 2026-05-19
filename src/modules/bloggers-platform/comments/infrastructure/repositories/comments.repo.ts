@@ -12,7 +12,15 @@ import {
 export class CommentsRepository {
   constructor(@InjectModel(Comment.name) private commentModel: CommentModel) {}
 
-  async createComment(
+  async findById(commentId: string): Promise<CommentDocument | null> {
+    return this.commentModel.findById(commentId).exec();
+  }
+
+  async save(commentInstance: CommentDocument): Promise<void> {
+    await commentInstance.save();
+  }
+
+  async create(
     postId: string,
     content: string,
     userId: string,

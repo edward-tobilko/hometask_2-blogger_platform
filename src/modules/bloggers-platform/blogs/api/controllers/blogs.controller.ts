@@ -10,20 +10,19 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { QueryBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateBlogDto } from '../dto/input-dto/create-blog.input-dto';
 import { BlogViewModel } from '../dto/view-dto/blog.view-dto';
-// import { CreatePostForBlogDto } from '../dto/input-dto/create-post-for-blog.input-dto';
+import { CreatePostForBlogDto } from '../dto/input-dto/create-post-for-blog.input-dto';
 import {
   BlogIdForPostsParamDto,
   BlogIdParamDto,
 } from '../dto/input-dto/blog-params.input-dto';
 import { UpdateBlogDto } from '../dto/input-dto/update-blog.input-dto';
-// import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
+import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import { BlogsQueryDto } from '../dto/input-dto/blogs-query.input-dto';
-import { BlogsService } from 'src/modules/bloggers-platform/blogs/application/services/blogs.service';
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
@@ -31,12 +30,18 @@ import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-aut
 import { GetBlogsListQuery } from '../../application/queries/get-blogs-list.query';
 import { GetBlogByIdQuery } from '../../application/queries/get-blog.use-case';
 import { GetPostsForBlogQuery } from '../../application/queries/get-posts-for-blog.query';
+import { CreateBlogCommand } from '../../application/use-cases/create-blog.use-case';
+import { BlogDocument } from '../../domain/entities/blog.entity';
+import { UpdateBlogCommand } from '../../application/use-cases/update-blog.use-case';
+import { DeleteBlogCommand } from '../../application/use-cases/delete-blog.use-case';
+import { CreatePostCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/create-post.use-case';
+import { PostDocument } from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
   constructor(
-    private blogsService: BlogsService,
     private queryBus: QueryBus,
+    private commandBus: CommandBus,
   ) {}
 
   // * GET: Returns blogs with paging
@@ -54,7 +59,10 @@ export class BlogsController {
     @Body()
     createBlogDto: CreateBlogDto,
   ): Promise<BlogViewModel> {
-    const createdBlogDoc = await this.blogsService.createBlog(createBlogDto);
+    const createdBlogDoc = await this.commandBus.execute<
+      CreateBlogCommand,
+      BlogDocument
+    >(new CreateBlogCommand(createBlogDto));
 
     return BlogViewModel.mapToViewModel(createdBlogDoc);
   }
@@ -70,20 +78,22 @@ export class BlogsController {
     );
   }
 
-  // // * POST: Create new post for specific blog
-  // @Post(':blogId/posts')
-  // @UseGuards(BasicAuthGuard)
-  // async createPostForBlog(
-  //   @Param() params: BlogIdForPostsParamDto,
-  //   @Body()
-  //   dto: CreatePostForBlogDto,
-  // ): Promise<PostViewModel> {
-  //   const post = await this.blogsService.createPostForBlog(params.blogId, dto);
+  // * POST: Create new post for specific blog
+  @Post(':blogId/posts')
+  @UseGuards(BasicAuthGuard)
+  async createPostForBlog(
+    @Param() params: BlogIdForPostsParamDto,
+    @Body()
+    dto: CreatePostForBlogDto,
+  ): Promise<PostViewModel> {
+    const post = await this.commandBus.execute<CreatePostCommand, PostDocument>(
+      new CreatePostCommand({ ...dto, blogId: params.blogId }), // делегируем создания поста с энд-поинта "posts"
+    );
 
-  //   const postOutput = PostViewModel.mapToViewModel(post);
+    const postOutput = PostViewModel.mapToViewModel(post);
 
-  //   return postOutput;
-  // }
+    return postOutput;
+  }
 
   // * GET: Returns blog by id
   @Get(':id') // = /blogs:id
@@ -100,7 +110,9 @@ export class BlogsController {
     @Body()
     updateBlogDto: UpdateBlogDto,
   ): Promise<void> {
-    await this.blogsService.updateBlog(params.id, updateBlogDto);
+    await this.commandBus.execute(
+      new UpdateBlogCommand(params.id, updateBlogDto),
+    );
   }
 
   // * DELETE: Delete blog specified by id
@@ -108,6 +120,6 @@ export class BlogsController {
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async deleteBlog(@Param() params: BlogIdParamDto): Promise<void> {
-    await this.blogsService.deleteBlog(params.id);
+    await this.commandBus.execute(new DeleteBlogCommand(params.id));
   }
 }

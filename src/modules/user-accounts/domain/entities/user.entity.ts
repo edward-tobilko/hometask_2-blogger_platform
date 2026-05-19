@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model, Types } from 'mongoose';
 import { randomUUID } from 'crypto';
 
-import { CreateUserInterface } from '../interfaces/create-user-interface';
+import { CreateUserDomainDto } from '../dto/create-user.dto';
 import { FullName, FullNameSchema } from './full-name.entity';
 import {
   EmailConfirmation,
@@ -61,17 +61,17 @@ export class UserAccount {
   @Prop({ type: PasswordRecoverySchema })
   passwordRecovery!: PasswordRecovery;
 
-  private static buildBaseUserInstance(dto: CreateUserInterface) {
+  private static buildBaseUserInstance(dto: CreateUserDomainDto) {
     const user = new this(); // -> UserAccountModel
 
     user.login = dto.login;
     user.email = dto.email;
-    user.passwordHash = dto.passwordHash;
+    user.passwordHash = dto.password;
 
     return user;
   }
 
-  static createUserInstance(dto: CreateUserInterface): UserAccountDocument {
+  static createUserInstance(dto: CreateUserDomainDto): UserAccountDocument {
     const user = this.buildBaseUserInstance(dto);
 
     // * устанавлеваем дедлайн для кода
@@ -89,7 +89,7 @@ export class UserAccount {
   }
 
   static createAdminUserInstance(
-    dto: CreateUserInterface,
+    dto: CreateUserDomainDto,
   ): UserAccountDocument {
     const user = this.buildBaseUserInstance(dto);
 
