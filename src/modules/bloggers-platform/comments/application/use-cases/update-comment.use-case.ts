@@ -28,12 +28,13 @@ export class UpdateCommentByIdUseCase implements ICommandHandler<
     if (!commentInstance) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: `This Comment with ID:${commentId} was not found`,
+        message: `This comment with ID:${commentId} was not found`,
       });
     }
 
     return commentInstance;
   }
+
   async execute(command: UpdateCommentByIdCommand): Promise<void> {
     const { commentId, userId, dto } = command;
 

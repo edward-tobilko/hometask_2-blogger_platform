@@ -20,3 +20,12 @@ export const CurrentUserFromRequest = createParamDecorator(
     return currentUser as { id: string };
   },
 );
+
+// * Декоратор для анонимных запроссов (что бы избежать request.user -> undefined -> 401)
+export const CurrentUserOptionalFromRequest = createParamDecorator(
+  (_data: unknown, context: ExecutionContext): { id: string } | null => {
+    const request = context.switchToHttp().getRequest<Request>();
+
+    return (request.user as { id: string }) ?? null;
+  },
+);

@@ -9,7 +9,7 @@ class CommentatorInfo {
 class LikesInfo {
   likesCount!: number;
   dislikesCount!: number;
-  myStatus!: LikeStatus;
+  myStatus?: LikeStatus;
 }
 
 export class CommentViewModel {
@@ -20,12 +20,11 @@ export class CommentViewModel {
 
   createdAt!: string;
 
-  likesInfo!: LikesInfo;
+  likesInfo?: LikesInfo;
 
   static mapToViewModel(
-    this: void, // не реальный параметр функции, просто аннотация для TypeScript / ESLint что бы не ругался
     commentDocument: CommentLean,
-    // myStatus: LikeStatus,
+    myStatus: LikeStatus = LikeStatus.None,
   ): CommentViewModel {
     const dto = new CommentViewModel();
 
@@ -40,10 +39,9 @@ export class CommentViewModel {
     dto.createdAt = commentDocument.createdAt.toISOString();
 
     dto.likesInfo = {
-      likesCount: commentDocument.likesInfo.likesCount,
-      dislikesCount: commentDocument.likesInfo.dislikesCount,
-      myStatus: LikeStatus.None,
-      //   myStatus, // динамический статус
+      likesCount: commentDocument.likesInfo.likesCount ?? 0,
+      dislikesCount: commentDocument.likesInfo.dislikesCount ?? 0,
+      myStatus, // динамический статус
     };
 
     return dto;

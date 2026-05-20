@@ -33,6 +33,8 @@ import { CreatePostCommand } from '../../application/use-cases/create-post.use-c
 import { PostDocument } from '../../domain/entities/post.entity';
 import { UpdatePostByIdCommand } from '../../application/use-cases/update-post.use-case';
 import { DeletePostByIdCommand } from '../../application/use-cases/delete-post.use-case';
+import { UpdatePostLikeStatusCommand } from '../../application/use-cases/update-post-like-status.use-case';
+import { LikeStatusDto } from 'src/core/dto/like-status.dto';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -40,6 +42,24 @@ export class PostsController {
     private queryBus: QueryBus,
     private commandBus: CommandBus,
   ) {}
+
+  // * PUT: Make like / unlike / dislike / undislike operation.
+  @Put(':postId/like-status')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(204)
+  updatePostLikeStatus(
+    @Param() params: PostIdParamDto,
+    @Body() dto: LikeStatusDto,
+    @CurrentUserFromRequest() currentUser: { id: string },
+  ): Promise<void> {
+    return this.commandBus.execute(
+      new UpdatePostLikeStatusCommand(
+        params.postId,
+        currentUser.id,
+        dto.likeStatus,
+      ),
+    );
+  }
 
   // * GET: Returns comments for specified post
   @Get(':postId/comments')

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { LikeStatus } from 'src/core/enums/like-status.enum';
 
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import {
@@ -14,14 +15,24 @@ export class CommentsQueryRepository {
     @InjectModel(Comment.name) private readonly commentModel: CommentModel,
   ) {}
 
-  async findCommentById(id: string): Promise<CommentViewModel | null> {
-    const comment = await this.commentModel
+  async findCommentById(
+    id: string,
+    userId?: string,
+  ): Promise<CommentViewModel | null> {
+    const commentInstance = await this.commentModel
       .findById(id)
       .lean<CommentLean>()
       .exec();
 
-    if (!comment) return null;
+    if (!commentInstance) return null;
 
-    return CommentViewModel.mapToViewModel(comment);
+    // * Получаем динамический статус
+    const myStatus = userId
+      ? (commentInstance.likesInfo.userReactions.find(
+          (reaction) => reaction.userId === userId,
+        )?.status ?? LikeStatus.None)
+      : LikeStatus.None;
+
+    return CommentViewModel.mapToViewModel(commentInstance, myStatus);
   }
 }

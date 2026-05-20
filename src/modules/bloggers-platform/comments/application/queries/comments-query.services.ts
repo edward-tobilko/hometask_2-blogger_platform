@@ -6,7 +6,10 @@ import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto
 import { CommentsQueryRepository } from 'src/modules/bloggers-platform/comments/infrastructure/repositories/comments-query.repository';
 
 export class GetCommentByIdQueryHandler {
-  constructor(public id: string) {}
+  constructor(
+    public id: string,
+    public userId?: string,
+  ) {}
 }
 
 @QueryHandler(GetCommentByIdQueryHandler)
@@ -16,8 +19,14 @@ export class GetCommentByIdQuery implements IQueryHandler<
 > {
   constructor(private readonly commentsQueryRepo: CommentsQueryRepository) {}
 
-  async execute({ id }: GetCommentByIdQueryHandler): Promise<CommentViewModel> {
-    const existingComment = await this.commentsQueryRepo.findCommentById(id);
+  async execute({
+    id,
+    userId,
+  }: GetCommentByIdQueryHandler): Promise<CommentViewModel> {
+    const existingComment = await this.commentsQueryRepo.findCommentById(
+      id,
+      userId,
+    );
 
     if (!existingComment)
       throw new DomainException({

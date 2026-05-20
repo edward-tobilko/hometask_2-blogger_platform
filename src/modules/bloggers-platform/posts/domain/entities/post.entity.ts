@@ -3,7 +3,10 @@ import { HydratedDocument, Model, Types } from 'mongoose';
 
 import { CreatePostDomainDto } from '../dto/create-post.domain-dto';
 import { UpdatePostDomainDto } from '../dto/update-post.domain-dto';
-import { ExtendedLikesInfoSchema } from '../schemas/extended-likes-info.schema';
+import {
+  ExtendedLikesInfo,
+  ExtendedLikesInfoSchema,
+} from './extended-likes-info.entity';
 
 @Schema({ timestamps: true })
 export class Post {
@@ -44,16 +47,7 @@ export class Post {
   createdAt!: Date;
 
   @Prop({ type: ExtendedLikesInfoSchema, required: true })
-  extendedLikesInfo!: {
-    likesCount: number;
-    dislikesCount: number;
-
-    newestLikes: Array<{
-      addedAt: Date;
-      userId: string;
-      login: string;
-    }>;
-  };
+  extendedLikesInfo!: ExtendedLikesInfo;
 
   static createPostInstance(
     dto: CreatePostDomainDto & { blogName: string },
@@ -70,7 +64,10 @@ export class Post {
     post.extendedLikesInfo = {
       likesCount: 0,
       dislikesCount: 0,
+
       newestLikes: [],
+
+      userReactions: [],
     };
 
     return post as PostDocument;
