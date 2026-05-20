@@ -26,7 +26,10 @@ export class PostsQueryRepository {
     @InjectModel(Comment.name) private readonly commentsModel: CommentModel,
   ) {}
 
-  async findAllPosts(query: PostsQueryDto): Promise<PostsPaginatedViewModel> {
+  async findAllPosts(
+    query: PostsQueryDto,
+    userId?: string,
+  ): Promise<PostsPaginatedViewModel> {
     const [items, totalCount] = await Promise.all([
       this.postsModel
         .find({})
@@ -39,17 +42,28 @@ export class PostsQueryRepository {
       this.postsModel.countDocuments({}),
     ]);
 
-    return new PostsPaginatedViewModel(
-      Math.ceil(totalCount / query.pageSize),
-      query.pageNumber,
-      query.pageSize,
+    return PostsPaginatedViewModel.mapToView({
+      pagesCount: Math.ceil(totalCount / query.pageSize),
+      page: query.pageNumber,
+      pageSize: query.pageSize,
       totalCount,
 
-      items.map(PostViewModel.mapToViewModel),
-    );
+      items: items.map((post) => {
+        const myStatus = userId
+          ? (post.extendedLikesInfo?.userReactions?.find(
+              (reaction) => reaction.userId === userId,
+            )?.status ?? LikeStatus.None)
+          : LikeStatus.None;
+
+        return PostViewModel.mapToViewModel(post, myStatus ?? LikeStatus.None);
+      }),
+    });
   }
 
-  async findPostById(id: string): Promise<PostViewModel | null> {
+  async findPostById(
+    id: string,
+    userId?: string,
+  ): Promise<PostViewModel | null> {
     const existingPost = await this.postsModel
       .findById(id)
       .lean<PostLean>()
@@ -57,7 +71,14 @@ export class PostsQueryRepository {
 
     if (!existingPost) return null;
 
-    const postOutput = PostViewModel.mapToViewModel(existingPost);
+    const myStatus = userId
+      ? await this.findUserCurrentLikeStatus(userId, id)
+      : LikeStatus.None;
+
+    const postOutput = PostViewModel.mapToViewModel(
+      existingPost,
+      myStatus ?? LikeStatus.None,
+    );
 
     return postOutput;
   }
@@ -65,6 +86,7 @@ export class PostsQueryRepository {
   async findCommentsByPostId(
     postId: string,
     query: PostsQueryDto,
+    userId?: string,
   ): Promise<CommentsPaginatedViewModel> {
     const filter = {
       postId: new Types.ObjectId(postId),
@@ -82,16 +104,25 @@ export class PostsQueryRepository {
       this.commentsModel.countDocuments(filter).exec(),
     ]);
 
-    return new CommentsPaginatedViewModel(
-      Math.ceil(totalCount / query.pageSize),
-      query.pageNumber,
-      query.pageSize,
+    return CommentsPaginatedViewModel.mapToView({
+      pagesCount: Math.ceil(totalCount / query.pageSize),
+      page: query.pageNumber,
+      pageSize: query.pageSize,
       totalCount,
 
-      items.map((item) =>
-        CommentViewModel.mapToViewModel(item, LikeStatus.None),
-      ),
-    );
+      items: items.map((post) => {
+        const myStatus = userId
+          ? (post.likesInfo.userReactions.find(
+              (reaction) => reaction.userId === userId,
+            )?.status ?? LikeStatus.None)
+          : LikeStatus.None;
+
+        return CommentViewModel.mapToViewModel(
+          post,
+          myStatus ?? LikeStatus.None,
+        );
+      }),
+    });
   }
 
   async findUserCurrentLikeStatus(

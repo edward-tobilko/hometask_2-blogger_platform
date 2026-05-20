@@ -12,7 +12,6 @@ import { QueryBus, CommandBus } from '@nestjs/cqrs';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CommentViewModel } from '../dto/view-dto/comment.view-dto';
-import { BlogIdParamDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blog-params.input-dto';
 import { GetCommentByIdQueryHandler } from '../../application/queries/comments-query.services';
 import { UpdateCommentByIdCommand } from '../../application/use-cases/update-comment.use-case';
 import { CommentIdParam } from '../dto/input-dto/comment-id.input-dto';
@@ -86,12 +85,12 @@ export class CommentController {
   @Get(':id')
   @UseGuards(JwtOptionalAuthGuard)
   async getCommentById(
-    @Param() params: BlogIdParamDto,
+    @Param() params: CommentIdParam,
     @CurrentUserOptionalFromRequest()
     currentUser: { id: string } | null,
   ): Promise<CommentViewModel | null> {
     return this.queryBus.execute(
-      new GetCommentByIdQueryHandler(params.id, currentUser?.id),
+      new GetCommentByIdQueryHandler(params.commentId, currentUser?.id),
     );
   }
 }

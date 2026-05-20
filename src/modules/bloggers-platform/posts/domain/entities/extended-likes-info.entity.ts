@@ -16,11 +16,23 @@ export class ExtendedLikesInfo {
 
   // * поле для хранения всех реакций пользователей
   @Prop({
-    type: [{ userId: String, login: String, status: String }],
+    type: [{ userId: String, login: String, status: String, addedAt: Date }],
     default: [],
   })
-  userReactions!: { userId: string; login: string; status: LikeStatus }[];
+  userReactions!: {
+    userId: string;
+    login: string;
+    status: LikeStatus;
+    addedAt: Date;
+  }[];
 }
 
 export const ExtendedLikesInfoSchema =
   SchemaFactory.createForClass(ExtendedLikesInfo);
+
+// ? userReactions — полный журнал всех реакций (источник правды). Нужен что бы:
+// ? - знать текущий статус конкретного пользовате (myStatus)
+// ? - пересчитывать newestLikes при изменении
+// ? - при $pull — удалять старую реакцию перед добавлением новой
+
+// ? newestLikes — только 3 последних Like (вычесляемый срез для вывода API). Это денормализованный кэш для быстрого чтения.

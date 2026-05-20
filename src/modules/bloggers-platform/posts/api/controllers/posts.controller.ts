@@ -28,13 +28,23 @@ import { GetPostsListQuery } from '../../application/queries/get-posts-list.quer
 import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-postid.query';
 import { CreateCommentCommand } from '../../application/use-cases/create-comment.use-case';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
-import { CurrentUserFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
+import {
+  CurrentUserFromRequest,
+  CurrentUserOptionalFromRequest,
+} from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 import { CreatePostCommand } from '../../application/use-cases/create-post.use-case';
 import { PostDocument } from '../../domain/entities/post.entity';
 import { UpdatePostByIdCommand } from '../../application/use-cases/update-post.use-case';
 import { DeletePostByIdCommand } from '../../application/use-cases/delete-post.use-case';
 import { UpdatePostLikeStatusCommand } from '../../application/use-cases/update-post-like-status.use-case';
 import { LikeStatusDto } from 'src/core/dto/like-status.dto';
+import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
+import { ApiGetPostsSwagger } from '../decorators/swagger/get-posts-swagger.decorator';
+import { ApiGetPostByIdSwagger } from '../decorators/swagger/get-post-swagger.decorator';
+import { ApiCreatePostSwagger } from '../decorators/swagger/create-post-swagger.decorator';
+import { ApiUpdatePostSwagger } from '../decorators/swagger/update-post-swagger.decorator';
+import { ApiDeletePostSwagger } from '../decorators/swagger/delete-post-swagger.decorator';
+import { ApiGetCommentsForPostSwagger } from '../decorators/swagger/get-comments-for-post-swagger.decorator';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -61,14 +71,16 @@ export class PostsController {
     );
   }
 
-  // * GET: Returns comments for specified post
+  @ApiGetCommentsForPostSwagger('Returns comments for specified post')
   @Get(':postId/comments')
+  @UseGuards(JwtOptionalAuthGuard)
   getCommentsForPost(
     @Param() params: PostIdParamDto,
     @Query() queryParams: PostsQueryDto,
+    @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<CommentsPaginatedViewModel> {
     return this.queryBus.execute(
-      new GetCommentByPostIdQuery(params.postId, queryParams),
+      new GetCommentByPostIdQuery(params.postId, queryParams, user?.id),
     );
   }
 
@@ -85,15 +97,19 @@ export class PostsController {
     );
   }
 
-  // * GET: Returns all posts
+  @ApiGetPostsSwagger('Returns all posts')
   @Get()
+  @UseGuards(JwtOptionalAuthGuard)
   getPostsList(
     @Query() queryParams: PostsQueryDto,
+    @CurrentUserOptionalFromRequest() currentUser: { id: string } | null,
   ): Promise<PostsPaginatedViewModel> {
-    return this.queryBus.execute(new GetPostsListQuery(queryParams));
+    return this.queryBus.execute(
+      new GetPostsListQuery(queryParams, currentUser?.id),
+    );
   }
 
-  // * POST: Create new post
+  @ApiCreatePostSwagger('Create new post')
   @Post()
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
@@ -107,13 +123,19 @@ export class PostsController {
     return postOutput;
   }
 
-  // * GET: Return post by id
+  @ApiGetPostByIdSwagger('Return post by id')
   @Get(':id')
-  getPostById(@Param() params: IdParamDto): Promise<PostViewModel | null> {
-    return this.queryBus.execute(new GetPostByIdQuery(params.id));
+  @UseGuards(JwtOptionalAuthGuard)
+  getPostById(
+    @Param() params: IdParamDto,
+    @CurrentUserOptionalFromRequest() currentUser: { id: string } | null,
+  ): Promise<PostViewModel | null> {
+    return this.queryBus.execute(
+      new GetPostByIdQuery(params.id, currentUser?.id),
+    );
   }
 
-  // * PUT: Update existing post by id with input model
+  @ApiUpdatePostSwagger('Update existing post by id with input model')
   @Put(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
@@ -126,7 +148,7 @@ export class PostsController {
     );
   }
 
-  // * DELETE: Delete post specified by id
+  @ApiDeletePostSwagger('Delete post specified by id')
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)

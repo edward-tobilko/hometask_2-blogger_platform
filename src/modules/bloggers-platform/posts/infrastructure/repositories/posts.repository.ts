@@ -37,6 +37,7 @@ export class PostsRepository {
     dislikes: number,
     likeStatus: LikeStatus,
   ): Promise<void> {
+    // * Получаем данные пользователя (login) с гарда в контроллере.
     const userInstance =
       await this.usersExternalQueryRepo.getByIdOrNotFoundFail(userId);
 
@@ -46,12 +47,15 @@ export class PostsRepository {
         {
           _id: new Types.ObjectId(postId),
         },
+
         {
+          // * $inc — изменяет счётчики
           $inc: {
             'extendedLikesInfo.likesCount': likes,
             'extendedLikesInfo.dislikesCount': dislikes,
           },
 
+          // * $pull - удаляет из userReactions старую реакцию этого пользователя
           $pull: {
             'extendedLikesInfo.userReactions': { userId },
           },
@@ -59,7 +63,7 @@ export class PostsRepository {
       )
       .exec();
 
-    // * Добавить новую реакцию (только если статус не None)
+    // * $push - добавляет новую реакцию (только если статус не "None"). Делается отдельным запросом потому что MongoDB не позволяет $pull и $push на одно и то же поле в одной операции.
     if (likeStatus !== LikeStatus.None) {
       await this.postModel
         .updateOne(
@@ -68,48 +72,44 @@ export class PostsRepository {
           },
           {
             $push: {
-              'extendedLikesInfo.userReactions': { userId, status: likeStatus },
+              'extendedLikesInfo.userReactions': {
+                userId,
+                login: userInstance.login,
+                status: likeStatus,
+                addedAt: new Date(),
+              },
             },
           },
         )
         .exec();
     }
+
+    const postInstance = await this.postModel.findById(postId);
+
+    // * Выводим только лайки (filter) -> сортируем от новых к старым (sort) -> выводим только 3 (slice) -> мапим результат (map).
+    const newestLikes = postInstance?.extendedLikesInfo.userReactions
+      .filter((reaction) => reaction.status === LikeStatus.Like)
+      .sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
+      .slice(0, 3)
+      .map((result) => ({
+        userId: result.userId,
+        login: result.login,
+        status: result.status,
+        addedAt: result.addedAt,
+      }));
+
+    // * Выводим результат обновленных newestLikes
+    await this.postModel
+      .updateOne(
+        {
+          _id: new Types.ObjectId(postId),
+        },
+        {
+          $set: {
+            'extendedLikesInfo.newestLikes': newestLikes,
+          },
+        },
+      )
+      .exec();
   }
 }
-
-// ⏺ Две проблемы:
-
-//   1. userInstance получается но нигде не используется (строка 40-41)
-
-//   login нужен для обновления newestLikes, но ты его не передаёшь в $push. Либо используй userInstance.login, либо убери лишний
-//   запрос.
-
-//   2. newestLikes не обновляется
-
-//   После изменения userReactions нужно пересчитать newestLikes — 3 последних Like из userReactions. Это нужно делать отдельным шагом
-//   после обновления userReactions.
-
-//   Но для этого нужно поле addedAt в userReactions — иначе нельзя определить порядок. Сейчас в $push только { userId, status }.
-
-//   Исправь $push строка 71:
-//   'extendedLikesInfo.userReactions': {
-//     userId,
-//     login: userInstance.login,
-//     status: likeStatus,
-//     addedAt: new Date(),
-//   }
-
-//   После второго updateOne добавь третий запрос — пересчёт newestLikes. Нужно прочитать пост, взять все userReactions со status: Like,
-//    отсортировать по addedAt desc, взять первые 3, записать в newestLikes:
-
-//   const post = await this.postModel.findById(postId).lean().exec();
-//   const newestLikes = post.extendedLikesInfo.userReactions
-//     .filter(r => r.status === LikeStatus.Like)
-//     .sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime())
-//     .slice(0, 3)
-//     .map(r => ({ userId: r.userId, login: r.login, addedAt: r.addedAt }));
-
-//   await this.postModel.updateOne(
-//     { _id: new Types.ObjectId(postId) },
-//     { $set: { 'extendedLikesInfo.newestLikes': newestLikes } },
-//   ).exec();

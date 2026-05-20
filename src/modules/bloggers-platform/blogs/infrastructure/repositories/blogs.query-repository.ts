@@ -94,14 +94,14 @@ export class BlogsQueryRepository {
       this.postModel.countDocuments(filter),
     ]);
 
-    return new PostsPaginatedViewModel(
-      Math.ceil(totalCount / pageSize),
-      pageNumber,
+    return PostsPaginatedViewModel.mapToView({
+      pagesCount: Math.ceil(totalCount / pageSize),
+      page: pageNumber,
       pageSize,
       totalCount,
 
-      items.map(PostViewModel.mapToViewModel),
-    );
+      items: items.map((post) => PostViewModel.mapToViewModel(post)),
+    });
   }
 }
 
