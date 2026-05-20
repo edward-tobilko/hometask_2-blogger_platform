@@ -5,7 +5,10 @@ import { PostsPaginatedViewModel } from '../../api/dto/view-dto/posts-paginated.
 import { PostsQueryRepository } from '../../infrastructure/repositories/posts-query.repository';
 
 export class GetPostsListQuery {
-  constructor(public queryParam: PostsQueryDto) {}
+  constructor(
+    public queryParam: PostsQueryDto,
+    public userId?: string,
+  ) {}
 }
 
 @QueryHandler(GetPostsListQuery)
@@ -17,7 +20,8 @@ export class GetPostsListQueryHandler implements IQueryHandler<
 
   async execute({
     queryParam,
+    userId,
   }: GetPostsListQuery): Promise<PostsPaginatedViewModel> {
-    return this.postsQueryRepo.findAllPosts(queryParam);
+    return this.postsQueryRepo.findAllPosts(queryParam, userId);
   }
 }

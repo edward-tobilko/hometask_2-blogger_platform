@@ -1,42 +1,45 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostDocument, PostLean } from '../../../domain/entities/post.entity';
 
 // * Создаем отдельные классы во избежания вложенности аннонимных обьектов в аннонимных обьектах (это нужно если мы исп. swagger doc, так как он не умеет обрабатывать вложенные анонимные типы):
 
-// * newestLikes: Array<{ ← анонимный объект внутри анонимного объекта
-// * addedAt: string;
-// * userId: string;
-// * login: string;
-// * }>
+// ! newestLikes: Array<{ ← анонимный объект внутри анонимного объекта
+// ! addedAt: string;
+// ! userId: string;
+// ! login: string;
+// ! }>
 
-class NewestLikeViewModel {
-  addedAt!: string;
-  userId!: string;
-  login!: string;
+export class NewestLikeViewModel {
+  @ApiProperty() addedAt!: string;
+  @ApiProperty() userId!: string;
+  @ApiProperty() login!: string;
 }
 
-class ExtendedLikesInfoViewModel {
-  likesCount!: number;
-  dislikesCount!: number;
-  myStatus!: LikeStatus;
+export class ExtendedLikesInfoViewModel {
+  @ApiProperty() likesCount!: number;
+  @ApiProperty() dislikesCount!: number;
+  @ApiProperty({ enum: LikeStatus }) myStatus!: LikeStatus;
+  @ApiProperty({ type: [NewestLikeViewModel] })
   newestLikes!: NewestLikeViewModel[];
 }
 
 export class PostViewModel {
-  id!: string;
-  title!: string;
-  shortDescription!: string;
-  content!: string;
-  blogId!: string;
-  blogName!: string;
-  createdAt!: string;
+  @ApiProperty() id!: string;
+  @ApiProperty() title!: string;
+  @ApiProperty() shortDescription!: string;
+  @ApiProperty() content!: string;
+  @ApiProperty() blogId!: string;
+  @ApiProperty() blogName!: string;
+  @ApiProperty() createdAt!: string;
 
+  @ApiProperty({ type: ExtendedLikesInfoViewModel })
   extendedLikesInfo!: ExtendedLikesInfoViewModel;
 
   static mapToViewModel(
-    this: void, // не реальный параметр функции, просто аннотация для TypeScript / ESLint что бы не ругался
     post: PostDocument | PostLean,
-    // myStatus: LikeStatus,
+    myStatus: LikeStatus = LikeStatus.None,
   ): PostViewModel {
     const dto = new PostViewModel();
 
@@ -51,7 +54,7 @@ export class PostViewModel {
     dto.extendedLikesInfo = {
       likesCount: post.extendedLikesInfo.likesCount,
       dislikesCount: post.extendedLikesInfo.dislikesCount,
-      myStatus: LikeStatus.None, // пока что default (сделаем динамический, когда будет авторизация)
+      myStatus,
 
       newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
         addedAt: like.addedAt.toISOString(),

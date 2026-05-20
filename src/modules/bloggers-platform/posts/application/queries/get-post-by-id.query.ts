@@ -6,7 +6,10 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 export class GetPostByIdQuery {
-  constructor(public id: string) {}
+  constructor(
+    public id: string,
+    public userId?: string,
+  ) {}
 }
 
 @QueryHandler(GetPostByIdQuery)
@@ -16,8 +19,8 @@ export class GetPostByIdQueryHandler implements IQueryHandler<
 > {
   constructor(private readonly postsQueryRepo: PostsQueryRepository) {}
 
-  async execute({ id }: GetPostByIdQuery): Promise<PostViewModel> {
-    const existingPost = await this.postsQueryRepo.findPostById(id);
+  async execute({ id, userId }: GetPostByIdQuery): Promise<PostViewModel> {
+    const existingPost = await this.postsQueryRepo.findPostById(id, userId);
 
     if (!existingPost)
       throw new DomainException({

@@ -10,6 +10,7 @@ export class GetCommentByPostIdQuery {
   constructor(
     public postId: string,
     public query: PostsQueryDto,
+    public userId?: string,
   ) {}
 }
 
@@ -23,6 +24,7 @@ export class GetCommentByPostIdQueryHandler implements IQueryHandler<
   async execute({
     postId,
     query,
+    userId,
   }: GetCommentByPostIdQuery): Promise<CommentsPaginatedViewModel> {
     const post = await this.postsQueryRepo.findPostById(postId);
 
@@ -32,6 +34,6 @@ export class GetCommentByPostIdQueryHandler implements IQueryHandler<
         message: `This post with ID:${postId} was not found`,
       });
 
-    return this.postsQueryRepo.findCommentsByPostId(postId, query);
+    return this.postsQueryRepo.findCommentsByPostId(postId, query, userId);
   }
 }
