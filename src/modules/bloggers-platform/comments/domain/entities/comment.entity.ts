@@ -6,8 +6,9 @@ import {
   CommentatorInfo,
   CommentatorInfoSchema,
 } from './commentator-info.entity';
-import { LikesInfoSchema } from '../schemas/likes-info.schema';
 import { UpdateCommentDomainDto } from '../dto/update-comment.dto';
+import { LikeStatus } from 'src/core/enums/like-status.enum';
+import { LikesInfoSchema } from './likes-info.entity';
 
 @Schema({ timestamps: true })
 export class Comment {
@@ -26,10 +27,12 @@ export class Comment {
   @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд = первые 10 отсортированных елементов
   createdAt!: Date;
 
+  // * Так как комментарии не набирают миллионы лайков, можно просто добавить массив userReactions. Плюс: просто, один запрос. Минус: документ растёт с каждым лайком.
   @Prop({ type: LikesInfoSchema, required: false })
   likesInfo!: {
     likesCount: number;
     dislikesCount: number;
+    userReactions: [{ userId: string; status: LikeStatus }];
   };
 
   updateComment(dto: UpdateCommentDomainDto): void {
@@ -38,6 +41,8 @@ export class Comment {
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
+
+CommentSchema.loadClass(Comment);
 
 export type CommentDocument = HydratedDocument<Comment>;
 export type CommentLean = Comment & { _id: Types.ObjectId };

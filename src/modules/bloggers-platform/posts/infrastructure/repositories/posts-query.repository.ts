@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
+import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
 import {
@@ -87,7 +88,26 @@ export class PostsQueryRepository {
       query.pageSize,
       totalCount,
 
-      items.map(CommentViewModel.mapToViewModel),
+      items.map((item) =>
+        CommentViewModel.mapToViewModel(item, LikeStatus.None),
+      ),
     );
+  }
+
+  async findUserCurrentLikeStatus(
+    userId: string,
+    postId: string,
+  ): Promise<LikeStatus | null> {
+    const postInstance = await this.postsModel
+      .findById(postId)
+      .lean<PostLean>()
+      .exec();
+
+    const userLikeStatus =
+      postInstance?.extendedLikesInfo?.userReactions?.find(
+        (reaction) => reaction.userId === userId,
+      )?.status ?? LikeStatus.None;
+
+    return userLikeStatus;
   }
 }

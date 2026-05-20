@@ -35,6 +35,9 @@ import { CreateBlogUseCase } from './blogs/application/use-cases/create-blog.use
 import { UpdateBlogUseCase } from './blogs/application/use-cases/update-blog.use-case';
 import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use-case';
 import { UpdateCommentByIdUseCase } from './comments/application/use-cases/update-comment.use-case';
+import { DeleteCommentByIdUseCase } from './comments/application/use-cases/delete-comment.use-case';
+import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.use-case';
+import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 
 const queryHandlers = [
   // * Blogs contract
@@ -61,9 +64,12 @@ const commandHandlers = [
   UpdatePostByIdUseCase,
   DeletePostByIdUseCase,
   CreateCommentUseCase,
+  UpdatePostLikeStatusUseCase,
 
   // * Comments contract
   UpdateCommentByIdUseCase,
+  DeleteCommentByIdUseCase,
+  UpdateCommentLikeStatusUseCase,
 ];
 
 @Module({
