@@ -34,7 +34,7 @@ export class BasicAuthGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (isPublic) return true; // роут публичный — пропускаем
+    if (isPublic) return true; // роут публичный — пропускаем (то есть энд-поинт отменяет проверку на гард)
 
     if (!authHeader || !authHeader.startsWith('Basic ')) {
       throw new DomainException({

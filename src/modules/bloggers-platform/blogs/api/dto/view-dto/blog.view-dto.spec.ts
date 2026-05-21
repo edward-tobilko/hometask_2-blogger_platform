@@ -20,7 +20,7 @@ describe('BlogViewModel.mapToViewModel', () => {
     const result = BlogViewModel.mapToViewModel(mockBlogDocument as any);
 
     // * Assert: проверяем что каждое поле смаплено правильно
-    expect(result.id).toBe('507f1f77bcf86cd799439011');    // _id → id (строка)
+    expect(result.id).toBe('507f1f77bcf86cd799439011'); // _id → id (строка)
     expect(result.name).toBe('Test Blog');
     expect(result.description).toBe('Test description');
     expect(result.websiteUrl).toBe('https://test.com');

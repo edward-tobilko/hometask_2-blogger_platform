@@ -25,6 +25,10 @@ import { DeleteCommentByIdCommand } from '../../application/use-cases/delete-com
 import { UpdateCommentLikeStatusCommand } from '../../application/use-cases/update-comment-like-status.use-case';
 import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { LikeStatusDto } from 'src/core/dto/like-status.dto';
+import { ApiUpdateLikeStatusForCommentSwagger } from '../decorators/swagger/update-like-status-for-comment-swagger.decorator';
+import { ApiUpdateCommentByIdSwagger } from '../decorators/swagger/update-comment-swagger.decorator';
+import { ApiDeleteCommentSwagger } from '../decorators/swagger/delete-comment-swagger.decorator';
+import { ApiGetCommentByIdSwagger } from '../decorators/swagger/get-comment-swagger.decorator';
 
 @Controller(API_ROUTES.comments)
 export class CommentController {
@@ -33,7 +37,9 @@ export class CommentController {
     private commandBus: CommandBus,
   ) {}
 
-  // * PUT: Make like / unlike / dislike / undislike operation
+  @ApiUpdateLikeStatusForCommentSwagger(
+    'Make like / unlike / dislike / undislike operation',
+  )
   @Put(':commentId/like-status')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
@@ -52,7 +58,7 @@ export class CommentController {
     );
   }
 
-  // * PUT: Update existing comment by id with input model
+  @ApiUpdateCommentByIdSwagger('Update existing comment by id with input model')
   @Put(':commentId')
   @HttpCode(204) // success
   @UseGuards(JwtAuthGuard) // if error = 401
@@ -67,7 +73,7 @@ export class CommentController {
     );
   }
 
-  // * DELETE: Delete comment specified by id
+  @ApiDeleteCommentSwagger('Delete comment specified by id')
   @Delete(':commentId')
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
@@ -81,7 +87,7 @@ export class CommentController {
     );
   }
 
-  // * Return comment by id
+  @ApiGetCommentByIdSwagger('Return comment by id')
   @Get(':id')
   @UseGuards(JwtOptionalAuthGuard)
   async getCommentById(

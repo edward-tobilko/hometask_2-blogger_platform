@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 import { QueryDto } from 'src/core/dto/query.dto';
@@ -15,6 +16,10 @@ export class BlogsQueryDto extends QueryDto {
   @IsOptional()
   sortBy: BlogsSortBy = BlogsSortBy.CreatedAt;
 
+  @ApiProperty({
+    description:
+      'Search term for blog Name: Name should contains this term in any position',
+  })
   @IsString()
   @IsOptional()
   searchNameTerm: string | null = null;

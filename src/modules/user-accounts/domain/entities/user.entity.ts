@@ -105,7 +105,10 @@ export class UserAccount {
 
   makeDeleted(): void {
     if (this.deletedAt !== null) {
-      throw new Error('Entity already deleted');
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Entity already deleted',
+      });
     }
 
     this.deletedAt = new Date();

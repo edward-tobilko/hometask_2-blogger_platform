@@ -10,12 +10,9 @@ export enum UsersSortBy {
 }
 
 export class UsersQueryInputDto extends QueryDto {
-  @ApiProperty({
-    default: 'createdAt',
-  })
   @IsOptional()
   @IsEnum(UsersSortBy)
-  sortBy = UsersSortBy.CreatedAt;
+  sortBy: UsersSortBy = UsersSortBy.CreatedAt;
 
   @ApiProperty({
     description:

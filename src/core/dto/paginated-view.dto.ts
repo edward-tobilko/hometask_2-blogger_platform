@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export abstract class PaginatedViewDto<T> {
-  @ApiProperty() // for swagger doc
+  @ApiProperty()
   pagesCount!: number;
 
   @ApiProperty()
