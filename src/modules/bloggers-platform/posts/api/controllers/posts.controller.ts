@@ -45,6 +45,8 @@ import { ApiCreatePostSwagger } from '../decorators/swagger/create-post-swagger.
 import { ApiUpdatePostSwagger } from '../decorators/swagger/update-post-swagger.decorator';
 import { ApiDeletePostSwagger } from '../decorators/swagger/delete-post-swagger.decorator';
 import { ApiGetCommentsForPostSwagger } from '../decorators/swagger/get-comments-for-post-swagger.decorator';
+import { ApiCreateCommentFroPostSwagger } from '../decorators/swagger/create-comment-for-post-swagger.decorator';
+import { ApiUpdateLikeStatusForPostSwagger } from '../decorators/swagger/update-like-status-for-post-swagger.decorator';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -53,7 +55,9 @@ export class PostsController {
     private commandBus: CommandBus,
   ) {}
 
-  // * PUT: Make like / unlike / dislike / undislike operation.
+  @ApiUpdateLikeStatusForPostSwagger(
+    'Make like / unlike / dislike / undislike operation',
+  )
   @Put(':postId/like-status')
   @UseGuards(JwtAuthGuard)
   @HttpCode(204)
@@ -84,7 +88,7 @@ export class PostsController {
     );
   }
 
-  // * POST: Create new comment.
+  @ApiCreateCommentFroPostSwagger('Create new comment')
   @Post(':postId/comments')
   @UseGuards(JwtAuthGuard)
   createComment(

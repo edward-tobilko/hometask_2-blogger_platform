@@ -11,7 +11,9 @@ import { PostsPaginatedViewModel } from '../../dto/view-dto/posts-paginated.view
 export const ApiGetPostsSwagger = (summary: string) =>
   applyDecorators(
     ApiOperation({ summary }),
+
     ApiBearerAuth(),
+
     ApiResponse({
       status: 200,
       content: {

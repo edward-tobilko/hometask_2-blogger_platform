@@ -11,9 +11,12 @@ import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/commen
 
 export const ApiGetCommentsForPostSwagger = (summary: string) =>
   applyDecorators(
-    ApiExtraModels(CommentsPaginatedViewModel),
+    ApiExtraModels(CommentsPaginatedViewModel), // если какой либо класс за пределами модуля
+
     ApiOperation({ summary }),
+
     ApiBearerAuth(),
+
     ApiResponse({
       status: 200,
       description: 'Success',

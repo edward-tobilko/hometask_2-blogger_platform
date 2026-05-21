@@ -12,16 +12,34 @@ import { PostDocument, PostLean } from '../../../domain/entities/post.entity';
 // ! }>
 
 export class NewestLikeViewModel {
-  @ApiProperty() addedAt!: string;
-  @ApiProperty() userId!: string;
-  @ApiProperty() login!: string;
+  @ApiProperty()
+  addedAt!: Date;
+
+  @ApiProperty({ nullable: true })
+  userId!: string;
+
+  @ApiProperty({ nullable: true })
+  login!: string;
 }
 
 export class ExtendedLikesInfoViewModel {
-  @ApiProperty() likesCount!: number;
-  @ApiProperty() dislikesCount!: number;
-  @ApiProperty({ enum: LikeStatus }) myStatus!: LikeStatus;
-  @ApiProperty({ type: [NewestLikeViewModel] })
+  @ApiProperty({ description: 'Total likes for parent item' })
+  likesCount!: number;
+
+  @ApiProperty({ description: 'Total dislikes for parent item' })
+  dislikesCount!: number;
+
+  @ApiProperty({
+    enum: LikeStatus,
+    description: 'Send None if you want to unlike/undislike',
+  })
+  myStatus!: LikeStatus;
+
+  @ApiProperty({
+    type: [NewestLikeViewModel],
+    nullable: true,
+    description: 'Last 3 likes (status "Like")',
+  })
   newestLikes!: NewestLikeViewModel[];
 }
 
@@ -32,9 +50,11 @@ export class PostViewModel {
   @ApiProperty() content!: string;
   @ApiProperty() blogId!: string;
   @ApiProperty() blogName!: string;
-  @ApiProperty() createdAt!: string;
+  @ApiProperty() createdAt!: Date;
 
-  @ApiProperty({ type: ExtendedLikesInfoViewModel })
+  @ApiProperty({
+    type: ExtendedLikesInfoViewModel,
+  })
   extendedLikesInfo!: ExtendedLikesInfoViewModel;
 
   static mapToViewModel(
@@ -49,7 +69,7 @@ export class PostViewModel {
     dto.content = post.content;
     dto.blogId = post.blogId.toString();
     dto.blogName = post.blogName;
-    dto.createdAt = post.createdAt.toISOString(); // отдаем ту дату, которая в entity
+    dto.createdAt = post.createdAt; // отдаем ту дату, которая в entity
 
     dto.extendedLikesInfo = {
       likesCount: post.extendedLikesInfo.likesCount,
@@ -57,7 +77,7 @@ export class PostViewModel {
       myStatus,
 
       newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
-        addedAt: like.addedAt.toISOString(),
+        addedAt: like.addedAt,
         userId: like.userId.toString(),
         login: like.login,
       })),

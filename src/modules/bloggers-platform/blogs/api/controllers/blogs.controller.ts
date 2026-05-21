@@ -36,6 +36,13 @@ import { UpdateBlogCommand } from '../../application/use-cases/update-blog.use-c
 import { DeleteBlogCommand } from '../../application/use-cases/delete-blog.use-case';
 import { CreatePostCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/create-post.use-case';
 import { PostDocument } from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
+import { ApiGetBlogsSwagger } from '../decorators/swagger/get-blogs-list-swagger.decorator';
+import { ApiCreateBlogSwagger } from '../decorators/swagger/create-blog-swagger.decorator';
+import { ApiGetPostsForBlogSwagger } from '../decorators/swagger/get-posts-for-blog-swagger.decorator';
+import { CreatePostForBlogSwagger } from '../decorators/swagger/create-post-for-blog-swagger.decorator';
+import { ApiGetBlogByIdSwagger } from '../decorators/swagger/get-blog-swagger.decorator';
+import { ApiUpdateBlogSwagger } from '../decorators/swagger/update-blog-swagger.decorator';
+import { ApiDeleteBlogSwagger } from '../decorators/swagger/delete-blog-swagger.decorator';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
@@ -44,7 +51,7 @@ export class BlogsController {
     private commandBus: CommandBus,
   ) {}
 
-  // * GET: Returns blogs with paging
+  @ApiGetBlogsSwagger('Returns blogs with paging')
   @Get()
   async getBlogsList(
     @Query() query: BlogsQueryDto,
@@ -52,7 +59,7 @@ export class BlogsController {
     return this.queryBus.execute(new GetBlogsListQuery(query));
   }
 
-  // * POST: Create new blog
+  @ApiCreateBlogSwagger('Create new blog')
   @Post()
   @UseGuards(BasicAuthGuard)
   async createBlog(
@@ -67,7 +74,7 @@ export class BlogsController {
     return BlogViewModel.mapToViewModel(createdBlogDoc);
   }
 
-  // * GET: Returns all posts for specified blog
+  @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
   @Get(':blogId/posts')
   async getPostsListForBlog(
     @Param() params: BlogIdForPostsParamDto,
@@ -78,7 +85,7 @@ export class BlogsController {
     );
   }
 
-  // * POST: Create new post for specific blog
+  @CreatePostForBlogSwagger('Create new post for specific blog')
   @Post(':blogId/posts')
   @UseGuards(BasicAuthGuard)
   async createPostForBlog(
@@ -95,13 +102,13 @@ export class BlogsController {
     return postOutput;
   }
 
-  // * GET: Returns blog by id
+  @ApiGetBlogByIdSwagger('Returns blog by id')
   @Get(':id') // = /blogs:id
   async getBlog(@Param() params: BlogIdParamDto): Promise<BlogViewModel> {
     return await this.queryBus.execute(new GetBlogByIdQuery(params.id));
   }
 
-  // * PUT: Update existing blog by id with input model
+  @ApiUpdateBlogSwagger('Update existing blog by id with input model')
   @Put(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
@@ -115,7 +122,7 @@ export class BlogsController {
     );
   }
 
-  // * DELETE: Delete blog specified by id
+  @ApiDeleteBlogSwagger('Delete blog specified by id')
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)

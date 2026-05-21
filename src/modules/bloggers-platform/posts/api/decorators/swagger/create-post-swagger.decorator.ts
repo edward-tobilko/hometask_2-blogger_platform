@@ -18,18 +18,18 @@ import { CreatePostDto } from '../../dto/input-dto/create-post.input-dto';
 
 export const ApiCreatePostSwagger = (summary: string) =>
   applyDecorators(
-    ApiExtraModels(
-      PostViewModel,
-      ValidationErrorViewModel,
-      FieldErrorViewModel,
-    ),
+    ApiExtraModels(ValidationErrorViewModel, FieldErrorViewModel), // если какой либо класс за пределами модуля
+
     ApiOperation({ summary }),
+
     ApiBasicAuth('basicAuth'),
     ApiConsumes('application/json', 'text/json', 'application/*+json'),
+
     ApiBody({
       type: CreatePostDto,
       description: 'Data for constructing new post entity',
     }),
+
     ApiResponse({
       status: 201,
       content: {

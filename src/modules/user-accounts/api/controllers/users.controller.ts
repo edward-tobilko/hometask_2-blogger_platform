@@ -23,9 +23,9 @@ import { CreateUserCommand } from '../../application/use-cases/admins/create-use
 import { DeleteUserCommand } from '../../application/use-cases/admins/delete-user.use-case';
 import { UserAccountDocument } from '../../domain/entities/user.entity';
 import { GetUsersListQuery } from '../../application/queries/get-users-list.query';
-import { ApiGetUsersSwagger } from '../../decorators/users/swagger/get-users-swagger.decorator';
-import { ApiCreateUserSwagger } from '../../decorators/users/swagger/create-swagger.decorator';
-import { ApiDeleteUserSwagger } from '../../decorators/users/swagger/delete-swagger.decorator';
+import { ApiGetUsersSwagger } from '../decorators/users/swagger/get-users-swagger.decorator';
+import { ApiCreateUserSwagger } from '../decorators/users/swagger/create-swagger.decorator';
+import { ApiDeleteUserSwagger } from '../decorators/users/swagger/delete-swagger.decorator';
 
 @Controller(API_ROUTES.users)
 @UseGuards(BasicAuthGuard)

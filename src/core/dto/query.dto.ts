@@ -22,7 +22,7 @@ export abstract class QueryDto {
   @ApiProperty({
     description: 'pageNumber is number of portions that should be returned',
     default: 1,
-  }) // for swagger doc
+  })
   @Query(1, 100) // custom decorator
   pageNumber: number = DEFAULT_PAGE_NUMBER;
 

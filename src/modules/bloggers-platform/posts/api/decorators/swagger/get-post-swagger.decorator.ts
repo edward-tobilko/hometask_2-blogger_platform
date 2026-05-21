@@ -11,7 +11,9 @@ import { PostViewModel } from '../../dto/view-dto/post.view-dto';
 export const ApiGetPostByIdSwagger = (summary: string) =>
   applyDecorators(
     ApiOperation({ summary }),
+
     ApiBearerAuth(),
+
     ApiResponse({
       status: 200,
       description: 'Success',

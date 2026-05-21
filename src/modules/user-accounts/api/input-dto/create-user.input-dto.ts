@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Matches } from 'class-validator';
 
 import {
+  emailConstraints,
   loginConstraints,
   passwordConstraints,
 } from 'src/core/constants/constraints.constants';
@@ -9,19 +10,33 @@ import { IsValidEmail } from 'src/core/decorators/email.decorator';
 import { IsStringWithTrim } from 'src/core/decorators/string-and-trim.decorator';
 
 export class CreateUserInputDto {
-  @ApiProperty({ example: 'My login' })
+  @ApiProperty({
+    maxLength: loginConstraints.maxLength,
+    minLength: loginConstraints.minLength,
+    pattern: loginConstraints.match.toString(),
+    uniqueItems: true,
+    description: 'must be unique',
+  })
   @Matches(loginConstraints.match, { message: 'Login must be a valid' })
   @IsStringWithTrim(loginConstraints.minLength, loginConstraints.maxLength)
   login!: string;
 
-  @ApiProperty({ example: 'My password' })
+  @ApiProperty({
+    maxLength: passwordConstraints.maxLength,
+    minLength: passwordConstraints.minLength,
+  })
   @IsStringWithTrim(
     passwordConstraints.minLength,
     passwordConstraints.maxLength,
   )
   password!: string;
 
-  @ApiProperty({ example: 'My email' })
+  @ApiProperty({
+    example: 'example@example.dev',
+    uniqueItems: true,
+    description: 'must be unique',
+    pattern: emailConstraints.match.toString(),
+  })
   @IsValidEmail()
   email!: string;
 }

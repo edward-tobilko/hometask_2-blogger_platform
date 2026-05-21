@@ -28,7 +28,11 @@ import { PasswordRecoveryCommand } from '../../application/use-cases/users/passw
 import { NewPasswordCommand } from '../../application/use-cases/users/new-password.use-case';
 import { LoginCommand } from '../../application/use-cases/users/login.use-case';
 import { MeQuery } from '../../application/queries/me.query';
-import { ApiLoginSwagger } from '../../decorators/auth/swagger/login-swagger.decorator';
+import { ApiLoginSwagger } from '../decorators/auth/swagger/login-swagger.decorator';
+import { ApiPasswordRecoverySwagger } from '../decorators/auth/swagger/password-recovery-swagger.decorator';
+import { ApiNewPasswordSwagger } from '../decorators/auth/swagger/new-password-swagger.decorator';
+import { ApiRegistrationConfirmationSwagger } from '../decorators/auth/swagger/registration-confirm-swagger.decorator';
+import { ApiRegistrationSwagger } from '../decorators/auth/swagger/registration-swagger.decorator';
 
 @Controller(API_ROUTES.authorization)
 export class AuthController {
@@ -65,14 +69,16 @@ export class AuthController {
     return { accessToken };
   }
 
-  // * POST: Password recovery via email confirmation. Email should be sent with RecoveryCode inside.
+  @ApiPasswordRecoverySwagger(
+    'Password recovery via email confirmation. Email should be sent with RecoveryCode inside',
+  )
   @Post('password-recovery')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   passwordRecovery(@Body() dto: PasswordRecoveryInputDto): Promise<void> {
     return this.commandBus.execute(new PasswordRecoveryCommand(dto.email));
   }
 
-  // * POST: Confirm password recovery.
+  @ApiNewPasswordSwagger('Confirm password recovery')
   @Post('new-password')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   newPassword(@Body() dto: NewPassword): Promise<void> {
@@ -81,7 +87,7 @@ export class AuthController {
     );
   }
 
-  // * POST: Confirm registration.
+  @ApiRegistrationConfirmationSwagger('Confirm registration')
   @Post('registration-confirmation')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   confirmRegistration(@Body() dto: RegistrationConfirmInputDto): Promise<void> {
@@ -90,7 +96,9 @@ export class AuthController {
     );
   }
 
-  // * POST: Registration in the system. Email with confirmation code will be send to passed email address.
+  @ApiRegistrationSwagger(
+    'Registration in the system. Email with confirmation code will be send to passed email address',
+  )
   @Post('registration')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   registration(@Body() dto: CreateUserInputDto): Promise<void> {

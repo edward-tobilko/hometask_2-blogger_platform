@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
 import {
   titleConstraints,
@@ -5,17 +7,28 @@ import {
   contentConstraints,
 } from 'src/modules/bloggers-platform/posts/constraints/posts/posts.constraints';
 
-// * DTO model - response for db
 export class CreatePostForBlogDto {
+  @ApiProperty({
+    minLength: titleConstraints.minLength,
+    maxLength: titleConstraints.maxLength,
+  })
   @IsStringWithLength(titleConstraints.minLength, titleConstraints.maxLength)
   title!: string;
 
+  @ApiProperty({
+    minLength: shortDescriptionConstraints.minLength,
+    maxLength: shortDescriptionConstraints.maxLength,
+  })
   @IsStringWithLength(
     shortDescriptionConstraints.minLength,
     shortDescriptionConstraints.maxLength,
   )
   shortDescription!: string;
 
+  @ApiProperty({
+    minLength: contentConstraints.minLength,
+    maxLength: contentConstraints.maxLength,
+  })
   @IsStringWithLength(
     contentConstraints.minLength,
     contentConstraints.maxLength,

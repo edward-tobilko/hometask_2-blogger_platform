@@ -52,14 +52,14 @@ export class BlogsQueryRepository {
       this.blogModel.countDocuments(filter),
     ]);
 
-    return new BlogListPaginatedViewModel(
-      Math.ceil(totalCount / pageSize),
-      pageNumber,
+    return BlogListPaginatedViewModel.mapToView({
+      pagesCount: Math.ceil(totalCount / pageSize),
+      page: pageNumber,
       pageSize,
       totalCount,
 
-      items.map(BlogViewModel.mapToViewModel),
-    );
+      items: items.map((blog) => BlogViewModel.mapToViewModel(blog)),
+    });
   }
 
   async findBlogById(blogId: string): Promise<BlogViewModel | null> {
