@@ -24,11 +24,11 @@ export const ApiRegistrationEmailResendingSwagger = (summary: string) => {
     ApiResponse({
       status: 204,
       description:
-        'Input data is accepted. Email with confirmation code will be send to passed email address',
+        'Input data is accepted.Email with confirmation code will be send to passed email address.Confirmation code should be inside link as query param, for example: https://some-front.com/confirm-registration?code=youtcodehere',
     }),
     ApiResponse({
       status: 400,
-      description: `If the inputModel has incorrect values (in particular if the user with the given email or login already exists)`,
+      description: `If the inputModel has incorrect values`,
       content: {
         'application/json': {
           schema: { $ref: getSchemaPath(ValidationErrorViewModel) },

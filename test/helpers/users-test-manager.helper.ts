@@ -61,13 +61,16 @@ export class UserTestManager {
   async login(
     dto: LoginInputDto,
     statusCode: number = HttpStatus.OK,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; cookies: string[] }> {
     const response = await request(this.httpServer)
       .post(`${this.authPath}/login`)
       .send(dto)
       .expect(statusCode);
 
-    return response.body as { accessToken: string };
+    return {
+      ...response.body, // return accessToken
+      cookies: response.headers['set-cookie'] ?? [],
+    } as { accessToken: string; cookies: string[] };
   }
 
   async registrationUser(

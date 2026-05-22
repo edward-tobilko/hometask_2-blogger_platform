@@ -18,6 +18,7 @@ import {
   UserAccount,
   UserAccountModel,
 } from 'src/modules/user-accounts/domain/entities/user.entity';
+import { ApiDeleteAllDataSwagger } from './delete-all-data-swagger.decorator';
 
 @Controller(API_ROUTES.testing)
 export class TestingDataController {
@@ -28,18 +29,18 @@ export class TestingDataController {
     @InjectModel(Comment.name) protected commentModel: CommentModel,
   ) {}
 
-  // * Remove all date
+  @ApiDeleteAllDataSwagger(
+    'Clear database: delete all data from all tables/collections',
+  )
   @Delete()
   @HttpCode(204)
   async deleteAllData(): Promise<void> {
     await Promise.all([
-      // this.sessionModel.deleteMany(),
       this.blogModel.deleteMany({}).exec(),
       this.commentModel.deleteMany().exec(),
       this.postModel.deleteMany({}).exec(),
       this.userAccountModel.deleteMany({}).exec(),
-      // this.postLikeModel.deleteMany(),
-      // this.commentLikeModel.deleteMany(),
+      this.commentModel.deleteMany().exec(),
     ]);
   }
 }

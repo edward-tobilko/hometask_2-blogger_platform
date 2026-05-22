@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Matches } from 'class-validator';
 
+import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
 import {
   descriptionConstraints,
   nameConstraints,
   websiteUrlConstraints,
-} from 'src/core/constants/constraints.constants';
-import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
+} from '../../../constraints/blogs.constraints';
 
 export class CreateBlogDto {
   @ApiProperty({
