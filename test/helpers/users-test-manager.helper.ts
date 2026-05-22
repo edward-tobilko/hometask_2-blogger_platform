@@ -27,6 +27,9 @@ export class UserTestManager {
     private readonly userModel: Model<UserAccountDocument>,
   ) {}
 
+  private readonly ADMIN_LOGIN = 'admin';
+  private readonly ADMIN_PASSWORD = 'qwerty';
+
   httpServer = this.app.getHttpServer() as Server;
   usersPath = `/${GLOBAL_PREFIX}/users` as string;
   authPath = `/${GLOBAL_PREFIX}/auth` as string;
@@ -92,7 +95,7 @@ export class UserTestManager {
     const response = await request(this.httpServer)
       .post(this.usersPath)
       .send(createModel)
-      .auth('admin', 'qwerty')
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .expect(statusCode);
 
     return response.body as UserViewDto;
@@ -153,7 +156,7 @@ export class UserTestManager {
 
     const usersList = await request(this.httpServer)
       .get(this.usersPath)
-      .auth('admin', 'qwerty')
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .query(defaultQuery)
       .expect(statusCode);
 
@@ -166,7 +169,7 @@ export class UserTestManager {
   ): Promise<unknown> {
     const response = await request(this.httpServer)
       .delete(`${this.usersPath}/${userId}`)
-      .auth('admin', 'qwerty')
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .expect(statusCode);
 
     return response.body;

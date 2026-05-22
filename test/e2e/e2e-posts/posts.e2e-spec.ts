@@ -1,10 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { Server } from 'http';
 
-import {
-  contentConstraints,
-  shortDescriptionConstraints,
-  titleConstraints,
-} from 'src/core/constants/constraints.constants';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
@@ -17,6 +14,13 @@ import { UpdatePostDto } from 'src/modules/bloggers-platform/posts/api/dto/input
 import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import { CommentsSortBy } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
+import {
+  contentConstraints,
+  shortDescriptionConstraints,
+  titleConstraints,
+} from 'src/modules/bloggers-platform/posts/constraints/posts/posts.constraints';
+import { LikeStatus } from 'src/core/enums/like-status.enum';
+import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/constraints/comments.constraints';
 
 describe('Posts swagger contract', () => {
   let app: INestApplication;
@@ -46,6 +50,224 @@ describe('Posts swagger contract', () => {
     createdBlog = await blogTestManager.createBlog(dto);
   });
 
+  describe('Tests for PUT: /api/posts/{postId}/like-status end-point', () => {
+    let createdPost: PostViewModel;
+    let accessToken: string;
+
+    beforeEach(async () => {
+      const dto = postTestManager.getPostInputDto({ blogId: createdBlog.id });
+
+      createdPost = await postTestManager.createPost(dto);
+
+      const user = await authTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken: token } = await authTestManager.login({
+        loginOrEmail: user.login,
+        password: user.password,
+      });
+
+      accessToken = token;
+    });
+
+    it('status 204 - should set like status', async () => {
+      // * ставим лайк
+      await postTestManager.updateLikeStatus(
+        createdPost.id,
+        LikeStatus.Like,
+        accessToken,
+      );
+
+      // * выводим результат
+      const post = await postTestManager.getPostById(createdPost.id);
+
+      expect(post.extendedLikesInfo.likesCount).toBe(1);
+      expect(post.extendedLikesInfo.myStatus).toBe('None'); // без токена -> "None"
+    });
+
+    it('status 204 - should set dislike status', async () => {
+      await postTestManager.updateLikeStatus(
+        createdPost.id,
+        LikeStatus.Dislike,
+        accessToken,
+      );
+
+      const post = await postTestManager.getPostById(createdPost.id);
+
+      expect(post.extendedLikesInfo.dislikesCount).toBe(1);
+      expect(post.extendedLikesInfo.myStatus).toBe('None');
+    });
+
+    it('status 204 - should reset status to "None"', async () => {
+      await postTestManager.updateLikeStatus(
+        createdPost.id,
+        LikeStatus.None,
+        accessToken,
+      );
+
+      const post = await postTestManager.getPostById(createdPost.id);
+
+      expect(post.extendedLikesInfo.likesCount).toBe(0);
+      expect(post.extendedLikesInfo.dislikesCount).toBe(0);
+      expect(post.extendedLikesInfo.myStatus).toBe('None');
+    });
+
+    it('status 204 - myStatus reflects like for authorized user', async () => {
+      await postTestManager.updateLikeStatus(
+        createdPost.id,
+        LikeStatus.Like,
+        accessToken,
+      );
+
+      const post = await postTestManager.getPostById(
+        createdPost.id,
+        HttpStatus.OK,
+        accessToken,
+      );
+      expect(post.extendedLikesInfo.myStatus).toBe('Like');
+    });
+
+    it('status 401 - if no auth token provided', async () => {
+      await postTestManager.updateLikeStatus(
+        createdPost.id,
+        LikeStatus.Like,
+        'invalid_token',
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
+
+    it('status 404 - if post not found', async () => {
+      await postTestManager.updateLikeStatus(
+        '000000000000000000000000',
+        LikeStatus.Like,
+        accessToken,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('status 400 - if likeStatus is invalid', async () => {
+      const result = await request(app.getHttpServer() as Server)
+        .put(`/api/posts/${createdPost.id}/like-status`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ likeStatus: 'invalid' })
+        .expect(HttpStatus.BAD_REQUEST);
+
+      const body = result.body as BadRequestError;
+
+      expect(body.errorsMessages[0].field).toBe('likeStatus');
+    });
+  });
+
+  describe('Tests for POST: /api/posts/{postId}/comments', () => {
+    let post: PostViewModel;
+    let accessToken: string;
+
+    beforeEach(async () => {
+      const dto = postTestManager.getPostInputDto({ blogId: createdBlog.id });
+
+      post = await postTestManager.createPost(dto);
+
+      const { login, password } =
+        await authTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken: token } = await authTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      accessToken = token;
+    });
+
+    it('status - 201 should return created post', async () => {
+      const comments = await postTestManager.createSeveralCommentsForPost(
+        post.id,
+        accessToken,
+        1,
+      );
+
+      expect(comments[0]).toEqual(
+        expect.objectContaining({
+          id: expect.any(String),
+          content: expect.any(String),
+          commentatorInfo: expect.objectContaining({
+            userId: expect.any(String),
+            userLogin: expect.any(String),
+          }),
+          createdAt: expect.any(String),
+          likesInfo: expect.objectContaining({
+            likesCount: expect.any(Number),
+            dislikesCount: expect.any(Number),
+            myStatus: expect.any(String),
+          }),
+        }),
+      );
+    });
+
+    it.each([
+      {
+        name: 'content is not a string',
+        payload: {
+          content: 123,
+        },
+        field: 'content',
+      },
+      {
+        name: 'content length < 20 symbols',
+        payload: {
+          content: 'a'.repeat(commentsContentConstraints.minLength - 1),
+        },
+        field: 'content',
+      },
+      {
+        name: 'content length > 300 symbols',
+        payload: {
+          content: 'a'.repeat(commentsContentConstraints.maxLength + 1),
+        },
+        field: 'content',
+      },
+    ] as const)(
+      'status 400 - should not create comment if the inputModel has incorrect values',
+      async ({ payload, field }) => {
+        const result = await request(app.getHttpServer() as Server)
+          .post(`/api/posts/${post.id}/comments`)
+          .set('Authorization', `Bearer ${accessToken}`)
+          .send(payload)
+          .expect(HttpStatus.BAD_REQUEST);
+
+        const body = result.body as BadRequestError;
+
+        expect(body.errorsMessages).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              message: expect.any(String),
+              field,
+            }),
+          ]),
+        );
+      },
+    );
+
+    it('status - 401 if unauthorized', async () => {
+      await request(app.getHttpServer() as Server)
+        .post(`/api/posts/${post.id}/comments`)
+        .send({
+          content: `This content include 30+ symbols`,
+        })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it("status - 404 if post with specified postId doesn't exists", async () => {
+      const notExistingPostId = '000000000000000000000000';
+
+      await request(app.getHttpServer() as Server)
+        .post(`/api/posts/${notExistingPostId}/comments`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({
+          content: `This content include 30+ symbols`,
+        })
+        .expect(HttpStatus.NOT_FOUND);
+    });
+  });
+
   describe(`Tests for GET: /api/posts/{postId}/comments end-point`, () => {
     let createdPost: PostViewModel;
     let accessToken: string;
@@ -62,6 +284,7 @@ describe('Posts swagger contract', () => {
         loginOrEmail: login,
         password,
       });
+
       accessToken = token;
     });
 
@@ -174,6 +397,19 @@ describe('Posts swagger contract', () => {
   });
 
   describe('Tests for GET: /api/posts end-point', () => {
+    let accessToken: string;
+
+    beforeEach(async () => {
+      const user = await authTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken: token } = await authTestManager.login({
+        loginOrEmail: user.login,
+        password: user.password,
+      });
+
+      accessToken = token;
+    });
+
     it('status 200 - should return paginated posts list', async () => {
       await postTestManager.createSeveralPosts(createdBlog.id, 12);
 
@@ -248,6 +484,20 @@ describe('Posts swagger contract', () => {
         new Date(descResult.items[0].createdAt) >=
           new Date(descResult.items[1].createdAt),
       ).toBe(true);
+    });
+
+    it('status 200 - myStatus reflects user like for authorized user', async () => {
+      const posts = await postTestManager.createSeveralPosts(createdBlog.id, 1);
+
+      await postTestManager.updateLikeStatus(posts[0].id, 'Like', accessToken);
+
+      const result = await postTestManager.getPostsPaginatedList(
+        {},
+        HttpStatus.OK,
+        accessToken,
+      );
+
+      expect(result.items[0].extendedLikesInfo.myStatus).toBe('Like');
     });
   });
 
@@ -352,6 +602,15 @@ describe('Posts swagger contract', () => {
         );
       },
     );
+
+    it('status - 401 if without basic authorization', async () => {
+      const dto = postTestManager.getPostInputDto();
+
+      await request(app.getHttpServer() as Server)
+        .post('/api/posts')
+        .send(dto)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
   });
 
   describe('Tests for GET: /api/posts/{id} end-point', () => {
@@ -494,6 +753,16 @@ describe('Posts swagger contract', () => {
         );
       },
     );
+
+    it('status - 401 if without basic authorization', async () => {
+      const dto = postTestManager.getPostInputDto({ blogId: createdBlog.id });
+      const post = await postTestManager.createPost(dto);
+
+      await request(app.getHttpServer() as Server)
+        .put(`/api/posts/${post.id}`)
+        .send(dto)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
   });
 
   describe('Tests for DELETE: /api/posts/{id} end-point', () => {
@@ -510,6 +779,16 @@ describe('Posts swagger contract', () => {
       const invalidPostId = '012345678901234567890123';
 
       await postTestManager.deletePost(invalidPostId, HttpStatus.NOT_FOUND);
+    });
+
+    it('status - 401 if without basic authorization', async () => {
+      const dto = postTestManager.getPostInputDto({ blogId: createdBlog.id });
+      const post = await postTestManager.createPost(dto);
+
+      await request(app.getHttpServer() as Server)
+        .delete(`/api/posts/${post.id}`)
+        .send(dto)
+        .expect(HttpStatus.UNAUTHORIZED);
     });
   });
 });

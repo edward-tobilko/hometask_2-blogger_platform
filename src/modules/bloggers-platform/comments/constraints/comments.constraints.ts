@@ -1,4 +1,4 @@
-export const contentConstraints = {
+export const commentsContentConstraints = {
   minLength: 20,
   maxLength: 300,
 };
