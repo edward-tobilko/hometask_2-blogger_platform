@@ -19,7 +19,7 @@ import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/crea
 import {
   loginConstraints,
   passwordConstraints,
-} from 'src/core/constants/constraints.constants';
+} from 'src/modules/user-accounts/constraints/users.constraints';
 
 describe('Auth swagger contract', () => {
   let app: INestApplication;
@@ -54,7 +54,7 @@ describe('Auth swagger contract', () => {
 
   beforeEach(async () => await deleteAllData(app));
 
-  describe('Tests for POST /api/auth/registration end-point', () => {
+  describe('Tests for POST: /api/auth/registration end-point', () => {
     let result: UserAccountDocument | null;
     let dto: CreateUserInputDto;
 
@@ -186,7 +186,7 @@ describe('Auth swagger contract', () => {
     it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
-  describe('Tests for POST /api/auth/registration-email-resending end-point', () => {
+  describe('Tests for POST: /api/auth/registration-email-resending end-point', () => {
     let userBefore: UserAccountDocument | null;
     let dto: CreateUserInputDto;
 
@@ -293,7 +293,7 @@ describe('Auth swagger contract', () => {
     it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
-  describe('Tests for POST /api/auth/registration-confirmation end-point', () => {
+  describe('Tests for POST: /api/auth/registration-confirmation end-point', () => {
     let userBefore: UserAccountDocument | null;
     let dto: CreateUserInputDto;
 
@@ -421,7 +421,7 @@ describe('Auth swagger contract', () => {
     it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
-  describe('Tests for POST /api/auth/password-recovery end-point', () => {
+  describe('Tests for POST: /api/auth/password-recovery end-point', () => {
     it('status 204 - sends recovery email for existing user', async () => {
       const dto = userTestManager.getUserInputDto();
 
@@ -462,7 +462,7 @@ describe('Auth swagger contract', () => {
     it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
-  describe('Tests for POST /api/auth/new-password end-point', () => {
+  describe('Tests for POST: /api/auth/new-password end-point', () => {
     it('status 204 - if code is valid and new password is accepted', async () => {
       const NEW_PASSWORD = 'NewPass123!';
 
@@ -592,7 +592,7 @@ describe('Auth swagger contract', () => {
     it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
-  describe('Tests for POST /api/auth/login end-point', () => {
+  describe('Tests for POST: /api/auth/login end-point', () => {
     it('status 200 - returns JWT accessToken (expired after 5 minutes) in body', async () => {
       const user = await userTestManager.getRegisteredAndConfirmedUser();
 
@@ -692,7 +692,7 @@ describe('Auth swagger contract', () => {
     it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
-  describe('Tests for POST /api/auth/me end-point', () => {
+  describe('Tests for GET: /api/auth/me end-point', () => {
     it('status 200 - with valid access token', async () => {
       const user = await userTestManager.getRegisteredAndConfirmedUser();
 

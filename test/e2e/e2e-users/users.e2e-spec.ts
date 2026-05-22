@@ -280,5 +280,12 @@ describe('Users swagger contract', () => {
         .delete(`${usersPath}/${user.id}`)
         .expect(HttpStatus.UNAUTHORIZED);
     });
+
+    it('status 404 - if user not found', async () => {
+      await userTestManager.deleteUser(
+        '000000000000000000000000',
+        HttpStatus.NOT_FOUND,
+      );
+    });
   });
 });

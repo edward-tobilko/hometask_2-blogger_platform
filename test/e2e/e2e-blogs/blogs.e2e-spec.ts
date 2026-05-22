@@ -21,14 +21,14 @@ import {
   websiteUrlConstraints,
 } from 'src/modules/bloggers-platform/blogs/constraints/blogs.constraints';
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
-// import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
+import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
 
 describe('Blogs swagger contract', () => {
   let app: INestApplication;
 
   let blogTestManager: BlogTestManager;
   let userTestManager: UserTestManager;
-  // let postTestManager: PostTestManager;
+  let postTestManager: PostTestManager;
 
   let httpServer: Server;
   let blogsPath: string;
@@ -40,7 +40,7 @@ describe('Blogs swagger contract', () => {
 
     blogTestManager = result.blogTestManager;
     userTestManager = result.userTestManager;
-    // postTestManager = result.postTestManager;
+    postTestManager = result.postTestManager;
 
     httpServer = app.getHttpServer();
     blogsPath = `/${GLOBAL_PREFIX}/blogs`;
@@ -326,12 +326,12 @@ describe('Blogs swagger contract', () => {
       const blog = await blogTestManager.createBlog(
         blogTestManager.getBlogInputDto(),
       );
-      // const post = (
-      //   await blogTestManager.createSeveralPostsForBlog(blog.id, 1)
-      // )[0];
+      const post = (
+        await blogTestManager.createSeveralPostsForBlog(blog.id, 1)
+      )[0];
 
       // * ставим лайк
-      // await postTestManager.updateLikeStatus(post.id, 'Like', accessToken);
+      await postTestManager.updateLikeStatus(post.id, 'Like', accessToken);
 
       const result = await blogTestManager.getPostsForBlogPaginatedList(
         blog.id,
@@ -381,6 +381,13 @@ describe('Blogs swagger contract', () => {
           blogId: createdBlog.id,
           blogName: createdBlog.name,
           createdAt: expect.any(String),
+
+          extendedLikesInfo: expect.objectContaining({
+            likesCount: 0,
+            dislikesCount: 0,
+            myStatus: 'None',
+            newestLikes: expect.any(Array),
+          }),
         }),
       );
     });
