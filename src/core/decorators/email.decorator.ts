@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, Matches } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
 
 import { Trim } from './trim.decorator';
-import { emailConstraints } from '../constants/constraints.constants';
+import { emailConstraints } from 'src/modules/user-accounts/constraints/users.constraints';
 
 export const IsValidEmail = () =>
   applyDecorators(

@@ -28,7 +28,7 @@ import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
 import { GetBlogsListQuery } from '../../application/queries/get-blogs-list.query';
-import { GetBlogByIdQuery } from '../../application/queries/get-blog.use-case';
+import { GetBlogByIdQuery } from '../../application/queries/get-blog.query';
 import { GetPostsForBlogQuery } from '../../application/queries/get-posts-for-blog.query';
 import { CreateBlogCommand } from '../../application/use-cases/create-blog.use-case';
 import { BlogDocument } from '../../domain/entities/blog.entity';
@@ -43,6 +43,8 @@ import { CreatePostForBlogSwagger } from '../decorators/swagger/create-post-for-
 import { ApiGetBlogByIdSwagger } from '../decorators/swagger/get-blog-swagger.decorator';
 import { ApiUpdateBlogSwagger } from '../decorators/swagger/update-blog-swagger.decorator';
 import { ApiDeleteBlogSwagger } from '../decorators/swagger/delete-blog-swagger.decorator';
+import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
+import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
@@ -76,12 +78,14 @@ export class BlogsController {
 
   @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
   @Get(':blogId/posts')
+  @UseGuards(JwtOptionalAuthGuard)
   async getPostsListForBlog(
     @Param() params: BlogIdForPostsParamDto,
     @Query() query: PostsQueryDto,
+    @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<PostsPaginatedViewModel> {
     return this.queryBus.execute(
-      new GetPostsForBlogQuery(params.blogId, query),
+      new GetPostsForBlogQuery(params.blogId, query, user?.id),
     );
   }
 

@@ -21,8 +21,12 @@ import { PostTestManager } from './posts-test-manager.helper';
 export class BlogTestManager {
   constructor(
     private readonly app: INestApplication,
+
     private postTestManager: PostTestManager,
   ) {}
+
+  private readonly ADMIN_LOGIN = 'admin';
+  private readonly ADMIN_PASSWORD = 'qwerty';
 
   httpServer = this.app.getHttpServer() as Server;
   blogsPath = `/${GLOBAL_PREFIX}/blogs` as string;
@@ -78,6 +82,7 @@ export class BlogTestManager {
     blogId: string,
     optional: { query?: Partial<BlogsQueryDto> } = {},
     statusCode: number = HttpStatus.OK,
+    accessToken?: string, // for dynamic status
   ): Promise<PostsPaginatedViewModel> {
     const { query } = optional;
 
@@ -90,10 +95,15 @@ export class BlogTestManager {
       ...query,
     };
 
-    const postsForBlogList = await request(this.httpServer)
+    const requestResult = request(this.httpServer)
       .get(`${this.blogsPath}/${blogId}/posts`)
-      .query(defaultQuery)
-      .expect(statusCode);
+      .query(defaultQuery);
+
+    if (accessToken) {
+      requestResult.set('Authorization', `Bearer ${accessToken}`);
+    }
+
+    const postsForBlogList = await requestResult.expect(statusCode);
 
     return postsForBlogList.body as PostsPaginatedViewModel;
   }
@@ -115,6 +125,7 @@ export class BlogTestManager {
   ): Promise<BlogViewModel> {
     const response = await request(this.httpServer)
       .post(`${this.blogsPath}`)
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
 
@@ -145,6 +156,7 @@ export class BlogTestManager {
   ): Promise<PostViewModel> {
     const response = await request(this.httpServer)
       .post(`${this.blogsPath}/${blogId}/posts`)
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
 
@@ -160,6 +172,7 @@ export class BlogTestManager {
     for (let i = 1; i <= count; i++) {
       const response = await request(this.httpServer)
         .post(`${this.postsPath}`)
+        .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
         .send({
           title: `Title ${i}`,
           shortDescription: `Short description ${i}`,
@@ -181,6 +194,7 @@ export class BlogTestManager {
   ): Promise<UpdateBlogDto> {
     const response = await request(this.httpServer)
       .put(`${this.blogsPath}/${id}`)
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
 
@@ -193,6 +207,7 @@ export class BlogTestManager {
   ): Promise<void> {
     await request(this.httpServer)
       .delete(`${this.blogsPath}/${id}`)
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .expect(statusCode);
   }
 }

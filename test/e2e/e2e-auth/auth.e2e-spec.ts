@@ -67,7 +67,7 @@ describe('Auth swagger contract', () => {
       result = await userTestManager.findUserByEmail(dto.email);
     });
 
-    it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address', async () => {
+    it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address', () => {
       expect(result).toBeTruthy();
       expect(result!.emailConfirmation.isConfirmed).toBe(false);
       expect(result!.emailConfirmation.confirmationCode).toBeTruthy();
@@ -603,6 +603,9 @@ describe('Auth swagger contract', () => {
 
       expect(result).toHaveProperty('accessToken');
       expect(typeof result.accessToken).toBe('string');
+      expect(
+        result.cookies.some((cookie) => cookie.startsWith('refreshToken=')),
+      ).toBe(true);
     });
 
     it('status 401 - if email not confirmed', async () => {

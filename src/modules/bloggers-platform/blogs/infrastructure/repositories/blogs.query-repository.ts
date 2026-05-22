@@ -18,6 +18,7 @@ import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/
 import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
+import { LikeStatus } from 'src/core/enums/like-status.enum';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -76,6 +77,7 @@ export class BlogsQueryRepository {
   async findPostsForBlog(
     blogId: string,
     query: PostsQueryDto,
+    userId?: string,
   ): Promise<PostsPaginatedViewModel> {
     const { pageNumber, pageSize } = query;
 
@@ -100,7 +102,15 @@ export class BlogsQueryRepository {
       pageSize,
       totalCount,
 
-      items: items.map((post) => PostViewModel.mapToViewModel(post)),
+      items: items.map((post) => {
+        const myStatus = userId
+          ? (post.extendedLikesInfo?.userReactions?.find(
+              (reaction) => reaction.userId === userId,
+            )?.status ?? LikeStatus.None)
+          : LikeStatus.None;
+
+        return PostViewModel.mapToViewModel(post, myStatus ?? LikeStatus.None);
+      }),
     });
   }
 }

@@ -33,6 +33,8 @@ import { ApiPasswordRecoverySwagger } from '../decorators/auth/swagger/password-
 import { ApiNewPasswordSwagger } from '../decorators/auth/swagger/new-password-swagger.decorator';
 import { ApiRegistrationConfirmationSwagger } from '../decorators/auth/swagger/registration-confirm-swagger.decorator';
 import { ApiRegistrationSwagger } from '../decorators/auth/swagger/registration-swagger.decorator';
+import { ApiRegistrationEmailResendingSwagger } from '../decorators/auth/swagger/registration-email-resending-swagger.decorator';
+import { ApiGetMeSwagger } from '../decorators/auth/swagger/get-me-swagger.decorator';
 
 @Controller(API_ROUTES.authorization)
 export class AuthController {
@@ -105,7 +107,9 @@ export class AuthController {
     return this.commandBus.execute(new RegisterUserCommand(dto));
   }
 
-  // * POST: Resend confirmation registration  email if user exist.
+  @ApiRegistrationEmailResendingSwagger(
+    'Resend confirmation registration  email if user exist',
+  )
   @Post('registration-email-resending')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   registrationEmailResending(
@@ -116,7 +120,7 @@ export class AuthController {
     );
   }
 
-  // * GET: Get info about current user.
+  @ApiGetMeSwagger('Get info about current user')
   @Get('me')
   @UseGuards(JwtAuthGuard)
   me(

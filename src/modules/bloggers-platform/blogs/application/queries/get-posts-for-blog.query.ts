@@ -10,6 +10,7 @@ export class GetPostsForBlogQuery {
   constructor(
     public blogId: string,
     public query: PostsQueryDto,
+    public userId?: string,
   ) {}
 }
 
@@ -23,6 +24,7 @@ export class GetPostsForBlogQueryHandler implements IQueryHandler<
   async execute({
     blogId,
     query,
+    userId,
   }: GetPostsForBlogQuery): Promise<PostsPaginatedViewModel> {
     const blogInstance = await this.blogsQueryRepo.findBlogById(blogId);
 
@@ -32,6 +34,6 @@ export class GetPostsForBlogQueryHandler implements IQueryHandler<
         message: `This blog with ID:${blogId} was not found`,
       });
 
-    return this.blogsQueryRepo.findPostsForBlog(blogId, query);
+    return this.blogsQueryRepo.findPostsForBlog(blogId, query, userId);
   }
 }

@@ -1,30 +1,49 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { Server } from 'http';
 
 import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { BadRequestError } from '../utils/bad-request-error.util';
-import {
-  contentConstraints,
-  descriptionConstraints,
-  nameConstraints,
-  shortDescriptionConstraints,
-  titleConstraints,
-  websiteUrlConstraints,
-} from 'src/core/constants/constraints.constants';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { SortDirections } from 'src/core/enums/sort-directions.enum';
 import { BlogsSortBy } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
+import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
+import {
+  contentConstraints,
+  shortDescriptionConstraints,
+  titleConstraints,
+} from 'src/modules/bloggers-platform/posts/constraints/posts/posts.constraints';
+import {
+  descriptionConstraints,
+  nameConstraints,
+  websiteUrlConstraints,
+} from 'src/modules/bloggers-platform/blogs/constraints/blogs.constraints';
+import { UserTestManager } from 'test/helpers/users-test-manager.helper';
+// import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
 
 describe('Blogs swagger contract', () => {
   let app: INestApplication;
+
   let blogTestManager: BlogTestManager;
+  let userTestManager: UserTestManager;
+  // let postTestManager: PostTestManager;
+
+  let httpServer: Server;
+  let blogsPath: string;
 
   beforeAll(async () => {
     const result = await initSettings();
 
     app = result.app;
+
     blogTestManager = result.blogTestManager;
+    userTestManager = result.userTestManager;
+    // postTestManager = result.postTestManager;
+
+    httpServer = app.getHttpServer();
+    blogsPath = `/${GLOBAL_PREFIX}/blogs`;
   });
 
   afterAll(async () => await app.close());
@@ -211,6 +230,15 @@ describe('Blogs swagger contract', () => {
         );
       },
     );
+
+    it('status 401 - if no basic auth provided', async () => {
+      const dto = blogTestManager.getBlogInputDto();
+
+      await request(httpServer)
+        .post(blogsPath)
+        .send(dto)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
   });
 
   describe('Tests for GET: /api/blogs/{blogId}/posts end-point', () => {
@@ -271,6 +299,48 @@ describe('Blogs swagger contract', () => {
 
       expect(result.totalCount).toBe(0);
       expect(result.items).toHaveLength(0);
+    });
+
+    it('status 200 - myStatus is "None" for unauthorized user', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      await blogTestManager.createSeveralPostsForBlog(blog.id, 1);
+
+      const result = await blogTestManager.getPostsForBlogPaginatedList(
+        blog.id,
+      );
+
+      expect(result.items[0].extendedLikesInfo.myStatus).toBe('None');
+    });
+
+    it('status 200 - myStatus reflects user like', async () => {
+      const user = await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: user.login,
+        password: user.password,
+      });
+
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+      // const post = (
+      //   await blogTestManager.createSeveralPostsForBlog(blog.id, 1)
+      // )[0];
+
+      // * ставим лайк
+      // await postTestManager.updateLikeStatus(post.id, 'Like', accessToken);
+
+      const result = await blogTestManager.getPostsForBlogPaginatedList(
+        blog.id,
+        {},
+        HttpStatus.OK,
+        accessToken,
+      );
+
+      expect(result.items[0].extendedLikesInfo.myStatus).toBe('Like');
     });
 
     it('status 404 - if specificity blog is not exists', async () => {
@@ -390,6 +460,15 @@ describe('Blogs swagger contract', () => {
         );
       },
     );
+
+    it('status 401 - if no basic auth provided', async () => {
+      const postDto = blogTestManager.getPostForBlogInputDto();
+
+      await request(httpServer)
+        .post(`${blogsPath}/${createdBlog.id}/posts`)
+        .send(postDto)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
   });
 
   describe('Tests for GET: /api/blogs/{id} end-point', () => {
@@ -499,9 +578,14 @@ describe('Blogs swagger contract', () => {
     ] as const)(
       'status 400 - should not create blog if the inputModel has incorrect values',
       async ({ payload, field }) => {
-        const dto = blogTestManager.getBlogInputDto(payload);
-        const result = (await blogTestManager.createBlog(
-          dto,
+        const validDto = blogTestManager.getBlogInputDto();
+        const createdBlog = await blogTestManager.createBlog(validDto);
+
+        const invalidDto = blogTestManager.getBlogInputDto(payload);
+
+        const result = (await blogTestManager.updateBlog(
+          createdBlog.id,
+          invalidDto,
           HttpStatus.BAD_REQUEST,
         )) as unknown as BadRequestError;
 
@@ -515,6 +599,16 @@ describe('Blogs swagger contract', () => {
         );
       },
     );
+
+    it('status 401 - if no basic auth provided', async () => {
+      const dto = blogTestManager.getBlogInputDto();
+      const createdBlogResult = await blogTestManager.createBlog(dto);
+
+      await request(httpServer)
+        .put(`${blogsPath}/${createdBlogResult.id}`)
+        .send(blogTestManager.getBlogInputDto())
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
   });
 
   describe('Tests for DELETE: /api/blogs/{id} end-point', () => {
@@ -536,6 +630,16 @@ describe('Blogs swagger contract', () => {
         '000000000000000000000000',
         HttpStatus.NOT_FOUND,
       );
+    });
+
+    it('status 401 - if no basic auth provided', async () => {
+      const dto = blogTestManager.getBlogInputDto();
+
+      const blog = await blogTestManager.createBlog(dto);
+
+      await request(httpServer)
+        .delete(`${blogsPath}/${blog.id}`)
+        .expect(HttpStatus.UNAUTHORIZED);
     });
   });
 });
