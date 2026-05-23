@@ -74,17 +74,17 @@ export class PostTestManager {
     return response.body as PostsPaginatedViewModel;
   }
 
-  async getPostById(
+  async getPostById<T = PostViewModel>(
     id: string,
     statusCode: number = HttpStatus.OK,
     accessToken?: string,
-  ): Promise<PostViewModel> {
+  ): Promise<T> {
     const response = await request(this.httpServer)
       .get(`${this.postsPath}/${id}`)
       .set('Authorization', accessToken ? `Bearer ${accessToken}` : '') // та же запись, что и при проверке if
       .expect(statusCode);
 
-    return response.body as PostViewModel;
+    return response.body as T;
   }
 
   async getCommentsForPostPaginatedList(
@@ -113,17 +113,17 @@ export class PostTestManager {
     return response.body as CommentsPaginatedViewModel;
   }
 
-  async createPost(
+  async createPost<T = PostViewModel>(
     dto: CreatePostDto,
     statusCode: number = HttpStatus.CREATED,
-  ): Promise<PostViewModel> {
+  ): Promise<T> {
     const response = await request(this.httpServer)
       .post(this.postsPath)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
 
-    return response.body as PostViewModel;
+    return response.body as T;
   }
 
   async createSeveralPosts(
@@ -172,18 +172,18 @@ export class PostTestManager {
     return comments;
   }
 
-  async updatePost(
+  async updatePost<T = UpdatePostDto>(
     id: string,
     dto: UpdatePostDto,
     statusCode: number = HttpStatus.NO_CONTENT,
-  ): Promise<UpdatePostDto> {
+  ): Promise<T> {
     const response = await request(this.httpServer)
       .put(`${this.postsPath}/${id}`)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
 
-    return response.body as UpdatePostDto;
+    return response.body as T;
   }
 
   async updateLikeStatus(
