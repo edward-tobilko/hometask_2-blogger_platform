@@ -587,10 +587,10 @@ describe('Posts swagger contract', () => {
       'status 400 - should not create post if the inputModel has incorrect values',
       async ({ payload, field }) => {
         const dto = postTestManager.getPostInputDto(payload);
-        const result = (await postTestManager.createPost(
+        const result = await postTestManager.createPost<BadRequestError>(
           dto,
           HttpStatus.BAD_REQUEST,
-        )) as unknown as BadRequestError;
+        );
 
         expect(result.errorsMessages).toEqual(
           expect.arrayContaining([
@@ -737,11 +737,11 @@ describe('Posts swagger contract', () => {
         const createdPost = await postTestManager.createPost(validDto);
 
         const invalidDto = postTestManager.getPostInputDto(payload);
-        const result = (await postTestManager.updatePost(
+        const result = await postTestManager.updatePost<BadRequestError>(
           createdPost.id,
           invalidDto,
           HttpStatus.BAD_REQUEST,
-        )) as unknown as BadRequestError;
+        );
 
         expect(result.errorsMessages).toEqual(
           expect.arrayContaining([

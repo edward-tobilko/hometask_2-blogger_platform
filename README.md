@@ -8,17 +8,17 @@ A production-ready REST API for a blogging platform featuring full user account 
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | NestJS 11, Express 5 |
-| Language | TypeScript 5.7 |
-| Database | MongoDB + Mongoose 9 |
+| Layer          | Technology                                 |
+| -------------- | ------------------------------------------ |
+| Framework      | NestJS 11, Express 5                       |
+| Language       | TypeScript 5.7                             |
+| Database       | MongoDB + Mongoose 9                       |
 | Authentication | JWT (access + refresh tokens), Passport.js |
-| Validation | class-validator, class-transformer |
-| API Docs | Swagger / OpenAPI (@nestjs/swagger) |
-| Email | Nodemailer |
-| Testing | Jest, Supertest |
-| Deployment | Fly.io, Docker |
+| Validation     | class-validator, class-transformer         |
+| API Docs       | Swagger / OpenAPI (@nestjs/swagger)        |
+| Email          | Nodemailer                                 |
+| Testing        | Jest, Supertest                            |
+| Deployment     | Fly.io, Docker                             |
 
 ---
 
@@ -60,53 +60,57 @@ Base URL: `/api`
 
 ### Authentication
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `POST` | `/auth/registration` | — | Register a new user |
-| `POST` | `/auth/registration-confirmation` | — | Confirm email with code |
-| `POST` | `/auth/registration-email-resending` | — | Resend confirmation email |
-| `POST` | `/auth/login` | Local (login/email + password) | Log in, receive JWT |
-| `POST` | `/auth/password-recovery` | — | Request password recovery |
-| `POST` | `/auth/new-password` | — | Set new password via recovery code |
-| `GET` | `/auth/me` | Bearer JWT | Get current user info |
+| Method | Endpoint                             | Auth                           | Description                        |
+| ------ | ------------------------------------ | ------------------------------ | ---------------------------------- |
+| `POST` | `/auth/registration`                 | —                              | Register a new user                |
+| `POST` | `/auth/registration-confirmation`    | —                              | Confirm email with code            |
+| `POST` | `/auth/registration-email-resending` | —                              | Resend confirmation email          |
+| `POST` | `/auth/login`                        | Local (login/email + password) | Log in, receive JWT                |
+| `POST` | `/auth/password-recovery`            | —                              | Request password recovery          |
+| `POST` | `/auth/new-password`                 | —                              | Set new password via recovery code |
+| `GET`  | `/auth/me`                           | Bearer JWT                     | Get current user info              |
 
 ### Users (Admin)
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `GET` | `/users` | Basic | List users (paginated) |
-| `POST` | `/users` | Basic | Create a user |
-| `DELETE` | `/users/:id` | Basic | Delete a user |
+| Method   | Endpoint     | Auth  | Description            |
+| -------- | ------------ | ----- | ---------------------- |
+| `GET`    | `/users`     | Basic | List users (paginated) |
+| `POST`   | `/users`     | Basic | Create a user          |
+| `DELETE` | `/users/:id` | Basic | Delete a user          |
 
 ### Blogs
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/blogs` | List blogs (paginated, searchable) |
-| `POST` | `/blogs` | Create a blog |
-| `GET` | `/blogs/:id` | Get blog by ID |
-| `PUT` | `/blogs/:id` | Update a blog |
-| `DELETE` | `/blogs/:id` | Delete a blog |
-| `GET` | `/blogs/:blogId/posts` | List posts for a blog |
-| `POST` | `/blogs/:blogId/posts` | Create a post for a blog |
+| Method   | Endpoint               | Description                        |
+| -------- | ---------------------- | ---------------------------------- |
+| `GET`    | `/blogs`               | List blogs (paginated, searchable) |
+| `POST`   | `/blogs`               | Create a blog                      |
+| `GET`    | `/blogs/:id`           | Get blog by ID                     |
+| `PUT`    | `/blogs/:id`           | Update a blog                      |
+| `DELETE` | `/blogs/:id`           | Delete a blog                      |
+| `GET`    | `/blogs/:blogId/posts` | List posts for a blog              |
+| `POST`   | `/blogs/:blogId/posts` | Create a post for a blog           |
 
 ### Posts
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/posts` | List posts (paginated) |
-| `POST` | `/posts` | Create a post |
-| `GET` | `/posts/:id` | Get post by ID |
-| `PUT` | `/posts/:id` | Update a post |
-| `DELETE` | `/posts/:id` | Delete a post |
-| `GET` | `/posts/:postId/comments` | List comments for a post |
-| `POST` | `/posts/:postId/comments` | Create a comment (requires JWT) |
+| Method   | Endpoint                     | Description                                        |
+| -------- | ---------------------------- | -------------------------------------------------- |
+| `PUT`    | `/posts/:postId/like-status` | Make like / unlike / dislike / undislike operation |
+| `GET`    | `/posts`                     | List posts (paginated)                             |
+| `POST`   | `/posts`                     | Create a post                                      |
+| `GET`    | `/posts/:id`                 | Get post by ID                                     |
+| `PUT`    | `/posts/:id`                 | Update a post                                      |
+| `DELETE` | `/posts/:id`                 | Delete a post                                      |
+| `GET`    | `/posts/:postId/comments`    | List comments for a post                           |
+| `POST`   | `/posts/:postId/comments`    | Create a comment (requires JWT)                    |
 
 ### Comments
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/comments/:id` | Get comment by ID |
+| Method   | Endpoint                           | Description                                        |
+| -------- | ---------------------------------- | -------------------------------------------------- |
+| `PUT`    | `/comments/:commentId/like-status` | Make like / unlike / dislike / undislike operation |
+| `PUT`    | `/comments/:commentId`             | Update existing comment by id with input model     |
+| `DELETE` | `/comments/:commentId`             | Delete comment specified by id                     |
+| `GET`    | `/comments/:id`                    | Get comment by ID                                  |
 
 > Full interactive documentation available at `/api` (Swagger UI).
 
@@ -123,7 +127,7 @@ Base URL: `/api`
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/blogger-platform.git
+git clone https://github.com/edward-tobilko/hometask_2-blogger_platform.git
 cd blogger-platform
 yarn install
 ```
@@ -208,21 +212,21 @@ E2E tests use **Test Managers** (e.g. `BlogsTestManager`, `UsersTestManager`) fo
 
 ## Environment Variables Reference
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `MONGO_URL` | MongoDB connection string | `mongodb+srv://...` |
-| `DB_NAME` | Database name | `blogger_platform_dev` |
-| `AT_SECRET` | JWT access token secret | `supersecret` |
-| `AT_TIME` | Access token TTL | `5m` |
-| `RT_SECRET` | JWT refresh token secret | `anothersecret` |
-| `RT_TIME` | Refresh token TTL | `7d` |
-| `ADMIN_USERNAME` | Basic auth username | `admin` |
-| `ADMIN_PASSWORD` | Basic auth password | `qwerty` |
-| `EMAIL` | Sender email address | `bot@gmail.com` |
-| `EMAIL_PASS` | Google App Password | `xxxx xxxx xxxx xxxx` |
-| `PORT` | Server port | `3000` (default: `8080`) |
-| `DISABLE_RATE_LIMIT` | Disable throttling | `true` |
-| `INCLUDE_TESTING_MODULE` | Expose `/testing/all-data` | `true` |
+| Variable                 | Description                | Example                  |
+| ------------------------ | -------------------------- | ------------------------ |
+| `MONGO_URL`              | MongoDB connection string  | `mongodb+srv://...`      |
+| `DB_NAME`                | Database name              | `blogger_platform_dev`   |
+| `AT_SECRET`              | JWT access token secret    | `supersecret`            |
+| `AT_TIME`                | Access token TTL           | `5m`                     |
+| `RT_SECRET`              | JWT refresh token secret   | `anothersecret`          |
+| `RT_TIME`                | Refresh token TTL          | `7d`                     |
+| `ADMIN_USERNAME`         | Basic auth username        | `admin`                  |
+| `ADMIN_PASSWORD`         | Basic auth password        | `qwerty`                 |
+| `EMAIL`                  | Sender email address       | `bot@gmail.com`          |
+| `EMAIL_PASS`             | Google App Password        | `xxxx xxxx xxxx xxxx`    |
+| `PORT`                   | Server port                | `3000` (default: `8080`) |
+| `DISABLE_RATE_LIMIT`     | Disable throttling         | `true`                   |
+| `INCLUDE_TESTING_MODULE` | Expose `/testing/all-data` | `true`                   |
 
 ---
 

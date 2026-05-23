@@ -29,6 +29,7 @@ import { ApiUpdateLikeStatusForCommentSwagger } from '../decorators/swagger/upda
 import { ApiUpdateCommentByIdSwagger } from '../decorators/swagger/update-comment-swagger.decorator';
 import { ApiDeleteCommentSwagger } from '../decorators/swagger/delete-comment-swagger.decorator';
 import { ApiGetCommentByIdSwagger } from '../decorators/swagger/get-comment-swagger.decorator';
+import { IdParamDto } from 'src/core/dto/param.dto';
 
 @Controller(API_ROUTES.comments)
 export class CommentController {
@@ -91,12 +92,12 @@ export class CommentController {
   @Get(':id')
   @UseGuards(JwtOptionalAuthGuard)
   async getCommentById(
-    @Param() params: CommentIdParam,
+    @Param() params: IdParamDto,
     @CurrentUserOptionalFromRequest()
     currentUser: { id: string } | null,
   ): Promise<CommentViewModel | null> {
     return this.queryBus.execute(
-      new GetCommentByIdQueryHandler(params.commentId, currentUser?.id),
+      new GetCommentByIdQueryHandler(params.id, currentUser?.id),
     );
   }
 }
