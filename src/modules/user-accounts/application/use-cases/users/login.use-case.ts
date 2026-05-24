@@ -20,8 +20,8 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   }> {
     const accessToken = this.jwtService.sign({ userId });
 
-    const RT_SECRET = this.configService.get('RT_SECRET');
-    const RT_TIME = this.configService.get('RT_TIME') ?? '24h';
+    const RT_SECRET = this.configService.get('REFRESH_TOKEN_SECRET');
+    const RT_TIME = this.configService.get('REFRESH_TOKEN_EXPIRE_IN') ?? '24h';
     const expiresAt = Number(
       this.configService.get('RT_COOKIE_MAX_AGE') ?? 86400000,
     ); // 24 часа в мс

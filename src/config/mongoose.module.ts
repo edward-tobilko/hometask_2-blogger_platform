@@ -6,7 +6,7 @@ export const mongooseModule = MongooseModule.forRootAsync({
 
   // * паттерн (хук) который возвращает конфигурационный объект для модуля. Nest вызовет её один раз при старте приложения
   useFactory: (config: ConfigService) => ({
-    uri: config.get('MONGO_URL'),
+    uri: config.get('MONGO_URI'),
     dbName: config.get('DB_NAME'),
   }),
 });

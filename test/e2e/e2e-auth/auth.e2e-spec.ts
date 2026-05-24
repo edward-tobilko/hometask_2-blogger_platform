@@ -34,7 +34,7 @@ describe('Auth swagger contract', () => {
     const result = await initSettings((moduleBuilder) =>
       moduleBuilder.overrideProvider(JwtService).useValue(
         new JwtService({
-          secret: process.env.AT_SECRET,
+          secret: process.env.ACCESS_TOKEN_SECRET,
           signOptions: { expiresIn: '2s' },
         }),
       ),

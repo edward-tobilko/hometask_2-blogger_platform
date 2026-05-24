@@ -55,9 +55,9 @@ const commandHandlers = [
 
       // сетаем конфигы для access token
       useFactory: (config: ConfigService) => ({
-        secret: config.get('AT_SECRET'),
+        secret: config.get('ACCESS_TOKEN_SECRET'),
         signOptions: {
-          expiresIn: config.get('AT_TIME') ?? '5m',
+          expiresIn: config.get('ACCESS_TOKEN_EXPIRE_IN') ?? '5m',
         },
       }),
     }),
