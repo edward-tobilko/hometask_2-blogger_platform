@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { CoreConfig } from './core.config';
 
 // * глобальный модуль для провайдеров и модулей необходимых во всех частях приложения (например LoggerService, CqrsModule, etc...)
 @Global()
@@ -6,9 +7,9 @@ import { Global, Module } from '@nestjs/common';
   imports: [],
 
   controllers: [],
-  providers: [],
+  providers: [CoreConfig],
 
-  exports: [],
+  exports: [CoreConfig],
 })
 export class CoreModule {}
 
