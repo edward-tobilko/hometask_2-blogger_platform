@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { CqrsModule } from '@nestjs/cqrs';
+import type { StringValue } from 'ms';
 
 import { UsersController } from './api/controllers/users.controller';
 import { UsersService } from './application/services/users.service';
@@ -28,6 +28,11 @@ import { NewPasswordUseCase } from './application/use-cases/users/new-password.u
 import { LoginUseCase } from './application/use-cases/users/login.use-case';
 import { MeUseCase } from './application/queries/me.query';
 import { UsersExternalQueryRepository } from './infrastructure/external-query/users.external-query-repo';
+import { UserAccountsConfig } from './config/user-accounts.config';
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from './constants/auth-tokens.inject-constants';
 
 const queryHandlers = [GetUsersListHandler, MeUseCase];
 
@@ -45,29 +50,20 @@ const commandHandlers = [
 @Module({
   imports: [
     CqrsModule,
+    JwtModule,
+    PassportModule,
 
     MongooseModule.forFeature([
       { name: UserAccount.name, schema: UserAccountSchema }, // UserAccount.name = token по которому мы его инжектируем в наши сервисы / репо
     ]),
-
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-
-      // сетаем конфигы для access token
-      useFactory: (config: ConfigService) => ({
-        secret: config.get('ACCESS_TOKEN_SECRET'),
-        signOptions: {
-          expiresIn: config.get('ACCESS_TOKEN_EXPIRE_IN') ?? '5m',
-        },
-      }),
-    }),
-
-    PassportModule,
   ],
 
   controllers: [UsersController, AuthController],
   providers: [
-    // * services
+    // * Configs
+    UserAccountsConfig,
+
+    // * Services
     ...commandHandlers,
     ...queryHandlers,
     UsersService,
@@ -75,16 +71,42 @@ const commandHandlers = [
     CryptoService,
     NodeMailerService,
 
-    // * repositories
+    // ? пример инстанцирования через токен, если надо внедрить несколько раз один и тот же класс
+    {
+      provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+      useFactory: (userAccountConfig: UserAccountsConfig): JwtService => {
+        return new JwtService({
+          secret: userAccountConfig.accessTokenSecret,
+          signOptions: {
+            expiresIn: userAccountConfig.accessTokenExpireIn as StringValue,
+          },
+        });
+      },
+      inject: [UserAccountsConfig],
+    },
+    {
+      provide: REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+      useFactory: (userAccountConfig: UserAccountsConfig): JwtService => {
+        return new JwtService({
+          secret: userAccountConfig.refreshTokenSecret,
+          signOptions: {
+            expiresIn: userAccountConfig.refreshTokenExpireIn as StringValue,
+          },
+        });
+      },
+      inject: [UserAccountsConfig],
+    },
+
+    // * Repositories
     UsersRepository,
     UsersQueryRepository,
 
-    // * strategies
+    // * Strategies
     LocalStrategy,
     JwtStrategy,
     BasicStrategy,
 
-    // * externals
+    // * Externals
     UsersExternalQueryRepository,
   ],
 

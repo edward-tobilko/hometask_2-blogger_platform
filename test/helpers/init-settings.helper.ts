@@ -4,7 +4,6 @@ import { Server } from 'http';
 import { Connection } from 'mongoose';
 import { getOptionsToken } from '@nestjs/throttler';
 
-import { AppModule } from 'src/app.module';
 import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
 import { appSetup } from 'src/setup/app.setup';
 import { EmailServiceMock } from 'test/mock/email-service.mock';
@@ -29,13 +28,17 @@ import {
   CommentDocument,
 } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
 import { CommentTestManager } from './comments-test-manager.helper';
+import { initAppModule } from 'src/init-app.module';
+import { CoreConfig } from 'src/core/core.config';
 
 export const initSettings = async (
   //* передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
   addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
 ) => {
+  const dynamicAppModule = await initAppModule();
+
   const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
-    imports: [AppModule], // что бы тестировать РЕАЛЬНОЕ приложение — со всеми pipe, guard, filter
+    imports: [dynamicAppModule], // что бы тестировать РЕАЛЬНОЕ приложение — со всеми pipe, guard, filter
   })
     .overrideProvider(NodeMailerService)
     .useClass(EmailServiceMock) // заменяем отправку письма на моковую заглушку, что бы письмо не уходило реально
@@ -48,8 +51,9 @@ export const initSettings = async (
 
   const testingAppModule = await testingModuleBuilder.compile();
   const app = testingAppModule.createNestApplication();
+  const coreConfig = app.get(CoreConfig);
 
-  appSetup(app); // применяем те же настройки что и в проде: global prefix /api, ValidationPipe, ExceptionFilter. Без этого тесты проверяли бы другое приложение, а не то что деплоится.
+  appSetup(app, coreConfig.isSwaggerEnabled); // применяем те же настройки что и в проде: global prefix /api, ValidationPipe, ExceptionFilter. Без этого тесты проверяли бы другое приложение, а не то что деплоится.
 
   await app.init();
 

@@ -1,12 +1,18 @@
-import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
-export const mongooseModule = MongooseModule.forRootAsync({
-  inject: [ConfigService], // говорим, что нам нужен ConfigService (он может валидировать переменные через Joi-схему, и если MONGO_URL пустой, приложение упадёт на старте, а не при первом запросе).
+import { CoreConfig } from 'src/core/core.config';
 
-  // * паттерн (хук) который возвращает конфигурационный объект для модуля. Nest вызовет её один раз при старте приложения
-  useFactory: (config: ConfigService) => ({
-    uri: config.get('MONGO_URI'),
-    dbName: config.get('DB_NAME'),
-  }),
+export const mongooseModule = MongooseModule.forRootAsync({
+  inject: [CoreConfig],
+
+  // * Паттерн (хук) который возвращает конфигурационный объект для модуля. Nest вызовет её один раз при старте приложения.
+  useFactory: (coreConfig: CoreConfig) => {
+    const uri = coreConfig.mongoURI;
+    const dbName = coreConfig.databaseName;
+
+    return {
+      uri: uri,
+      dbName: dbName,
+    };
+  },
 });

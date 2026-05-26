@@ -77,7 +77,7 @@ export class CoreConfig {
 
   @IsBoolean({
     message:
-      'Set Env variable INCLUDE_TESTING_MODULE to enable / disable Dangerous for production TestingModule, example: true, available values: true, false, 0, 1',
+      'Set Env variable INCLUDE_TESTING_MODULE to enable / disable. Dangerous for production TestingModule, example: true, available values: true, false, 0, 1',
   })
   includeTestingModule: boolean = this.convertToBoolean(
     this.configService.get('INCLUDE_TESTING_MODULE') ?? '',
@@ -85,9 +85,52 @@ export class CoreConfig {
 
   @IsBoolean({
     message:
-      'Set Env variable SEND_INTERNAL_SERVER_ERROR_DETAILS to enable / disable Dangerous for production internal server error details (message, etc), example: true, available values: true, false, 0, 1',
+      'Set Env variable SEND_INTERNAL_SERVER_ERROR_DETAILS to enable / disable. Dangerous for production internal server error details (message, etc), example: true, available values: true, false, 0, 1',
   })
   sendInternalServerErrorDetails: boolean = this.convertToBoolean(
     this.configService.get('SEND_INTERNAL_SERVER_ERROR_DETAILS') ?? '',
   ) as boolean;
+
+  @IsNotEmpty({ message: 'Set env variable DB_NAME for your data base' })
+  databaseName: string = this.configService.get('DB_NAME') ?? '';
+
+  @IsNumber(
+    {},
+    {
+      message:
+        'Set Env variable TTL_RATE_LIMIT, example: 5000ms, 10000ms, 15000ms',
+    },
+  )
+  ttlRateLimit: number = Number(this.configService.get('TTL_RATE_LIMIT'));
+
+  @IsNumber(
+    {},
+    {
+      message: 'Set Env variable COUNT_RATE_LIMIT, example: 5, 10, 15 counts',
+    },
+  )
+  countRateLimit: number = Number(this.configService.get('COUNT_RATE_LIMIT'));
+
+  @IsBoolean({
+    message:
+      'Set Env variable IS_DISABLE_RATE_LIMIT to enable / disable, example: true / false',
+  })
+  isRateLimitDisabled: boolean = this.convertToBoolean(
+    this.configService.get('IS_DISABLE_RATE_LIMIT') ?? '',
+  ) as boolean;
+
+  @IsNotEmpty({
+    message: 'Set Env variable ADMIN_USER_NAME, dangerous for security!',
+  })
+  adminUserName = this.configService.get('ADMIN_USER_NAME');
+
+  @IsNotEmpty({
+    message: 'Set Env variable ADMIN_PASSWORD, dangerous for security!',
+  })
+  adminPassword = this.configService.get('ADMIN_PASSWORD');
 }
+
+// ? CoreConfig - единая точка входа для всех переменных окружения с валидацией на старте и правильными типами. Что он решает:
+// ? - одно место для всех env-переменных. Вместо process.env.PORT везде — мы инжектим CoreConfig и берем coreConfig.port.
+// ? - валидация при старте (validateSync), если PORT не задан или NODE_ENV не входит в Environments, приложение не запустится с понятным сообщением об ошибке.
+// ? - преобразование типов. process.env.PORT — строка "3000", а coreConfig.port — уже number. IS_SWAGGER_ENABLED — строка "true", а   coreConfig.isSwaggerEnabled — уже boolean.

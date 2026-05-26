@@ -57,14 +57,16 @@ Each domain module (`blogs/`, `posts/`, `comments/`, `users/`, `auth/`, `securit
 
 ### Environment configuration
 
-Env files: `.env.development.local`, `.env.test.local`, `.env.production.local`. Key variables:
+Env files: `.env.development`, `.env.development.local`, `.env.production`, `.env.staging`, `.env.testing.local`.
+
+Key variables:
 
 ```
 MONGO_URL, DB_NAME
 AT_SECRET, AT_TIME, RT_SECRET, RT_TIME
 EMAIL, EMAIL_PASS
-ADMIN_USERNAME, ADMIN_PASSWORD
-DISABLE_RATE_LIMIT
+ADMIN_USER_NAME, ADMIN_PASSWORD
+IS_DISABLE_RATE_LIMIT
 ```
 
 The `appConfig` object in `src/core/settings/config.ts` is the single source of truth — always use it instead of `process.env` directly.

@@ -1,6 +1,12 @@
-import { ConfigService } from '@nestjs/config';
+import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
+import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
+
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from 'src/modules/user-accounts/constants/auth-tokens.inject-constants';
 
 export class LoginCommand {
   constructor(public userId: string) {}
@@ -9,8 +15,13 @@ export class LoginCommand {
 @CommandHandler(LoginCommand)
 export class LoginUseCase implements ICommandHandler<LoginCommand> {
   constructor(
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN) // по этому токену мы в UserAccountsModule определяем нужные нам поля с .env
+    private accessTokenContext: JwtService,
+
+    @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
+    private refreshTokenContext: JwtService,
+
+    private userAccountConfig: UserAccountsConfig,
   ) {}
 
   execute({ userId }: LoginCommand): Promise<{
@@ -18,21 +29,10 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     refreshToken: string;
     expiresAt: number;
   }> {
-    const accessToken = this.jwtService.sign({ userId });
+    const accessToken = this.accessTokenContext.sign({ userId });
+    const refreshToken = this.refreshTokenContext.sign({ userId });
 
-    const RT_SECRET = this.configService.get('REFRESH_TOKEN_SECRET');
-    const RT_TIME = this.configService.get('REFRESH_TOKEN_EXPIRE_IN') ?? '24h';
-    const expiresAt = Number(
-      this.configService.get('RT_COOKIE_MAX_AGE') ?? 86400000,
-    ); // 24 часа в мс
-
-    const refreshToken = this.jwtService.sign(
-      { userId },
-      {
-        expiresIn: RT_TIME,
-        secret: RT_SECRET,
-      },
-    );
+    const expiresAt = Number(this.userAccountConfig.refreshTokenCookieMaxAge); // 24 часа в мс
 
     return Promise.resolve({ accessToken, refreshToken, expiresAt }); // ICommandHandler всегда требует Promise, так как метод синхронный а возвр. promise, нужно дожидаться.
   }

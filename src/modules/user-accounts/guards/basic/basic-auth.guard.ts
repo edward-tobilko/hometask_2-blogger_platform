@@ -1,12 +1,13 @@
 // import { AuthGuard } from '@nestjs/passport';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { CoreConfig } from 'src/core/core.config';
 
+// * Нужно инжектировать в контроллер или стратегию или гард.
 @Injectable()
 // export class BasicAuthGuard extends AuthGuard('basic') {}
 export class BasicAuthGuard implements CanActivate {
@@ -15,11 +16,11 @@ export class BasicAuthGuard implements CanActivate {
 
   constructor(
     private reflector: Reflector,
-    private config: ConfigService,
+    private coreConfig: CoreConfig,
   ) {
     // * Один раз при старте приложения — берем из .env.
-    this.validUsername = this.config.get('ADMIN_USERNAME');
-    this.validPassword = this.config.get('ADMIN_PASSWORD');
+    this.validUsername = this.coreConfig.adminUserName;
+    this.validPassword = this.coreConfig.adminPassword;
   }
 
   canActivate(context: ExecutionContext): boolean {

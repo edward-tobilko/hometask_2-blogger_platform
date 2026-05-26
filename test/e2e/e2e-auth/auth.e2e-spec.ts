@@ -183,7 +183,7 @@ describe('Auth swagger contract', () => {
       },
     );
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
+    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/registration-email-resending end-point', () => {
@@ -290,7 +290,7 @@ describe('Auth swagger contract', () => {
       );
     });
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
+    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/registration-confirmation end-point', () => {
@@ -418,7 +418,7 @@ describe('Auth swagger contract', () => {
       },
     );
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
+    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/password-recovery end-point', () => {
@@ -459,7 +459,7 @@ describe('Auth swagger contract', () => {
       expectErrorField(result, 'email');
     });
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
+    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/new-password end-point', () => {
@@ -589,7 +589,7 @@ describe('Auth swagger contract', () => {
       },
     );
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
+    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/login end-point', () => {
@@ -689,7 +689,7 @@ describe('Auth swagger contract', () => {
     //   },
     // );
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
+    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for GET: /api/auth/me end-point', () => {
@@ -726,6 +726,6 @@ describe('Auth swagger contract', () => {
       await userTestManager.getMe(expiredToken, HttpStatus.UNAUTHORIZED);
     });
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (DISABLE_RATE_LIMIT=true in test env)', async () => {});
+    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 });

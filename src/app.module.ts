@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
@@ -13,13 +13,12 @@ import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exc
 import { configModule } from './config/dynamic.config-module';
 import { mongooseModule } from './config/mongoose.module';
 import { throttlerModule } from './config/throttler.module';
+import { CoreConfig } from './core/core.config';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
   imports: [
     configModule,
-
-    // MongooseModule.forRoot('mongodb://localhost/nest'), // forRoot - синхронный метод (для простых кейсов, без настройки путей)
     mongooseModule,
 
     // * ограничение количества запросов с одного IP (Максимум 10 запросов за 60 секунд с одного IP).
@@ -29,7 +28,6 @@ import { throttlerModule } from './config/throttler.module';
     BloggersPlatformModule,
     UserAccountsModule,
 
-    TestingDataModule,
     CoreModule,
   ],
 
@@ -61,7 +59,18 @@ import { throttlerModule } from './config/throttler.module';
   // * что из providers мы "разрешаем использовать" другим модулям (инкапсуляция)
   exports: [],
 })
-export class AppModule {}
+export class AppModule {
+  // * Такой мудрёный способ мы используем, чтобы добавить к основным модулям необязательный модуль. Что бы не обращаться в декораторе к переменной окружения через process.env в декораторе, потому что запуск декораторов происходит на этапе склейки всех модулей до старта жизненного цикла самого NestJS.
+
+  static forRoot(coreConfig: CoreConfig): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        ...(coreConfig.includeTestingModule ? [TestingDataModule] : []),
+      ], // Add dynamic modules here
+    };
+  }
+}
 
 // ? В Nest есть:
 // ? - локальные модули (по умолчанию) = @Module({})

@@ -1,20 +1,26 @@
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from '@nestjs/common';
 
-import { AppModule } from './app.module';
 import { appSetup } from './setup/app.setup';
+import { CoreConfig } from './core/core.config';
+import { initAppModule } from './init-app.module';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   try {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const dynamicAppModule = await initAppModule();
 
-    appSetup(app);
+    // * Создаём на основе донастроенного модуля наше приложение с условным TestingDataModule
+    const app = await NestFactory.create(dynamicAppModule);
 
-    // * Hosting подставляет свой порт, локально — 3000 or 8080
-    const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
+    const coreConfig = app.get(CoreConfig);
+
+    // * Глобальные настройки приложения
+    appSetup(app, coreConfig.isSwaggerEnabled);
+
+    // * Hosting подставляет свой порт, локально — 3000
+    const PORT = coreConfig.port;
     const HOST = '0.0.0.0';
 
     app.enableCors({}); // for CORS domain requests
