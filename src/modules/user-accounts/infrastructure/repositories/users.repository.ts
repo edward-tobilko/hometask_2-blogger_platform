@@ -85,10 +85,16 @@ export class UsersRepository {
     return user;
   }
 
-  async createByAdmin(dto: CreateUserDomainDto): Promise<UserAccountDocument> {
-    const user = this.userModel.createAdminUserInstance({
-      ...dto,
-    });
+  async createByAdmin(
+    dto: CreateUserDomainDto,
+    isUserConfirmed: boolean,
+  ): Promise<UserAccountDocument> {
+    const user = this.userModel.createAdminUserInstance(
+      {
+        ...dto,
+      },
+      isUserConfirmed,
+    );
 
     await user.save();
 

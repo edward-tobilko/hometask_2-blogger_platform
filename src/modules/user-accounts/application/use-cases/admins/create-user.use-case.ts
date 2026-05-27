@@ -9,6 +9,7 @@ import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/u
 import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
+import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 
 // * CreateUserCommand - просто хранение данных в команде. Никакой логики, только данные. Просто контейнер для переноса данных от контроллера к use case.
 export class CreateUserCommand {
@@ -23,6 +24,7 @@ export class CreateUserUseCase implements ICommandHandler<
   constructor(
     private usersRepo: UsersRepository,
     private cryptoService: CryptoService,
+    private userAccountsConfig: UserAccountsConfig,
   ) {}
 
   async execute({ dto }: CreateUserCommand): Promise<UserAccountDocument> {
@@ -36,7 +38,9 @@ export class CreateUserUseCase implements ICommandHandler<
 
     // * проверка для создания юзера с однаковым login or email, так как у нас индексация по login / email в БД, а обьекты целиком не удалены с БД, а только позначены как deletedAt.
     try {
-      return await this.usersRepo.createByAdmin(domainDto);
+      const isUserConfirmed = this.userAccountsConfig.isUserConfirmed;
+
+      return await this.usersRepo.createByAdmin(domainDto, isUserConfirmed);
     } catch (error: unknown) {
       // * эта проверка нужно для теста: парсим поле из ошибки MongoDB (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
       if (error instanceof Error && 'code' in error && error.code === 11000) {

@@ -33,7 +33,7 @@ export class CoreConfig {
         .map((error) => Object.values(error.constraints || {}).join(', '))
         .join('; ');
 
-      throw new Error('Validation failed: ' + sortedMessages);
+      throw new Error('Validation failed from core.config: ' + sortedMessages);
     }
   }
 

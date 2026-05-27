@@ -1,12 +1,18 @@
 import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
 
 export class EmailServiceMock extends NodeMailerService {
-  //* override method
-  sendConfirmationEmail(email: string, code: string): void {
+  //* override method (названия методов в сервисах должны совпадать с названиями в моках)
+  sendRegistrationConfirmationEmail(
+    email: string,
+    code: string,
+    template: (code: string) => string,
+  ): Promise<boolean> {
     console.log(
-      `Call mock method sendConfirmationEmail / EmailServiceMock: ${email} and ${code}`,
+      template(
+        `Call mock method sendRegistrationConfirmationEmail / EmailServiceMock: ${email} and ${code}`,
+      ),
     ); // Нужно чтобы тесты не зависели от SMTP.
 
-    return;
+    return Promise.resolve(true);
   }
 }

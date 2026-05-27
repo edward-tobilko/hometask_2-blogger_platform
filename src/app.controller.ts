@@ -7,7 +7,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   // * Return root page
-  @Get()
+  @Get('root-page')
   rootPage(): RootPageResponse {
     return this.appService.getRootPage();
   }

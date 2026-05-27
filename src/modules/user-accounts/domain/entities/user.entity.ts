@@ -90,6 +90,7 @@ export class UserAccount {
 
   static createAdminUserInstance(
     dto: CreateUserDomainDto,
+    isUserConfirmed: boolean,
   ): UserAccountDocument {
     const user = this.buildBaseUserInstance(dto);
 
@@ -97,7 +98,7 @@ export class UserAccount {
     user.emailConfirmation = {
       confirmationCode: null,
       emailConfirmationCodeExpiry: null,
-      isConfirmed: true,
+      isConfirmed: isUserConfirmed,
     };
 
     return user as UserAccountDocument;

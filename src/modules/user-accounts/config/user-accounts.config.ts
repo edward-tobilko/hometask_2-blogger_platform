@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IsNotEmpty, validateSync } from 'class-validator';
+import { IsBoolean, IsNotEmpty, validateSync } from 'class-validator';
 
 @Injectable()
 export class UserAccountsConfig {
@@ -16,7 +16,9 @@ export class UserAccountsConfig {
         .map((error) => Object.values(error.constraints || {}).join(', '))
         .join('; ');
 
-      throw new Error('Validation failed: ' + sortedMessages);
+      throw new Error(
+        'Validation failed from user-accounts.config: ' + sortedMessages,
+      );
     }
   }
 
@@ -50,4 +52,11 @@ export class UserAccountsConfig {
   })
   refreshTokenSecret: string =
     this.configService.get('REFRESH_TOKEN_SECRET') ?? '';
+
+  @IsBoolean({
+    message:
+      'Set env variable IS_USER_AUTOMATICALLY_CONFIRMED, examples: false. Dangerous setting!',
+  })
+  isUserConfirmed: boolean =
+    this.configService.get('IS_USER_AUTOMATICALLY_CONFIRMED') === 'true';
 }
