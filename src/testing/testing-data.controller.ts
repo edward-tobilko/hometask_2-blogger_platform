@@ -12,7 +12,7 @@ export class TestingDataController {
   ) {}
 
   @ApiDeleteAllDataSwagger(
-    'Clear database: delete all data from all tables/collections',
+    'Clear database: delete all data from all tables / collections',
   )
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)

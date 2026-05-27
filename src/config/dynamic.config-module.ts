@@ -12,4 +12,6 @@ export const configModule = ConfigModule.forRoot({
 
 // ? NestJS читает файлы слева направо — переменная из более раннего файла имеет приоритет над поздним: если NODE_ENV=development и MONGO_URI есть в .env.development.local — берётся оттуда. Если нет — ищется в .env.development. Если нет — в .env.production.
 
+// ? ConfigModule - использует пакет dotenv, который автоматически загружает переменные окружения из файлов .env*.
+
 // ? Приоритет чтения переменных таков: если мы, например, создадим копию .env.development.local выше нашего проекта, то этот путь ->    ENV_FILE_PATH=/Users/eduard.tobilko/Desktop/.env.development.local yarn dev выполниться ранне.

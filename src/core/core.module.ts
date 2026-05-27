@@ -7,7 +7,6 @@ import { CoreConfig } from './core.config';
 @Module({
   imports: [ConfigModule],
 
-  controllers: [],
   providers: [CoreConfig],
 
   exports: [CoreConfig],
