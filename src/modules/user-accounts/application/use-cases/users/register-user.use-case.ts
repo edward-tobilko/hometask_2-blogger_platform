@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import {
   DomainException,
@@ -8,8 +8,8 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes'
 import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
-import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
-import { emailTemplates } from 'src/modules/user-accounts/infrastructure/external-services/email-templates.external-service';
+import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
+import { UsersService } from '../../services/users.service';
 
 export class RegisterUserCommand {
   constructor(public dto: { login: string; password: string; email: string }) {}
@@ -21,29 +21,14 @@ export class RegisterUserUseCase implements ICommandHandler<
   void
 > {
   constructor(
+    private eventBus: EventBus,
+    private usersService: UsersService,
     private usersRepo: UsersRepository,
     private cryptoService: CryptoService,
-    private mailerService: NodeMailerService,
   ) {}
 
   async execute({ dto }: RegisterUserCommand): Promise<void> {
-    const existingUserByLogin = await this.usersRepo.findByLogin(dto.login);
-
-    if (existingUserByLogin)
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: `Already registered`,
-        extensions: [new Extension('Already registered', 'login')], // just for status code 400 (bad request)
-      });
-
-    const existingUserByEmail = await this.usersRepo.findByEmail(dto.email);
-
-    if (existingUserByEmail)
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: `Already registered`,
-        extensions: [new Extension('Already registered', 'email')], // just for status code 400 (bad request)
-      });
+    await this.usersService.ensureLoginAndEmailUnique(dto.login, dto.email);
 
     const passwordHash = await this.cryptoService.generateHash(dto.password);
 
@@ -56,23 +41,13 @@ export class RegisterUserUseCase implements ICommandHandler<
     try {
       const newUser = await this.usersRepo.create(domainDto);
 
-      try {
-        await this.mailerService.sendRegistrationConfirmationEmail(
+      // * Вешаем ивент (сервис) для отправки письма. Нужно, что бы нашь кейс не зависил на прямую от стороннего сервиса (NodeMailerService).
+      this.eventBus.publish(
+        new UserRegisteredEvent(
           newUser.email,
           newUser.emailConfirmation.confirmationCode!,
-          (code: string) => emailTemplates.registrationEmail(code),
-        );
-      } catch (error: unknown) {
-        // * письмо не отправилось — удаляем пользователя, откатываем регистрацию
-        await this.usersRepo.delete(newUser.id);
-
-        console.error('EMAIL_SEND_ERROR', error);
-
-        throw new DomainException({
-          code: DomainExceptionCode.InternalServerError,
-          message: 'Failed to send confirmation email. Please try again.',
-        });
-      }
+        ),
+      );
     } catch (error) {
       // * проверка на дубликат обьекта в бд: если обьект был удален, а мы хотим создать его с теме же полями (проблема soft delete + индекса).
       if (error instanceof Error && 'code' in error && error.code === 11000) {

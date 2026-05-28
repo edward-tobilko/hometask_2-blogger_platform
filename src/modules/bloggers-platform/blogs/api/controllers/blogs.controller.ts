@@ -31,11 +31,9 @@ import { GetBlogsListQuery } from '../../application/queries/get-blogs-list.quer
 import { GetBlogByIdQuery } from '../../application/queries/get-blog.query';
 import { GetPostsForBlogQuery } from '../../application/queries/get-posts-for-blog.query';
 import { CreateBlogCommand } from '../../application/use-cases/create-blog.use-case';
-import { BlogDocument } from '../../domain/entities/blog.entity';
 import { UpdateBlogCommand } from '../../application/use-cases/update-blog.use-case';
 import { DeleteBlogCommand } from '../../application/use-cases/delete-blog.use-case';
 import { CreatePostCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/create-post.use-case';
-import { PostDocument } from 'src/modules/bloggers-platform/posts/domain/entities/post.entity';
 import { ApiGetBlogsSwagger } from '../decorators/swagger/get-blogs-list-swagger.decorator';
 import { ApiCreateBlogSwagger } from '../decorators/swagger/create-blog-swagger.decorator';
 import { ApiGetPostsForBlogSwagger } from '../decorators/swagger/get-posts-for-blog-swagger.decorator';
@@ -68,10 +66,8 @@ export class BlogsController {
     @Body()
     createBlogDto: CreateBlogDto,
   ): Promise<BlogViewModel> {
-    const createdBlogDoc = await this.commandBus.execute<
-      CreateBlogCommand,
-      BlogDocument
-    >(new CreateBlogCommand(createBlogDto));
+    const command = new CreateBlogCommand(createBlogDto);
+    const createdBlogDoc = await this.commandBus.execute(command);
 
     return BlogViewModel.mapToViewModel(createdBlogDoc);
   }
@@ -97,10 +93,8 @@ export class BlogsController {
     @Body()
     dto: CreatePostForBlogDto,
   ): Promise<PostViewModel> {
-    const post = await this.commandBus.execute<CreatePostCommand, PostDocument>(
-      new CreatePostCommand({ ...dto, blogId: params.blogId }), // делегируем создания поста с энд-поинта "posts"
-    );
-
+    const command = new CreatePostCommand({ ...dto, blogId: params.blogId }); // делегируем создания поста с энд-поинта "posts"
+    const post = await this.commandBus.execute(command);
     const postOutput = PostViewModel.mapToViewModel(post);
 
     return postOutput;

@@ -96,8 +96,8 @@ export class CommentController {
     @CurrentUserOptionalFromRequest()
     currentUser: { id: string } | null,
   ): Promise<CommentViewModel | null> {
-    return this.queryBus.execute(
-      new GetCommentByIdQueryHandler(params.id, currentUser?.id),
-    );
+    const query = new GetCommentByIdQueryHandler(params.id, currentUser?.id);
+
+    return this.queryBus.execute(query);
   }
 }

@@ -21,7 +21,6 @@ import { BasicAuthGuard } from '../../guards/basic/basic-auth.guard';
 import { IdValidationPipe } from 'src/core/pipes/object-id-validation-transformation.pipe';
 import { CreateUserCommand } from '../../application/use-cases/admins/create-user.use-case';
 import { DeleteUserCommand } from '../../application/use-cases/admins/delete-user.use-case';
-import { UserAccountDocument } from '../../domain/entities/user.entity';
 import { GetUsersListQuery } from '../../application/queries/get-users-list.query';
 import { ApiGetUsersSwagger } from '../decorators/users/swagger/get-users-swagger.decorator';
 import { ApiCreateUserSwagger } from '../decorators/users/swagger/create-swagger.decorator';
@@ -41,16 +40,17 @@ export class UsersController {
   getUsersList(
     @Query() queries: UsersQueryInputDto,
   ): Promise<UsersPaginatedViewDto> {
-    return this.queryBus.execute(new GetUsersListQuery(queries));
+    const query = new GetUsersListQuery(queries);
+
+    return this.queryBus.execute(query);
   }
 
   @ApiCreateUserSwagger('Add new user to the system')
   @Post()
   async createUser(@Body() dto: CreateUserInputDto): Promise<UserViewDto> {
-    const userInstanceDoc = await this.commandBus.execute<
-      CreateUserCommand,
-      UserAccountDocument
-    >(new CreateUserCommand(dto));
+    const command = new CreateUserCommand(dto);
+
+    const userInstanceDoc = await this.commandBus.execute(command);
 
     const userOutput = UserViewDto.mapToViewModel(userInstanceDoc);
 
@@ -61,9 +61,9 @@ export class UsersController {
   @Delete(':id')
   @HttpCode(204)
   deleteUser(@Param('id', IdValidationPipe) id: string): Promise<void> {
-    return this.commandBus.execute<DeleteUserCommand>(
-      new DeleteUserCommand(id),
-    );
+    const command = new DeleteUserCommand(id);
+
+    return this.commandBus.execute(command);
   }
 }
 

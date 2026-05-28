@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import {
   DomainException,
@@ -6,8 +6,7 @@ import {
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
-import { emailTemplates } from 'src/modules/user-accounts/infrastructure/external-services/email-templates.external-service';
-import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
+import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
 
 export class ResendConfirmationEmailCommand {
   constructor(public email: string) {}
@@ -20,7 +19,7 @@ export class ResendConfirmationEmailUseCase implements ICommandHandler<
 > {
   constructor(
     private usersRepo: UsersRepository,
-    private mailerService: NodeMailerService,
+    private eventBus: EventBus,
   ) {}
 
   async execute({ email }: ResendConfirmationEmailCommand): Promise<void> {
@@ -37,12 +36,13 @@ export class ResendConfirmationEmailUseCase implements ICommandHandler<
 
     user.resendConfirmationCode();
 
-    await this.mailerService.sendRegistrationConfirmationEmail(
-      user.email,
-      user.emailConfirmation.confirmationCode!,
-      (code: string) => emailTemplates.registrationEmail(code),
-    );
-
     await this.usersRepo.save(user);
+
+    this.eventBus.publish(
+      new UserRegisteredEvent(
+        user.email,
+        user.emailConfirmation.confirmationCode!,
+      ),
+    );
   }
 }

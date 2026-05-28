@@ -1,18 +1,20 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CommentsRepository } from 'src/modules/bloggers-platform/comments/infrastructure/repositories/comments.repo';
-import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
+import { CommentDocument } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
 
-export class CreateCommentCommand {
+export class CreateCommentCommand extends Command<CommentDocument> {
   constructor(
     public postId: string,
     public content: string,
     public userId: string,
-  ) {}
+  ) {
+    super();
+  }
 }
 
 @CommandHandler(CreateCommentCommand)
@@ -27,7 +29,7 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
     postId,
     content,
     userId,
-  }: CreateCommentCommand): Promise<CommentViewModel> {
+  }: CreateCommentCommand): Promise<CommentDocument> {
     const post = await this.postsRepo.findById(postId);
 
     if (!post)
@@ -38,13 +40,13 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
 
     const user = await this.externalUsersRepo.getByIdOrNotFoundFail(userId);
 
-    const commentDoc = await this.commentsRepo.create(
+    const commentInstance = await this.commentsRepo.create(
       postId,
       content,
       user.id,
       user.login,
     );
 
-    return CommentViewModel.mapToViewModel(commentDoc);
+    return commentInstance;
   }
 }

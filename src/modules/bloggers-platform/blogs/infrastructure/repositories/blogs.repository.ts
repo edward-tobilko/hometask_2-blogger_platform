@@ -6,6 +6,7 @@ import {
   BlogDocument,
   Blog,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
+import { CreateBlogDomainDto } from '../../domain/dto/create-blog.domain-dto';
 
 @Injectable()
 export class BlogsRepository {
@@ -13,6 +14,18 @@ export class BlogsRepository {
 
   async findById(blogId: string): Promise<BlogDocument | null> {
     return await this.blogModel.findById(blogId).exec();
+  }
+
+  async create(dto: CreateBlogDomainDto): Promise<BlogDocument> {
+    const blogInstance = this.blogModel.createBlogInstance({
+      name: dto.name,
+      description: dto.description,
+      websiteUrl: dto.websiteUrl,
+    });
+
+    await blogInstance.save();
+
+    return blogInstance;
   }
 
   async save(blog: BlogDocument): Promise<void> {

@@ -719,7 +719,7 @@ describe('Auth swagger contract', () => {
     it('status 401 - with expired token', async () => {
       const expiredToken = jwt.sign(
         { userId: 'someId' },
-        process.env.AT_SECRET!,
+        process.env.ACCESS_TOKEN_SECRET!,
         { expiresIn: '-1s' },
       );
 

@@ -1,7 +1,6 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { UserPasswordRecoveryEvent } from 'src/modules/user-accounts/domain/events/user-password-recovery.event';
 
-import { emailTemplates } from 'src/modules/user-accounts/infrastructure/external-services/email-templates.external-service';
-import { NodeMailerService } from 'src/modules/user-accounts/infrastructure/external-services/mailer.external-service';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 
 export class PasswordRecoveryCommand {
@@ -14,7 +13,7 @@ export class PasswordRecoveryUseCase implements ICommandHandler<
   void
 > {
   constructor(
-    private mailerService: NodeMailerService,
+    private eventBus: EventBus,
     private usersRepo: UsersRepository,
   ) {}
 
@@ -25,19 +24,13 @@ export class PasswordRecoveryUseCase implements ICommandHandler<
 
     user.setPasswordRecoveryCode();
 
-    // * по контракту нужно всегда возвращать 204, при ошибке не раскрывая деталей существования email
-    try {
-      await this.mailerService.sendRegistrationConfirmationEmail(
+    await this.usersRepo.save(user);
+
+    this.eventBus.publish(
+      new UserPasswordRecoveryEvent(
         user.email,
         user.passwordRecovery.recoveryCode!,
-        (code: string) => emailTemplates.passwordRecoveryEmail(code),
-      );
-
-      await this.usersRepo.save(user);
-    } catch (error) {
-      console.error('EMAIL_SEND_ERROR', error);
-
-      return; // тихо возвращаем void, клиент получает 204
-    }
+      ),
+    );
   }
 }

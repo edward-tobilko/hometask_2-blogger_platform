@@ -1,19 +1,16 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { InjectModel } from '@nestjs/mongoose';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import {
-  Post,
-  PostDocument,
-  PostModel,
-} from '../../domain/entities/post.entity';
+import { PostDocument } from '../../domain/entities/post.entity';
 import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { BlogsExternalQueryRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/external-query/blogs.external-query-repo';
 import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
 
-export class CreatePostCommand {
-  constructor(public dto: CreatePostDomainDto) {}
+export class CreatePostCommand extends Command<PostDocument> {
+  constructor(public dto: CreatePostDomainDto) {
+    super();
+  }
 }
 
 @CommandHandler(CreatePostCommand)
@@ -22,7 +19,6 @@ export class CreatePostUseCase implements ICommandHandler<
   PostDocument
 > {
   constructor(
-    @InjectModel(Post.name) private postModel: PostModel,
     private readonly blogsQueryRepo: BlogsExternalQueryRepository,
     private postsRepo: PostsRepository,
   ) {}
@@ -37,14 +33,6 @@ export class CreatePostUseCase implements ICommandHandler<
       });
     }
 
-    const postInstance = this.postModel.createPostInstance({
-      ...dto,
-
-      blogName: existingBlog.name, // + опциональное поле с блога
-    });
-
-    await this.postsRepo.save(postInstance);
-
-    return postInstance;
+    return this.postsRepo.create(dto, existingBlog.name);
   }
 }

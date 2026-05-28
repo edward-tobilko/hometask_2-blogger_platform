@@ -9,6 +9,7 @@ import {
 } from '../../domain/entities/post.entity';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
+import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
 
 @Injectable()
 export class PostsRepository {
@@ -24,6 +25,18 @@ export class PostsRepository {
 
   async save(postDoc: PostDocument): Promise<void> {
     await postDoc.save();
+  }
+
+  async create(dto: CreatePostDomainDto, name: string): Promise<PostDocument> {
+    const postInstance = this.postModel.createPostInstance({
+      ...dto,
+
+      blogName: name, // + опциональное поле с блога
+    });
+
+    await this.save(postInstance);
+
+    return postInstance;
   }
 
   async delete(id: string): Promise<void> {

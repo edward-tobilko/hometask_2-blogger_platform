@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
-import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 
+import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,

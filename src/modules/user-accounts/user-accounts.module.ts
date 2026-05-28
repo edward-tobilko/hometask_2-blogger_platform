@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { CqrsModule } from '@nestjs/cqrs';
 import type { StringValue } from 'ms';
 
 import { UsersController } from './api/controllers/users.controller';
@@ -33,6 +32,7 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from './constants/auth-tokens.inject-constants';
+import { UserRegisteredEventHandler } from './application/event-handlers/user-registered.event-handler';
 
 const queryHandlers = [GetUsersListHandler, MeUseCase];
 
@@ -47,9 +47,10 @@ const commandHandlers = [
   LoginUseCase,
 ];
 
+const eventHandlers = [UserRegisteredEventHandler];
+
 @Module({
   imports: [
-    CqrsModule,
     JwtModule,
     PassportModule,
 
@@ -66,16 +67,18 @@ const commandHandlers = [
     // * Services
     ...commandHandlers,
     ...queryHandlers,
+    ...eventHandlers,
     UsersService,
     AuthService,
     CryptoService,
     NodeMailerService,
 
-    // ? пример инстанцирования через токен, если надо внедрить несколько раз один и тот же класс
+    // ? пример инстанцирования через токен, если надо внедрить несколько раз один и тот же класс. Тот же вариант обьявления что и выше, только настройки в ручную.
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
       useFactory: (userAccountConfig: UserAccountsConfig): JwtService => {
         return new JwtService({
+          // * Замыкание: JwtService создаётся один раз, но внутри него замкнуты значения secret и expiresIn из userAccountConfig. Конфиг может быть давно выгружен из стека, но JwtService продолжает использовать эти значения.
           secret: userAccountConfig.accessTokenSecret,
           signOptions: {
             expiresIn: userAccountConfig.accessTokenExpireIn as StringValue,

@@ -47,6 +47,7 @@ import { ApiDeletePostSwagger } from '../decorators/swagger/delete-post-swagger.
 import { ApiGetCommentsForPostSwagger } from '../decorators/swagger/get-comments-for-post-swagger.decorator';
 import { ApiCreateCommentFroPostSwagger } from '../decorators/swagger/create-comment-for-post-swagger.decorator';
 import { ApiUpdateLikeStatusForPostSwagger } from '../decorators/swagger/update-like-status-for-post-swagger.decorator';
+import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 
 @Controller(API_ROUTES.posts)
 export class PostsController {
@@ -91,14 +92,19 @@ export class PostsController {
   @ApiCreateCommentFroPostSwagger('Create new comment')
   @Post(':postId/comments')
   @UseGuards(JwtAuthGuard)
-  createComment(
+  async createComment(
     @Param() params: PostIdParamDto,
     @Body() dto: CreateCommentInputDto,
     @CurrentUserFromRequest() currentUser: { id: string },
   ) {
-    return this.commandBus.execute(
-      new CreateCommentCommand(params.postId, dto.content, currentUser.id),
+    const command = new CreateCommentCommand(
+      params.postId,
+      dto.content,
+      currentUser.id,
     );
+    const commentInstance = await this.commandBus.execute(command);
+
+    return CommentViewModel.mapToViewModel(commentInstance);
   }
 
   @ApiGetPostsSwagger('Returns all posts')
@@ -117,10 +123,12 @@ export class PostsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
+    const command = new CreatePostCommand(dto);
+
     const postDoc = await this.commandBus.execute<
       CreatePostCommand,
       PostDocument
-    >(new CreatePostCommand(dto));
+    >(command);
 
     const postOutput = PostViewModel.mapToViewModel(postDoc);
 

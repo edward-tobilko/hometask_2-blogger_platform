@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CqrsModule } from '@nestjs/cqrs';
 
 import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
 import { Post, PostSchema } from './posts/domain/entities/post.entity';
@@ -76,8 +75,6 @@ const commandHandlers = [
 
 @Module({
   imports: [
-    CqrsModule,
-
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },

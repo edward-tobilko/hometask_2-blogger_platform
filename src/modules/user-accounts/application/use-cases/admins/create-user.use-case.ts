@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import {
   DomainException,
@@ -11,9 +11,11 @@ import { UsersRepository } from 'src/modules/user-accounts/infrastructure/reposi
 import { CryptoService } from '../../services/crypto.service';
 import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 
-// * CreateUserCommand - просто хранение данных в команде. Никакой логики, только данные. Просто контейнер для переноса данных от контроллера к use case.
-export class CreateUserCommand {
-  constructor(public dto: CreateUserDomainDto) {}
+// * CreateUserCommand - просто хранение данных в команде. Никакой логики, только данные. Просто контейнер для переноса данных от контроллера к use case. Розширяем (extends) Command, что бы не типизировать .commandBus.execute в контроллере.
+export class CreateUserCommand extends Command<UserAccountDocument> {
+  constructor(public dto: CreateUserDomainDto) {
+    super();
+  }
 }
 
 @CommandHandler(CreateUserCommand)
