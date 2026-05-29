@@ -17,6 +17,10 @@ export class CoreConfig {
     configValidationUtility.validateConfig(this); // к моменту валидации все поля уже заполнены (все поля иннициализированные this.configService.get(''))
   }
 
+  get isProduction(): boolean {
+    return this.env === 'production';
+  }
+
   @IsNumber({}, { message: 'Set env variable PORT, for example: 3001' })
   port: number = Number(this.configService.get('PORT'));
 

@@ -35,12 +35,16 @@ import { ApiRegistrationConfirmationSwagger } from '../decorators/auth/swagger/r
 import { ApiRegistrationSwagger } from '../decorators/auth/swagger/registration-swagger.decorator';
 import { ApiRegistrationEmailResendingSwagger } from '../decorators/auth/swagger/registration-email-resending-swagger.decorator';
 import { ApiGetMeSwagger } from '../decorators/auth/swagger/get-me-swagger.decorator';
+import { RefreshTokenAuthGuard } from '../../guards/bearer/refresh-token-auth.guard';
+import { RefreshTokenCommand } from '../../application/use-cases/users/refresh-token.use-case';
+import { CoreConfig } from 'src/core/core.config';
 
 @Controller(API_ROUTES.authorization)
 export class AuthController {
   constructor(
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
+    private coreConfig: CoreConfig,
   ) {}
 
   @ApiLoginSwagger('Try login user to the system')
@@ -55,14 +59,11 @@ export class AuthController {
     accessToken: string;
   }> {
     const { accessToken, refreshToken, expiresAt } =
-      await this.commandBus.execute<
-        LoginCommand,
-        { accessToken: string; refreshToken: string; expiresAt: number }
-      >(new LoginCommand(currentUser.id));
+      await this.commandBus.execute(new LoginCommand(currentUser.id));
 
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: this.coreConfig.isProduction,
       sameSite: 'strict',
       path: '/',
       maxAge: expiresAt,
@@ -127,5 +128,29 @@ export class AuthController {
     @CurrentUserFromRequest() currentUser: { id: string },
   ): Promise<UserSessionViewDto> {
     return this.queryBus.execute(new MeQuery(currentUser.id));
+  }
+
+  @Post('refresh-token')
+  @HttpCode(HttpStatusCodes.OK_200)
+  @UseGuards(RefreshTokenAuthGuard)
+  async refreshToken(
+    @CurrentUserFromRequest() currentUser: { id: string },
+    @Res({ passthrough: true })
+    response: Response,
+  ) {
+    const command = new RefreshTokenCommand(currentUser.id);
+
+    const { accessToken, refreshToken, expiresAt } =
+      await this.commandBus.execute(command);
+
+    response.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: this.coreConfig.isProduction,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: expiresAt,
+    });
+
+    return { accessToken };
   }
 }

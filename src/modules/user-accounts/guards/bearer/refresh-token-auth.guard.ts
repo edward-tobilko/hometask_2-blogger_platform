@@ -1,0 +1,19 @@
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+
+@Injectable()
+export class RefreshTokenAuthGuard extends AuthGuard('jwt-refresh') {
+  handleRequest(err: unknown, user: { id: string } | null): any {
+    if (err || !user) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'You are not authorized',
+      });
+    }
+
+    return user;
+  }
+}

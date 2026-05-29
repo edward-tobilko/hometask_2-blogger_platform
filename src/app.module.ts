@@ -4,7 +4,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TestingDataModule } from './testing/testing-data.module';
+import { TestingDataModule } from './modules/testing/testing-data.module';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 import { CoreModule } from './core/core.module';
@@ -14,6 +14,7 @@ import { configModule } from './config/dynamic.config-module';
 import { mongooseModule } from './config/mongoose.module';
 import { throttlerModule } from './config/throttler.module';
 import { CoreConfig } from './core/core.config';
+import { CounterModule } from './modules/scope-logger-example/counter.module';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
@@ -27,6 +28,7 @@ import { CoreConfig } from './core/core.config';
     // * импортируем модули, что бы переиспользовать их провайдеры (из массива exports)
     BloggersPlatformModule,
     UserAccountsModule,
+    CounterModule,
 
     CoreModule,
   ],

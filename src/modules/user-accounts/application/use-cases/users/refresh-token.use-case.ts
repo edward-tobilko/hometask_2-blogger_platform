@@ -8,7 +8,7 @@ import {
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from 'src/modules/user-accounts/constants/auth-tokens.inject-constants';
 
-export class LoginCommand extends Command<{
+export class RefreshTokenCommand extends Command<{
   accessToken: string;
   refreshToken: string;
   expiresAt: number;
@@ -18,8 +18,8 @@ export class LoginCommand extends Command<{
   }
 }
 
-@CommandHandler(LoginCommand)
-export class LoginUseCase implements ICommandHandler<LoginCommand> {
+@CommandHandler(RefreshTokenCommand)
+export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand> {
   constructor(
     @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN) // по этому токену мы в UserAccountsModule определяем нужные нам поля с .env
     private accessTokenContext: JwtService,
@@ -30,7 +30,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     private userAccountConfig: UserAccountsConfig,
   ) {}
 
-  execute({ userId }: LoginCommand): Promise<{
+  execute({ userId }: RefreshTokenCommand): Promise<{
     accessToken: string;
     refreshToken: string;
     expiresAt: number;

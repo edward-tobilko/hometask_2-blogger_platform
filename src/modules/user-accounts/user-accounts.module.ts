@@ -33,21 +33,33 @@ import {
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from './constants/auth-tokens.inject-constants';
 import { UserRegisteredEventHandler } from './application/event-handlers/user-registered.event-handler';
+import { RefreshTokenUseCase } from './application/use-cases/users/refresh-token.use-case';
+import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
 
-const queryHandlers = [GetUsersListHandler, MeUseCase];
+const handlers = {
+  queryHandlers: [GetUsersListHandler, MeUseCase],
 
-const commandHandlers = [
-  CreateUserUseCase,
-  DeleteUserUseCase,
-  RegisterUserUseCase,
-  ConfirmationRegistrationUseCase,
-  ResendConfirmationEmailUseCase,
-  PasswordRecoveryUseCase,
-  NewPasswordUseCase,
-  LoginUseCase,
+  commandHandlers: [
+    CreateUserUseCase,
+    DeleteUserUseCase,
+    RegisterUserUseCase,
+    ConfirmationRegistrationUseCase,
+    ResendConfirmationEmailUseCase,
+    PasswordRecoveryUseCase,
+    NewPasswordUseCase,
+    LoginUseCase,
+    RefreshTokenUseCase,
+  ],
+
+  eventHandlers: [UserRegisteredEventHandler],
+};
+
+const strategies = [
+  LocalStrategy,
+  JwtStrategy,
+  BasicStrategy,
+  RefreshTokenStrategy,
 ];
-
-const eventHandlers = [UserRegisteredEventHandler];
 
 @Module({
   imports: [
@@ -65,9 +77,9 @@ const eventHandlers = [UserRegisteredEventHandler];
     UserAccountsConfig,
 
     // * Services
-    ...commandHandlers,
-    ...queryHandlers,
-    ...eventHandlers,
+    ...handlers.commandHandlers,
+    ...handlers.eventHandlers,
+    ...handlers.queryHandlers,
     UsersService,
     AuthService,
     CryptoService,
@@ -104,10 +116,7 @@ const eventHandlers = [UserRegisteredEventHandler];
     UsersRepository,
     UsersQueryRepository,
 
-    // * Strategies
-    LocalStrategy,
-    JwtStrategy,
-    BasicStrategy,
+    ...strategies,
 
     // * Externals
     UsersExternalQueryRepository,
@@ -116,3 +125,5 @@ const eventHandlers = [UserRegisteredEventHandler];
   exports: [UsersExternalQueryRepository],
 })
 export class UserAccountsModule {}
+
+// ? При инжектировании провайдера (если, кому то понадобиться какой либо провайдер заинжектировать), nest под капотом вызывает класс с пом. оператора new, тем самым создавая екземпляр данного класса (провайдера).

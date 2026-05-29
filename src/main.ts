@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 
 import { appSetup } from './setup/app.setup';
 import { CoreConfig } from './core/core.config';
@@ -24,6 +25,9 @@ async function bootstrap() {
     const HOST = '0.0.0.0';
 
     app.enableCors({}); // for CORS domain requests
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    app.use(cookieParser());
 
     await app.listen(PORT, HOST);
 
