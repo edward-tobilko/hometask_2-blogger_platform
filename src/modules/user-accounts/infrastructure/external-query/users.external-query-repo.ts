@@ -32,3 +32,5 @@ export class UsersExternalQueryRepository {
     return UserExternalViewDto.mapToView(userDoc);
   }
 }
+
+// ? External - то что мы хотим переиспользовать снаруже (за пределами UserAccountModule), что бы не шарить все данные с репо.

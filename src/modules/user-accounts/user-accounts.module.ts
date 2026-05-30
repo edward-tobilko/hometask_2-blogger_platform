@@ -35,9 +35,17 @@ import {
 import { UserRegisteredEventHandler } from './application/event-handlers/user-registered.event-handler';
 import { RefreshTokenUseCase } from './application/use-cases/users/refresh-token.use-case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
+import { SecurityDevicesRepository } from './infrastructure/repositories/security-devices.repository';
+import {
+  SecurityDevices,
+  SecurityDevicesSchema,
+} from './domain/entities/security-devices.entity';
+import { SecurityDevicesController } from './api/controllers/security-devices.controller';
+import { SecurityDevicesQueryRepository } from './infrastructure/repositories/security-devices-query.repository';
+import { SecurityDevicesHandler } from './application/queries/get-security-devices.query';
 
 const handlers = {
-  queryHandlers: [GetUsersListHandler, MeUseCase],
+  queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
 
   commandHandlers: [
     CreateUserUseCase,
@@ -68,10 +76,11 @@ const strategies = [
 
     MongooseModule.forFeature([
       { name: UserAccount.name, schema: UserAccountSchema }, // UserAccount.name = token по которому мы его инжектируем в наши сервисы / репо
+      { name: SecurityDevices.name, schema: SecurityDevicesSchema },
     ]),
   ],
 
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [
     // * Configs
     UserAccountsConfig,
@@ -115,6 +124,8 @@ const strategies = [
     // * Repositories
     UsersRepository,
     UsersQueryRepository,
+    SecurityDevicesRepository,
+    SecurityDevicesQueryRepository,
 
     ...strategies,
 

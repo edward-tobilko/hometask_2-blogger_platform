@@ -4,13 +4,31 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 
 import { UserAccountsConfig } from '../../config/user-accounts.config';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { SecurityDevicesQueryRepository } from '../../infrastructure/repositories/security-devices-query.repository';
+
+type ValidatePayload = {
+  userId: string;
+  deviceId: string;
+  lastActiveDate: string;
+};
+
+type ValidatedPayloadResult = {
+  id: string;
+  deviceId: string;
+  lastActiveDate: string;
+};
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(userAccountConfig: UserAccountsConfig) {
+  constructor(
+    userAccountConfig: UserAccountsConfig,
+    private queryRepo: SecurityDevicesQueryRepository,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => {
@@ -24,7 +42,24 @@ export class RefreshTokenStrategy extends PassportStrategy(
     });
   }
 
-  validate(payload: { userId: string }): { id: string } {
-    return { id: payload.userId };
+  async validate(payload: ValidatePayload): Promise<ValidatedPayloadResult> {
+    const session = await this.queryRepo.findByDeviceId(payload.deviceId);
+
+    if (
+      !session ||
+      session.lastActiveDate.toISOString() !==
+        new Date(payload.lastActiveDate).toISOString()
+    )
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message:
+          'Token does not matches. You should be authorized in correct refresh token!',
+      });
+
+    return {
+      id: payload.userId,
+      deviceId: payload.deviceId,
+      lastActiveDate: payload.lastActiveDate.toString(),
+    };
   }
 }

@@ -63,10 +63,12 @@ export class UserTestManager {
 
   async login(
     dto: LoginInputDto,
+    refreshTokenCookie: string,
     statusCode: number = HttpStatus.OK,
   ): Promise<{ accessToken: string; cookies: string[] }> {
     const response = await request(this.httpServer)
       .post(`${this.authPath}/login`)
+      .set('Cookie', refreshTokenCookie)
       .send(dto)
       .expect(statusCode);
 

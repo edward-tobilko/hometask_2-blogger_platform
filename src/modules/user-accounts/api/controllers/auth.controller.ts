@@ -3,7 +3,9 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
+  Ip,
   Post,
   Res,
   UseGuards,
@@ -53,20 +55,24 @@ export class AuthController {
   @UseGuards(LocalAuthGuard) // LocalAuthGuard запускает LocalStrategy.validate → кладёт { id } в req.user → контроллер берёт id и генерирует токен.
   async login(
     @CurrentUserFromRequest() currentUser: { id: string },
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
     @Res({ passthrough: true })
     response: Response,
   ): Promise<{
     accessToken: string;
   }> {
-    const { accessToken, refreshToken, expiresAt } =
-      await this.commandBus.execute(new LoginCommand(currentUser.id));
+    const { accessToken, refreshToken, cookieMaxAge } =
+      await this.commandBus.execute(
+        new LoginCommand(currentUser.id, ip, userAgent),
+      );
 
     response.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: this.coreConfig.isProduction,
       sameSite: 'strict',
       path: '/',
-      maxAge: expiresAt,
+      maxAge: cookieMaxAge, // время жизни cookie в браузере. Браузер удалит cookie через 24 часа, но запись в MongoDB останется
     });
 
     return { accessToken };
@@ -130,17 +136,20 @@ export class AuthController {
     return this.queryBus.execute(new MeQuery(currentUser.id));
   }
 
+  // * Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh token. P.s. We need to create a new DeviceSession collection to store session refresh tokens, so that when a new token is generated, we revoke the old one—since the old token remains valid after rotation, there is no database check.
   @Post('refresh-token')
   @HttpCode(HttpStatusCodes.OK_200)
   @UseGuards(RefreshTokenAuthGuard)
   async refreshToken(
-    @CurrentUserFromRequest() currentUser: { id: string },
+    @CurrentUserFromRequest() currentUser: { id: string; deviceId: string },
     @Res({ passthrough: true })
     response: Response,
   ) {
-    const command = new RefreshTokenCommand(currentUser.id);
+    const { id, deviceId } = currentUser;
 
-    const { accessToken, refreshToken, expiresAt } =
+    const command = new RefreshTokenCommand(id, deviceId);
+
+    const { accessToken, refreshToken, cookieMaxAge } =
       await this.commandBus.execute(command);
 
     response.cookie('refreshToken', refreshToken, {
@@ -148,7 +157,7 @@ export class AuthController {
       secure: this.coreConfig.isProduction,
       sameSite: 'strict',
       path: '/',
-      maxAge: expiresAt,
+      maxAge: cookieMaxAge,
     });
 
     return { accessToken };

@@ -5,7 +5,10 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 export const CurrentUserFromRequest = createParamDecorator(
-  (_data: unknown, context: ExecutionContext): { id: string } => {
+  (
+    _data: unknown,
+    context: ExecutionContext,
+  ): { id: string; deviceId: string } => {
     const request = context.switchToHttp().getRequest<Request>();
 
     const currentUser = request.user;
@@ -17,15 +20,18 @@ export const CurrentUserFromRequest = createParamDecorator(
       });
     }
 
-    return currentUser as { id: string };
+    return currentUser as { id: string; deviceId: string };
   },
 );
 
 // * Декоратор для анонимных запроссов (что бы избежать request.user -> undefined -> 401)
 export const CurrentUserOptionalFromRequest = createParamDecorator(
-  (_data: unknown, context: ExecutionContext): { id: string } | null => {
+  (
+    _data: unknown,
+    context: ExecutionContext,
+  ): { id: string; deviceId: string } | null => {
     const request = context.switchToHttp().getRequest<Request>();
 
-    return (request.user as { id: string }) ?? null;
+    return (request.user as { id: string; deviceId: string }) ?? null;
   },
 );

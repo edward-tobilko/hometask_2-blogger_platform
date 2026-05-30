@@ -5,4 +5,5 @@ export const API_ROUTES = {
   posts: 'posts',
   testing: 'testing',
   users: 'users',
+  securityDevices: 'security/devices',
 } as const;

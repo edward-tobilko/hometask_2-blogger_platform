@@ -7,13 +7,17 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from 'src/modules/user-accounts/constants/auth-tokens.inject-constants';
+import { SecurityDevicesRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices.repository';
 
 export class RefreshTokenCommand extends Command<{
   accessToken: string;
   refreshToken: string;
-  expiresAt: number;
+  cookieMaxAge: number;
 }> {
-  constructor(public userId: string) {
+  constructor(
+    public userId: string,
+    public deviceId: string,
+  ) {
     super();
   }
 }
@@ -28,18 +32,34 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
     private refreshTokenContext: JwtService,
 
     private userAccountConfig: UserAccountsConfig,
+    private securityDevicesRepo: SecurityDevicesRepository,
   ) {}
 
-  execute({ userId }: RefreshTokenCommand): Promise<{
+  async execute({ userId, deviceId }: RefreshTokenCommand): Promise<{
     accessToken: string;
     refreshToken: string;
-    expiresAt: number;
+    cookieMaxAge: number;
   }> {
     const accessToken = this.accessTokenContext.sign({ userId });
-    const refreshToken = this.refreshTokenContext.sign({ userId });
 
-    const expiresAt = Number(this.userAccountConfig.refreshTokenCookieMaxAge); // 24 часа в мс
+    const lastActiveDate = new Date();
 
-    return Promise.resolve({ accessToken, refreshToken, expiresAt }); // ICommandHandler всегда требует Promise, так как метод синхронный а возвр. promise, нужно дожидаться.
+    await this.securityDevicesRepo.updateLastActiveDate(
+      deviceId,
+      lastActiveDate,
+    );
+
+    // * все то, что мы запишем в cookie
+    const refreshToken = this.refreshTokenContext.sign({
+      userId,
+      deviceId,
+      lastActiveDate,
+    });
+
+    const cookieMaxAge = Number(
+      this.userAccountConfig.refreshTokenCookieMaxAge,
+    );
+
+    return Promise.resolve({ accessToken, refreshToken, cookieMaxAge }); // ICommandHandler всегда требует Promise, так как метод синхронный а возвр. promise, нужно дожидаться.
   }
 }

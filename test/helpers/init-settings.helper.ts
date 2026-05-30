@@ -30,6 +30,11 @@ import {
 import { CommentTestManager } from './comments-test-manager.helper';
 import { initAppModule } from 'src/init-app.module';
 import { CoreConfig } from 'src/core/core.config';
+import {
+  SecurityDevices,
+  SecurityDevicesDocument,
+} from 'src/modules/user-accounts/domain/entities/security-devices.entity';
+import { SecurityDevicesTestManager } from './security-devices-test-manager.helper';
 
 export const initSettings = async (
   //* передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -66,11 +71,13 @@ export const initSettings = async (
   databaseConnection.model<BlogDocument>(Blog.name);
   databaseConnection.model<PostDocument>(Post.name);
   databaseConnection.model<CommentDocument>(Comment.name);
+  databaseConnection.model<SecurityDevicesDocument>(SecurityDevices.name);
 
   const userTestManager = new UserTestManager(app, UserModel);
   const postTestManager = new PostTestManager(app);
   const blogTestManager = new BlogTestManager(app, postTestManager);
   const commentTestManager = new CommentTestManager(app);
+  const securityDevicesTestManager = new SecurityDevicesTestManager(app);
 
   await deleteAllData(app);
 
@@ -82,6 +89,7 @@ export const initSettings = async (
     blogTestManager,
     postTestManager,
     commentTestManager,
+    securityDevicesTestManager,
   };
 };
 
