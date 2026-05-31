@@ -65,7 +65,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     await this.securityDevicesRepo.create({
       ip,
       deviceId,
-      title: userAgent,
+      title: userAgent ?? 'Unknown', // fallback когда HTTP-заголовок отсутствует: в тестах, у curl, у клиентов без user-agent
       lastActiveDate, // сохраняем в БД
 
       userId, // репозиторий должен знать какому пользователю принадлежит сессия

@@ -14,7 +14,7 @@ import { configModule } from './config/dynamic.config-module';
 import { mongooseModule } from './config/mongoose.module';
 import { throttlerModule } from './config/throttler.module';
 import { CoreConfig } from './core/core.config';
-import { CounterModule } from './modules/scope-logger-example/counter.module';
+// import { CounterModule } from './modules/scope-logger-example/counter.module';
 
 @Module({
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
@@ -28,7 +28,7 @@ import { CounterModule } from './modules/scope-logger-example/counter.module';
     // * импортируем модули, что бы переиспользовать их провайдеры (из массива exports)
     BloggersPlatformModule,
     UserAccountsModule,
-    CounterModule,
+    // CounterModule,
 
     CoreModule,
   ],

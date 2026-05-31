@@ -22,4 +22,25 @@ export class SecurityDevicesTestManager {
 
     return response.body as SecurityDevicesViewModel[];
   }
+
+  async deleteSecurityDeviceById(
+    deviceId: string,
+    refreshTokenCookie: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<void> {
+    await request(this.httpServer)
+      .delete(`${this.securityDevicesPath}/${deviceId}`)
+      .set('Cookie', refreshTokenCookie)
+      .expect(statusCode);
+  }
+
+  async deleteAllSecurityDevicesExceptCurrent(
+    refreshTokenCookie: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ) {
+    await request(this.httpServer)
+      .delete(`${this.securityDevicesPath}`)
+      .set('Cookie', refreshTokenCookie)
+      .expect(statusCode);
+  }
 }

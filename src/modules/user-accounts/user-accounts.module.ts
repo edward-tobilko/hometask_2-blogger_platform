@@ -43,20 +43,29 @@ import {
 import { SecurityDevicesController } from './api/controllers/security-devices.controller';
 import { SecurityDevicesQueryRepository } from './infrastructure/repositories/security-devices-query.repository';
 import { SecurityDevicesHandler } from './application/queries/get-security-devices.query';
+import { DeleteSecurityDeviceByIdUseCase } from './application/use-cases/security-devices/delete-security-device-by-id.use-case';
+import { DeleteAllSecurityDevicesExceptCurrentUseCase } from './application/use-cases/security-devices/delete-all-security-devices.use-case';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
 
   commandHandlers: [
+    // * Users
     CreateUserUseCase,
     DeleteUserUseCase,
     RegisterUserUseCase,
+
+    // * Auth
     ConfirmationRegistrationUseCase,
     ResendConfirmationEmailUseCase,
     PasswordRecoveryUseCase,
     NewPasswordUseCase,
     LoginUseCase,
     RefreshTokenUseCase,
+
+    // * Security Devices
+    DeleteSecurityDeviceByIdUseCase,
+    DeleteAllSecurityDevicesExceptCurrentUseCase,
   ],
 
   eventHandlers: [UserRegisteredEventHandler],

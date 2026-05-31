@@ -34,6 +34,7 @@ export class UserTestManager {
   usersPath = `/${GLOBAL_PREFIX}/users` as string;
   authPath = `/${GLOBAL_PREFIX}/auth` as string;
 
+  // * Extra functions
   getUserInputDto(
     payloadValidation?: Record<string, unknown>,
   ): CreateUserInputDto {
@@ -49,45 +50,8 @@ export class UserTestManager {
     return { ...payloadDto, ...payloadValidation }; // если одинаковый ключ есть в обоих объектах — правый перезаписывает левый.
   }
 
-  async getMe(
-    accessToken?: string,
-    statusCode: number = HttpStatus.OK,
-  ): Promise<UserSessionViewDto> {
-    const response = await request(this.httpServer)
-      .get(`${this.authPath}/me`)
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(statusCode);
-
-    return response.body as UserSessionViewDto;
-  }
-
-  async login(
-    dto: LoginInputDto,
-    refreshTokenCookie: string,
-    statusCode: number = HttpStatus.OK,
-  ): Promise<{ accessToken: string; cookies: string[] }> {
-    const response = await request(this.httpServer)
-      .post(`${this.authPath}/login`)
-      .set('Cookie', refreshTokenCookie)
-      .send(dto)
-      .expect(statusCode);
-
-    return {
-      ...response.body, // return accessToken
-      cookies: response.headers['set-cookie'] ?? [],
-    } as { accessToken: string; cookies: string[] };
-  }
-
-  async registrationUser(
-    dto: CreateUserInputDto,
-    status: number = HttpStatus.NO_CONTENT,
-  ): Promise<unknown> {
-    const response = await request(this.httpServer)
-      .post(`${this.authPath}/registration`)
-      .send(dto)
-      .expect(status);
-
-    return response.body;
+  async findUserByEmail(email: string): Promise<UserAccountDocument | null> {
+    return this.userModel.findOne({ email });
   }
 
   async createUser(
@@ -103,92 +67,6 @@ export class UserTestManager {
     return response.body as UserViewDto;
   }
 
-  async createSeveralUsers(count: number): Promise<UserViewDto[]> {
-    const users: UserViewDto[] = [];
-
-    for (let i = 1; i <= count; i++) {
-      // * делаем последовательное создание 12-ти юзеров (лучше для тестов)
-      const res = await this.createUser({
-        login: `user${i}`,
-        password: 'qwerty123',
-        email: `user${i}@example.dev`,
-      });
-
-      users.push(res);
-    }
-
-    return users;
-  }
-
-  async getRegisteredAndConfirmedUser() {
-    // * getting dto
-    const dto = this.getUserInputDto();
-    const { email, login, password } = dto;
-
-    // * registering user in the system
-    await this.registrationUser(dto);
-
-    // * finding user by email
-    const userDb = await this.userModel.findOne({ email: dto.email });
-
-    // * getting confirm code
-    const confirmCode = userDb!.emailConfirmation.confirmationCode!;
-
-    await this.getConfirmRegistration({
-      code: confirmCode,
-    });
-
-    return { email, login, password, confirmCode };
-  }
-
-  async getUsersPaginatedList(
-    optional: { query?: Partial<UsersQueryInputDto> } = {},
-    statusCode: number = HttpStatus.OK,
-  ): Promise<UsersPaginatedViewDto> {
-    const { query } = optional;
-
-    const defaultQuery = {
-      sortBy: UsersSortBy.CreatedAt,
-      sortDirection: SortDirections.DESC,
-      pageNumber: 1,
-      pageSize: 10,
-
-      ...query,
-    };
-
-    const usersList = await request(this.httpServer)
-      .get(this.usersPath)
-      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
-      .query(defaultQuery)
-      .expect(statusCode);
-
-    return usersList.body as UsersPaginatedViewDto;
-  }
-
-  async deleteUser(
-    userId: string,
-    statusCode: number = HttpStatus.NO_CONTENT,
-  ): Promise<unknown> {
-    const response = await request(this.httpServer)
-      .delete(`${this.usersPath}/${userId}`)
-      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
-      .expect(statusCode);
-
-    return response.body;
-  }
-
-  async getResendRegistrationEmail(
-    email: RegistrationEmailResendingInputDto,
-    statusCode: number = HttpStatus.NO_CONTENT,
-  ): Promise<unknown> {
-    const response = await request(this.httpServer)
-      .post(`${this.authPath}/registration-email-resending`)
-      .send(email)
-      .expect(statusCode);
-
-    return response.body;
-  }
-
   async getConfirmRegistration(
     code: RegistrationConfirmInputDto,
     statusCode: number = HttpStatus.NO_CONTENT,
@@ -201,6 +79,7 @@ export class UserTestManager {
     return response.body;
   }
 
+  // * Auth contract end-points
   async getRecoveryPassword(
     email: PasswordRecoveryInputDto,
     statusCode: number = HttpStatus.NO_CONTENT,
@@ -225,9 +104,156 @@ export class UserTestManager {
     return response.body;
   }
 
-  async findUserByEmail(email: string): Promise<UserAccountDocument | null> {
-    return this.userModel.findOne({ email });
+  async login(
+    dto: LoginInputDto,
+    statusCode: number = HttpStatus.OK,
+  ): Promise<{ accessToken: string; cookies: string[] }> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/login`)
+      .send(dto)
+      .expect(statusCode);
+
+    return {
+      ...response.body, // return accessToken
+      cookies: response.headers['set-cookie'] ?? [], // всегда string[] в Node.js HTTP, даже если cookie одна. Так устроен          HTTP-протокол: каждый Set-Cookie заголовок — отдельная строка в массиве. По этому нам нужно возвр. string[].
+    } as { accessToken: string; cookies: string[] };
+  }
+
+  async getRefreshToken(
+    refreshToken: string,
+    statusCode: number = HttpStatus.OK,
+  ): Promise<{ accessToken: string; cookies: string[] }> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/refresh-token`)
+      .set('Cookie', refreshToken.split(';')[0]) // отрезает все лишние атрибуты (refreshToken=eyJ...; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400000) и оставляет только refreshToken=eyJ...., посколько нам нужно посылать только name=value.
+      .expect(statusCode);
+
+    return {
+      ...response.body,
+      cookies: response.headers['set-cookie'] ?? [],
+    } as { accessToken: string; cookies: string[] };
+  }
+
+  async getRegisteredAndConfirmedUser() {
+    // * getting dto
+    const dto = this.getUserInputDto();
+    const { email, login, password } = dto;
+
+    // * registering user in the system
+    await this.registrationUser(dto);
+
+    // * finding user by email
+    const userDb = await this.userModel.findOne({ email: dto.email });
+
+    // * getting confirm code
+    const confirmCode = userDb!.emailConfirmation.confirmationCode!;
+
+    await this.getConfirmRegistration({
+      code: confirmCode,
+    });
+
+    return { email, login, password, confirmCode };
+  }
+
+  async registrationUser(
+    dto: CreateUserInputDto,
+    status: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/registration`)
+      .send(dto)
+      .expect(status);
+
+    return response.body;
+  }
+
+  async getResendRegistrationEmail(
+    email: RegistrationEmailResendingInputDto,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .post(`${this.authPath}/registration-email-resending`)
+      .send(email)
+      .expect(statusCode);
+
+    return response.body;
+  }
+
+  async logout(
+    refreshToken: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<void> {
+    await request(this.httpServer)
+      .post(`${this.authPath}/logout`)
+      .set('Cookie', refreshToken)
+      .expect(statusCode);
+  }
+
+  async getMe(
+    accessToken?: string,
+    statusCode: number = HttpStatus.OK,
+  ): Promise<UserSessionViewDto> {
+    const response = await request(this.httpServer)
+      .get(`${this.authPath}/me`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(statusCode);
+
+    return response.body as UserSessionViewDto;
+  }
+
+  // * User contract end-points
+  async getUsersPaginatedList(
+    optional: { query?: Partial<UsersQueryInputDto> } = {},
+    statusCode: number = HttpStatus.OK,
+  ): Promise<UsersPaginatedViewDto> {
+    const { query } = optional;
+
+    const defaultQuery = {
+      sortBy: UsersSortBy.CreatedAt,
+      sortDirection: SortDirections.DESC,
+      pageNumber: 1,
+      pageSize: 10,
+
+      ...query,
+    };
+
+    const usersList = await request(this.httpServer)
+      .get(this.usersPath)
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
+      .query(defaultQuery)
+      .expect(statusCode);
+
+    return usersList.body as UsersPaginatedViewDto;
+  }
+
+  async createSeveralUsers(count: number): Promise<UserViewDto[]> {
+    const users: UserViewDto[] = [];
+
+    for (let i = 1; i <= count; i++) {
+      // * делаем последовательное создание 12-ти юзеров (лучше для тестов)
+      const res = await this.createUser({
+        login: `user${i}`,
+        password: 'qwerty123',
+        email: `user${i}@example.dev`,
+      });
+
+      users.push(res);
+    }
+
+    return users;
+  }
+
+  async deleteUser(
+    userId: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .delete(`${this.usersPath}/${userId}`)
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
+      .expect(statusCode);
+
+    return response.body;
   }
 }
 
-// ? там где мы return unknown - потому что по контракту status = 204 (без тела), а так же безопастней чем any.
+// ? return "unknown" - по контракту status = 204 (без тела) -> безопастней чем "any".
