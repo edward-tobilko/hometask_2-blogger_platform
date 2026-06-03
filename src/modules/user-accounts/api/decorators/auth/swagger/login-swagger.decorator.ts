@@ -32,6 +32,7 @@ export const ApiLoginSwagger = (summary: string) => {
         'application/json': {
           schema: {
             type: 'object',
+            title: 'LoginSuccessViewModel',
             properties: {
               accessToken: { type: 'string', description: 'JWT access token' },
             },
@@ -40,6 +41,7 @@ export const ApiLoginSwagger = (summary: string) => {
         'text/plain': {
           schema: {
             type: 'object',
+            title: 'LoginSuccessViewModel',
             properties: {
               accessToken: { type: 'string', description: 'JWT access token' },
             },
@@ -48,6 +50,7 @@ export const ApiLoginSwagger = (summary: string) => {
         'text/json': {
           schema: {
             type: 'object',
+            title: 'LoginSuccessViewModel',
             properties: {
               accessToken: { type: 'string', description: 'JWT access token' },
             },

@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { RefreshTokenAuthGuard } from '../../guards/bearer/refresh-token-auth.guard';
@@ -16,7 +17,11 @@ import { CurrentUserFromRequest } from '../../guards/decorators/params/current-u
 import { SecurityDevicesQuery } from '../../application/queries/get-security-devices.query';
 import { DeleteSecurityDeviceByIdCommand } from '../../application/use-cases/security-devices/delete-security-device-by-id.use-case';
 import { DeleteAllSecurityDevicesExceptCurrentCommand } from '../../application/use-cases/security-devices/delete-all-security-devices.use-case';
+import { ApiGetSecurityDevicesSwagger } from '../decorators/security-devices/swagger/get-security-devices-swagger.decorator';
+import { ApiDeleteAllSecurityDevicesSwagger } from '../decorators/security-devices/swagger/delete-all-decurity-devices-swagger.decorator';
+import { ApiDeleteSecurityDeviceByIdSwagger } from '../decorators/security-devices/delete-security-device-swagger.decorator';
 
+@ApiTags('SecurityDevices')
 @Controller(API_ROUTES.securityDevices)
 export class SecurityDevicesController {
   constructor(
@@ -24,14 +29,18 @@ export class SecurityDevicesController {
     private commandBus: CommandBus,
   ) {}
 
-  // * Returns all devices with active sessions for current user
+  @ApiGetSecurityDevicesSwagger(
+    'Returns all devices with active sessions for current user',
+  )
   @Get()
   @UseGuards(RefreshTokenAuthGuard)
   getSecurityDevices(@CurrentUserFromRequest() currentUser: { id: string }) {
     return this.queryBus.execute(new SecurityDevicesQuery(currentUser.id));
   }
 
-  // * Terminate all other (exclude current) device's sessions
+  @ApiDeleteAllSecurityDevicesSwagger(
+    "Terminate all other (exclude current) device's sessions",
+  )
   @Delete()
   @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -46,7 +55,7 @@ export class SecurityDevicesController {
     );
   }
 
-  // * Terminate specified device session
+  @ApiDeleteSecurityDeviceByIdSwagger('Terminate specified device session')
   @Delete(':deviceId')
   @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

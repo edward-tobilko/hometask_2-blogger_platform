@@ -1,10 +1,12 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { ApiTags } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { ApiDeleteAllDataSwagger } from './delete-all-data-swagger.decorator';
 
+@ApiTags('Testing')
 @Controller(API_ROUTES.testing)
 export class TestingDataController {
   constructor(

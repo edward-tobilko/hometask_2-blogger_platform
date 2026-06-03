@@ -15,6 +15,7 @@ export const ApiPasswordRecoverySwagger = (summary: string) => {
     ApiBody({
       schema: {
         type: 'object',
+        title: 'PasswordRecoveryInputModel',
         properties: {
           email: {
             type: 'string',

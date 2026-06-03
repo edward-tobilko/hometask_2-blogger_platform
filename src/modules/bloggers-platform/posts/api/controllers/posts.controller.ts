@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
 
 import { CreatePostDto } from '../dto/input-dto/create-post.input-dto';
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
@@ -49,6 +50,7 @@ import { ApiCreateCommentFroPostSwagger } from '../decorators/swagger/create-com
 import { ApiUpdateLikeStatusForPostSwagger } from '../decorators/swagger/update-like-status-for-post-swagger.decorator';
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 
+@ApiTags('Posts')
 @Controller(API_ROUTES.posts)
 export class PostsController {
   constructor(

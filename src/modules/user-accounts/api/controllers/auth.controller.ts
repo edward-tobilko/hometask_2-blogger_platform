@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
@@ -40,7 +41,11 @@ import { ApiGetMeSwagger } from '../decorators/auth/swagger/get-me-swagger.decor
 import { RefreshTokenAuthGuard } from '../../guards/bearer/refresh-token-auth.guard';
 import { RefreshTokenCommand } from '../../application/use-cases/users/refresh-token.use-case';
 import { CoreConfig } from 'src/core/core.config';
+import { LogoutCommand } from '../../application/use-cases/users/logout.use-case';
+import { ApiRefreshTokenSwagger } from '../decorators/auth/swagger/refresh-token-swagger.decorator';
+import { ApiLogoutSwagger } from '../decorators/auth/swagger/logout-swagger.decorator';
 
+@ApiTags('Auth')
 @Controller(API_ROUTES.authorization)
 export class AuthController {
   constructor(
@@ -96,7 +101,9 @@ export class AuthController {
     return { accessToken };
   }
 
-  // * Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh token. P.s. We need to create a new DeviceSession collection to store session refresh tokens, so that when a new token is generated, we revoke the old one—since the old token remains valid after rotation, there is no database check.
+  @ApiRefreshTokenSwagger(
+    'Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh token. P.s. We need to create a new DeviceSession collection to store session refresh tokens, so that when a new token is generated, we revoke the old one—since the old token remains valid after rotation, there is no database check',
+  )
   @Post('refresh-token')
   @HttpCode(HttpStatusCodes.OK_200)
   @UseGuards(RefreshTokenAuthGuard)
@@ -154,6 +161,21 @@ export class AuthController {
     );
   }
 
+  @ApiLogoutSwagger(
+    'In cookie client must send correct refresh token that will be revoked',
+  )
+  @Post('logout')
+  @HttpCode(HttpStatusCodes.NO_CONTENT_204)
+  @UseGuards(RefreshTokenAuthGuard)
+  async logout(
+    @CurrentUserFromRequest() currentUser: { deviceId: string },
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    await this.commandBus.execute(new LogoutCommand(currentUser.deviceId));
+
+    response.clearCookie('refreshToken');
+  }
+
   @ApiGetMeSwagger('Get info about current user')
   @Get('me')
   @UseGuards(JwtAuthGuard)
@@ -163,3 +185,5 @@ export class AuthController {
     return this.queryBus.execute(new MeQuery(currentUser.id));
   }
 }
+
+// ? passthrough = true - без этого свойства пришлось бы писать response.status(204).send() вручную, а так nest сам управляет-отправлят ответом.

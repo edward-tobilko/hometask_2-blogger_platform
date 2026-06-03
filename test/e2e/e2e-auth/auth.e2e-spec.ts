@@ -221,8 +221,6 @@ describe('Auth swagger contract', () => {
         );
       },
     );
-
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/login end-point -> Try login user to the system', () => {
@@ -321,8 +319,6 @@ describe('Auth swagger contract', () => {
     //     );
     //   },
     // );
-
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Generate new pair of access and refresh tokens (in cookie client must send correct refresh token that will be revoked after refreshing). Device LastActiveDate should be overrode by issued Date of new refresh token. P.s. We need to create a new DeviceSession collection to store session refresh tokens, so that when a new token is generated, we revoke the old one—since the old token remains valid after rotation, there is no database check', () => {
@@ -375,8 +371,6 @@ describe('Auth swagger contract', () => {
       // * старый токен теперь невалиден (lastActiveDate не совпадает)
       await userTestManager.getRefreshToken(oldCookie, HttpStatus.UNAUTHORIZED);
     });
-
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/registration-confirmation end-point -> Confirm registration', () => {
@@ -503,8 +497,6 @@ describe('Auth swagger contract', () => {
         );
       },
     );
-
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/registration end-point -> Registration in the system. Email with confirmation code will be send to passed email address', () => {
@@ -635,8 +627,6 @@ describe('Auth swagger contract', () => {
         expectErrorField(createUserResponse, field);
       },
     );
-
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 
   describe('Tests for POST: /api/auth/registration-email-resending end-point -> Resend confirmation registration  email if user exist', () => {
@@ -742,8 +732,39 @@ describe('Auth swagger contract', () => {
         HttpStatus.BAD_REQUEST,
       );
     });
+  });
 
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
+  describe('Tests for POST: /api/auth/logout end-point -> In cookie client must send correct refresh token that will be revoked', () => {
+    it('status 204 - successfully remove session and revokes refresh token', async () => {
+      const user = await userTestManager.getRegisteredAndConfirmedUser();
+
+      const loginResult = await userTestManager.login({
+        loginOrEmail: user.email,
+        password: user.password,
+      });
+
+      // * getting refresh token from cookies
+      const token = loginResult.cookies.find((cookie) =>
+        cookie.startsWith('refreshToken='),
+      );
+
+      // * revoking refresh token
+      await userTestManager.logout(token!);
+
+      // * old token is invalid now
+      await userTestManager.getRefreshToken(token!, HttpStatus.UNAUTHORIZED);
+    });
+
+    it('status 401 - without refresh token cookie', async () => {
+      await userTestManager.logout('', HttpStatus.UNAUTHORIZED);
+    });
+
+    it('status 401 - with invalid refresh token', async () => {
+      await userTestManager.logout(
+        'refreshToken=invalid-token',
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
   });
 
   describe('Tests for GET: /api/auth/me end-point -> Get info about current user', () => {
@@ -779,7 +800,5 @@ describe('Auth swagger contract', () => {
 
       await userTestManager.getMe(expiredToken, HttpStatus.UNAUTHORIZED);
     });
-
-    it.skip('status 429 - more than 5 attempts from one IP during 10 seconds (IS_DISABLE_RATE_LIMIT=true in test env)', async () => {});
   });
 });

@@ -1,12 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { AppService, RootPageResponse } from './app.service';
+import { ApiAppSwagger } from './app-swagger.decorator';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  // * Return root page
+  @ApiTags('App')
+  @ApiAppSwagger('Get API information')
   @Get('root-page')
   rootPage(): RootPageResponse {
     return this.appService.getRootPage();

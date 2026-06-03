@@ -45,6 +45,7 @@ import { SecurityDevicesQueryRepository } from './infrastructure/repositories/se
 import { SecurityDevicesHandler } from './application/queries/get-security-devices.query';
 import { DeleteSecurityDeviceByIdUseCase } from './application/use-cases/security-devices/delete-security-device-by-id.use-case';
 import { DeleteAllSecurityDevicesExceptCurrentUseCase } from './application/use-cases/security-devices/delete-all-security-devices.use-case';
+import { LogoutUseCase } from './application/use-cases/users/logout.use-case';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
@@ -62,6 +63,7 @@ const handlers = {
     NewPasswordUseCase,
     LoginUseCase,
     RefreshTokenUseCase,
+    LogoutUseCase,
 
     // * Security Devices
     DeleteSecurityDeviceByIdUseCase,

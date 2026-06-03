@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateBlogDto } from '../dto/input-dto/create-blog.input-dto';
@@ -44,6 +45,7 @@ import { ApiDeleteBlogSwagger } from '../decorators/swagger/delete-blog-swagger.
 import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 
+@ApiTags('Blogs')
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
   constructor(

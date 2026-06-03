@@ -9,7 +9,7 @@ import {
 } from './comments/domain/entities/comment.entity';
 import { BlogsController } from './blogs/api/controllers/blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
-import { CommentController } from './comments/api/controllers/comment.controller';
+import { CommentsController } from './comments/api/controllers/comment.controller';
 import { BlogsService } from './blogs/application/services/blogs.service';
 import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
@@ -84,7 +84,7 @@ const commandHandlers = [
     UserAccountsModule,
   ],
 
-  controllers: [BlogsController, PostsController, CommentController],
+  controllers: [BlogsController, PostsController, CommentsController],
   providers: [
     ...queryHandlers,
     ...commandHandlers,

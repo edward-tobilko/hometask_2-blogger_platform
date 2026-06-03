@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBasicAuth } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
@@ -26,6 +27,7 @@ import { ApiGetUsersSwagger } from '../decorators/users/swagger/get-users-swagge
 import { ApiCreateUserSwagger } from '../decorators/users/swagger/create-swagger.decorator';
 import { ApiDeleteUserSwagger } from '../decorators/users/swagger/delete-swagger.decorator';
 
+@ApiTags('Users')
 @Controller(API_ROUTES.users)
 @UseGuards(BasicAuthGuard)
 @ApiBasicAuth('basicAuth')

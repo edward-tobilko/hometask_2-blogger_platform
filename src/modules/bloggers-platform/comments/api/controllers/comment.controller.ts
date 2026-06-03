@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { QueryBus, CommandBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CommentViewModel } from '../dto/view-dto/comment.view-dto';
@@ -31,8 +32,9 @@ import { ApiDeleteCommentSwagger } from '../decorators/swagger/delete-comment-sw
 import { ApiGetCommentByIdSwagger } from '../decorators/swagger/get-comment-swagger.decorator';
 import { IdParamDto } from 'src/core/dto/param.dto';
 
+@ApiTags('Comments')
 @Controller(API_ROUTES.comments)
-export class CommentController {
+export class CommentsController {
   constructor(
     private queryBus: QueryBus,
     private commandBus: CommandBus,
