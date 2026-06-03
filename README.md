@@ -69,6 +69,8 @@ Base URL: `/api`
 | `POST` | `/auth/password-recovery`            | —                              | Request password recovery          |
 | `POST` | `/auth/new-password`                 | —                              | Set new password via recovery code |
 | `GET`  | `/auth/me`                           | Bearer JWT                     | Get current user info              |
+| `POST` | `/auth/refresh-token`                | Cookie (refreshToken)          | Refresh access + refresh tokens    |
+| `POST` | `/auth/logout`                       | Cookie (refreshToken)          | Logout, revoke refresh token       |
 
 ### Users (Admin)
 
@@ -112,6 +114,14 @@ Base URL: `/api`
 | `DELETE` | `/comments/:commentId`             | Delete comment specified by id                     |
 | `GET`    | `/comments/:id`                    | Get comment by ID                                  |
 
+### Security Devices
+
+| Method   | Endpoint                      | Auth                  | Description                           |
+| -------- | ----------------------------- | --------------------- | ------------------------------------- |
+| `GET`    | `/security/devices`           | Cookie (refreshToken) | List all active sessions              |
+| `DELETE` | `/security/devices`           | Cookie (refreshToken) | Terminate all sessions except current |
+| `DELETE` | `/security/devices/:deviceId` | Cookie (refreshToken) | Terminate specified session           |
+
 > Full interactive documentation available at `/api` (Swagger UI).
 
 ---
@@ -137,22 +147,26 @@ yarn install
 Create `.env.development.local`:
 
 ```env
-MONGO_URL=mongodb+srv://<user>:<password>@<cluster>.mongodb.net
+MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net
 DB_NAME=blogger_platform_dev
 
-AT_SECRET=your_access_token_secret
-AT_TIME=5m
-RT_SECRET=your_refresh_token_secret
-RT_TIME=7d
+ACCESS_TOKEN_SECRET=your_access_token_secret
+ACCESS_TOKEN_EXPIRE_IN=10s
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+REFRESH_TOKEN_EXPIRE_IN=20s
+REFRESH_TOKEN_COOKIE_MAX_AGE=86400000
 
-ADMIN_USERNAME=admin
+ADMIN_USER_NAME=admin
 ADMIN_PASSWORD=qwerty
 
 EMAIL=your@gmail.com
 EMAIL_PASS=your_google_app_password
 
-DISABLE_RATE_LIMIT=true
+IS_DISABLE_RATE_LIMIT=true
 INCLUDE_TESTING_MODULE=true
+IS_SWAGGER_ENABLED=true
+IS_USER_AUTOMATICALLY_CONFIRMED=true
+SEND_INTERNAL_SERVER_ERROR_DETAILS=true
 ```
 
 ### Run
@@ -168,22 +182,40 @@ yarn build     # Compile to dist/
 
 ### Setup
 
-Create `.env.test.local` with a separate test database:
+Create `.env.testing` with a separate test database:
 
 ```env
-MONGO_URL=mongodb+srv://<user>:<password>@<cluster>.mongodb.net
-DB_NAME=blogger_platform_test
-DISABLE_RATE_LIMIT=true
+PORT=9100
+MONGO_URI=mongodb://localhost:27017/test-db
+NODE_ENV=testing
+DB_NAME=test-db
+
+DB_AUTO_SYNC=true
 INCLUDE_TESTING_MODULE=true
+IS_SWAGGER_ENABLED=false
+IS_USER_AUTOMATICALLY_CONFIRMED=false
+SEND_INTERNAL_SERVER_ERROR_DETAILS=false
+IS_DISABLE_RATE_LIMIT=true
+
+ADMIN_USER_NAME=admin
+ADMIN_PASSWORD=qwerty
+
+ACCESS_TOKEN_SECRET=secretOrKey_forTest
+REFRESH_TOKEN_SECRET=secretOrKey_forTest
+
+TTL_RATE_LIMIT=10000
+COUNT_RATE_LIMIT=1000
+
+ACCESS_TOKEN_EXPIRE_IN=10m
+REFRESH_TOKEN_EXPIRE_IN=30d
+REFRESH_TOKEN_COOKIE_MAX_AGE=86400000
 ```
 
 ### Commands
 
 ```bash
-yarn test              # Run all tests (unit + e2e)
 yarn test:unit         # Unit tests only (parallel)
 yarn test:e2e          # E2E tests only (sequential, real DB)
-yarn test:cov          # Test coverage report
 
 # Run a specific file
 yarn test:unit -- --testPathPattern=blog
@@ -197,13 +229,16 @@ test/
 ├── unit/
 │   ├── unit-app/
 │   └── unit-blogs/
+│   └── unit-core/
 ├── e2e/
 │   ├── e2e-auth/
 │   ├── e2e-blogs/
 │   ├── e2e-posts/
 │   ├── e2e-comments/
+│   ├── e2e-security-devices/
 │   └── e2e-users/
 └── helpers/            # Test managers, init helpers, mock data
+└── mock/            # Email service mock data
 ```
 
 E2E tests use **Test Managers** (e.g. `BlogsTestManager`, `UsersTestManager`) for clean test data setup and reusable assertions via Supertest.
@@ -212,21 +247,21 @@ E2E tests use **Test Managers** (e.g. `BlogsTestManager`, `UsersTestManager`) fo
 
 ## Environment Variables Reference
 
-| Variable                 | Description                | Example                  |
-| ------------------------ | -------------------------- | ------------------------ |
-| `MONGO_URL`              | MongoDB connection string  | `mongodb+srv://...`      |
-| `DB_NAME`                | Database name              | `blogger_platform_dev`   |
-| `AT_SECRET`              | JWT access token secret    | `supersecret`            |
-| `AT_TIME`                | Access token TTL           | `5m`                     |
-| `RT_SECRET`              | JWT refresh token secret   | `anothersecret`          |
-| `RT_TIME`                | Refresh token TTL          | `7d`                     |
-| `ADMIN_USERNAME`         | Basic auth username        | `admin`                  |
-| `ADMIN_PASSWORD`         | Basic auth password        | `qwerty`                 |
-| `EMAIL`                  | Sender email address       | `bot@gmail.com`          |
-| `EMAIL_PASS`             | Google App Password        | `xxxx xxxx xxxx xxxx`    |
-| `PORT`                   | Server port                | `3000` (default: `8080`) |
-| `DISABLE_RATE_LIMIT`     | Disable throttling         | `true`                   |
-| `INCLUDE_TESTING_MODULE` | Expose `/testing/all-data` | `true`                   |
+| Variable                  | Description                | Example                  |
+| ------------------------- | -------------------------- | ------------------------ |
+| `MONGO_URI`               | MongoDB connection string  | `mongodb+srv://...`      |
+| `DB_NAME`                 | Database name              | `blogger_platform_dev`   |
+| `ACCESS_TOKEN_SECRET`     | JWT access token secret    | `supersecret`            |
+| `ACCESS_TOKEN_EXPIRE_IN`  | Access token TTL           | `10m`                    |
+| `REFRESH_TOKEN_SECRET`    | JWT refresh token secret   | `anothersecret`          |
+| `REFRESH_TOKEN_EXPIRE_IN` | Refresh token TTL          | `30d`                    |
+| `ADMIN_USER_NAME`         | Basic auth username        | `admin`                  |
+| `ADMIN_PASSWORD`          | Basic auth password        | `qwerty`                 |
+| `EMAIL`                   | Sender email address       | `bot@gmail.com`          |
+| `EMAIL_PASS`              | Google App Password        | `xxxx xxxx xxxx xxxx`    |
+| `PORT`                    | Server port                | `3000` (default: `8080`) |
+| `IS_DISABLE_RATE_LIMIT`   | Disable throttling         | `true`                   |
+| `INCLUDE_TESTING_MODULE`  | Expose `/testing/all-data` | `true`                   |
 
 ---
 
