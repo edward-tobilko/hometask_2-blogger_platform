@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { QueryBus, CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CommentViewModel } from '../dto/view-dto/comment.view-dto';
@@ -33,6 +34,7 @@ import { ApiGetCommentByIdSwagger } from '../decorators/swagger/get-comment-swag
 import { IdParamDto } from 'src/core/dto/param.dto';
 
 @ApiTags('Comments')
+@SkipThrottle()
 @Controller(API_ROUTES.comments)
 export class CommentsController {
   constructor(

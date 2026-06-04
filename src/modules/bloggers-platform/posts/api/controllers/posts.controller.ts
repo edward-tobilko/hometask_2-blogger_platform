@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 import { CreatePostDto } from '../dto/input-dto/create-post.input-dto';
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
@@ -51,6 +52,7 @@ import { ApiUpdateLikeStatusForPostSwagger } from '../decorators/swagger/update-
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 
 @ApiTags('Posts')
+@SkipThrottle()
 @Controller(API_ROUTES.posts)
 export class PostsController {
   constructor(

@@ -12,6 +12,7 @@ import {
 import { ApiBasicAuth } from '@nestjs/swagger';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateUserInputDto } from '../input-dto/create-user.input-dto';
@@ -28,6 +29,7 @@ import { ApiCreateUserSwagger } from '../decorators/users/swagger/create-swagger
 import { ApiDeleteUserSwagger } from '../decorators/users/swagger/delete-swagger.decorator';
 
 @ApiTags('Users')
+@SkipThrottle()
 @Controller(API_ROUTES.users)
 @UseGuards(BasicAuthGuard)
 @ApiBasicAuth('basicAuth')

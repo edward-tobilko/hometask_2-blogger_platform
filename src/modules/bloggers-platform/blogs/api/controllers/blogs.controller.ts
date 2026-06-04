@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateBlogDto } from '../dto/input-dto/create-blog.input-dto';
@@ -46,6 +47,7 @@ import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jw
 import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 
 @ApiTags('Blogs')
+@SkipThrottle()
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
   constructor(
