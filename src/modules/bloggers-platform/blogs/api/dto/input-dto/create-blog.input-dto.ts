@@ -6,7 +6,7 @@ import {
   descriptionConstraints,
   nameConstraints,
   websiteUrlConstraints,
-} from '../../../constraints/blogs.constraints';
+} from '../../constraints/blogs.constraints';
 
 export class CreateBlogDto {
   @ApiProperty({

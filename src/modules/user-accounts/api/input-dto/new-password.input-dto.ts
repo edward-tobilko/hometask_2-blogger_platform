@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 import { IsStringWithTrim } from 'src/core/decorators/string-and-trim.decorator';
-import { passwordConstraints } from '../../constraints/users.constraints';
+import { passwordConstraints } from '../constraints/users.constraints';
 
 export class NewPassword {
   @ApiProperty({

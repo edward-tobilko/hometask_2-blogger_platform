@@ -7,7 +7,7 @@ import {
   emailConstraints,
   loginConstraints,
   passwordConstraints,
-} from '../../constraints/users.constraints';
+} from '../constraints/users.constraints';
 
 export class CreateUserInputDto {
   @ApiProperty({

@@ -5,7 +5,7 @@ import {
   titleConstraints,
   shortDescriptionConstraints,
   contentConstraints,
-} from 'src/modules/bloggers-platform/posts/constraints/posts/posts.constraints';
+} from 'src/modules/bloggers-platform/posts/api/constraints/posts.constraints';
 
 export class CreatePostForBlogDto {
   @ApiProperty({

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { IsStringWithLength } from 'src/core/decorators/string-and-length.decorator';
-import { contentForCommentConstraints } from '../../../constraints/posts/posts.constraints';
+import { contentForCommentConstraints } from '../../constraints/posts.constraints';
 
 export class CreateCommentInputDto {
   @ApiProperty({
