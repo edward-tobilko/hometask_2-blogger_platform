@@ -1,6 +1,6 @@
 # Blogger Platform API
 
-A production-ready REST API for a blogging platform featuring full user account management, JWT authentication, blogs, posts, and comments. Built with **NestJS**, **TypeScript**, and **MongoDB**, following **Domain-Driven Design** principles.
+A production-ready REST API for a blogging platform featuring full user account management, JWT authentication, blogs, posts, comments and security devices. Built with **NestJS**, **TypeScript**, and **MongoDB**, following **Domain-Driven Design** principles.
 
 **Live Demo:** https://hometask-2-blogger-platform.fly.dev/api
 
@@ -32,18 +32,19 @@ Each domain module is split into four layers:
 
 ```
 <module>/
-├── api/             # Controllers + Input/View DTOs
-├── application/     # Services (writes) + QueryServices (reads)
-├── domain/          # Entities, Value Objects
-└── infrastructure/  # Repositories, Mongoose schemas, External services
+├── api/             # Controllers, Decorators, Constraints and Input/View DTOs
+├── application/     # UseCases / Services (writes), Queries (reads), Event Handlers
+├── config/          # ConfigService (.env logics)
+├── domain/          # Entities, Events and DTOs
+└── infrastructure/  # Repositories, External services and External query
 ```
 
 ### Modules
 
 - **`bloggers-platform/`** — blogs, posts, comments
-- **`user-accounts/`** — users, auth, guards, email
-- **`core/`** — shared decorators, exceptions, pipes, constants
-- **`config/`** — MongoDB, throttler, env configuration
+- **`user-accounts/`** — users, auth, securityDevices, guards
+- **`core/`** — shared decorators, exceptions, pipes, constants, DTOs, Enums and Utils
+- **`config/`** — Mongoose module, Config module (env configuration), Throttler module (ttl / limit)
 
 ### Key Patterns
 
@@ -285,11 +286,11 @@ Secrets are managed via `fly secrets set KEY=value`.
 src/
 ├── app.module.ts
 ├── main.ts
-├── config/                  # MongoDB, throttler, env config
-├── core/                    # Shared: decorators, pipes, exceptions, constants
+├── config/                  # Mongoose module, Config module (env configuration), Throttler module (ttl / limit)
+├── core/                    # Shared: decorators, exceptions, pipes, constants, DTOs, Enums and Utils
 ├── modules/
 │   ├── bloggers-platform/   # Blogs, posts, comments (DDD modules)
-│   └── user-accounts/       # Users, auth, guards, email
+│   └── user-accounts/       # Users, auth, guards, securityDevices
 ├── setup/                   # App bootstrap: pipes, swagger, global prefix
 └── testing/                 # Testing controller (/testing/all-data)
 ```
