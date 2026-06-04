@@ -14,12 +14,12 @@ import {
   contentConstraints,
   shortDescriptionConstraints,
   titleConstraints,
-} from 'src/modules/bloggers-platform/posts/constraints/posts/posts.constraints';
+} from 'src/modules/bloggers-platform/posts/api/constraints/posts.constraints';
 import {
   descriptionConstraints,
   nameConstraints,
   websiteUrlConstraints,
-} from 'src/modules/bloggers-platform/blogs/constraints/blogs.constraints';
+} from 'src/modules/bloggers-platform/blogs/api/constraints/blogs.constraints';
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
 

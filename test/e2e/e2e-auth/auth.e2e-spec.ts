@@ -19,7 +19,7 @@ import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/crea
 import {
   loginConstraints,
   passwordConstraints,
-} from 'src/modules/user-accounts/constraints/users.constraints';
+} from 'src/modules/user-accounts/api/constraints/users.constraints';
 
 describe('Auth swagger contract', () => {
   let app: INestApplication;

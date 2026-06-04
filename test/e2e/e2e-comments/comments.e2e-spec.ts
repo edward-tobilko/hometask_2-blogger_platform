@@ -10,7 +10,7 @@ import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { UpdateCommentDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/update-comment.input-dto';
-import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/constraints/comments.constraints';
+import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/api/constraints/comments.constraints';
 import { BadRequestError } from '../utils/bad-request-error.util';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 

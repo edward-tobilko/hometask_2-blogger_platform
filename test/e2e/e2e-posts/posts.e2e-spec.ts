@@ -18,9 +18,9 @@ import {
   contentConstraints,
   shortDescriptionConstraints,
   titleConstraints,
-} from 'src/modules/bloggers-platform/posts/constraints/posts/posts.constraints';
+} from 'src/modules/bloggers-platform/posts/api/constraints/posts.constraints';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/constraints/comments.constraints';
+import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/api/constraints/comments.constraints';
 
 describe('Posts swagger contract', () => {
   let app: INestApplication;
