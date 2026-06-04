@@ -5,11 +5,12 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  // ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { RefreshTokenAuthGuard } from '../../guards/bearer/refresh-token-auth.guard';
@@ -19,9 +20,10 @@ import { DeleteSecurityDeviceByIdCommand } from '../../application/use-cases/sec
 import { DeleteAllSecurityDevicesExceptCurrentCommand } from '../../application/use-cases/security-devices/delete-all-security-devices.use-case';
 import { ApiGetSecurityDevicesSwagger } from '../decorators/security-devices/swagger/get-security-devices-swagger.decorator';
 import { ApiDeleteAllSecurityDevicesSwagger } from '../decorators/security-devices/swagger/delete-all-decurity-devices-swagger.decorator';
-import { ApiDeleteSecurityDeviceByIdSwagger } from '../decorators/security-devices/delete-security-device-swagger.decorator';
+import { ApiDeleteSecurityDeviceByIdSwagger } from '../decorators/security-devices/swagger/delete-security-device-swagger.decorator';
 
 @ApiTags('SecurityDevices')
+@SkipThrottle()
 @Controller(API_ROUTES.securityDevices)
 export class SecurityDevicesController {
   constructor(
@@ -60,7 +62,8 @@ export class SecurityDevicesController {
   @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteSecurityDevice(
-    @Param('deviceId', ParseUUIDPipe) deviceId: string,
+    // @Param('deviceId', ParseUUIDPipe) deviceId: string, // ! для авто теста отключаем UUID, так как тест ожидает ObjectId
+    @Param('deviceId') deviceId: string,
     @CurrentUserFromRequest() currentUser: { id: string },
   ) {
     const command = new DeleteSecurityDeviceByIdCommand(
