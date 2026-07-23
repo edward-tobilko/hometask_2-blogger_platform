@@ -10,7 +10,6 @@ import {
 import { BlogsController } from './blogs/api/controllers/blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentsController } from './comments/api/controllers/comment.controller';
-import { BlogsService } from './blogs/application/services/blogs.service';
 import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
 import { PostsService } from './posts/application/services/posts.service';
@@ -89,7 +88,6 @@ const commandHandlers = [
     ...queryHandlers,
     ...commandHandlers,
 
-    BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
     BlogsExternalQueryRepository,
