@@ -42,4 +42,4 @@ export abstract class QueryDto {
   }
 }
 
-// ? При переходе на Nest теперь используем class а не type, так как в рантайме Nest не знает о полях, типах, дефолтах, а class — живёт в рантайме, и именно с ним работают ValidationPipe, Transform-декораторы. class-transformer создает экземпляр класса QueryDto dto  полей .
+// ? При переходе на Nest теперь используем class а не type, так как в рантайме Nest не знает о полях, типах, дефолтах, а class — живёт в рантайме, и именно с ним работают ValidationPipe, Transform-декораторы. class-transformer создает экземпляр класса QueryDto - dto полей .

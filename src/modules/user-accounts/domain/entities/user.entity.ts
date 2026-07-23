@@ -37,7 +37,7 @@ export class UserAccount {
       'Email must be a valid email',
     ],
     min: 5,
-    unique: true, // уникальный индекс, что бы защититься на уровне БД (страховка, если два однаковых запроса придут одновременно)
+    unique: true,
   })
   email!: string;
 
