@@ -44,9 +44,14 @@ import { ApiGetBlogByIdSwagger } from '../decorators/swagger/get-blog-swagger.de
 import { ApiUpdateBlogSwagger } from '../decorators/swagger/update-blog-swagger.decorator';
 import { ApiDeleteBlogSwagger } from '../decorators/swagger/delete-blog-swagger.decorator';
 import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
-import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
+import {
+  CurrentUserFromRequest,
+  CurrentUserOptionalFromRequest,
+} from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 import { GetPostsCountForBlogQuery } from '../../application/queries/get-posts-count-for-blog';
 import { BlogPostsCountViewModel } from '../dto/view-dto/blog-posts-count.view-dto';
+import { SubscribeToBlogCommand } from '../../application/use-cases/subscribe-to-blog.use-case';
+import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
 
 @ApiTags('Blogs')
 @SkipThrottle()
@@ -134,10 +139,23 @@ export class BlogsController {
     await this.commandBus.execute(new DeleteBlogCommand(params.id));
   }
 
+  // * Extra end-points
   @Get(':blogId/posts/count')
   async getPostsCountForBlog(
     @Param() params: BlogIdForPostsParamDto,
   ): Promise<BlogPostsCountViewModel> {
     return this.queryBus.execute(new GetPostsCountForBlogQuery(params.blogId));
+  }
+
+  @Post(':blogId/subscribe')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(204)
+  async subscribe(
+    @Param() params: BlogIdForPostsParamDto,
+    @CurrentUserFromRequest() user: { id: string },
+  ) {
+    const command = new SubscribeToBlogCommand(user.id, params.blogId);
+
+    return this.commandBus.execute(command);
   }
 }

@@ -38,6 +38,12 @@ import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog.query';
 import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog';
+import {
+  BlogSubscription,
+  BlogSubscriptionSchema,
+} from './blogs/domain/entities/blog-subscription.entity';
+import { BlogSubscriptionsRepository } from './blogs/infrastructure/repositories/blog-subscriptions.repository';
+import { SubscribeToBlogUseCase } from './blogs/application/use-cases/subscribe-to-blog.use-case';
 
 const queryHandlers = [
   // * Blogs contract
@@ -60,6 +66,7 @@ const commandHandlers = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
+  SubscribeToBlogUseCase,
 
   // * Posts contract
   CreatePostUseCase,
@@ -78,6 +85,7 @@ const commandHandlers = [
   imports: [
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
+      { name: BlogSubscription.name, schema: BlogSubscriptionSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
     ]),
@@ -93,6 +101,7 @@ const commandHandlers = [
     BlogsRepository,
     BlogsQueryRepository,
     BlogsExternalQueryRepository,
+    BlogSubscriptionsRepository,
 
     PostsService,
     PostsRepository,
