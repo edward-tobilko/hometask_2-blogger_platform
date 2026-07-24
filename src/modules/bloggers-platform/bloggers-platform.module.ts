@@ -37,12 +37,14 @@ import { DeleteCommentByIdUseCase } from './comments/application/use-cases/delet
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.use-case';
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog.query';
+import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog';
 
 const queryHandlers = [
   // * Blogs contract
   GetBlogsListQueryHandler,
   GetPostsForBlogQueryHandler,
   GetBlogByIdQueryHandler,
+  GetPostsCountForBlogHandler,
 
   // * Posts contract
   GetPostByIdQueryHandler,

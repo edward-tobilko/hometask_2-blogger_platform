@@ -113,6 +113,12 @@ export class BlogsQueryRepository {
       }),
     });
   }
+
+  async countPostsForBlog(blogId: string): Promise<number> {
+    return this.postModel.countDocuments({
+      blogId: new Types.ObjectId(blogId),
+    });
+  }
 }
 
 // ? @InjectModel(Blog.name) — специальный декоратор от `@nestjs/mongoose`, который говорит Nest: "вколи сюда модель, зарегистрированную под именем `Blog.name`. Без этого декоратора Nest не знает, какую именно модель ты хочешь.
