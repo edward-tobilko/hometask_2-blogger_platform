@@ -21,7 +21,7 @@ export class BlogsRepository {
       name: dto.name,
       description: dto.description,
       websiteUrl: dto.websiteUrl,
-    });
+    }); // ! Технически правильнее передать dto вместо перезаписи полей. То есть, если в CreateBlockDomainDTO добавится четвертое поле, то здесь нам придется тоже его добавлять. Лучше передать просто dto в метод .createBlogInstance(dto).
 
     await blogInstance.save();
 

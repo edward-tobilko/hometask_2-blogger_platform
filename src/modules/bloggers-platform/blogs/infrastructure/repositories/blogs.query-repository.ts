@@ -25,6 +25,7 @@ export class BlogsQueryRepository {
   constructor(
     @InjectModel(Blog.name)
     private readonly blogModel: BlogModelType,
+
     @InjectModel(Post.name) private readonly postModel: PostModel,
   ) {}
 
