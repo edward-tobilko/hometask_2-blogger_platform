@@ -10,7 +10,6 @@ import { DomainException } from '../domain.exception';
 import { ErrorResponseBody } from './error-response-body';
 import { DomainExceptionCode } from '../domain.exception-codes';
 
-// * Ошибки класса DomainException (instanceof DomainException) (https://docs.nestjs.com/exception-filters#exception-filters-1). Nest перехватит только исключения класса DomainException (через instanceof). Всё остальное пойдёт дальше.
 @Catch(DomainException)
 export class DomainHttpExceptionsFilter implements ExceptionFilter {
   private mapToHttpStatus(code: DomainExceptionCode): HttpStatus {
@@ -67,7 +66,3 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     } as ErrorResponseBody);
   }
 }
-
-// ? Что происходит при throw new DomainException(...):
-// ? - NestJS проверяет: DomainHttpExceptionsFilter — совпадает? Да (@Catch(DomainException)) → обрабатывает.
-// ? - AllHttpExceptionsFilter не вызывается вообще.

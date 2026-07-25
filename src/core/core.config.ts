@@ -101,10 +101,3 @@ export class CoreConfig {
   })
   adminPassword = this.configService.get('ADMIN_PASSWORD');
 }
-
-// ? CoreConfig - единая точка входа для всех переменных окружения с валидацией на старте и правильными типами.
-
-// ? Что он решает:
-// ? - одно место для всех env-переменных. Вместо process.env.PORT везде — мы инжектим CoreConfig и берем coreConfig.port.
-// ? - валидация при старте (validateSync), если PORT не задан или NODE_ENV не входит в Environments, приложение не запустится с понятным сообщением об ошибке.
-// ? - преобразование типов. process.env.PORT — строка "5001", а coreConfig.port — уже number. IS_SWAGGER_ENABLED — строка "true", а   coreConfig.isSwaggerEnabled — уже boolean.

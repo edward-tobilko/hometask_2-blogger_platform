@@ -9,7 +9,6 @@ import { Request, Response } from 'express';
 import { ErrorResponseBody } from './error-response-body';
 import { DomainExceptionCode } from '../domain.exception-codes';
 
-// * Все ошибки (https://docs.nestjs.com/exception-filters#exception-filters-1): Этот фильтр ловит стандартные NestJS исключения — те, что бросает сам фреймворк: ValidationPipe бросает 400, NotFoundException бросает 404 и т.д.
 @Catch(HttpException)
 export class AllHttpExceptionsFilter implements ExceptionFilter {
   private buildResponseBody(
@@ -49,7 +48,3 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     response.status(status).json(responseBody);
   }
 }
-
-// ? Что происходит при throw new NotFoundException(...):
-// ? - DomainHttpExceptionsFilter — совпадает? Нет (это HttpException, не DomainException) → пропускает.
-// ? - AllHttpExceptionsFilter — совпадает? Да (@Catch(HttpException)) → обрабатывает.

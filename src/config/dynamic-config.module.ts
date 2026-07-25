@@ -7,11 +7,5 @@ export const configModule = ConfigModule.forRoot({
     `.env.${process.env.NODE_ENV}`, // .env.development / .env.testing
     '.env.production', // fallback — если ничего выше не нашло переменную
   ],
-  isGlobal: true, // что бы не импортировать ConfigModule в каждый модуль (добавляет модуль в глобальный scope DI). Но!!! Не уго стоит использовать только для инфраструктурных модулей — ConfigModule, LoggerModule, возможно DatabaseModule. Для бизнес-модулей (BlogsModule, PostsModule) — никогда, потому что это ломает инкапсуляцию и понимание связей между модулями.
+  isGlobal: true,
 });
-
-// ? NestJS читает файлы слева направо — переменная из более раннего файла имеет приоритет над поздним: если NODE_ENV=development и MONGO_URI есть в .env.development.local — берётся оттуда. Если нет — ищется в .env.development. Если нет — в .env.production.
-
-// ? ConfigModule - использует пакет dotenv, который автоматически загружает переменные окружения из файлов .env*.
-
-// ? Приоритет чтения переменных таков: если мы, например, создадим копию .env.development.local выше нашего проекта, то этот путь ->    ENV_FILE_PATH=/Users/eduard.tobilko/Desktop/.env.development.local yarn dev выполниться ранне.
