@@ -37,13 +37,15 @@ import { DeleteCommentByIdUseCase } from './comments/application/use-cases/delet
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.use-case';
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog.query';
-import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog';
+import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
 import {
   BlogSubscription,
   BlogSubscriptionSchema,
 } from './blogs/domain/entities/blog-subscription.entity';
 import { BlogSubscriptionsRepository } from './blogs/infrastructure/repositories/blog-subscriptions.repository';
 import { SubscribeToBlogUseCase } from './blogs/application/use-cases/subscribe-to-blog.use-case';
+import { UnsubscribeFromBlogUseCase } from './blogs/application/use-cases/unsubscribe-from-blog.use-case';
+import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
 
 const queryHandlers = [
   // * Blogs contract
@@ -51,6 +53,7 @@ const queryHandlers = [
   GetPostsForBlogQueryHandler,
   GetBlogByIdQueryHandler,
   GetPostsCountForBlogHandler,
+  GetBlogSubscribersCountHandler,
 
   // * Posts contract
   GetPostByIdQueryHandler,
@@ -67,6 +70,7 @@ const commandHandlers = [
   UpdateBlogUseCase,
   DeleteBlogUseCase,
   SubscribeToBlogUseCase,
+  UnsubscribeFromBlogUseCase,
 
   // * Posts contract
   CreatePostUseCase,

@@ -38,6 +38,25 @@ export class SubscribeToBlogUseCase implements ICommandHandler<
       });
     }
 
+    /**
+     * @throws {Error} - Для "BadRequest" специальный формат вывода extensions -> domain-exceptions.filter.ts
+     */
+    const existingSubscription =
+      await this.blogSubscriptionRepo.existsByUserAndBlog(
+        command.userId,
+        command.blogId,
+      );
+
+    if (existingSubscription) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: `You are already subscribed to this blog`,
+        extensions: [
+          { message: 'You are already subscribed to this blog', key: 'blogId' },
+        ],
+      });
+    }
+
     return this.blogSubscriptionRepo.createAndSave(command);
   }
 }

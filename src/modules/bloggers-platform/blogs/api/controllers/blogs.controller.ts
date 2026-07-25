@@ -48,10 +48,12 @@ import {
   CurrentUserFromRequest,
   CurrentUserOptionalFromRequest,
 } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
-import { GetPostsCountForBlogQuery } from '../../application/queries/get-posts-count-for-blog';
+import { GetPostsCountForBlogQuery } from '../../application/queries/get-posts-count-for-blog.query';
 import { BlogPostsCountViewModel } from '../dto/view-dto/blog-posts-count.view-dto';
 import { SubscribeToBlogCommand } from '../../application/use-cases/subscribe-to-blog.use-case';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
+import { UnsubscribeFromBlogCommand } from '../../application/use-cases/unsubscribe-from-blog.use-case';
+import { GetBlogSubscribersCountQuery } from '../../application/queries/get-blog-subscribers-count.query';
 
 @ApiTags('Blogs')
 @SkipThrottle()
@@ -156,6 +158,29 @@ export class BlogsController {
   ) {
     const command = new SubscribeToBlogCommand(user.id, params.blogId);
 
-    return this.commandBus.execute(command);
+    await this.commandBus.execute(command);
+  }
+
+  @Delete(':blogId/subscribe')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(204)
+  async unsubscribe(
+    @Param() params: BlogIdForPostsParamDto,
+    @CurrentUserFromRequest() user: { id: string },
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new UnsubscribeFromBlogCommand(params.blogId, user.id),
+    );
+  }
+
+  @Get(':blogId/subscribers/count')
+  async getSubscribersCount(
+    @Param() params: BlogIdForPostsParamDto,
+  ): Promise<{ subscribersCount: number }> {
+    const count = await this.queryBus.execute(
+      new GetBlogSubscribersCountQuery(params.blogId),
+    );
+
+    return count;
   }
 }
