@@ -41,6 +41,9 @@ coverage/
 # Comments
 package.comment.md
 
+# Notes
+**/*.notes.md
+
 # If needed
 ### .yarn.lock
 ### .package-lock.json

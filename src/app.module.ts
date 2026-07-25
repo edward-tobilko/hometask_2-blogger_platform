@@ -10,7 +10,7 @@ import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-pla
 import { CoreModule } from './core/core.module';
 import { AllHttpExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
 import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exceptions.filter';
-import { configModule } from './config/dynamic.config-module';
+import { configModule } from './config/dynamic-config.module';
 import { mongooseModule } from './config/mongoose.module';
 import { throttlerModule } from './config/throttler.module';
 import { CoreConfig } from './core/core.config';
@@ -62,11 +62,18 @@ import { CoreConfig } from './core/core.config';
   exports: [],
 })
 export class AppModule {
-  // * Такой мудрёный способ мы используем, чтобы добавить к основным модулям необязательный модуль. Что бы не обращаться к переменной окружения через process.env в декораторе, потому что запуск декораторов происходит на этапе склейки всех модулей до старта жизненного цикла самого NestJS.
-
+  /**
+   * Динамически собирает AppModule в зависимости от конфигурации окружения.
+   *
+   * Используется вместо статического `@Module()`, потому что декораторы выполняются до старта жизненного цикла NestJS — раньше чем ConfigService успевает прочитать .env файлы. forRoot() вызывается уже после загрузки конфига, поэтому может безопасно читать coreConfig.
+   *
+   * @param coreConfig - провалидированная конфигурация приложения
+   * @returns DynamicModule с набором модулей под текущее окружение
+   */
   static forRoot(coreConfig: CoreConfig): DynamicModule {
     return {
       module: AppModule,
+
       imports: [
         ...(coreConfig.includeTestingModule ? [TestingDataModule] : []),
       ], // Add dynamic modules here
