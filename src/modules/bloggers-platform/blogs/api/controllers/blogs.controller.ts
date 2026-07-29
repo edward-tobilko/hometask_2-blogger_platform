@@ -1,3 +1,4 @@
+import { SubscriptionStatus } from './../../../../../core/enums/subscription-status.enum';
 import {
   Body,
   Controller,
@@ -66,10 +67,12 @@ export class BlogsController {
 
   @ApiGetBlogsSwagger('Returns blogs with paging')
   @Get()
+  @UseGuards(JwtOptionalAuthGuard)
   async getBlogsList(
     @Query() query: BlogsQueryDto,
+    @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<PaginatedViewDto<BlogViewModel[]>> {
-    return this.queryBus.execute(new GetBlogsListQuery(query));
+    return this.queryBus.execute(new GetBlogsListQuery(query, user?.id));
   }
 
   @ApiCreateBlogSwagger('Create new blog')
@@ -82,7 +85,11 @@ export class BlogsController {
     const command = new CreateBlogCommand(createBlogDto);
     const createdBlogDoc = await this.commandBus.execute(command);
 
-    return BlogViewModel.mapToViewModel(createdBlogDoc);
+    return BlogViewModel.mapToViewModel(
+      createdBlogDoc,
+      0,
+      SubscriptionStatus.None,
+    );
   }
 
   @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
@@ -115,8 +122,14 @@ export class BlogsController {
 
   @ApiGetBlogByIdSwagger('Returns blog by id')
   @Get(':id') // = /blogs:id
-  async getBlog(@Param() params: BlogIdParamDto): Promise<BlogViewModel> {
-    return await this.queryBus.execute(new GetBlogByIdQuery(params.id));
+  @UseGuards(JwtOptionalAuthGuard)
+  async getBlog(
+    @Param() params: BlogIdParamDto,
+    @CurrentUserOptionalFromRequest() user: { id: string } | null,
+  ): Promise<BlogViewModel> {
+    return await this.queryBus.execute(
+      new GetBlogByIdQuery(params.id, user?.id),
+    );
   }
 
   @ApiUpdateBlogSwagger('Update existing blog by id with input model')

@@ -7,8 +7,8 @@ export class BlogSubscription {
   @Prop({ type: String, required: true }) // ← это уже Mongoose схема (BlogSubscriptionSchema)
   userId!: string; // кто подписываеться (В MongoDB идентификаторы хранятся как string)
 
-  @Prop({ type: String, required: true })
-  blogId!: string; // на что подписываемся
+  @Prop({ type: mongoose.Schema.Types.ObjectId, required: true })
+  blogId!: mongoose.Types.ObjectId; // на что подписываемся
 
   @Prop({ type: Date, index: true }) // ускоряем поиск по индексу в бд
   subscribedAt!: Date; // когда подписался
@@ -19,7 +19,7 @@ export class BlogSubscription {
     const blogSubscription = new this(); // this is BlogSubscription
 
     blogSubscription.userId = dto.userId;
-    blogSubscription.blogId = dto.blogId;
+    blogSubscription.blogId = new mongoose.Types.ObjectId(dto.blogId); // превращаем string -> ObjectId для работи с mongodb
     blogSubscription.subscribedAt = new Date();
 
     return blogSubscription as BlogSubscriptionDocument;

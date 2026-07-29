@@ -6,7 +6,10 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 export class GetBlogByIdQuery {
-  constructor(public id: string) {}
+  constructor(
+    public id: string,
+    public userId?: string,
+  ) {}
 }
 
 @QueryHandler(GetBlogByIdQuery)
@@ -16,8 +19,8 @@ export class GetBlogByIdQueryHandler implements IQueryHandler<
 > {
   constructor(private readonly blogsQueryRepo: BlogsQueryRepository) {}
 
-  async execute({ id }: GetBlogByIdQuery): Promise<BlogViewModel> {
-    const blogDoc = await this.blogsQueryRepo.findBlogById(id);
+  async execute({ id, userId }: GetBlogByIdQuery): Promise<BlogViewModel> {
+    const blogDoc = await this.blogsQueryRepo.findBlogById(id, userId);
 
     if (!blogDoc)
       throw new DomainException({

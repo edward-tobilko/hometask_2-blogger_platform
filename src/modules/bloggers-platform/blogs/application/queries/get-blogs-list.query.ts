@@ -5,7 +5,10 @@ import { BlogListPaginatedViewModel } from '../../api/dto/view-dto/blogs-paginat
 import { BlogsQueryRepository } from '../../infrastructure/repositories/blogs.query-repository';
 
 export class GetBlogsListQuery {
-  constructor(public queryParam: BlogsQueryDto) {}
+  constructor(
+    public queryParam: BlogsQueryDto,
+    public userId?: string,
+  ) {}
 }
 
 @QueryHandler(GetBlogsListQuery)
@@ -17,7 +20,8 @@ export class GetBlogsListQueryHandler implements IQueryHandler<
 
   execute({
     queryParam,
+    userId,
   }: GetBlogsListQuery): Promise<BlogListPaginatedViewModel> {
-    return this.blogsQueryRepo.findBlogs(queryParam);
+    return this.blogsQueryRepo.findBlogs(queryParam, userId);
   }
 }

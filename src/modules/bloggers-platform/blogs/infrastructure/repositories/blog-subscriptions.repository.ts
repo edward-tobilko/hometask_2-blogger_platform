@@ -1,5 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
+import { Types } from 'mongoose';
 
 import {
   BlogSubscription,
@@ -22,7 +23,7 @@ export class BlogSubscriptionsRepository {
     const subscription = await this.blogSubscriptionModel
       .findOne({
         userId,
-        blogId,
+        blogId: new Types.ObjectId(blogId),
       })
       .exec();
 
@@ -40,12 +41,14 @@ export class BlogSubscriptionsRepository {
   }
 
   async delete(blogId: string, userId: string): Promise<void> {
-    await this.blogSubscriptionModel.deleteOne({ blogId, userId }).exec();
+    await this.blogSubscriptionModel
+      .deleteOne({ blogId: new Types.ObjectId(blogId), userId })
+      .exec();
   }
 
   async countSubscribers(blogId: string): Promise<number> {
     return this.blogSubscriptionModel.countDocuments({
-      blogId,
+      blogId: new Types.ObjectId(blogId),
     });
   }
 }
