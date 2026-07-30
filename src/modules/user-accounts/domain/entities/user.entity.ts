@@ -53,13 +53,19 @@ export class UserAccount {
   @Prop({ type: Date, default: null })
   deletedAt!: Date | null;
 
-  // * new object for confirmation code
+  // * new schema for confirmation code
   @Prop({ type: EmailConfirmationSchema })
   emailConfirmation!: EmailConfirmation;
 
-  // * new object for recovery password
+  // * new schema for recovery password
   @Prop({ type: PasswordRecoverySchema })
   passwordRecovery!: PasswordRecovery;
+
+  @Prop({ type: String, default: null })
+  telegramChatId!: string | null; // extra field over the basic API logic
+
+  @Prop({ type: String, default: null })
+  telegramConfirmationCode!: string | null; // extra field over the basic API logic
 
   private static buildBaseUserInstance(dto: CreateUserDomainDto) {
     const user = new this(); // -> UserAccountModel
@@ -175,7 +181,7 @@ export class UserAccount {
     };
   }
 
-  setNewPassword(passwordHash: string) {
+  setNewPassword(passwordHash: string): void {
     if (
       !this.passwordRecovery.recoveryCode ||
       !this.passwordRecovery.recoveryCodeExpiry ||
@@ -195,6 +201,17 @@ export class UserAccount {
     this.passwordHash = passwordHash;
     this.passwordRecovery.recoveryCode = null;
     this.passwordRecovery.recoveryCodeExpiry = null;
+  }
+
+  // * extra method over the basic API logic
+  setTelegramConfirmationCode(code: string): void {
+    this.telegramConfirmationCode = code;
+  }
+
+  // * extra method over the basic API logic
+  confirmTelegramIntegration(chatId: string): void {
+    this.telegramChatId = chatId;
+    this.telegramConfirmationCode = null;
   }
 }
 

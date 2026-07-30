@@ -6,4 +6,6 @@ export const API_ROUTES = {
   testing: 'testing',
   users: 'users',
   securityDevices: 'security/devices',
+
+  integrations: 'integrations/telegram', // * extra path over the basic API logic
 } as const;

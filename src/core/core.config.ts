@@ -100,4 +100,12 @@ export class CoreConfig {
     message: 'Set env variable ADMIN_PASSWORD, dangerous for security!',
   })
   adminPassword = this.configService.get('ADMIN_PASSWORD');
+
+  @IsNotEmpty({
+    message: 'Set env variable TELEGRAM_BOT_TOKEN',
+  })
+  telegramBotToken: string = this.configService.get('TELEGRAM_BOT_TOKEN') ?? '';
+
+  @IsNotEmpty({ message: 'Set env variable TELEGRAM_BOT_NAME' })
+  telegramBotName: string = this.configService.get('TELEGRAM_BOT_NAME') ?? '';
 }

@@ -46,6 +46,7 @@ import { SecurityDevicesHandler } from './application/queries/get-security-devic
 import { DeleteSecurityDeviceByIdUseCase } from './application/use-cases/security-devices/delete-security-device-by-id.use-case';
 import { DeleteAllSecurityDevicesExceptCurrentUseCase } from './application/use-cases/security-devices/delete-all-security-devices.use-case';
 import { LogoutUseCase } from './application/use-cases/users/logout.use-case';
+import { UsersExternalRepository } from './infrastructure/repositories/users-external.repository';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
@@ -142,9 +143,10 @@ const strategies = [
 
     // * Externals
     UsersExternalQueryRepository,
+    UsersExternalRepository,
   ],
 
-  exports: [UsersExternalQueryRepository],
+  exports: [UsersExternalQueryRepository, UsersExternalRepository],
 })
 export class UserAccountsModule {}
 

@@ -1,15 +1,17 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
+import { HttpModule } from '@nestjs/axios';
 
 import { CoreConfig } from './core.config';
+import { TelegramAdapter } from './adapters/telegram.adapter';
 
 @Global()
 @Module({
-  imports: [ConfigModule, CqrsModule],
+  imports: [ConfigModule, CqrsModule, HttpModule],
 
-  providers: [CoreConfig],
+  providers: [CoreConfig, TelegramAdapter],
 
-  exports: [CoreConfig, CqrsModule],
+  exports: [CoreConfig, CqrsModule, TelegramAdapter],
 })
 export class CoreModule {}

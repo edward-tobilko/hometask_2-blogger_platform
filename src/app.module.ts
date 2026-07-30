@@ -14,6 +14,7 @@ import { configModule } from './config/dynamic-config.module';
 import { mongooseModule } from './config/mongoose.module';
 import { throttlerModule } from './config/throttler.module';
 import { CoreConfig } from './core/core.config';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 // import { CounterModule } from './modules/scope-logger-example/counter.module';
 
 @Module({
@@ -29,6 +30,9 @@ import { CoreConfig } from './core/core.config';
     BloggersPlatformModule,
     UserAccountsModule,
     // CounterModule,
+
+    // * Extra module over the basic API logic
+    IntegrationsModule,
 
     CoreModule,
   ],
