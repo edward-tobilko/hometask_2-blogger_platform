@@ -34,6 +34,6 @@ export class IntegrationsController {
   @Post('webhook')
   @HttpCode(HttpStatus.NO_CONTENT)
   async handleWebhook(@Body() dto: TelegramWebhookDto): Promise<void> {
-    await this.commandBus.execute(new HandleTelegramWebhookCommand(dto)); // webhook открытый (Telegram не умеет авторизовываться), возвращает 204.
+    await this.commandBus.execute(new HandleTelegramWebhookCommand(dto));
   }
 }

@@ -16,9 +16,6 @@ export class BlogSubscriptionsRepository {
     private blogSubscriptionModel: BlogSubscriptionModel,
   ) {}
 
-  /**
-   * Проверяем существует ли уже подписка этого пользователя на этот блог?
-   */
   async existsByUserAndBlog(userId: string, blogId: string): Promise<boolean> {
     const subscription = await this.blogSubscriptionModel
       .findOne({
@@ -51,6 +48,24 @@ export class BlogSubscriptionsRepository {
       blogId: new Types.ObjectId(blogId),
     });
   }
+
+  async findSubscribersByBlogId(blogId: string): Promise<string[]> {
+    const subscriptions = await this.blogSubscriptionModel
+      .find({
+        $or: [
+          {
+            blogId: new Types.ObjectId(blogId), // if ObjectId in collection
+          },
+          { blogId: blogId }, // if string in collection
+        ],
+      })
+      .lean()
+      .exec();
+
+    const userIds = subscriptions.map((subscribe) => subscribe.userId); // ["6a625c2033ccfc34e67abb6e", "6a08af945164161f990299a6"]
+
+    return userIds;
+  }
 }
 
-// ? !! - превращает значения в true or false
+// ? !! - превращает значения в true / false

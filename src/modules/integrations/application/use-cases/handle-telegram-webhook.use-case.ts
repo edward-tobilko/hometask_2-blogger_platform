@@ -15,18 +15,16 @@ export class HandleTelegramWebhookUseCase implements ICommandHandler<
   constructor(private usersExternalRepo: UsersExternalRepository) {}
 
   async execute({ dto }: HandleTelegramWebhookCommand): Promise<void> {
+    console.log('webhook dto:', JSON.stringify(dto));
+
     const text = dto.message?.text;
     const chatId = dto.message?.from.id;
 
     if (!text || !chatId) return;
 
-    console.log('text before split');
-
     const [command, code] = text.split(' ');
 
     if (command !== '/start' || !code) return;
-
-    console.log('text after split');
 
     const user =
       await this.usersExternalRepo.findByTelegramConfirmationCode(code);

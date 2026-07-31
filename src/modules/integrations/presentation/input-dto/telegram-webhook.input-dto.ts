@@ -1,4 +1,7 @@
+import { IsOptional } from 'class-validator';
+
 export class TelegramWebhookDto {
+  @IsOptional() // этот декоратор нужен, чтобы поле "выжило" в whitelist в pipesSetup ф-и
   message?: {
     from: {
       id: number;

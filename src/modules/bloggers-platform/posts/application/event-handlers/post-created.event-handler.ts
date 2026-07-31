@@ -1,0 +1,35 @@
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+
+import { PostCreatedEvent } from '../../domain/events/post-created.event';
+import { BlogSubscriptionsRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/repositories/blog-subscriptions.repository';
+import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-external.repository';
+import { TelegramAdapter } from 'src/core/adapters/telegram.adapter';
+
+@EventsHandler(PostCreatedEvent)
+export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> {
+  constructor(
+    private readonly blogSubscriptionsRepo: BlogSubscriptionsRepository,
+    private readonly usersExternalRepo: UsersExternalRepository,
+    private readonly telegramAdapter: TelegramAdapter,
+  ) {}
+
+  async handle(event: PostCreatedEvent): Promise<void> {
+    const { blogId, blogName, postTitle } = event;
+
+    const subscriberIds =
+      await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId);
+
+    console.log('all subscriberIds:', subscriberIds); // получаем массив userIds всех подписчиков этого блога
+
+    for (const userId of subscriberIds) {
+      const user = await this.usersExternalRepo.findById(userId);
+
+      if (!user?.telegramChatId) continue;
+
+      await this.telegramAdapter.sendMessage(
+        user.telegramChatId,
+        `New post in blog "${blogName}": ${postTitle}`,
+      );
+    }
+  }
+}
