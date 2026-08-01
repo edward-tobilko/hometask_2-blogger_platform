@@ -44,6 +44,9 @@ package.comment.md
 # Notes
 **/*.notes.md
 
+# Claude
+CLAUDE.md
+
 # If needed
 ### .yarn.lock
 ### .package-lock.json
