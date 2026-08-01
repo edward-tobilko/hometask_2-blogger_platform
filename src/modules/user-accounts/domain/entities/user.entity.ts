@@ -53,19 +53,30 @@ export class UserAccount {
   @Prop({ type: Date, default: null })
   deletedAt!: Date | null;
 
-  // * new schema for confirmation code
   @Prop({ type: EmailConfirmationSchema })
   emailConfirmation!: EmailConfirmation;
 
-  // * new schema for recovery password
   @Prop({ type: PasswordRecoverySchema })
   passwordRecovery!: PasswordRecovery;
 
+  // * Extra fields over the basic API logic
   @Prop({ type: String, default: null })
-  telegramChatId!: string | null; // extra field over the basic API logic
+  telegramChatId!: string | null;
 
   @Prop({ type: String, default: null })
-  telegramConfirmationCode!: string | null; // extra field over the basic API logic
+  telegramConfirmationCode!: string | null;
+
+  @Prop({ type: Boolean, default: false })
+  isBanned!: boolean;
+
+  @Prop({ type: String, default: null })
+  banReason!: string | null;
+
+  @Prop({ type: Date, default: null })
+  bannedAt!: Date | null;
+
+  @Prop({ type: Date, default: null })
+  banExpiresAt!: Date | null;
 
   private static buildBaseUserInstance(dto: CreateUserDomainDto) {
     const user = new this(); // -> UserAccountModel
@@ -80,7 +91,7 @@ export class UserAccount {
   static createUserInstance(dto: CreateUserDomainDto): UserAccountDocument {
     const user = this.buildBaseUserInstance(dto);
 
-    // * устанавлеваем дедлайн для кода
+    // * устанавлеваем дедлайн для confirmation code
     const expirationDate = new Date();
     expirationDate.setHours(expirationDate.getHours() + 1);
 
@@ -203,15 +214,28 @@ export class UserAccount {
     this.passwordRecovery.recoveryCodeExpiry = null;
   }
 
-  // * extra method over the basic API logic
+  // * Extra methods over the basic API logic
   setTelegramConfirmationCode(code: string): void {
     this.telegramConfirmationCode = code;
   }
 
-  // * extra method over the basic API logic
   confirmTelegramIntegration(chatId: string): void {
     this.telegramChatId = chatId;
     this.telegramConfirmationCode = null;
+  }
+
+  ban(reason: string, expiresAt: Date | null): void {
+    this.isBanned = true;
+    this.banReason = reason;
+    this.bannedAt = new Date(); // в текущий момент
+    this.banExpiresAt = expiresAt;
+  }
+
+  unBan(): void {
+    this.isBanned = false;
+    this.banReason = null;
+    this.bannedAt = null;
+    this.banExpiresAt = null;
   }
 }
 

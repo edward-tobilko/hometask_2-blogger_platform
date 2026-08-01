@@ -65,4 +65,9 @@ export class SecurityDevicesRepository {
   async removeSecurityDeviceById(deviceId: string): Promise<void> {
     await this.securityDevicesModel.findOneAndDelete({ deviceId }).exec();
   }
+
+  // * Extra method over the API logic
+  async removeAllByUserId(userId: string): Promise<void> {
+    await this.securityDevicesModel.deleteMany({ userId });
+  }
 }

@@ -47,9 +47,9 @@ export class CreatePostUseCase implements ICommandHandler<
       dto.blogId,
       existingBlog.name,
       dto.title,
-    );
+    ); // создаем событие
 
-    this.eventBus.publish(event);
+    this.eventBus.publish(event); // публикуем
 
     return createdPost;
   }
