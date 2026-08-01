@@ -26,10 +26,14 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
 
       if (!user?.telegramChatId) continue;
 
-      await this.telegramAdapter.sendMessage(
-        user.telegramChatId,
-        `New post in blog "${blogName}": ${postTitle}`,
-      );
+      try {
+        await this.telegramAdapter.sendMessage(
+          user.telegramChatId,
+          `New post in blog "${blogName}": ${postTitle}`,
+        );
+      } catch (error) {
+        console.error('TELEGRAM_SEND_ERROR', error);
+      }
     }
   }
 }
