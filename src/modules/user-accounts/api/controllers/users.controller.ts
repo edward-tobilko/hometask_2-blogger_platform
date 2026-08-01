@@ -70,9 +70,3 @@ export class UsersController {
     return this.commandBus.execute(command);
   }
 }
-
-// ? this.commandBus.execute(new CreateUserCommand(dto)) - контроллер не знает кто будет обрабатывать команду. Он просто бросает команду в шину (CommandBus) и говорит: "вот команда, кто умеет — обработай" -> в свою очередь CommandBus и QueryBus — это диспетчеры, которые связывают команды / запросы с их обработчиками.
-
-// ?   Controller → commandBus.execute(new CreateUserCommand(dto))
-// ?                    ↓
-// ?         CreateUserUseCase.execute(command)
