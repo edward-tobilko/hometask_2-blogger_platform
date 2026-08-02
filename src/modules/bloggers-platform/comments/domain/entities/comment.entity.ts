@@ -35,6 +35,10 @@ export class Comment {
     userReactions: [{ userId: string; status: LikeStatus }];
   };
 
+  // * Extra fields over the basic API logic
+  @Prop({ type: Boolean, default: false })
+  isBanned!: boolean;
+
   updateComment(dto: UpdateCommentDomainDto): void {
     this.content = dto.content;
   }
@@ -48,3 +52,5 @@ export type CommentDocument = HydratedDocument<Comment>;
 export type CommentLean = Comment & { _id: Types.ObjectId };
 
 export type CommentModel = Model<CommentDocument> & typeof Comment;
+
+// ? default: false - гарантирует, что новые документы всегда создаются с isBanned: false без явной передачи.

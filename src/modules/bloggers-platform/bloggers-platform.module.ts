@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
@@ -47,6 +47,7 @@ import { UnsubscribeFromBlogUseCase } from './blogs/application/use-cases/unsubs
 import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
 import { PostCreatedEventHandler } from './posts/application/event-handlers/post-created.event-handler';
 import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
+import { CommentsExternalRepository } from './comments/infrastructure/external-repositories/comments-external.repository';
 
 const queryHandlers = [
   // * Blogs contract
@@ -97,7 +98,7 @@ const eventHandlers = [PostCreatedEventHandler];
       { name: Comment.name, schema: CommentSchema },
     ]),
 
-    UserAccountsModule,
+    forwardRef(() => UserAccountsModule), // для решения проблеммы с circular dependency
   ],
 
   controllers: [BlogsController, PostsController, CommentsController],
@@ -117,6 +118,9 @@ const eventHandlers = [PostCreatedEventHandler];
 
     CommentsQueryRepository,
     CommentsRepository,
+    CommentsExternalRepository,
   ],
+
+  exports: [CommentsExternalRepository],
 })
 export class BloggersPlatformModule {}

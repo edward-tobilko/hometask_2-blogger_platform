@@ -6,6 +6,7 @@ import {
   HttpCode,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -27,6 +28,8 @@ import { GetUsersListQuery } from '../../application/queries/get-users-list.quer
 import { ApiGetUsersSwagger } from '../decorators/users/swagger/get-users-swagger.decorator';
 import { ApiCreateUserSwagger } from '../decorators/users/swagger/create-swagger.decorator';
 import { ApiDeleteUserSwagger } from '../decorators/users/swagger/delete-swagger.decorator';
+import { BanUserInputDto } from '../input-dto/ban-user.input-dto';
+import { BanUserCommand } from '../../application/use-cases/admins/ban-user.use-case';
 
 @ApiTags('Users')
 @SkipThrottle()
@@ -68,5 +71,17 @@ export class UsersController {
     const command = new DeleteUserCommand(id);
 
     return this.commandBus.execute(command);
+  }
+
+  // * Extra end-points over the basic API logic
+  @Put(':id/ban') // ban user
+  @HttpCode(204)
+  async banUser(
+    @Param('id', IdValidationPipe) id: string,
+    @Body() dto: BanUserInputDto,
+  ) {
+    const command = new BanUserCommand({ userId: id, ...dto });
+
+    await this.commandBus.execute(command);
   }
 }

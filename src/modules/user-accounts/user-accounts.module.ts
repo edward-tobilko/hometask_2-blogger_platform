@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtService } from '@nestjs/jwt';
@@ -47,6 +47,11 @@ import { DeleteSecurityDeviceByIdUseCase } from './application/use-cases/securit
 import { DeleteAllSecurityDevicesExceptCurrentUseCase } from './application/use-cases/security-devices/delete-all-security-devices.use-case';
 import { LogoutUseCase } from './application/use-cases/users/logout.use-case';
 import { UsersExternalRepository } from './infrastructure/repositories/users-external.repository';
+import { RevokeSessionsOnBanEventHandler } from './application/event-handlers/revoke-sessions-on-ban.event-handler';
+import { BanUserUseCase } from './application/use-cases/admins/ban-user.use-case';
+import { HideCommentsOnBanEventHandler } from './application/event-handlers/hide-comments-on-ban.event-handler';
+import { BloggersPlatformModule } from '../bloggers-platform/bloggers-platform.module';
+import { ShowCommentsOnUnBanEventHandler } from './application/event-handlers/show-comments-on-unban.event-handler';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
@@ -56,6 +61,7 @@ const handlers = {
     CreateUserUseCase,
     DeleteUserUseCase,
     RegisterUserUseCase,
+    BanUserUseCase,
 
     // * Auth
     ConfirmationRegistrationUseCase,
@@ -71,7 +77,12 @@ const handlers = {
     DeleteAllSecurityDevicesExceptCurrentUseCase,
   ],
 
-  eventHandlers: [UserRegisteredEventHandler],
+  eventHandlers: [
+    UserRegisteredEventHandler,
+    RevokeSessionsOnBanEventHandler,
+    HideCommentsOnBanEventHandler,
+    ShowCommentsOnUnBanEventHandler,
+  ],
 };
 
 const strategies = [
@@ -90,6 +101,8 @@ const strategies = [
       { name: UserAccount.name, schema: UserAccountSchema }, // UserAccount.name = token по которому мы его инжектируем в наши сервисы / репо
       { name: SecurityDevices.name, schema: SecurityDevicesSchema },
     ]),
+
+    forwardRef(() => BloggersPlatformModule), // для решения проблеммы с circular dependency
   ],
 
   controllers: [UsersController, AuthController, SecurityDevicesController],
@@ -106,7 +119,7 @@ const strategies = [
     CryptoService,
     NodeMailerService,
 
-    // ? пример инстанцирования через токен, если надо внедрить несколько раз один и тот же класс. Тот же вариант обьявления что и выше, только настройки в ручную.
+    // * Пример инстанцирования через токен, если надо внедрить несколько раз один и тот же класс. Тот же вариант обьявления что и выше, только настройки в ручную.
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
       useFactory: (userAccountConfig: UserAccountsConfig): JwtService => {

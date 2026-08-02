@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Types } from 'mongoose';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
@@ -20,7 +21,10 @@ export class CommentsQueryRepository {
     userId?: string,
   ): Promise<CommentViewModel | null> {
     const commentInstance = await this.commentModel
-      .findById(id)
+      .findOne({
+        _id: new Types.ObjectId(id),
+        isBanned: { $ne: true }, // забаненные комментарии не будут попадать ни в items, ни в totalCount
+      })
       .lean<CommentLean>()
       .exec();
 
