@@ -19,7 +19,7 @@ export class UsersExternalRepository {
       .findOne({
         _id: userId,
 
-        deletedAt: null, // для того, что бы не находить лишний раз удаленного пользователя
+        deletedAt: null, // что бы не находить лишний раз удаленного пользователя
       })
       .exec();
   }
