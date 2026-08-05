@@ -74,7 +74,7 @@ export class UsersController {
   }
 
   // * Extra end-points over the basic API logic
-  @Put(':id/ban') // ban user
+  @Put(':id/ban') // ban / unban user
   @HttpCode(204)
   async banUser(
     @Param('id', IdValidationPipe) id: string,
