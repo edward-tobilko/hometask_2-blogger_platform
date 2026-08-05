@@ -24,11 +24,11 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
     for (const userId of subscriberIds) {
       const user = await this.usersExternalRepo.findById(userId);
 
-      if (!user?.telegramChatId) continue;
+      if (!user?.telegramNotificationsInfo.telegramChatId) continue;
 
       try {
         await this.telegramAdapter.sendMessage(
-          user.telegramChatId,
+          user.telegramNotificationsInfo.telegramChatId,
           `New post in blog "${blogName}": ${postTitle}`,
         );
       } catch (error) {
