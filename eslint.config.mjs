@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: ['eslint.config.mjs', 'migrations/**', 'migrate-mongo-config.js'], // если нам нужно создавать модули с .js в проекте TS -> нужно фиксить эти ошибки тайпскрипта здесь, прокидывая в массив ignores.
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
