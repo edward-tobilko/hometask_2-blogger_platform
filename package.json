@@ -43,6 +43,7 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "jsonwebtoken": "^9.0.3",
+    "migrate-mongo": "^14.0.7",
     "mongoose": "^9.6.1",
     "nodemailer": "^8.0.7",
     "passport": "^0.7.0",
