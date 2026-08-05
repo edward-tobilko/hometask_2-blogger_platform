@@ -17,6 +17,11 @@ import {
   PasswordRecovery,
   PasswordRecoverySchema,
 } from './password-recovery.entity';
+import { BanInfo, BanInfoSchema } from './ban-info.entity';
+import {
+  TelegramNotificationsInfo,
+  TelegramNotificationsInfoSchema,
+} from './telegram-notifications-info.entity';
 
 @Schema({ timestamps: true, collection: 'user-accounts' })
 export class UserAccount {
@@ -60,23 +65,11 @@ export class UserAccount {
   passwordRecovery!: PasswordRecovery;
 
   // * Extra fields over the basic API logic
-  @Prop({ type: String, default: null })
-  telegramChatId!: string | null;
+  @Prop({ type: TelegramNotificationsInfoSchema })
+  telegramNotificationsInfo!: TelegramNotificationsInfo;
 
-  @Prop({ type: String, default: null })
-  telegramConfirmationCode!: string | null;
-
-  @Prop({ type: Boolean, default: false })
-  isBanned!: boolean;
-
-  @Prop({ type: String, default: null })
-  banReason!: string | null;
-
-  @Prop({ type: Date, default: null })
-  bannedAt!: Date | null;
-
-  @Prop({ type: Date, default: null })
-  banExpiresAt!: Date | null;
+  @Prop({ type: BanInfoSchema })
+  banInfo!: BanInfo;
 
   private static buildBaseUserInstance(dto: CreateUserDomainDto) {
     const user = new this(); // -> UserAccountModel
@@ -216,26 +209,36 @@ export class UserAccount {
 
   // * Extra methods over the basic API logic
   setTelegramConfirmationCode(code: string): void {
-    this.telegramConfirmationCode = code;
+    if (!this.telegramNotificationsInfo)
+      this.telegramNotificationsInfo = {} as TelegramNotificationsInfo;
+
+    this.telegramNotificationsInfo.telegramConfirmationCode = code;
   }
 
   confirmTelegramIntegration(chatId: string): void {
-    this.telegramChatId = chatId;
-    this.telegramConfirmationCode = null;
+    if (!this.telegramNotificationsInfo)
+      this.telegramNotificationsInfo = {} as TelegramNotificationsInfo;
+
+    this.telegramNotificationsInfo.telegramChatId = chatId;
+    this.telegramNotificationsInfo.telegramConfirmationCode = null;
   }
 
   ban(reason: string, expiresAt: Date | null): void {
-    this.isBanned = true;
-    this.banReason = reason;
-    this.bannedAt = new Date(); // в текущий момент
-    this.banExpiresAt = expiresAt;
+    if (!this.banInfo) this.banInfo = {} as BanInfo; // инициализация для старых документов
+
+    this.banInfo.isBanned = true;
+    this.banInfo.banReason = reason;
+    this.banInfo.bannedAt = new Date(); // в текущий момент
+    this.banInfo.banExpiresAt = expiresAt;
   }
 
   unBan(): void {
-    this.isBanned = false;
-    this.banReason = null;
-    this.bannedAt = null;
-    this.banExpiresAt = null;
+    this.banInfo = {
+      isBanned: false,
+      banReason: null,
+      bannedAt: null,
+      banExpiresAt: null,
+    };
   }
 }
 

@@ -105,6 +105,7 @@ export class UsersRepository {
     await this.userModel.deleteOne({ _id: id }).exec();
   }
 
+  // * Extra method over the basic API logic
   async updateBanStatus(user: UserAccountDocument): Promise<void> {
     await this.userModel.updateOne(
       {
@@ -113,10 +114,12 @@ export class UsersRepository {
 
       {
         $set: {
-          isBanned: user.isBanned,
-          banReason: user.banReason,
-          bannedAt: user.bannedAt,
-          banExpiresAt: user.banExpiresAt,
+          banInfo: {
+            isBanned: user.banInfo.isBanned,
+            banReason: user.banInfo.banReason,
+            bannedAt: user.banInfo.bannedAt,
+            banExpiresAt: user.banInfo.banExpiresAt,
+          },
         },
       },
     );
