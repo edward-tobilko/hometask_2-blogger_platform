@@ -185,5 +185,3 @@ export class AuthController {
     return this.queryBus.execute(new MeQuery(currentUser.id));
   }
 }
-
-// ? passthrough = true - без этого свойства пришлось бы писать response.status(204).send() вручную, а так nest сам управляет-отправлят ответом.
