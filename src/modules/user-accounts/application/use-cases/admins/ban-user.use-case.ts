@@ -5,10 +5,10 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes'
 import { UserBannedEvent } from 'src/modules/user-accounts/domain/events/user-banned.event';
 import { UserUnBannedEvent } from 'src/modules/user-accounts/domain/events/user-unbanned.event';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
-import { BanUserDto } from './../../../domain/dto/ban-user.dto';
+import { BanUserDomainDto } from './../../../domain/dto/ban-user.dto';
 
 export class BanUserCommand {
-  constructor(public readonly dto: BanUserDto) {}
+  constructor(public readonly dto: BanUserDomainDto) {}
 }
 
 @CommandHandler(BanUserCommand)
