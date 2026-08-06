@@ -1,10 +1,12 @@
 import {
   IsBoolean,
-  IsDate,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
+
+import { BanDuration } from 'src/core/enums/ban-duration.enum';
 
 export class BanUserInputDto {
   @IsNotEmpty()
@@ -13,8 +15,8 @@ export class BanUserInputDto {
   banReason!: string;
 
   @IsOptional()
-  @IsDate()
-  banExpiresAt!: Date | null;
+  @IsEnum(BanDuration)
+  banExpiresAt!: BanDuration | null;
 
   @IsBoolean()
   @IsOptional()

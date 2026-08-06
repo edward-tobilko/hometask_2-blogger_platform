@@ -22,6 +22,7 @@ import {
   TelegramNotificationsInfo,
   TelegramNotificationsInfoSchema,
 } from './telegram-notifications-info.entity';
+import { BanDuration } from 'src/core/enums/ban-duration.enum';
 
 @Schema({ timestamps: true, collection: 'user-accounts' })
 export class UserAccount {
@@ -72,13 +73,27 @@ export class UserAccount {
   banInfo!: BanInfo;
 
   private static buildBaseUserInstance(dto: CreateUserDomainDto) {
-    const user = new this(); // -> UserAccountModel
+    const user = new this(); // -> Экземпляр UserAccount (HydratedDocument после приведения типа)
 
     user.login = dto.login;
     user.email = dto.email;
     user.passwordHash = dto.password;
 
     return user;
+  }
+
+  private static calculateExpiresAt(duration: BanDuration | null): Date | null {
+    if (!duration || duration === BanDuration.PERMANENT) return null;
+
+    const date = new Date(); // current date
+
+    if (duration === BanDuration.DAYS_7) {
+      date.setDate(date.getDate() + 7); // set current date + 7d
+    } else if (duration === BanDuration.HOURS_12) {
+      date.setHours(date.getHours() + 12); // set current date + 12h
+    }
+
+    return date;
   }
 
   static createUserInstance(dto: CreateUserDomainDto): UserAccountDocument {
@@ -223,13 +238,13 @@ export class UserAccount {
     this.telegramNotificationsInfo.telegramConfirmationCode = null;
   }
 
-  ban(reason: string, expiresAt: Date | null): void {
+  ban(reason: string, expiresAt: BanDuration | null): void {
     if (!this.banInfo) this.banInfo = {} as BanInfo; // инициализация для старых документов
 
-    this.banInfo.isBanned = true;
-    this.banInfo.banReason = reason;
-    this.banInfo.bannedAt = new Date(); // в текущий момент
-    this.banInfo.banExpiresAt = expiresAt;
+    this.banInfo.isBanned = true; // бан
+    this.banInfo.banReason = reason; // причина
+    this.banInfo.bannedAt = new Date(); // когда забанен (дата в текущий момент)
+    this.banInfo.banExpiresAt = UserAccount.calculateExpiresAt(expiresAt); // к какой дате и времени будет анбан
   }
 
   unBan(): void {
