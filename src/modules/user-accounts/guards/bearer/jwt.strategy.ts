@@ -10,7 +10,7 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes'
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
-    private userAccountConfig: UserAccountsConfig,
+    userAccountConfig: UserAccountsConfig,
     private usersRepo: UsersRepository,
   ) {
     super({
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.usersRepo.findById(payload.userId);
 
     // * Проверка юзера на ban / unban
-    if (user?.banInfo.isBanned) {
+    if (user?.banInfo?.isBanned) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: `Your account is permanently banned`,
