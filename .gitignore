@@ -46,6 +46,7 @@ package.comment.md
 
 # Claude
 CLAUDE.md
+.claude/
 
 # If needed
 ### .yarn.lock
