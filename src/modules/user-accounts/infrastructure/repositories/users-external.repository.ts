@@ -24,22 +24,30 @@ export class UsersExternalRepository {
       .exec();
   }
 
-  // * Extra method over the basic API logic
+  async save(user: UserAccountDocument): Promise<void> {
+    await user.save();
+  }
+
+  // * Extra methods over the basic API logic
   async findByTelegramConfirmationCode(
     code: string,
   ): Promise<UserAccountDocument | null> {
     return this.userModel
       .findOne({
-        telegramConfirmationCode: code,
+        'telegramNotificationsInfo.telegramConfirmationCode': code,
 
         deletedAt: null,
       })
       .exec();
   }
 
-  async save(user: UserAccountDocument): Promise<void> {
-    await user.save();
+  async findByIds(userIds: string[]): Promise<UserAccountDocument[]> {
+    return this.userModel
+      .find({
+        _id: { $in: userIds },
+
+        deletedAt: null,
+      })
+      .exec();
   }
 }
-
-// ? External - то что мы хотим переиспользовать снаруже (за пределами UserAccountModule), что бы не шарить все данные с репо.
