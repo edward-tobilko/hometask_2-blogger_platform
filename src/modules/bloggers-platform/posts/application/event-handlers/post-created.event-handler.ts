@@ -16,15 +16,13 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
   async handle(event: PostCreatedEvent): Promise<void> {
     const { blogId, blogName, postTitle } = event;
 
-    const subscriberIds =
-      await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId);
+    const userSubscriberIds =
+      await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId); // получаем массив userIds всех подписчиков этого блога
 
-    console.log('all subscriberIds:', subscriberIds); // получаем массив userIds всех подписчиков этого блога
+    const users = await this.usersExternalRepo.findByIds(userSubscriberIds); // передаём весь массив ID сразу, получаем всех пользователей одним запросом.
 
-    for (const userId of subscriberIds) {
-      const user = await this.usersExternalRepo.findById(userId);
-
-      if (!user?.telegramNotificationsInfo.telegramChatId) continue;
+    for (const user of users) {
+      if (!user?.telegramNotificationsInfo?.telegramChatId) continue;
 
       try {
         await this.telegramAdapter.sendMessage(
