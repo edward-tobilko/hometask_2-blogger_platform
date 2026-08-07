@@ -294,3 +294,75 @@ src/
 ├── setup/                   # App bootstrap: pipes, swagger, global prefix
 └── testing/                 # Testing controller (/testing/all-data)
 ```
+
+## Extra Logic over the Basic API
+
+Three production-oriented features implemented on top of the core API:
+
+### 1. Blog Subscriptions
+
+Users can subscribe and unsubscribe from blogs. Each blog response includes:
+
+- `subscribersCount` — total number of active subscribers
+- `currentUserSubscriptionStatus` — `Subscribed` / `Unsubscribed` for the authenticated user
+
+Implemented via MongoDB aggregation (`$lookup`) to avoid N+1 queries.
+
+**Endpoints:**
+
+| Method   | Endpoint                      | Auth       | Description             |
+| -------- | ----------------------------- | ---------- | ----------------------- |
+| `POST`   | `/blogs/:blogId/subscription` | Bearer JWT | Subscribe to a blog     |
+| `DELETE` | `/blogs/:blogId/subscription` | Bearer JWT | Unsubscribe from a blog |
+
+---
+
+### 2. Telegram Notifications
+
+Users can link their Telegram account to receive notifications when a new post is published in a subscribed blog.
+
+- Webhook-based integration via `TelegramAdapter`
+- `chatId` is stored in `telegramNotificationsInfo` Value Object on `UserAccount`
+- Notifications are sent via domain event `PostCreatedEvent` → `PostCreatedEventHandler`
+- Failures are isolated per user — one failed send does not block the rest
+
+**Required env variables:**
+
+````env
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_BOT_NAME=your_bot_username
+
+Endpoints:
+
+┌────────┬──────────────────────────────────────┬────────────┬────────────────────────────────────────┐
+│ Method │               Endpoint               │    Auth    │              Description               │
+├────────┼──────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+│ GET    │ /integrations/telegram/webhook       │ —          │ Webhook receiver for Telegram Bot API  │
+├────────┼──────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+│ GET    │ /integrations/telegram/auth-bot-link │ Bearer JWT │ Get personal deep-link to activate bot │
+└────────┴──────────────────────────────────────┴────────────┴────────────────────────────────────────┘
+
+---
+3. User Ban / Unban
+
+Admins can ban users with a configurable duration. Banned users cannot log in.
+
+- BanDuration enum: HOURS_12, DAYS_7, PERMANENT
+- banExpiresAt stored as Date | null in BanInfo Value Object
+- Ban state is checked in JwtStrategy on every authenticated request
+- Ban/Unban triggers a domain event with cascading effects (session revocation)
+- MongoDB migrations via migrate-mongo for existing documents
+
+Endpoints:
+
+┌────────┬──────────────────┬───────┬──────────────┐
+│ Method │     Endpoint     │ Auth  │ Description  │
+├────────┼──────────────────┼───────┼──────────────┤
+│ PUT    │ /users/:id/ban   │ Basic │ Ban a user   │
+├────────┼──────────────────┼───────┼──────────────┤
+│ PUT    │ /users/:id/unban │ Basic │ Unban a user │
+├────────┼──────────────────┼───────┼──────────────┤
+│ ```    │                  │       │              │
+└────────┴──────────────────┴───────┴──────────────┘
+
+````
