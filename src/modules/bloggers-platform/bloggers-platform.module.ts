@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
@@ -10,7 +10,6 @@ import {
 import { BlogsController } from './blogs/api/controllers/blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentsController } from './comments/api/controllers/comment.controller';
-import { BlogsService } from './blogs/application/services/blogs.service';
 import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
 import { PostsService } from './posts/application/services/posts.service';
@@ -38,12 +37,25 @@ import { DeleteCommentByIdUseCase } from './comments/application/use-cases/delet
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.use-case';
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog.query';
+import {
+  BlogSubscription,
+  BlogSubscriptionSchema,
+} from './blogs/domain/entities/blog-subscription.entity';
+import { BlogSubscriptionsRepository } from './blogs/infrastructure/repositories/blog-subscriptions.repository';
+import { SubscribeToBlogUseCase } from './blogs/application/use-cases/subscribe-to-blog.use-case';
+import { UnsubscribeFromBlogUseCase } from './blogs/application/use-cases/unsubscribe-from-blog.use-case';
+import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
+import { PostCreatedEventHandler } from './posts/application/event-handlers/post-created.event-handler';
+import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
+import { CommentsExternalRepository } from './comments/infrastructure/external-repositories/comments-external.repository';
 
 const queryHandlers = [
   // * Blogs contract
   GetBlogsListQueryHandler,
   GetPostsForBlogQueryHandler,
   GetBlogByIdQueryHandler,
+  GetPostsCountForBlogHandler,
+  GetBlogSubscribersCountHandler,
 
   // * Posts contract
   GetPostByIdQueryHandler,
@@ -59,6 +71,8 @@ const commandHandlers = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
+  SubscribeToBlogUseCase,
+  UnsubscribeFromBlogUseCase,
 
   // * Posts contract
   CreatePostUseCase,
@@ -73,26 +87,30 @@ const commandHandlers = [
   UpdateCommentLikeStatusUseCase,
 ];
 
+const eventHandlers = [PostCreatedEventHandler];
+
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
+      { name: BlogSubscription.name, schema: BlogSubscriptionSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
     ]),
 
-    UserAccountsModule,
+    forwardRef(() => UserAccountsModule), // для решения проблеммы с circular dependency
   ],
 
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
     ...queryHandlers,
     ...commandHandlers,
+    ...eventHandlers,
 
-    BlogsService,
     BlogsRepository,
     BlogsQueryRepository,
     BlogsExternalQueryRepository,
+    BlogSubscriptionsRepository,
 
     PostsService,
     PostsRepository,
@@ -100,6 +118,9 @@ const commandHandlers = [
 
     CommentsQueryRepository,
     CommentsRepository,
+    CommentsExternalRepository,
   ],
+
+  exports: [CommentsExternalRepository],
 })
 export class BloggersPlatformModule {}

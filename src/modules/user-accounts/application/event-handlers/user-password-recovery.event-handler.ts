@@ -9,7 +9,7 @@ export class UserPasswordRecoveryEventHandler implements IEventHandler<UserPassw
   constructor(private mailerService: NodeMailerService) {}
 
   async handle(event: UserPasswordRecoveryEvent) {
-    // * по контракту нужно всегда возвращать 204, при ошибке не раскрывая деталей существования email
+    // * По контракту нужно всегда возвращать 204, при ошибке не раскрывая деталей существования email
     try {
       await this.mailerService.sendRegistrationConfirmationEmail(
         event.email,

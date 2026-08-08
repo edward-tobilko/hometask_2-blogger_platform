@@ -11,7 +11,6 @@ import { UsersRepository } from 'src/modules/user-accounts/infrastructure/reposi
 import { CryptoService } from '../../services/crypto.service';
 import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 
-// * CreateUserCommand - просто хранение данных в команде. Никакой логики, только данные. Просто контейнер для переноса данных от контроллера к use case. Розширяем (extends) Command, что бы не типизировать .commandBus.execute в контроллере.
 export class CreateUserCommand extends Command<UserAccountDocument> {
   constructor(public dto: CreateUserDomainDto) {
     super();
@@ -67,11 +66,3 @@ export class CreateUserUseCase implements ICommandHandler<
     }
   }
 }
-
-// ? @CommandHandler(CreateUserCommand) - связка.
-
-// ? CreateUserUseCase - обработчик именно CreateUserCommand.
-
-// ? CommandBus в контроллере внутри себя ведёт реестр: команда → обработчик. Когда прилетает CreateUserCommand, шина находит CreateUserUseCase и вызывает его execute().
-
-// ? ICommandHandler<Command, Result> — контракт: первый generic Command — тип команды, которую принимает execute, а второй generic Result — тип того, что execute вернёт.

@@ -17,6 +17,12 @@ import {
   PasswordRecovery,
   PasswordRecoverySchema,
 } from './password-recovery.entity';
+import { BanInfo, BanInfoSchema } from './ban-info.entity';
+import {
+  TelegramNotificationsInfo,
+  TelegramNotificationsInfoSchema,
+} from './telegram-notifications-info.entity';
+import { BanDuration } from 'src/core/enums/ban-duration.enum';
 
 @Schema({ timestamps: true, collection: 'user-accounts' })
 export class UserAccount {
@@ -37,7 +43,7 @@ export class UserAccount {
       'Email must be a valid email',
     ],
     min: 5,
-    unique: true, // уникальный индекс, что бы защититься на уровне БД (страховка, если два однаковых запроса придут одновременно)
+    unique: true,
   })
   email!: string;
 
@@ -53,16 +59,21 @@ export class UserAccount {
   @Prop({ type: Date, default: null })
   deletedAt!: Date | null;
 
-  // * new object for confirmation code
   @Prop({ type: EmailConfirmationSchema })
   emailConfirmation!: EmailConfirmation;
 
-  // * new object for recovery password
   @Prop({ type: PasswordRecoverySchema })
   passwordRecovery!: PasswordRecovery;
 
+  // * Extra fields over the basic API logic
+  @Prop({ type: TelegramNotificationsInfoSchema })
+  telegramNotificationsInfo!: TelegramNotificationsInfo;
+
+  @Prop({ type: BanInfoSchema })
+  banInfo!: BanInfo;
+
   private static buildBaseUserInstance(dto: CreateUserDomainDto) {
-    const user = new this(); // -> UserAccountModel
+    const user = new this(); // -> Экземпляр UserAccount (HydratedDocument после приведения типа)
 
     user.login = dto.login;
     user.email = dto.email;
@@ -71,10 +82,24 @@ export class UserAccount {
     return user;
   }
 
+  private static calculateExpiresAt(duration: BanDuration | null): Date | null {
+    if (!duration || duration === BanDuration.PERMANENT) return null;
+
+    const date = new Date(); // current date
+
+    if (duration === BanDuration.DAYS_7) {
+      date.setDate(date.getDate() + 7); // set current date + 7d
+    } else if (duration === BanDuration.HOURS_12) {
+      date.setHours(date.getHours() + 12); // set current date + 12h
+    }
+
+    return date;
+  }
+
   static createUserInstance(dto: CreateUserDomainDto): UserAccountDocument {
     const user = this.buildBaseUserInstance(dto);
 
-    // * устанавлеваем дедлайн для кода
+    // * устанавлеваем дедлайн для confirmation code
     const expirationDate = new Date();
     expirationDate.setHours(expirationDate.getHours() + 1);
 
@@ -175,7 +200,7 @@ export class UserAccount {
     };
   }
 
-  setNewPassword(passwordHash: string) {
+  setNewPassword(passwordHash: string): void {
     if (
       !this.passwordRecovery.recoveryCode ||
       !this.passwordRecovery.recoveryCodeExpiry ||
@@ -195,6 +220,40 @@ export class UserAccount {
     this.passwordHash = passwordHash;
     this.passwordRecovery.recoveryCode = null;
     this.passwordRecovery.recoveryCodeExpiry = null;
+  }
+
+  // * Extra methods over the basic API logic
+  setTelegramConfirmationCode(code: string): void {
+    if (!this.telegramNotificationsInfo)
+      this.telegramNotificationsInfo = {} as TelegramNotificationsInfo;
+
+    this.telegramNotificationsInfo.telegramConfirmationCode = code;
+  }
+
+  confirmTelegramIntegration(chatId: string): void {
+    if (!this.telegramNotificationsInfo)
+      this.telegramNotificationsInfo = {} as TelegramNotificationsInfo;
+
+    this.telegramNotificationsInfo.telegramChatId = chatId;
+    this.telegramNotificationsInfo.telegramConfirmationCode = null;
+  }
+
+  ban(reason: string, expiresAt: BanDuration | null): void {
+    if (!this.banInfo) this.banInfo = {} as BanInfo; // инициализация для старых документов
+
+    this.banInfo.isBanned = true; // бан
+    this.banInfo.banReason = reason; // причина
+    this.banInfo.bannedAt = new Date(); // когда забанен (дата в текущий момент)
+    this.banInfo.banExpiresAt = UserAccount.calculateExpiresAt(expiresAt); // к какой дате и времени будет анбан
+  }
+
+  unBan(): void {
+    this.banInfo = {
+      isBanned: false,
+      banReason: null,
+      bannedAt: null,
+      banExpiresAt: null,
+    };
   }
 }
 

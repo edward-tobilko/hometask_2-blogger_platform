@@ -29,7 +29,7 @@ export class SecurityDevices {
   private static buildBaseSecurityDeviceInstance(
     payload: CreateSecurityDevicesDomainDto,
   ) {
-    const securityDevices = new this(); // -> SecurityDevicesModel
+    const securityDevices = new this(); // -> Экземпляр SecurityDevices (HydratedDocument после приведения типа)
 
     securityDevices.ip = payload.ip;
     securityDevices.title = payload.title;

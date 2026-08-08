@@ -33,6 +33,15 @@ export class AuthService {
         message: 'You should be authorized',
       });
 
+    if (user.banInfo?.isBanned) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: user.banInfo.banExpiresAt
+          ? `Your account is banned until ${user.banInfo.banExpiresAt.toISOString()}`
+          : 'Your account is permanently banned',
+      });
+    }
+
     const isValidPass = await this.cryptoService.compareHash(
       password,
       user.passwordHash,

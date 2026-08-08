@@ -20,7 +20,7 @@ export class UpdateBlogUseCase implements ICommandHandler<
   constructor(private blogsRepo: BlogsRepository) {}
 
   async execute({ id, dto }: UpdateBlogCommand): Promise<void> {
-    // * достаем инстанс блога по id с его методами
+    // * проверяем и достаем инстанс блога по id с его методами
     const blogInstance = await this.blogsRepo.findById(id);
 
     if (!blogInstance)

@@ -90,6 +90,7 @@ export class PostsQueryRepository {
   ): Promise<CommentsPaginatedViewModel> {
     const filter = {
       postId: new Types.ObjectId(postId),
+      isBanned: { $ne: true }, // забаненные комментарии не будут попадать ни в items, ни в totalCount
     };
 
     const [items, totalCount] = await Promise.all([

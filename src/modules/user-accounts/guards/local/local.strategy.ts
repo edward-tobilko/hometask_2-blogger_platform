@@ -18,7 +18,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super({ usernameField: 'loginOrEmail' }); // говорим что поле называется 'loginOrEmail', не 'username'!
   }
 
-  // * validate возвращает то, что впоследствии будет записано в req.user, он принимает свои встроенные поля: username / password, и по этому мы в конструкторе расширяем свое поле: usernameField -> loginOrEmail.
   async validate(username: string, password: string): Promise<{ id: string }> {
     const dto = plainToInstance(LoginInputDto, {
       loginOrEmail: username,
@@ -54,7 +53,3 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     return validatedUser; // записывается в req.user
   }
 }
-
-// ? LocalStrategy - это Passport-стратегия, которая перехватывает тело запроса и вытаскивает из него поля для аутентификации. (https://docs.nestjs.com/recipes/passport)
-
-// ? .flatMap() -  комбинация map + flat: [[1, 2], [3, 4]].flatMap(x => x) // [1, 2, 3, 4]
