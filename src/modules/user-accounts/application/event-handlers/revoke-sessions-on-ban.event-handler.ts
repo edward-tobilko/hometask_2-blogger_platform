@@ -8,6 +8,10 @@ export class RevokeSessionsOnBanEventHandler implements IEventHandler<UserBanned
   constructor(private securityDevicesRepo: SecurityDevicesRepository) {}
 
   async handle({ userId }: UserBannedEvent): Promise<void> {
-    await this.securityDevicesRepo.removeAllByUserId(userId);
+    try {
+      await this.securityDevicesRepo.removeAllByUserId(userId);
+    } catch (error) {
+      console.error('REVOKE_SESSIONS_ON_BAN_ERROR', error);
+    }
   }
 }
