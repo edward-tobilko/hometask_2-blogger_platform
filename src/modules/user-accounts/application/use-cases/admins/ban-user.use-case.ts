@@ -28,20 +28,23 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
       });
     }
 
+    // * Сначала persistence, потом side effects:
+    // * мутации домена + сохранение в БД
     if (dto.isBanned === true) {
       user.ban(dto.banReason, dto.banExpiresAt);
-
-      // * создаем событие
-      const event = new UserBannedEvent(user.id);
-
-      // * публикуем
-      this.eventBus.publish(event);
     } else if (dto.isBanned === false) {
       user.unBan();
-
-      this.eventBus.publish(new UserUnBannedEvent(user.id));
     }
 
-    await this.usersRepo.updateBanStatus(user);
+    await this.usersRepo.updateBanStatus(user); // сохранили
+
+    // * публикация событий
+    if (dto.isBanned === true) {
+      const event = new UserBannedEvent(user.id); // создаем событие
+
+      this.eventBus.publish(event); // публикуем
+    } else {
+      this.eventBus.publish(new UserUnBannedEvent(user.id));
+    }
   }
 }
