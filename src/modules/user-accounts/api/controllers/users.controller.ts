@@ -57,11 +57,7 @@ export class UsersController {
   async createUser(@Body() dto: CreateUserInputDto): Promise<UserViewDto> {
     const command = new CreateUserCommand(dto);
 
-    const userInstanceDoc = await this.commandBus.execute(command);
-
-    const userOutput = UserViewDto.mapToViewModel(userInstanceDoc);
-
-    return userOutput;
+    return this.commandBus.execute(command);
   }
 
   @ApiDeleteUserSwagger('Delete user specified by id')

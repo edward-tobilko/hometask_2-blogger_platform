@@ -5,13 +5,13 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
 import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
 import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
 import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
+import { UserViewDto } from 'src/modules/user-accounts/api/view-dto/user.view-dto';
 
-export class CreateUserCommand extends Command<UserAccountDocument> {
+export class CreateUserCommand extends Command<UserViewDto> {
   constructor(public dto: CreateUserDomainDto) {
     super();
   }
@@ -20,7 +20,7 @@ export class CreateUserCommand extends Command<UserAccountDocument> {
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase implements ICommandHandler<
   CreateUserCommand,
-  UserAccountDocument
+  UserViewDto
 > {
   constructor(
     private usersRepo: UsersRepository,
@@ -28,7 +28,7 @@ export class CreateUserUseCase implements ICommandHandler<
     private userAccountsConfig: UserAccountsConfig,
   ) {}
 
-  async execute({ dto }: CreateUserCommand): Promise<UserAccountDocument> {
+  async execute({ dto }: CreateUserCommand): Promise<UserViewDto> {
     const passwordHash = await this.cryptoService.generateHash(dto.password);
 
     const domainDto: CreateUserDomainDto = {
@@ -41,7 +41,12 @@ export class CreateUserUseCase implements ICommandHandler<
     try {
       const isUserConfirmed = this.userAccountsConfig.isUserConfirmed;
 
-      return await this.usersRepo.createByAdmin(domainDto, isUserConfirmed);
+      const userInstanceDoc = await this.usersRepo.createByAdmin(
+        domainDto,
+        isUserConfirmed,
+      );
+
+      return UserViewDto.mapToViewModel(userInstanceDoc);
     } catch (error: unknown) {
       // * эта проверка нужно для теста: парсим поле из ошибки MongoDB (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
       if (error instanceof Error && 'code' in error && error.code === 11000) {
