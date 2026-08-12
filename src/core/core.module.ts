@@ -5,10 +5,11 @@ import { HttpModule } from '@nestjs/axios';
 
 import { CoreConfig } from './core.config';
 import { TelegramAdapter } from './adapters/telegram.adapter';
+import { typeOrmModule } from 'src/config/typeOrm.module';
 
 @Global()
 @Module({
-  imports: [ConfigModule, CqrsModule, HttpModule],
+  imports: [ConfigModule, CqrsModule, HttpModule, typeOrmModule],
 
   providers: [CoreConfig, TelegramAdapter],
 
