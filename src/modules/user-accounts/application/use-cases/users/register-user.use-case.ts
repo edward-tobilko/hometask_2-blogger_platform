@@ -6,10 +6,10 @@ import {
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
 import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
 import { UsersService } from '../../services/users.service';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
 
 export class RegisterUserCommand {
   constructor(public dto: { login: string; password: string; email: string }) {}
@@ -23,7 +23,7 @@ export class RegisterUserUseCase implements ICommandHandler<
   constructor(
     private eventBus: EventBus,
     private usersService: UsersService,
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
     private cryptoService: CryptoService,
   ) {}
 
@@ -43,18 +43,14 @@ export class RegisterUserUseCase implements ICommandHandler<
 
       // * Вешаем ивент (сервис) для отправки письма. Нужно, что бы нашь кейс не зависил на прямую от стороннего сервиса (NodeMailerService).
       this.eventBus.publish(
-        new UserRegisteredEvent(
-          newUser.email,
-          newUser.emailConfirmation.confirmationCode!,
-        ),
+        new UserRegisteredEvent(newUser.email, newUser.confirmationCode!),
       );
     } catch (error) {
       // * проверка на дубликат обьекта в бд: если обьект был удален, а мы хотим создать его с теме же полями (проблема soft delete + индекса).
-      if (error instanceof Error && 'code' in error && error.code === 11000) {
-        const duplicatedField =
-          'keyValue' in error && error.keyValue != null
-            ? Object.keys(error.keyValue as object)[0]
-            : 'loginOrEmail';
+      if (error instanceof Error && error.message.includes('duplicate key')) {
+        const duplicatedField = error.message.includes('login')
+          ? 'login'
+          : 'email';
 
         throw new DomainException({
           code: DomainExceptionCode.BadRequest,

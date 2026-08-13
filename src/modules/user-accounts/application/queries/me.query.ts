@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { UserSessionViewDto } from '../../api/view-dto/user-session.view-dto';
+import { UsersSqlRepository } from '../../infrastructure/repositories/users-sql.repository';
 
 export class MeQuery {
   constructor(public userId: string) {}
@@ -9,7 +9,7 @@ export class MeQuery {
 
 @QueryHandler(MeQuery)
 export class MeUseCase implements IQueryHandler<MeQuery, UserSessionViewDto> {
-  constructor(private usersRepo: UsersRepository) {}
+  constructor(private usersRepo: UsersSqlRepository) {}
 
   async execute({ userId }: MeQuery): Promise<UserSessionViewDto> {
     const user = await this.usersRepo.findById(userId);

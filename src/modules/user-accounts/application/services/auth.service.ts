@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 
-import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CryptoService } from './crypto.service';
+import { UsersSqlRepository } from '../../infrastructure/repositories/users-sql.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
     private cryptoService: CryptoService,
   ) {}
 
@@ -27,20 +27,20 @@ export class AuthService {
         message: 'User is not found',
       });
 
-    if (!user.emailConfirmation.isConfirmed)
+    if (!user.isConfirmed)
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: 'You should be authorized',
       });
 
-    if (user.banInfo?.isBanned) {
-      throw new DomainException({
-        code: DomainExceptionCode.Unauthorized,
-        message: user.banInfo.banExpiresAt
-          ? `Your account is banned until ${user.banInfo.banExpiresAt.toISOString()}`
-          : 'Your account is permanently banned',
-      });
-    }
+    // if (user.banInfo?.isBanned) {
+    //   throw new DomainException({
+    //     code: DomainExceptionCode.Unauthorized,
+    //     message: user.banInfo.banExpiresAt
+    //       ? `Your account is banned until ${user.banInfo.banExpiresAt.toISOString()}`
+    //       : 'Your account is permanently banned',
+    //   });
+    // }
 
     const isValidPass = await this.cryptoService.compareHash(
       password,

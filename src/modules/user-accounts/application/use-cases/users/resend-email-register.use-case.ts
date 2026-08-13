@@ -1,12 +1,13 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { randomUUID } from 'crypto';
 
 import {
   DomainException,
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
 
 export class ResendConfirmationEmailCommand {
   constructor(public email: string) {}
@@ -18,7 +19,7 @@ export class ResendConfirmationEmailUseCase implements ICommandHandler<
   void
 > {
   constructor(
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
     private eventBus: EventBus,
   ) {}
 
@@ -34,15 +35,23 @@ export class ResendConfirmationEmailUseCase implements ICommandHandler<
         ],
       });
 
-    user.resendConfirmationCode();
+    if (user.isConfirmed)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Email is already confirmed',
+        extensions: [new Extension('Email is already confirmed', 'email')],
+      });
+
+    const expirationDate = new Date();
+    expirationDate.setHours(expirationDate.getHours() + 1); // set new deadline
+
+    user.confirmationCode = randomUUID();
+    user.emailConfirmationCodeExpiry = expirationDate;
 
     await this.usersRepo.save(user);
 
     this.eventBus.publish(
-      new UserRegisteredEvent(
-        user.email,
-        user.emailConfirmation.confirmationCode!,
-      ),
+      new UserRegisteredEvent(user.email, user.confirmationCode),
     );
   }
 }

@@ -1,7 +1,8 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { UserPasswordRecoveryEvent } from 'src/modules/user-accounts/domain/events/user-password-recovery.event';
+import { randomUUID } from 'crypto';
 
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
+import { UserPasswordRecoveryEvent } from 'src/modules/user-accounts/domain/events/user-password-recovery.event';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
 
 export class PasswordRecoveryCommand {
   constructor(public email: string) {}
@@ -14,7 +15,7 @@ export class PasswordRecoveryUseCase implements ICommandHandler<
 > {
   constructor(
     private eventBus: EventBus,
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
   ) {}
 
   async execute({ email }: PasswordRecoveryCommand): Promise<void> {
@@ -22,15 +23,17 @@ export class PasswordRecoveryUseCase implements ICommandHandler<
 
     if (!user) return; // не раскрываем факт существования email
 
-    user.setPasswordRecoveryCode();
+    // * set deadline for recovery code
+    const expirationDate = new Date();
+    expirationDate.setHours(expirationDate.getHours() + 1);
+
+    user.recoveryCode = randomUUID();
+    user.recoveryCodeExpiry = expirationDate;
 
     await this.usersRepo.save(user);
 
     this.eventBus.publish(
-      new UserPasswordRecoveryEvent(
-        user.email,
-        user.passwordRecovery.recoveryCode!,
-      ),
+      new UserPasswordRecoveryEvent(user.email, user.recoveryCode),
     );
   }
 }

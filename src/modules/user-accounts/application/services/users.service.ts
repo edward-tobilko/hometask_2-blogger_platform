@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
-import { UsersRepository } from '../../infrastructure/repositories/users.repository';
 import {
   DomainException,
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { UsersSqlRepository } from '../../infrastructure/repositories/users-sql.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private usersRepo: UsersRepository) {}
+  constructor(private usersRepo: UsersSqlRepository) {}
 
   async ensureLoginAndEmailUnique(login: string, email: string): Promise<void> {
     const existingUserByLogin = await this.usersRepo.findByLogin(login);
