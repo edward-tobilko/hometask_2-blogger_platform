@@ -24,22 +24,3 @@ export class ObjectIdValidationTransformationPipe implements PipeTransform {
     return new Types.ObjectId(value); // Преобразуем строку в ObjectId
   }
 }
-
-@Injectable()
-export class IdValidationPipe implements PipeTransform {
-  transform(value: string, metadata: ArgumentMetadata) {
-    // * Проверяем, что тип данных в декораторе — string.
-    if (metadata.metatype !== String) {
-      return value; // Если тип не string, возвращаем значение без изменений
-    }
-
-    if (!isValidObjectId(value)) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: `Invalid ID: ${value}`,
-      });
-    }
-
-    return value;
-  }
-}

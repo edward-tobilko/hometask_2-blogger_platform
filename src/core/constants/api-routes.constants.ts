@@ -4,7 +4,7 @@ export const API_ROUTES = {
   comments: 'comments',
   posts: 'posts',
   testing: 'testing',
-  users: 'users',
+  users: 'sa/users',
   securityDevices: 'security/devices',
 
   integrations: 'integrations/telegram', // * extra path over the basic API logic
