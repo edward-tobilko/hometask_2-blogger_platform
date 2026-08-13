@@ -21,7 +21,6 @@ import { UserViewDto } from '../view-dto/user.view-dto';
 import { UsersQueryInputDto } from '../input-dto/users-query.input-dto';
 import { UsersPaginatedViewDto } from '../view-dto/users-paginated.view-dto';
 import { BasicAuthGuard } from '../../guards/basic/basic-auth.guard';
-import { IdValidationPipe } from 'src/core/pipes/object-id-validation-transformation.pipe';
 import { CreateUserCommand } from '../../application/use-cases/admins/create-user.use-case';
 import { DeleteUserCommand } from '../../application/use-cases/admins/delete-user.use-case';
 import { GetUsersListQuery } from '../../application/queries/get-users-list.query';
@@ -30,6 +29,8 @@ import { ApiCreateUserSwagger } from '../decorators/users/swagger/create-swagger
 import { ApiDeleteUserSwagger } from '../decorators/users/swagger/delete-swagger.decorator';
 import { BanUserInputDto } from '../input-dto/ban-user.input-dto';
 import { BanUserCommand } from '../../application/use-cases/admins/ban-user.use-case';
+import { IdValidationPipe } from 'src/core/pipes/id-validation.pipe';
+import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 
 @ApiTags('Users')
 @SkipThrottle()
@@ -63,7 +64,7 @@ export class UsersController {
   @ApiDeleteUserSwagger('Delete user specified by id')
   @Delete(':id')
   @HttpCode(204)
-  deleteUser(@Param('id', IdValidationPipe) id: string): Promise<void> {
+  deleteUser(@Param('id', UuidValidationPipe) id: string): Promise<void> {
     const command = new DeleteUserCommand(id);
 
     return this.commandBus.execute(command);

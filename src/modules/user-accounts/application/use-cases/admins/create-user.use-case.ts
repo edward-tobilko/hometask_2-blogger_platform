@@ -6,10 +6,10 @@ import {
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
 import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import { UserViewDto } from 'src/modules/user-accounts/api/view-dto/user.view-dto';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
 
 export class CreateUserCommand extends Command<UserViewDto> {
   constructor(public dto: CreateUserDomainDto) {
@@ -23,7 +23,7 @@ export class CreateUserUseCase implements ICommandHandler<
   UserViewDto
 > {
   constructor(
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
     private cryptoService: CryptoService,
     private userAccountsConfig: UserAccountsConfig,
   ) {}
@@ -46,14 +46,18 @@ export class CreateUserUseCase implements ICommandHandler<
         isUserConfirmed,
       );
 
-      return UserViewDto.mapToViewModel(userInstanceDoc);
+      return {
+        id: userInstanceDoc.id,
+        login: userInstanceDoc.login,
+        email: userInstanceDoc.email,
+        createdAt: userInstanceDoc.createdAt,
+      };
     } catch (error: unknown) {
-      // * эта проверка нужно для теста: парсим поле из ошибки MongoDB (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
-      if (error instanceof Error && 'code' in error && error.code === 11000) {
-        const duplicatedField =
-          'keyValue' in error && error.keyValue != null
-            ? Object.keys(error.keyValue as object)[0]
-            : 'loginOrEmail';
+      // * Эта проверка нужно для теста: парсим поле из ошибки PostgreSQL (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
+      if (error instanceof Error && error.message.includes('duplicate key')) {
+        const duplicatedField = error.message.includes('login')
+          ? 'login'
+          : 'email';
 
         throw new DomainException({
           code: DomainExceptionCode.BadRequest,

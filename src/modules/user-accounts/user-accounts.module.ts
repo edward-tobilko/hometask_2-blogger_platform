@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import type { StringValue } from 'ms';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UsersController } from './api/controllers/users.controller';
 import { UsersService } from './application/services/users.service';
@@ -52,6 +53,9 @@ import { BanUserUseCase } from './application/use-cases/admins/ban-user.use-case
 import { HideCommentsOnBanEventHandler } from './application/event-handlers/hide-comments-on-ban.event-handler';
 import { BloggersPlatformModule } from '../bloggers-platform/bloggers-platform.module';
 import { ShowCommentsOnUnBanEventHandler } from './application/event-handlers/show-comments-on-unban.event-handler';
+import { UserAccountOrmEntity } from './infrastructure/schemas/user-orm.entity';
+import { UsersSqlRepository } from './infrastructure/repositories/users-sql.repository';
+import { UsersSqlQueryRepository } from './infrastructure/repositories/users-sql-query.repository';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
@@ -102,6 +106,8 @@ const strategies = [
       { name: SecurityDevices.name, schema: SecurityDevicesSchema },
     ]),
 
+    TypeOrmModule.forFeature([UserAccountOrmEntity]),
+
     forwardRef(() => BloggersPlatformModule), // для решения проблеммы с circular dependency
   ],
 
@@ -151,6 +157,8 @@ const strategies = [
     UsersQueryRepository,
     SecurityDevicesRepository,
     SecurityDevicesQueryRepository,
+    UsersSqlRepository,
+    UsersSqlQueryRepository,
 
     ...strategies,
 

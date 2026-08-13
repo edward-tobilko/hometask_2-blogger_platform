@@ -3,7 +3,6 @@ import { HydratedDocument, Model, Types } from 'mongoose';
 import { randomUUID } from 'crypto';
 
 import { CreateUserDomainDto } from '../dto/create-user.dto';
-import { FullName, FullNameSchema } from './full-name.entity';
 import {
   EmailConfirmation,
   EmailConfirmationSchema,
@@ -49,9 +48,6 @@ export class UserAccount {
 
   @Prop({ type: String, required: true })
   passwordHash!: string;
-
-  @Prop({ type: FullNameSchema })
-  fullName!: FullName;
 
   createdAt!: Date;
   updatedAt!: Date;
@@ -129,6 +125,7 @@ export class UserAccount {
     return user as UserAccountDocument;
   }
 
+  // * soft delete
   makeDeleted(): void {
     if (this.deletedAt !== null) {
       throw new DomainException({
