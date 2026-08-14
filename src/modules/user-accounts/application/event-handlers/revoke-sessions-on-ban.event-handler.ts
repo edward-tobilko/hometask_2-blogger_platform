@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { UserBannedEvent } from '../../domain/events/user-banned.event';
-import { SecurityDevicesRepository } from '../../infrastructure/repositories/security-devices.repository';
+import { SecurityDevicesRepository } from '../../infrastructure/mongo/repositories/security-devices.repository';
 
 @EventsHandler(UserBannedEvent)
 export class RevokeSessionsOnBanEventHandler implements IEventHandler<UserBannedEvent> {

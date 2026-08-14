@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, IsNull, Repository } from 'typeorm';
 
 import { UserAccountOrmEntity } from '../schemas/user-orm.entity';
-import { UsersQueryInputDto } from '../../api/input-dto/users-query.input-dto';
+import { UsersQueryInputDto } from '../../../api/input-dto/users-query.input-dto';
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
-import { UserViewDto } from '../../api/view-dto/user.view-dto';
-import { UsersPaginatedViewDto } from '../../api/view-dto/users-paginated.view-dto';
+import { UserViewDto } from '../../../api/view-dto/user.view-dto';
+import { UsersPaginatedViewDto } from '../../../api/view-dto/users-paginated.view-dto';
 
 @Injectable()
 export class UsersSqlQueryRepository {

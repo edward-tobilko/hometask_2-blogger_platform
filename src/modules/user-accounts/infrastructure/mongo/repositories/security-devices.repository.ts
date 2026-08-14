@@ -5,8 +5,8 @@ import {
   SecurityDevices,
   SecurityDevicesDocument,
   SecurityDevicesModel,
-} from '../../domain/entities/security-devices.entity';
-import { CreateSecurityDevicesDomainDto } from '../../domain/dto/create-security-devices.dto';
+} from '../../../domain/entities/security-devices.entity';
+import { CreateSecurityDevicesDomainDto } from '../../../domain/dto/create-security-devices.dto';
 
 @Injectable()
 export class SecurityDevicesRepository {

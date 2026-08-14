@@ -9,7 +9,7 @@ import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create
 import { CryptoService } from '../../services/crypto.service';
 import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
 import { UsersService } from '../../services/users.service';
-import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 
 export class RegisterUserCommand {
   constructor(public dto: { login: string; password: string; email: string }) {}

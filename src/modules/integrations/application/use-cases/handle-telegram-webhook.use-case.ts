@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { TelegramWebhookDto } from '../../presentation/input-dto/telegram-webhook.input-dto';
-import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-external.repository';
+import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/mongo/repositories/users-external.repository';
 
 export class HandleTelegramWebhookCommand {
   constructor(public readonly dto: TelegramWebhookDto) {}

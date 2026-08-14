@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { SecurityDeviceOrmEntity } from '../schemas/security-device-orm.entity';
-import { CreateSecurityDevicesDomainDto } from '../../domain/dto/create-security-devices.dto';
+import { CreateSecurityDevicesDomainDto } from '../../../domain/dto/create-security-devices.dto';
 
 @Injectable()
 export class SecurityDevicesSqlRepository {

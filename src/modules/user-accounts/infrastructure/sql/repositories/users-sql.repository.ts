@@ -4,7 +4,7 @@ import { IsNull, Repository } from 'typeorm';
 import { randomUUID } from 'crypto';
 
 import { UserAccountOrmEntity } from '../schemas/user-orm.entity';
-import { CreateUserDomainDto } from '../../domain/dto/create-user.dto';
+import { CreateUserDomainDto } from '../../../domain/dto/create-user.dto';
 
 @Injectable()
 export class UsersSqlRepository {

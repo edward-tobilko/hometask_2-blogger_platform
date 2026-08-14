@@ -2,7 +2,7 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { randomUUID } from 'crypto';
 
 import { UserPasswordRecoveryEvent } from 'src/modules/user-accounts/domain/events/user-password-recovery.event';
-import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 
 export class PasswordRecoveryCommand {
   constructor(public email: string) {}

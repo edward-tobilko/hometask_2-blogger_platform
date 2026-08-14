@@ -4,7 +4,7 @@ import {
   SecurityDevicesDocument,
   SecurityDevicesLean,
 } from '../../domain/entities/security-devices.entity';
-import { SecurityDeviceOrmEntity } from '../../infrastructure/schemas/security-device-orm.entity';
+import { SecurityDeviceOrmEntity } from '../../infrastructure/sql/schemas/security-device-orm.entity';
 
 export class SecurityDevicesViewModel {
   @ApiProperty({ description: 'IP address of device during signing in' })

@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserAccountsConfig } from '../../config/user-accounts.config';
 // import { DomainException } from 'src/core/exceptions/domain.exception';
 // import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UsersSqlRepository } from '../../infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from '../../infrastructure/sql/repositories/users-sql.repository';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {

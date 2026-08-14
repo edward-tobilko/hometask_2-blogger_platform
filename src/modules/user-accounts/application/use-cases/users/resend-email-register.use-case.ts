@@ -7,7 +7,7 @@ import {
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
-import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 
 export class ResendConfirmationEmailCommand {
   constructor(public email: string) {}

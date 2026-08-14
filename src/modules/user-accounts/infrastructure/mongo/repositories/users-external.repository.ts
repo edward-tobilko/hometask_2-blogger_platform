@@ -5,7 +5,7 @@ import {
   UserAccount,
   UserAccountDocument,
   UserAccountModel,
-} from '../../domain/entities/user.entity';
+} from '../../../domain/entities/user.entity';
 
 @Injectable()
 export class UsersExternalRepository {

@@ -6,7 +6,7 @@ import {
   UserAccountDocument,
   UserAccountModel,
 } from 'src/modules/user-accounts/domain/entities/user.entity';
-import { CreateUserDomainDto } from '../../domain/dto/create-user.dto';
+import { CreateUserDomainDto } from '../../../domain/dto/create-user.dto';
 
 @Injectable()
 export class UsersRepository {

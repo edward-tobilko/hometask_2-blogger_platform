@@ -2,7 +2,7 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
 import { NodeMailerService } from '../../infrastructure/external-services/mailer.external-service';
-import { emailTemplates } from '../../infrastructure/external-services/email-templates.external-service';
+import { emailTemplates } from '../../infrastructure/external-services/templates/email.template';
 
 @EventsHandler(UserRegisteredEvent)
 export class UserRegisteredEventHandler implements IEventHandler<UserRegisteredEvent> {

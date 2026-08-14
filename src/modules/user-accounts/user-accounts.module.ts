@@ -7,8 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UsersController } from './api/controllers/users.controller';
 import { UsersService } from './application/services/users.service';
-import { UsersRepository } from './infrastructure/repositories/users.repository';
-import { UsersQueryRepository } from './infrastructure/repositories/users-query.repository';
+import { UsersRepository } from './infrastructure/mongo/repositories/users.repository';
+import { UsersQueryRepository } from './infrastructure/mongo/repositories/users-query.repository';
 import { UserAccount, UserAccountSchema } from './domain/entities/user.entity';
 import { AuthService } from './application/services/auth.service';
 import { LocalStrategy } from './guards/local/local.strategy';
@@ -36,29 +36,29 @@ import {
 import { UserRegisteredEventHandler } from './application/event-handlers/user-registered.event-handler';
 import { RefreshTokenUseCase } from './application/use-cases/users/refresh-token.use-case';
 import { RefreshTokenStrategy } from './guards/bearer/refresh-token.strategy';
-import { SecurityDevicesRepository } from './infrastructure/repositories/security-devices.repository';
+import { SecurityDevicesRepository } from './infrastructure/mongo/repositories/security-devices.repository';
 import {
   SecurityDevices,
   SecurityDevicesSchema,
 } from './domain/entities/security-devices.entity';
 import { SecurityDevicesController } from './api/controllers/security-devices.controller';
-import { SecurityDevicesQueryRepository } from './infrastructure/repositories/security-devices-query.repository';
+import { SecurityDevicesQueryRepository } from './infrastructure/mongo/repositories/security-devices-query.repository';
 import { SecurityDevicesHandler } from './application/queries/get-security-devices.query';
 import { DeleteSecurityDeviceByIdUseCase } from './application/use-cases/security-devices/delete-security-device-by-id.use-case';
 import { DeleteAllSecurityDevicesExceptCurrentUseCase } from './application/use-cases/security-devices/delete-all-security-devices.use-case';
 import { LogoutUseCase } from './application/use-cases/users/logout.use-case';
-import { UsersExternalRepository } from './infrastructure/repositories/users-external.repository';
+import { UsersExternalRepository } from './infrastructure/mongo/repositories/users-external.repository';
 import { RevokeSessionsOnBanEventHandler } from './application/event-handlers/revoke-sessions-on-ban.event-handler';
 import { BanUserUseCase } from './application/use-cases/admins/ban-user.use-case';
 import { HideCommentsOnBanEventHandler } from './application/event-handlers/hide-comments-on-ban.event-handler';
 import { BloggersPlatformModule } from '../bloggers-platform/bloggers-platform.module';
 import { ShowCommentsOnUnBanEventHandler } from './application/event-handlers/show-comments-on-unban.event-handler';
-import { UserAccountOrmEntity } from './infrastructure/schemas/user-orm.entity';
-import { UsersSqlRepository } from './infrastructure/repositories/users-sql.repository';
-import { UsersSqlQueryRepository } from './infrastructure/repositories/users-sql-query.repository';
-import { SecurityDevicesSqlRepository } from './infrastructure/repositories/security-devices-sql.repository';
-import { SecurityDeviceOrmEntity } from './infrastructure/schemas/security-device-orm.entity';
-import { SecurityDevicesSqlQueryRepository } from './infrastructure/repositories/security-devices-query-sql.repository';
+import { UserAccountOrmEntity } from './infrastructure/sql/schemas/user-orm.entity';
+import { UsersSqlRepository } from './infrastructure/sql/repositories/users-sql.repository';
+import { UsersSqlQueryRepository } from './infrastructure/sql/repositories/users-sql-query.repository';
+import { SecurityDevicesSqlRepository } from './infrastructure/sql/repositories/security-devices-sql.repository';
+import { SecurityDeviceOrmEntity } from './infrastructure/sql/schemas/security-device-orm.entity';
+import { SecurityDevicesSqlQueryRepository } from './infrastructure/sql/repositories/security-devices-query-sql.repository';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],

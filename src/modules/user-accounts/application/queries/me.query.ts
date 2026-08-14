@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { UserSessionViewDto } from '../../api/view-dto/user-session.view-dto';
-import { UsersSqlRepository } from '../../infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from '../../infrastructure/sql/repositories/users-sql.repository';
 
 export class MeQuery {
   constructor(public userId: string) {}

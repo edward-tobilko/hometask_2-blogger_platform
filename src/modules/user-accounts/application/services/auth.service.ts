@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CryptoService } from './crypto.service';
-import { UsersSqlRepository } from '../../infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from '../../infrastructure/sql/repositories/users-sql.repository';
 
 @Injectable()
 export class AuthService {

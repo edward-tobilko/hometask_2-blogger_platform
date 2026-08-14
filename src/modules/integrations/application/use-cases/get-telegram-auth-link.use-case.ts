@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { CoreConfig } from 'src/core/core.config';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-external.repository';
+import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/mongo/repositories/users-external.repository';
 
 export class GetTelegramAuthLinkCommand {
   constructor(public userId: string) {}

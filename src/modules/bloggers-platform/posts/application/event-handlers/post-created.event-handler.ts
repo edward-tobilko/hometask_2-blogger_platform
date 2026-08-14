@@ -2,7 +2,7 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { PostCreatedEvent } from '../../domain/events/post-created.event';
 import { BlogSubscriptionsRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/repositories/blog-subscriptions.repository';
-import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-external.repository';
+import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/mongo/repositories/users-external.repository';
 import { TelegramAdapter } from 'src/core/adapters/telegram.adapter';
 
 @EventsHandler(PostCreatedEvent)

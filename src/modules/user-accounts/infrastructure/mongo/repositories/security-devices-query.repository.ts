@@ -5,8 +5,8 @@ import {
   SecurityDevices,
   SecurityDevicesLean,
   SecurityDevicesModel,
-} from '../../domain/entities/security-devices.entity';
-import { SecurityDevicesViewModel } from '../../api/view-dto/security-devices.view-dto';
+} from '../../../domain/entities/security-devices.entity';
+import { SecurityDevicesViewModel } from '../../../api/view-dto/security-devices.view-dto';
 
 @Injectable()
 export class SecurityDevicesQueryRepository {

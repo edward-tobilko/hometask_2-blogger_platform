@@ -2,7 +2,7 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { UserPasswordRecoveryEvent } from '../../domain/events/user-password-recovery.event';
 import { NodeMailerService } from '../../infrastructure/external-services/mailer.external-service';
-import { emailTemplates } from '../../infrastructure/external-services/email-templates.external-service';
+import { emailTemplates } from '../../infrastructure/external-services/templates/email.template';
 
 @EventsHandler(UserPasswordRecoveryEvent)
 export class UserPasswordRecoveryEventHandler implements IEventHandler<UserPasswordRecoveryEvent> {

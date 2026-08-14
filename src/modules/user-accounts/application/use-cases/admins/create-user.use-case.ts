@@ -9,7 +9,7 @@ import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create
 import { CryptoService } from '../../services/crypto.service';
 import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import { UserViewDto } from 'src/modules/user-accounts/api/view-dto/user.view-dto';
-import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 
 export class CreateUserCommand extends Command<UserViewDto> {
   constructor(public dto: CreateUserDomainDto) {

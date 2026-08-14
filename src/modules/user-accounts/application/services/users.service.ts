@@ -5,7 +5,7 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UsersSqlRepository } from '../../infrastructure/repositories/users-sql.repository';
+import { UsersSqlRepository } from '../../infrastructure/sql/repositories/users-sql.repository';
 
 @Injectable()
 export class UsersService {

@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { UsersPaginatedViewDto } from '../../api/view-dto/users-paginated.view-dto';
 import { UsersQueryInputDto } from 'src/modules/user-accounts/api/input-dto/users-query.input-dto';
-import { UsersSqlQueryRepository } from '../../infrastructure/repositories/users-sql-query.repository';
+import { UsersSqlQueryRepository } from '../../infrastructure/sql/repositories/users-sql-query.repository';
 
 export class GetUsersListQuery {
   constructor(public query: UsersQueryInputDto) {}
