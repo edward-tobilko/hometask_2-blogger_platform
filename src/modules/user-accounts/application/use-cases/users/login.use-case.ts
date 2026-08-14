@@ -8,7 +8,7 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from 'src/modules/user-accounts/constants/auth-tokens.inject-constants';
-import { SecurityDevicesRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices.repository';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices-sql.repository';
 
 export class LoginCommand extends Command<{
   accessToken: string;
@@ -34,7 +34,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     private refreshTokenContext: JwtService,
 
     private userAccountConfig: UserAccountsConfig,
-    private securityDevicesRepo: SecurityDevicesRepository,
+    private securityDevicesRepo: SecurityDevicesSqlRepository,
   ) {}
 
   async execute({ userId, ip, userAgent }: LoginCommand): Promise<{
@@ -64,12 +64,11 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
 
     await this.securityDevicesRepo.create({
       ip,
-      deviceId,
       title: userAgent ?? 'Unknown', // fallback когда HTTP-заголовок отсутствует: в тестах, у curl, у клиентов без user-agent
       lastActiveDate, // сохраняем в БД
-
+      deviceId,
       userId, // репозиторий должен знать какому пользователю принадлежит сессия
-      expiresAt, // время жизни документа в mongodb (TTL -> декодируется из RT)
+      expiresAt,
     });
 
     return Promise.resolve({ accessToken, refreshToken, cookieMaxAge }); // ICommandHandler всегда требует Promise, так как метод синхронный а возвр. promise, нужно дожидаться.

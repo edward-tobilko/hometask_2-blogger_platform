@@ -39,6 +39,7 @@ export class UsersSqlRepository {
     return this.usersRepo.findOne({
       where: [
         { login, deletedAt: IsNull() },
+        // * or
         { email, deletedAt: IsNull() },
       ],
     });

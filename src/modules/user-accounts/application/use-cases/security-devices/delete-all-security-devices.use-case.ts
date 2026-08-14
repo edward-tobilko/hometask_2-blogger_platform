@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { SecurityDevicesRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices.repository';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices-sql.repository';
 
 export class DeleteAllSecurityDevicesExceptCurrentCommand {
   currentUserId: string;
@@ -17,13 +17,13 @@ export class DeleteAllSecurityDevicesExceptCurrentUseCase implements ICommandHan
   DeleteAllSecurityDevicesExceptCurrentCommand,
   void
 > {
-  constructor(private securityDevicesRepo: SecurityDevicesRepository) {}
+  constructor(private securityDevicesRepo: SecurityDevicesSqlRepository) {}
 
   async execute({
     currentUserId,
     currentDeviceId,
   }: DeleteAllSecurityDevicesExceptCurrentCommand): Promise<void> {
-    return this.securityDevicesRepo.removeAllSecurityDevicesExceptCurrent(
+    return this.securityDevicesRepo.removeAllExceptCurrent(
       currentUserId,
       currentDeviceId,
     );

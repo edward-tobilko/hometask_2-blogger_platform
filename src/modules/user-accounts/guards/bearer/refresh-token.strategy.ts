@@ -6,7 +6,7 @@ import { Request } from 'express';
 import { UserAccountsConfig } from '../../config/user-accounts.config';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { SecurityDevicesQueryRepository } from '../../infrastructure/repositories/security-devices-query.repository';
+import { SecurityDevicesSqlQueryRepository } from '../../infrastructure/repositories/security-devices-query-sql.repository';
 
 type ValidatePayload = {
   userId: string;
@@ -27,7 +27,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor(
     userAccountConfig: UserAccountsConfig,
-    private queryRepo: SecurityDevicesQueryRepository,
+    private readonly queryRepo: SecurityDevicesSqlQueryRepository,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([

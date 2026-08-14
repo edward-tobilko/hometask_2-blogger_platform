@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { SecurityDevicesViewModel } from '../../api/view-dto/security-devices.view-dto';
-import { SecurityDevicesQueryRepository } from '../../infrastructure/repositories/security-devices-query.repository';
+import { SecurityDevicesSqlQueryRepository } from '../../infrastructure/repositories/security-devices-query-sql.repository';
 
 export class SecurityDevicesQuery {
   constructor(public userId: string) {}
@@ -13,12 +13,12 @@ export class SecurityDevicesHandler implements IQueryHandler<
   SecurityDevicesViewModel[]
 > {
   constructor(
-    private securityDevicesQueryRepo: SecurityDevicesQueryRepository,
+    private securityDevicesQueryRepo: SecurityDevicesSqlQueryRepository,
   ) {}
 
   async execute({
     userId,
   }: SecurityDevicesQuery): Promise<SecurityDevicesViewModel[]> {
-    return this.securityDevicesQueryRepo.findAllSecurityDevicesByUserId(userId);
+    return this.securityDevicesQueryRepo.findAllByUserId(userId);
   }
 }

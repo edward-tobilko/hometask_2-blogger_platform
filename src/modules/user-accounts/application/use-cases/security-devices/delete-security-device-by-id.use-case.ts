@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { SecurityDevicesRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices.repository';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices-sql.repository';
 
 export class DeleteSecurityDeviceByIdCommand {
   deviceId: string;
@@ -19,14 +19,13 @@ export class DeleteSecurityDeviceByIdUseCase implements ICommandHandler<
   DeleteSecurityDeviceByIdCommand,
   void
 > {
-  constructor(private securityDevicesRepo: SecurityDevicesRepository) {}
+  constructor(private securityDevicesRepo: SecurityDevicesSqlRepository) {}
 
   async execute({
     deviceId,
     currentUserId,
   }: DeleteSecurityDeviceByIdCommand): Promise<void> {
-    const existingSession =
-      await this.securityDevicesRepo.findSecurityDeviceById(deviceId);
+    const existingSession = await this.securityDevicesRepo.findById(deviceId);
 
     if (!existingSession)
       throw new DomainException({
@@ -40,6 +39,6 @@ export class DeleteSecurityDeviceByIdUseCase implements ICommandHandler<
         message: 'You are not allowed to delete this session',
       });
 
-    await this.securityDevicesRepo.removeSecurityDeviceById(deviceId);
+    await this.securityDevicesRepo.removeById(deviceId);
   }
 }

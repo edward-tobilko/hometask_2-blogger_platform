@@ -7,7 +7,7 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from 'src/modules/user-accounts/constants/auth-tokens.inject-constants';
-import { SecurityDevicesRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices.repository';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices-sql.repository';
 
 export class RefreshTokenCommand extends Command<{
   accessToken: string;
@@ -32,7 +32,7 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
     private refreshTokenContext: JwtService,
 
     private userAccountConfig: UserAccountsConfig,
-    private securityDevicesRepo: SecurityDevicesRepository,
+    private securityDevicesRepo: SecurityDevicesSqlRepository,
   ) {}
 
   async execute({ userId, deviceId }: RefreshTokenCommand): Promise<{
@@ -49,7 +49,7 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
       lastActiveDate,
     );
 
-    // * все то, что мы запишем в cookie
+    // * Все то, что мы запишем в cookie
     const refreshToken = this.refreshTokenContext.sign({
       userId,
       deviceId,

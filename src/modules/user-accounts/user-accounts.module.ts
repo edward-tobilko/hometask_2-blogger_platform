@@ -56,6 +56,9 @@ import { ShowCommentsOnUnBanEventHandler } from './application/event-handlers/sh
 import { UserAccountOrmEntity } from './infrastructure/schemas/user-orm.entity';
 import { UsersSqlRepository } from './infrastructure/repositories/users-sql.repository';
 import { UsersSqlQueryRepository } from './infrastructure/repositories/users-sql-query.repository';
+import { SecurityDevicesSqlRepository } from './infrastructure/repositories/security-devices-sql.repository';
+import { SecurityDeviceOrmEntity } from './infrastructure/schemas/security-device-orm.entity';
+import { SecurityDevicesSqlQueryRepository } from './infrastructure/repositories/security-devices-query-sql.repository';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
@@ -106,7 +109,7 @@ const strategies = [
       { name: SecurityDevices.name, schema: SecurityDevicesSchema },
     ]),
 
-    TypeOrmModule.forFeature([UserAccountOrmEntity]),
+    TypeOrmModule.forFeature([UserAccountOrmEntity, SecurityDeviceOrmEntity]),
 
     forwardRef(() => BloggersPlatformModule), // для решения проблеммы с circular dependency
   ],
@@ -159,6 +162,8 @@ const strategies = [
     SecurityDevicesQueryRepository,
     UsersSqlRepository,
     UsersSqlQueryRepository,
+    SecurityDevicesSqlRepository,
+    SecurityDevicesSqlQueryRepository,
 
     ...strategies,
 
@@ -170,5 +175,3 @@ const strategies = [
   exports: [UsersExternalQueryRepository, UsersExternalRepository],
 })
 export class UserAccountsModule {}
-
-// ? При инжектировании провайдера (если, кому то понадобиться какой либо провайдер заинжектировать), nest под капотом вызывает класс с пом. оператора new, тем самым создавая екземпляр данного класса (провайдера).
