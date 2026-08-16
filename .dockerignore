@@ -42,8 +42,15 @@ coverage/
 *.swp
 *.swo
 
-# Comments
-package.comment.md
+# Modules
+backup.sql
+
+# Notes
+**/*.notes.md
+
+# Claude
+CLAUDE.md
+.claude/
 
 # If needed
 ### .yarn.lock
