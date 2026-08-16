@@ -48,17 +48,25 @@ export class UsersSqlRepository {
   async findByConfirmationCode(
     confirmCode: string,
   ): Promise<UserAccountOrmEntity | null> {
-    return this.usersRepo.findOne({
-      where: { confirmationCode: confirmCode, deletedAt: IsNull() },
-    });
+    try {
+      return await this.usersRepo.findOne({
+        where: { confirmationCode: confirmCode, deletedAt: IsNull() },
+      });
+    } catch {
+      return null;
+    }
   }
 
   async findByRecoveryCode(
     recoveryCode: string,
   ): Promise<UserAccountOrmEntity | null> {
-    return this.usersRepo.findOne({
-      where: { recoveryCode, deletedAt: IsNull() },
-    });
+    try {
+      return await this.usersRepo.findOne({
+        where: { recoveryCode, deletedAt: IsNull() },
+      });
+    } catch {
+      return null;
+    }
   }
 
   async save(user: UserAccountOrmEntity): Promise<void> {
