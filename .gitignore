@@ -38,8 +38,8 @@ coverage/
 *.swp
 *.swo
 
-# Comments
-package.comment.md
+# Modules
+backup.sql
 
 # Notes
 **/*.notes.md
