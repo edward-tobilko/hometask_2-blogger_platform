@@ -1,6 +1,6 @@
 import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
+import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { ApiTags } from '@nestjs/swagger';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
@@ -9,24 +9,18 @@ import { ApiDeleteAllDataSwagger } from './delete-all-data-swagger.decorator';
 @ApiTags('Testing')
 @Controller(API_ROUTES.testing)
 export class TestingDataController {
-  constructor(
-    @InjectConnection() private readonly dataBaseConnection: Connection,
-  ) {}
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  @ApiDeleteAllDataSwagger(
-    'Clear database: delete all data from all tables / collections',
-  )
+  @ApiDeleteAllDataSwagger('Clear database: delete all data from all tables')
   @Delete('all-data')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllData(): Promise<void> {
-    // * Находим все коллекции в бд динамически
-    const collections = await this.dataBaseConnection.listCollections();
-
-    // * Чистим их параллельно (если создадим новую коллекцию — контроллер не надо трогать)
-    const promises = collections.map((collection) =>
-      this.dataBaseConnection.collection(collection.name).deleteMany({}),
+    await this.dataSource.query(
+      `TRUNCATE TABLE user_accounts, security_devices_session RESTART IDENTITY CASCADE`,
     );
-
-    await Promise.all(promises);
   }
 }
+
+// ? TRUNCATE — очистка таблицы (с сохранением структуры)
+// ? RESTART IDENTITY - сбрасывает последовательности (sequence), если есть
+// ? CASCADE - чистит зависимые таблицы
