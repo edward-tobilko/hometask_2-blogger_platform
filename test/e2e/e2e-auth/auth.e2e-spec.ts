@@ -2,17 +2,13 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Server } from 'http';
 import request from 'supertest';
-import { Model } from 'mongoose';
 import jwt from 'jsonwebtoken';
+import { Repository } from 'typeorm';
 
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
-import {
-  UserAccount,
-  UserAccountDocument,
-} from 'src/modules/user-accounts/domain/entities/user.entity';
 import { BadRequestError } from '../utils/bad-request-error.util';
 import { expectErrorField } from '../utils/expect-error-field.util';
 import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
@@ -20,15 +16,14 @@ import {
   loginConstraints,
   passwordConstraints,
 } from 'src/modules/user-accounts/api/constraints/users.constraints';
+import { UserAccountOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/user-orm.entity';
 
 describe('Auth swagger contract', () => {
   let app: INestApplication;
   let httpServer: Server;
-  let authPath: string;
-
+  let userRepo: Repository<UserAccountOrmEntity>;
   let userTestManager: UserTestManager;
-
-  let UserModel: Model<UserAccountDocument>;
+  let authPath: string;
 
   beforeAll(async () => {
     const result = await initSettings((moduleBuilder) =>
@@ -41,13 +36,10 @@ describe('Auth swagger contract', () => {
     );
 
     app = result.app;
-    userTestManager = result.userTestManager;
     httpServer = app.getHttpServer() as Server;
+    userRepo = result.userRepo;
+    userTestManager = result.userTestManager;
     authPath = `/${GLOBAL_PREFIX}/auth` as string;
-
-    UserModel = result.databaseConnection.model<UserAccountDocument>( // получаем модель (схему)
-      UserAccount.name,
-    );
   });
 
   afterAll(async () => await app.close());
@@ -65,11 +57,9 @@ describe('Auth swagger contract', () => {
       // * проверяем что recoveryCode появился в БД
       const dbUser = await userTestManager.findUserByEmail(dto.email);
 
-      expect(dbUser!.passwordRecovery.recoveryCode).toBeDefined();
-      expect(dbUser!.passwordRecovery.recoveryCodeExpiry).toBeDefined();
-      expect(
-        new Date(dbUser!.passwordRecovery.recoveryCodeExpiry!) > new Date(),
-      ).toBe(true);
+      expect(dbUser!.recoveryCode).toBeDefined();
+      expect(dbUser!.recoveryCodeExpiry).toBeDefined();
+      expect(new Date(dbUser!.recoveryCodeExpiry!) > new Date()).toBe(true);
     });
 
     it('status 204 - even if current email is not registered (for prevent user email detection)', async () => {
@@ -108,12 +98,12 @@ describe('Auth swagger contract', () => {
       const dbUser = await userTestManager.findUserByEmail(user.email);
 
       expect(dbUser).toBeTruthy();
-      expect(dbUser!.passwordRecovery.recoveryCode).toBeTruthy();
+      expect(dbUser!.recoveryCode).toBeTruthy();
 
       // * set new password
       await userTestManager.getNewPassword({
         newPassword: NEW_PASSWORD,
-        recoveryCode: dbUser!.passwordRecovery.recoveryCode!,
+        recoveryCode: dbUser!.recoveryCode!,
       });
 
       // * login user by new password -> 200
@@ -161,14 +151,14 @@ describe('Auth swagger contract', () => {
       // * первый раз — 204
       await userTestManager.getNewPassword({
         newPassword: NEW_PASSWORD,
-        recoveryCode: dbUser!.passwordRecovery.recoveryCode!,
+        recoveryCode: dbUser!.recoveryCode!,
       });
 
       // * второй раз с тем же кодом → 400
       await userTestManager.getNewPassword(
         {
           newPassword: ANOTHER_PASSWORD,
-          recoveryCode: dbUser!.passwordRecovery.recoveryCode!,
+          recoveryCode: dbUser!.recoveryCode!,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -374,7 +364,7 @@ describe('Auth swagger contract', () => {
   });
 
   describe('Tests for POST: /api/auth/registration-confirmation end-point -> Confirm registration', () => {
-    let userBefore: UserAccountDocument | null;
+    let userBefore: UserAccountOrmEntity | null;
     let dto: CreateUserInputDto;
 
     beforeEach(async () => {
@@ -388,16 +378,16 @@ describe('Auth swagger contract', () => {
 
     it('status 204 - Email was verified. Account was activated', async () => {
       expect(userBefore).toBeTruthy();
-      expect(userBefore!.emailConfirmation.isConfirmed).toBe(false);
+      expect(userBefore!.isConfirmed).toBe(false);
 
       await userTestManager.getConfirmRegistration({
-        code: userBefore!.emailConfirmation.confirmationCode!,
+        code: userBefore!.confirmationCode!,
       });
 
       const userAfter = await userTestManager.findUserByEmail(dto.email);
 
       expect(userAfter).toBeTruthy();
-      expect(userAfter!.emailConfirmation.isConfirmed).toBe(true);
+      expect(userAfter!.isConfirmed).toBe(true);
     });
 
     it('status 400 - if incorrect code', async () => {
@@ -424,17 +414,17 @@ describe('Auth swagger contract', () => {
 
     it('status 400 - if expired code', async () => {
       // * make code expired
-      await UserModel.updateOne(
+      await userRepo.update(
         {
           email: dto.email,
         },
         {
-          'emailConfirmation.emailConfirmationCodeExpiry': new Date(0), // 1970 год - гарантировано прострочен
+          emailConfirmationCodeExpiry: new Date(0), // 1970 год - гарантировано прострочен
         },
       );
 
       const result = (await userTestManager.getConfirmRegistration(
-        { code: userBefore!.emailConfirmation.confirmationCode! },
+        { code: userBefore!.confirmationCode! },
         HttpStatus.BAD_REQUEST,
       )) as BadRequestError;
 
@@ -451,7 +441,7 @@ describe('Auth swagger contract', () => {
       const user = await userTestManager.findUserByEmail(dto.email);
 
       await userTestManager.getConfirmRegistration({
-        code: user!.emailConfirmation.confirmationCode!,
+        code: user!.confirmationCode!,
       });
 
       // * после подтверждения → 200
@@ -500,7 +490,7 @@ describe('Auth swagger contract', () => {
   });
 
   describe('Tests for POST: /api/auth/registration end-point -> Registration in the system. Email with confirmation code will be send to passed email address', () => {
-    let result: UserAccountDocument | null;
+    let result: UserAccountOrmEntity | null;
     let dto: CreateUserInputDto;
 
     beforeEach(async () => {
@@ -514,11 +504,9 @@ describe('Auth swagger contract', () => {
 
     it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address', () => {
       expect(result).toBeTruthy();
-      expect(result!.emailConfirmation.isConfirmed).toBe(false);
-      expect(result!.emailConfirmation.confirmationCode).toBeTruthy();
-      expect(
-        result!.emailConfirmation.emailConfirmationCodeExpiry,
-      ).toBeTruthy();
+      expect(result!.isConfirmed).toBe(false);
+      expect(result!.confirmationCode).toBeTruthy();
+      expect(result!.emailConfirmationCodeExpiry).toBeTruthy();
     });
 
     it('status 400 - if duplicate login)', async () => {
@@ -630,7 +618,7 @@ describe('Auth swagger contract', () => {
   });
 
   describe('Tests for POST: /api/auth/registration-email-resending end-point -> Resend confirmation registration  email if user exist', () => {
-    let userBefore: UserAccountDocument | null;
+    let userBefore: UserAccountOrmEntity | null;
     let dto: CreateUserInputDto;
 
     beforeEach(async () => {
@@ -644,10 +632,10 @@ describe('Auth swagger contract', () => {
 
     it('status 204 - Input data is accepted. Email with confirmation code will be send to passed email address.', async () => {
       expect(userBefore).toBeTruthy();
-      expect(userBefore!.emailConfirmation.isConfirmed).toBe(false);
+      expect(userBefore!.isConfirmed).toBe(false);
 
       // * getting old confirm code
-      const oldCode = userBefore!.emailConfirmation.confirmationCode;
+      const oldCode = userBefore!.confirmationCode;
 
       // * resend confirmation email
       await userTestManager.getResendRegistrationEmail({
@@ -658,9 +646,9 @@ describe('Auth swagger contract', () => {
       const userAfter = await userTestManager.findUserByEmail(dto.email);
 
       expect(userAfter).toBeTruthy();
-      expect(userAfter!.emailConfirmation.isConfirmed).toBe(false);
+      expect(userAfter!.isConfirmed).toBe(false);
 
-      const newCode = userAfter!.emailConfirmation.confirmationCode;
+      const newCode = userAfter!.confirmationCode;
 
       // * check the code was changed
       expect(newCode).not.toBe(oldCode);
@@ -709,7 +697,7 @@ describe('Auth swagger contract', () => {
 
       // * получаем новый код
       const userAfter = await userTestManager.findUserByEmail(dto.email);
-      const newCode = userAfter!.emailConfirmation.confirmationCode;
+      const newCode = userAfter!.confirmationCode;
 
       // * новый код должен заработать
       await userTestManager.getConfirmRegistration({ code: newCode! });
@@ -717,12 +705,12 @@ describe('Auth swagger contract', () => {
       // * isConfirmed = true
       const userConfirmed = await userTestManager.findUserByEmail(dto.email);
 
-      expect(userConfirmed!.emailConfirmation.isConfirmed).toBe(true);
+      expect(userConfirmed!.isConfirmed).toBe(true);
     });
 
     it('status 400 - if old code is invalid after resend', async () => {
       const userBefore = await userTestManager.findUserByEmail(dto.email);
-      const oldCode = userBefore!.emailConfirmation.confirmationCode;
+      const oldCode = userBefore!.confirmationCode;
 
       await userTestManager.getResendRegistrationEmail({ email: dto.email });
 

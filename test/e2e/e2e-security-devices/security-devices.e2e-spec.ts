@@ -1,13 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-// import { Server } from 'http';
-import { Model } from 'mongoose';
 
-import {
-  UserAccount,
-  UserAccountDocument,
-} from 'src/modules/user-accounts/domain/entities/user.entity';
-// import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { SecurityDevicesTestManager } from 'test/helpers/security-devices-test-manager.helper';
@@ -15,13 +8,8 @@ import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 
 describe('Security Devices swagger contract', () => {
   let app: INestApplication;
-  //   let httpServer: Server;
-  //   let securityDevicesPath: string;
-
   let userTestManager: UserTestManager;
   let securityDevicesTestManager: SecurityDevicesTestManager;
-
-  let UserModel: Model<UserAccountDocument>;
 
   beforeAll(async () => {
     const result = await initSettings((moduleBuilder) =>
@@ -36,15 +24,6 @@ describe('Security Devices swagger contract', () => {
     app = result.app;
     userTestManager = result.userTestManager;
     securityDevicesTestManager = result.securityDevicesTestManager;
-
-    // httpServer = app.getHttpServer() as Server;
-    // securityDevicesPath = `/${GLOBAL_PREFIX}/security/devices` as string;
-
-    UserModel = result.databaseConnection.model<UserAccountDocument>(
-      UserAccount.name,
-    );
-
-    console.log('UserModel -> ', UserModel);
   });
 
   afterAll(async () => await app.close());
@@ -190,11 +169,6 @@ describe('Security Devices swagger contract', () => {
         await securityDevicesTestManager.getSecurityDevices(cookie2);
 
       expect(devicesBefore).toHaveLength(2);
-
-      // * удаляем первую сессию через вторую куку
-      devicesBefore.find(
-        (device) => device.deviceId !== /* текущий deviceId */ device.deviceId,
-      );
 
       await securityDevicesTestManager.deleteSecurityDeviceById(
         devicesBefore[0].deviceId,

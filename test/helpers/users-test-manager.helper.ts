@@ -2,7 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Server } from 'http';
 import { randomUUID } from 'crypto';
-import { Model } from 'mongoose';
+import { Repository } from 'typeorm';
 
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
@@ -19,19 +19,19 @@ import { RegistrationConfirmInputDto } from 'src/modules/user-accounts/api/input
 import { RegistrationEmailResendingInputDto } from 'src/modules/user-accounts/api/input-dto/registration-email-resending.input-dto';
 import { NewPassword } from 'src/modules/user-accounts/api/input-dto/new-password.input-dto';
 import { UserSessionViewDto } from 'src/modules/user-accounts/api/view-dto/user-session.view-dto';
-import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
+import { UserAccountOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/user-orm.entity';
 
 export class UserTestManager {
   constructor(
     private readonly app: INestApplication,
-    private readonly userModel: Model<UserAccountDocument>,
+    private readonly userRepo: Repository<UserAccountOrmEntity>,
   ) {}
 
   private readonly ADMIN_LOGIN = 'admin';
   private readonly ADMIN_PASSWORD = 'qwerty';
 
   httpServer = this.app.getHttpServer() as Server;
-  usersPath = `/${GLOBAL_PREFIX}/users` as string;
+  usersPath = `/${GLOBAL_PREFIX}/sa/users` as string;
   authPath = `/${GLOBAL_PREFIX}/auth` as string;
 
   // * Extra functions
@@ -50,8 +50,8 @@ export class UserTestManager {
     return { ...payloadDto, ...payloadValidation }; // если одинаковый ключ есть в обоих объектах — правый перезаписывает левый.
   }
 
-  async findUserByEmail(email: string): Promise<UserAccountDocument | null> {
-    return this.userModel.findOne({ email });
+  async findUserByEmail(email: string): Promise<UserAccountOrmEntity | null> {
+    return this.userRepo.findOne({ where: { email } });
   }
 
   async createUser(
@@ -143,10 +143,10 @@ export class UserTestManager {
     await this.registrationUser(dto);
 
     // * finding user by email
-    const userDb = await this.userModel.findOne({ email: dto.email });
+    const userDb = await this.userRepo.findOne({ where: { email: dto.email } });
 
     // * getting confirm code
-    const confirmCode = userDb!.emailConfirmation.confirmationCode!;
+    const confirmCode = userDb!.confirmationCode!;
 
     await this.getConfirmRegistration({
       code: confirmCode,

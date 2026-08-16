@@ -29,14 +29,14 @@ describe('Users swagger contract', () => {
     app = result.app;
     userTestManager = result.userTestManager;
     httpServer = app.getHttpServer() as Server;
-    usersPath = `/${GLOBAL_PREFIX}/users` as string;
+    usersPath = `/${GLOBAL_PREFIX}/sa/users` as string;
   });
 
   afterAll(async () => await app.close());
 
   beforeEach(async () => await deleteAllData(app));
 
-  describe('Tests for GET /api/users end-point', () => {
+  describe('Tests for GET /api/sa/users end-point', () => {
     it('status 200 - should return users list (12 users with pagination)', async () => {
       // * create 12 users
       await userTestManager.createSeveralUsers(12);
@@ -129,7 +129,7 @@ describe('Users swagger contract', () => {
     });
   });
 
-  describe('Tests for POST /api/users end-point', () => {
+  describe('Tests for POST /api/sa/users end-point', () => {
     it('status 201 - returns created user and this user appears in list', async () => {
       const dto = userTestManager.getUserInputDto();
 
@@ -255,7 +255,7 @@ describe('Users swagger contract', () => {
     });
   });
 
-  describe('Tests for DELETE /api/users/{id} end-point', () => {
+  describe('Tests for DELETE /api/sa/users/{id} end-point', () => {
     it('status 204 - should delete user', async () => {
       const dto = userTestManager.getUserInputDto();
 
@@ -283,7 +283,7 @@ describe('Users swagger contract', () => {
 
     it('status 404 - if user not found', async () => {
       await userTestManager.deleteUser(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         HttpStatus.NOT_FOUND,
       );
     });
