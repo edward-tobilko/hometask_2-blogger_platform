@@ -1,5 +1,6 @@
 export const API_ROUTES = {
   authorization: 'auth',
+  saBlogs: 'sa/blogs',
   blogs: 'blogs',
   comments: 'comments',
   posts: 'posts',

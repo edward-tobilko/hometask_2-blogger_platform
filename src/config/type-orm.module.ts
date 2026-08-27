@@ -7,6 +7,7 @@ export const typeOrmModule = TypeOrmModule.forRootAsync({
 
   useFactory: (coreConfig: CoreConfig) => ({
     type: 'postgres',
+    schema: 'public',
     url: coreConfig.postgresURI,
     autoLoadEntities: true,
     synchronize: true,
