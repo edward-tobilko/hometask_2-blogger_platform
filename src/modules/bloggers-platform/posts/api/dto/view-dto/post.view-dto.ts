@@ -71,6 +71,13 @@ export class PostViewModel {
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt; // отдаем ту дату, которая в entity
 
+    dto.extendedLikesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      myStatus,
+      newestLikes: [],
+    };
+
     // dto.extendedLikesInfo = {
     //   likesCount: post.extendedLikesInfo.likesCount,
     //   dislikesCount: post.extendedLikesInfo.dislikesCount,
