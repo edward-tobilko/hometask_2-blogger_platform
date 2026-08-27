@@ -3,9 +3,9 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CommentsRepository } from 'src/modules/bloggers-platform/comments/infrastructure/repositories/comments.repo';
-import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
 import { CommentDocument } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
+import { PostsRepository } from '../../infrastructure/mongo/repositories/posts.repository';
 
 export class CreateCommentCommand extends Command<CommentDocument> {
   constructor(

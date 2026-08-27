@@ -1,10 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { PostsQueryRepository } from '../../infrastructure/repositories/posts-query.repository';
 import { PostViewModel } from '../../api/dto/view-dto/post.view-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-
+import { PostsQuerySqlRepository } from '../../infrastructure/sql/repositories/posts-query-sql.repository';
 export class GetPostByIdQuery {
   constructor(
     public id: string,
@@ -17,7 +16,7 @@ export class GetPostByIdQueryHandler implements IQueryHandler<
   GetPostByIdQuery,
   PostViewModel
 > {
-  constructor(private readonly postsQueryRepo: PostsQueryRepository) {}
+  constructor(private readonly postsQueryRepo: PostsQuerySqlRepository) {}
 
   async execute({ id, userId }: GetPostByIdQuery): Promise<PostViewModel> {
     const existingPost = await this.postsQueryRepo.findPostById(id, userId);

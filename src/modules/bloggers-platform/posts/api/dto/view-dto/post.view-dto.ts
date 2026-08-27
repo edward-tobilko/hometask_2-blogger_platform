@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { PostDocument, PostLean } from '../../../domain/entities/post.entity';
+import { PostOrmEntity } from '../../../infrastructure/sql/schemas/post-orm.entity';
 
 // * Создаем отдельные классы во избежания вложенности аннонимных обьектов в аннонимных обьектах (это нужно если мы исп. swagger doc, так как он не умеет обрабатывать вложенные анонимные типы):
 
@@ -58,12 +58,12 @@ export class PostViewModel {
   extendedLikesInfo!: ExtendedLikesInfoViewModel;
 
   static mapToViewModel(
-    post: PostDocument | PostLean,
+    post: PostOrmEntity,
     myStatus: LikeStatus = LikeStatus.None,
   ): PostViewModel {
     const dto = new PostViewModel();
 
-    dto.id = post._id.toString();
+    dto.id = post.id;
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
     dto.content = post.content;
@@ -71,17 +71,17 @@ export class PostViewModel {
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt; // отдаем ту дату, которая в entity
 
-    dto.extendedLikesInfo = {
-      likesCount: post.extendedLikesInfo.likesCount,
-      dislikesCount: post.extendedLikesInfo.dislikesCount,
-      myStatus,
+    // dto.extendedLikesInfo = {
+    //   likesCount: post.extendedLikesInfo.likesCount,
+    //   dislikesCount: post.extendedLikesInfo.dislikesCount,
+    //   myStatus,
 
-      newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
-        addedAt: like.addedAt,
-        userId: like.userId.toString(),
-        login: like.login,
-      })),
-    };
+    //   newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
+    //     addedAt: like.addedAt,
+    //     userId: like.userId.toString(),
+    //     login: like.login,
+    //   })),
+    // };
 
     return dto;
   }

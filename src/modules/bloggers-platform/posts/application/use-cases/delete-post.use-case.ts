@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { PostsRepository } from '../../infrastructure/mongo/repositories/posts.repository';
 
 export class DeletePostByIdCommand {
   constructor(public id: string) {}

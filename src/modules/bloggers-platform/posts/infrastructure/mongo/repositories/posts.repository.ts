@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
+import { LikeStatus } from 'src/core/enums/like-status.enum';
+import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
 import {
   Post,
   PostDocument,
   PostModel,
-} from '../../domain/entities/post.entity';
-import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
-import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
+} from '../../../domain/entities/post.entity';
+import { CreatePostDomainDto } from '../../../domain/dto/create-post.domain-dto';
 
 @Injectable()
 export class PostsRepository {
