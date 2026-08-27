@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { BlogLean } from '../../../domain/entities/blog.entity';
 import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
+import { BlogOrmEntity } from '../../../infrastructure/sql/schemas/blog-orm.entity';
 
 export class BlogViewModel {
   @ApiProperty()
@@ -33,13 +34,14 @@ export class BlogViewModel {
   currentUserSubscriptionStatus!: SubscriptionStatus; // extra field over the basic API logic
 
   static mapToViewModel(
-    blog: BlogLean,
+    blog: BlogOrmEntity | BlogLean,
     subscribersCount: number,
     currentUserSubscriptionStatus: SubscriptionStatus,
   ): BlogViewModel {
     const dto = new BlogViewModel();
 
-    dto.id = blog._id.toString();
+    dto.id =
+      'id' in blog ? blog.id : (blog._id as unknown as string).toString(); // ! проверка пока у нас union types (blog: BlogOrmEntity | BlogLean)
     dto.name = blog.name;
     dto.description = blog.description;
     dto.websiteUrl = blog.websiteUrl;
@@ -52,5 +54,3 @@ export class BlogViewModel {
     return dto;
   }
 }
-
-// ? subscribersCount / currentUserSubscriptionStatus - это не свойства блога. Это вычисляемые данные которые зависят от другой коллекции (blog-subscriptions) и от конкретного пользователя который делает запрос. В БД их нет, они рассчитываются на лету в aggregation pipeline. Простое правило: если поле хранится в БД → оно в Entity. Если поле вычисляется для ответа клиенту → только в ViewModel.

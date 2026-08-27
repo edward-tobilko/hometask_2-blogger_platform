@@ -6,8 +6,8 @@ import {
   BlogSubscription,
   BlogSubscriptionDocument,
   BlogSubscriptionModel,
-} from '../../domain/entities/blog-subscription.entity';
-import { CreateBlogSubscriptionDomainDto } from '../../domain/dto/create-blog-subscription.domain-dto';
+} from '../../../domain/entities/blog-subscription.entity';
+import { CreateBlogSubscriptionDomainDto } from '../../../domain/dto/create-blog-subscription.domain-dto';
 
 @Injectable()
 export class BlogSubscriptionsRepository {

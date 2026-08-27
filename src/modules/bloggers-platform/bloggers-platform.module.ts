@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
 import { Post, PostSchema } from './posts/domain/entities/post.entity';
@@ -7,19 +8,17 @@ import {
   Comment,
   CommentSchema,
 } from './comments/domain/entities/comment.entity';
-import { BlogsController } from './blogs/api/controllers/blogs.controller';
+import { SaBlogsController } from './blogs/api/controllers/sa-blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentsController } from './comments/api/controllers/comment.controller';
-import { BlogsRepository } from './blogs/infrastructure/repositories/blogs.repository';
-import { BlogsQueryRepository } from './blogs/infrastructure/repositories/blogs.query-repository';
+import { BlogsRepository } from './blogs/infrastructure/mongo/repositories/blogs.repository';
+// import { BlogsQueryRepository } from './blogs/infrastructure/mongo/repositories/blogs.query-repository';
 import { PostsService } from './posts/application/services/posts.service';
-import { PostsRepository } from './posts/infrastructure/repositories/posts.repository';
-import { PostsQueryRepository } from './posts/infrastructure/repositories/posts-query.repository';
 import { GetCommentByIdQuery } from './comments/application/queries/comments-query.services';
 import { CommentsQueryRepository } from './comments/infrastructure/repositories/comments-query.repository';
 import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query';
 import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
-import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
+// import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
 import { CreateCommentUseCase } from './posts/application/use-cases/create-comment.use-case';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 import { CommentsRepository } from './comments/infrastructure/repositories/comments.repo';
@@ -35,32 +34,41 @@ import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use
 import { UpdateCommentByIdUseCase } from './comments/application/use-cases/update-comment.use-case';
 import { DeleteCommentByIdUseCase } from './comments/application/use-cases/delete-comment.use-case';
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.use-case';
-import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
+// import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog.query';
 import {
   BlogSubscription,
   BlogSubscriptionSchema,
 } from './blogs/domain/entities/blog-subscription.entity';
-import { BlogSubscriptionsRepository } from './blogs/infrastructure/repositories/blog-subscriptions.repository';
+import { BlogSubscriptionsRepository } from './blogs/infrastructure/mongo/repositories/blog-subscriptions.repository';
 import { SubscribeToBlogUseCase } from './blogs/application/use-cases/subscribe-to-blog.use-case';
 import { UnsubscribeFromBlogUseCase } from './blogs/application/use-cases/unsubscribe-from-blog.use-case';
-import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
+// import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
 import { PostCreatedEventHandler } from './posts/application/event-handlers/post-created.event-handler';
-import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
+// import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
 import { CommentsExternalRepository } from './comments/infrastructure/external-repositories/comments-external.repository';
+import { BlogOrmEntity } from './blogs/infrastructure/sql/schemas/blog-orm.entity';
+import { BlogsSqlRepository } from './blogs/infrastructure/sql/repositories/blogs-sql.repository';
+import { BlogsQuerySqlRepository } from './blogs/infrastructure/sql/repositories/blogs-query-sql.repository';
+import { BlogsController } from './blogs/api/controllers/blogs.controller';
+import { PostsRepository } from './posts/infrastructure/mongo/repositories/posts.repository';
+// import { PostsQueryRepository } from './posts/infrastructure/mongo/repositories/posts-query.repository';
+import { PostOrmEntity } from './posts/infrastructure/sql/schemas/post-orm.entity';
+import { PostsQuerySqlRepository } from './posts/infrastructure/sql/repositories/posts-query-sql.repository';
+import { PostsSqlRepository } from './posts/infrastructure/sql/repositories/posts-sql.repository';
 
 const queryHandlers = [
   // * Blogs contract
   GetBlogsListQueryHandler,
   GetPostsForBlogQueryHandler,
   GetBlogByIdQueryHandler,
-  GetPostsCountForBlogHandler,
-  GetBlogSubscribersCountHandler,
+  // GetPostsCountForBlogHandler,
+  // GetBlogSubscribersCountHandler,
 
   // * Posts contract
   GetPostByIdQueryHandler,
   GetPostsListQueryHandler,
-  GetCommentByPostIdQueryHandler,
+  // GetCommentByPostIdQueryHandler,
 
   // * Comments contract
   GetCommentByIdQuery,
@@ -79,7 +87,7 @@ const commandHandlers = [
   UpdatePostByIdUseCase,
   DeletePostByIdUseCase,
   CreateCommentUseCase,
-  UpdatePostLikeStatusUseCase,
+  // UpdatePostLikeStatusUseCase,
 
   // * Comments contract
   UpdateCommentByIdUseCase,
@@ -98,23 +106,38 @@ const eventHandlers = [PostCreatedEventHandler];
       { name: Comment.name, schema: CommentSchema },
     ]),
 
+    TypeOrmModule.forFeature([BlogOrmEntity, PostOrmEntity]),
+
     forwardRef(() => UserAccountsModule), // для решения проблеммы с circular dependency
   ],
 
-  controllers: [BlogsController, PostsController, CommentsController],
+  controllers: [
+    SaBlogsController,
+    BlogsController,
+    PostsController,
+    CommentsController,
+  ],
   providers: [
     ...queryHandlers,
     ...commandHandlers,
     ...eventHandlers,
 
     BlogsRepository,
-    BlogsQueryRepository,
+    BlogsSqlRepository,
+
+    // BlogsQueryRepository,
+    BlogsQuerySqlRepository,
+
     BlogsExternalQueryRepository,
     BlogSubscriptionsRepository,
 
     PostsService,
+
     PostsRepository,
-    PostsQueryRepository,
+    PostsSqlRepository,
+
+    // PostsQueryRepository,
+    PostsQuerySqlRepository,
 
     CommentsQueryRepository,
     CommentsRepository,

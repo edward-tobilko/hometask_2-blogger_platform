@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { UpdateBlogDto } from '../../api/dto/input-dto/update-blog.input-dto';
-import { BlogsRepository } from '../../infrastructure/repositories/blogs.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { BlogsSqlRepository } from '../../infrastructure/sql/repositories/blogs-sql.repository';
 
 export class UpdateBlogCommand {
   constructor(
@@ -17,7 +17,7 @@ export class UpdateBlogUseCase implements ICommandHandler<
   UpdateBlogCommand,
   void
 > {
-  constructor(private blogsRepo: BlogsRepository) {}
+  constructor(private blogsRepo: BlogsSqlRepository) {}
 
   async execute({ id, dto }: UpdateBlogCommand): Promise<void> {
     // * проверяем и достаем инстанс блога по id с его методами
@@ -30,7 +30,9 @@ export class UpdateBlogUseCase implements ICommandHandler<
       });
 
     // * обновляем поля в памяти доменной сущности
-    blogInstance.update(dto);
+    blogInstance.name = dto.name;
+    blogInstance.description = dto.description;
+    blogInstance.websiteUrl = dto.websiteUrl;
 
     // * сохраняем уже обновленный документ
     await this.blogsRepo.save(blogInstance);

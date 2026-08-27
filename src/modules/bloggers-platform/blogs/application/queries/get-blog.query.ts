@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { BlogsQueryRepository } from '../../infrastructure/repositories/blogs.query-repository';
 import { BlogViewModel } from '../../api/dto/view-dto/blog.view-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { BlogsQuerySqlRepository } from '../../infrastructure/sql/repositories/blogs-query-sql.repository';
 
 export class GetBlogByIdQuery {
   constructor(
@@ -17,17 +17,17 @@ export class GetBlogByIdQueryHandler implements IQueryHandler<
   GetBlogByIdQuery,
   BlogViewModel
 > {
-  constructor(private readonly blogsQueryRepo: BlogsQueryRepository) {}
+  constructor(private readonly blogsQueryRepo: BlogsQuerySqlRepository) {}
 
   async execute({ id, userId }: GetBlogByIdQuery): Promise<BlogViewModel> {
-    const blogDoc = await this.blogsQueryRepo.findBlogById(id, userId);
+    const blog = await this.blogsQueryRepo.findById(id, userId);
 
-    if (!blogDoc)
+    if (!blog)
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `This blog with ID:${id} was not found`,
       });
 
-    return blogDoc;
+    return blog;
   }
 }

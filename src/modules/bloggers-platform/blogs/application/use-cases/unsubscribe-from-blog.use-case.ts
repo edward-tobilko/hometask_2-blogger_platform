@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { BlogSubscriptionsRepository } from '../../infrastructure/repositories/blog-subscriptions.repository';
+import { BlogSubscriptionsRepository } from '../../infrastructure/mongo/repositories/blog-subscriptions.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { BlogsRepository } from '../../infrastructure/repositories/blogs.repository';
+import { BlogsRepository } from '../../infrastructure/mongo/repositories/blogs.repository';
 
 export class UnsubscribeFromBlogCommand {
   constructor(

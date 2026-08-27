@@ -1,73 +1,32 @@
-import { SubscriptionStatus } from './../../../../../core/enums/subscription-status.enum';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
-import { CreateBlogDto } from '../dto/input-dto/create-blog.input-dto';
 import { BlogViewModel } from '../dto/view-dto/blog.view-dto';
-import { CreatePostForBlogDto } from '../dto/input-dto/create-post-for-blog.input-dto';
-import {
-  BlogIdForPostsParamDto,
-  BlogIdParamDto,
-} from '../dto/input-dto/blog-params.input-dto';
-import { UpdateBlogDto } from '../dto/input-dto/update-blog.input-dto';
-import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
+import { BlogIdForPostsParamDto } from '../dto/input-dto/blog-params.input-dto';
 import { BlogsQueryDto } from '../dto/input-dto/blogs-query.input-dto';
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
-import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
 import { GetBlogsListQuery } from '../../application/queries/get-blogs-list.query';
 import { GetBlogByIdQuery } from '../../application/queries/get-blog.query';
 import { GetPostsForBlogQuery } from '../../application/queries/get-posts-for-blog.query';
-import { CreateBlogCommand } from '../../application/use-cases/create-blog.use-case';
-import { UpdateBlogCommand } from '../../application/use-cases/update-blog.use-case';
-import { DeleteBlogCommand } from '../../application/use-cases/delete-blog.use-case';
-import { CreatePostCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/create-post.use-case';
 import { ApiGetBlogsSwagger } from '../decorators/swagger/get-blogs-list-swagger.decorator';
-import { ApiCreateBlogSwagger } from '../decorators/swagger/create-blog-swagger.decorator';
 import { ApiGetPostsForBlogSwagger } from '../decorators/swagger/get-posts-for-blog-swagger.decorator';
-import { CreatePostForBlogSwagger } from '../decorators/swagger/create-post-for-blog-swagger.decorator';
 import { ApiGetBlogByIdSwagger } from '../decorators/swagger/get-blog-swagger.decorator';
-import { ApiUpdateBlogSwagger } from '../decorators/swagger/update-blog-swagger.decorator';
-import { ApiDeleteBlogSwagger } from '../decorators/swagger/delete-blog-swagger.decorator';
-import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
-import {
-  CurrentUserFromRequest,
-  CurrentUserOptionalFromRequest,
-} from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
-import { GetPostsCountForBlogQuery } from '../../application/queries/get-posts-count-for-blog.query';
-import { BlogPostsCountViewModel } from '../dto/view-dto/blog-posts-count.view-dto';
-import { SubscribeToBlogCommand } from '../../application/use-cases/subscribe-to-blog.use-case';
-import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
-import { UnsubscribeFromBlogCommand } from '../../application/use-cases/unsubscribe-from-blog.use-case';
-import { GetBlogSubscribersCountQuery } from '../../application/queries/get-blog-subscribers-count.query';
+import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
+import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 
 @ApiTags('Blogs')
 @SkipThrottle()
 @Controller(API_ROUTES.blogs)
 export class BlogsController {
-  constructor(
-    private queryBus: QueryBus,
-    private commandBus: CommandBus,
-  ) {}
+  constructor(private queryBus: QueryBus) {}
 
   @ApiGetBlogsSwagger('Returns blogs with paging')
   @Get()
-  @UseGuards(JwtOptionalAuthGuard)
   async getBlogsList(
     @Query() query: BlogsQueryDto,
     @CurrentUserOptionalFromRequest() user: { id: string } | null,
@@ -75,125 +34,24 @@ export class BlogsController {
     return this.queryBus.execute(new GetBlogsListQuery(query, user?.id));
   }
 
-  @ApiCreateBlogSwagger('Create new blog')
-  @Post()
-  @UseGuards(BasicAuthGuard)
-  async createBlog(
-    @Body()
-    createBlogDto: CreateBlogDto,
-  ): Promise<BlogViewModel> {
-    const command = new CreateBlogCommand(createBlogDto);
-    const createdBlogDoc = await this.commandBus.execute(command);
-
-    return BlogViewModel.mapToViewModel(
-      createdBlogDoc,
-      0,
-      SubscriptionStatus.None,
-    );
-  }
-
   @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
   @Get(':blogId/posts')
-  @UseGuards(JwtOptionalAuthGuard)
   async getPostsListForBlog(
     @Param() params: BlogIdForPostsParamDto,
-    @Query() query: PostsQueryDto,
+    @Query() queryDto: PostsQueryDto,
     @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<PostsPaginatedViewModel> {
-    return this.queryBus.execute(
-      new GetPostsForBlogQuery(params.blogId, query, user?.id),
-    );
-  }
+    const query = new GetPostsForBlogQuery(params.blogId, queryDto, user?.id);
 
-  @CreatePostForBlogSwagger('Create new post for specific blog')
-  @Post(':blogId/posts')
-  @UseGuards(BasicAuthGuard)
-  async createPostForBlog(
-    @Param() params: BlogIdForPostsParamDto,
-    @Body()
-    dto: CreatePostForBlogDto,
-  ): Promise<PostViewModel> {
-    const command = new CreatePostCommand({ ...dto, blogId: params.blogId }); // делегируем создания поста с энд-поинта "posts"
-    const post = await this.commandBus.execute(command);
-    const postOutput = PostViewModel.mapToViewModel(post);
-
-    return postOutput;
+    return this.queryBus.execute(query);
   }
 
   @ApiGetBlogByIdSwagger('Returns blog by id')
   @Get(':id') // = /blogs:id
-  @UseGuards(JwtOptionalAuthGuard)
   async getBlog(
-    @Param() params: BlogIdParamDto,
+    @Param('id', UuidValidationPipe) id: string,
     @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<BlogViewModel> {
-    return await this.queryBus.execute(
-      new GetBlogByIdQuery(params.id, user?.id),
-    );
-  }
-
-  @ApiUpdateBlogSwagger('Update existing blog by id with input model')
-  @Put(':id')
-  @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
-  async updateBlog(
-    @Param() params: BlogIdParamDto,
-    @Body()
-    updateBlogDto: UpdateBlogDto,
-  ): Promise<void> {
-    await this.commandBus.execute(
-      new UpdateBlogCommand(params.id, updateBlogDto),
-    );
-  }
-
-  @ApiDeleteBlogSwagger('Delete blog specified by id')
-  @Delete(':id')
-  @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
-  async deleteBlog(@Param() params: BlogIdParamDto): Promise<void> {
-    await this.commandBus.execute(new DeleteBlogCommand(params.id));
-  }
-
-  // * Extra end-points
-  @Get(':blogId/posts/count')
-  async getPostsCountForBlog(
-    @Param() params: BlogIdForPostsParamDto,
-  ): Promise<BlogPostsCountViewModel> {
-    return this.queryBus.execute(new GetPostsCountForBlogQuery(params.blogId));
-  }
-
-  @Post(':blogId/subscribe')
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
-  async subscribe(
-    @Param() params: BlogIdForPostsParamDto,
-    @CurrentUserFromRequest() user: { id: string },
-  ) {
-    const command = new SubscribeToBlogCommand(user.id, params.blogId);
-
-    await this.commandBus.execute(command);
-  }
-
-  @Delete(':blogId/subscribe')
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
-  async unsubscribe(
-    @Param() params: BlogIdForPostsParamDto,
-    @CurrentUserFromRequest() user: { id: string },
-  ): Promise<void> {
-    await this.commandBus.execute(
-      new UnsubscribeFromBlogCommand(params.blogId, user.id),
-    );
-  }
-
-  @Get(':blogId/subscribers/count')
-  async getSubscribersCount(
-    @Param() params: BlogIdForPostsParamDto,
-  ): Promise<{ subscribersCount: number }> {
-    const count = await this.queryBus.execute(
-      new GetBlogSubscribersCountQuery(params.blogId),
-    );
-
-    return count;
+    return await this.queryBus.execute(new GetBlogByIdQuery(id, user?.id));
   }
 }

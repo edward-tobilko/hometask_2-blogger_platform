@@ -6,7 +6,7 @@ import {
   BlogDocument,
   Blog,
 } from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
-import { CreateBlogDomainDto } from '../../domain/dto/create-blog.domain-dto';
+import { CreateBlogDomainDto } from '../../../domain/dto/create-blog.domain-dto';
 
 @Injectable()
 export class BlogsRepository {

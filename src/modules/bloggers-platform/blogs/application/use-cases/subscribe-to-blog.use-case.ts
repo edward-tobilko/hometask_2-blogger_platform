@@ -1,8 +1,8 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { BlogSubscriptionDocument } from '../../domain/entities/blog-subscription.entity';
-import { BlogSubscriptionsRepository } from '../../infrastructure/repositories/blog-subscriptions.repository';
-import { BlogsRepository } from '../../infrastructure/repositories/blogs.repository';
+import { BlogSubscriptionsRepository } from '../../infrastructure/mongo/repositories/blog-subscriptions.repository';
+import { BlogsRepository } from '../../infrastructure/mongo/repositories/blogs.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 

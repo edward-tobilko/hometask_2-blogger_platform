@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { BlogsQueryDto } from '../../api/dto/input-dto/blogs-query.input-dto';
 import { BlogListPaginatedViewModel } from '../../api/dto/view-dto/blogs-paginated.view-dto';
-import { BlogsQueryRepository } from '../../infrastructure/repositories/blogs.query-repository';
+import { BlogsQuerySqlRepository } from '../../infrastructure/sql/repositories/blogs-query-sql.repository';
 
 export class GetBlogsListQuery {
   constructor(
@@ -16,7 +16,7 @@ export class GetBlogsListQueryHandler implements IQueryHandler<
   GetBlogsListQuery,
   BlogListPaginatedViewModel
 > {
-  constructor(private readonly blogsQueryRepo: BlogsQueryRepository) {}
+  constructor(private readonly blogsQueryRepo: BlogsQuerySqlRepository) {}
 
   execute({
     queryParam,
