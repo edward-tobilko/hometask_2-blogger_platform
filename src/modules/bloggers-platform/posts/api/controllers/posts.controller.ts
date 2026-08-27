@@ -39,7 +39,6 @@ import { UpdatePostByIdCommand } from '../../application/use-cases/update-post.u
 import { DeletePostByIdCommand } from '../../application/use-cases/delete-post.use-case';
 // import { UpdatePostLikeStatusCommand } from '../../application/use-cases/update-post-like-status.use-case';
 // import { LikeStatusDto } from 'src/core/dto/like-status.dto';
-import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { ApiGetPostsSwagger } from '../decorators/swagger/get-posts-swagger.decorator';
 import { ApiGetPostByIdSwagger } from '../decorators/swagger/get-post-swagger.decorator';
 import { ApiCreatePostSwagger } from '../decorators/swagger/create-post-swagger.decorator';
@@ -49,6 +48,7 @@ import { ApiDeletePostSwagger } from '../decorators/swagger/delete-post-swagger.
 import { ApiCreateCommentFroPostSwagger } from '../decorators/swagger/create-comment-for-post-swagger.decorator';
 // import { ApiUpdateLikeStatusForPostSwagger } from '../decorators/swagger/update-like-status-for-post-swagger.decorator';
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
+import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 
 @ApiTags('Posts')
 @SkipThrottle()
@@ -112,7 +112,6 @@ export class PostsController {
 
   @ApiGetPostsSwagger('Returns all posts')
   @Get()
-  @UseGuards(JwtOptionalAuthGuard)
   getPostsList(
     @Query() queryParams: PostsQueryDto,
     @CurrentUserOptionalFromRequest() currentUser: { id: string } | null,
@@ -137,14 +136,11 @@ export class PostsController {
 
   @ApiGetPostByIdSwagger('Return post by id')
   @Get(':id')
-  @UseGuards(JwtOptionalAuthGuard)
   getPostById(
-    @Param() params: IdParamDto,
+    @Param('id', UuidValidationPipe) id: string,
     @CurrentUserOptionalFromRequest() currentUser: { id: string } | null,
   ): Promise<PostViewModel | null> {
-    return this.queryBus.execute(
-      new GetPostByIdQuery(params.id, currentUser?.id),
-    );
+    return this.queryBus.execute(new GetPostByIdQuery(id, currentUser?.id));
   }
 
   @ApiUpdatePostSwagger('Update existing post by id with input model')

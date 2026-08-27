@@ -98,11 +98,11 @@ export class SaBlogsController {
   @CreatePostForBlogSwagger('Create new post for specific blog')
   @Post(':blogId/posts')
   async createPostForBlog(
-    @Param() params: BlogIdForPostsParamDto,
+    @Param('blogId', UuidValidationPipe) blogId: string,
     @Body()
     dto: CreatePostForBlogDto,
   ): Promise<PostViewModel> {
-    const command = new CreatePostCommand({ ...dto, blogId: params.blogId }); // делегируем создания поста с энд-поинта "posts"
+    const command = new CreatePostCommand({ ...dto, blogId }); // делегируем создания поста с энд-поинта "posts"
     const post = await this.commandBus.execute(command);
     const postOutput = PostViewModel.mapToViewModel(post);
 

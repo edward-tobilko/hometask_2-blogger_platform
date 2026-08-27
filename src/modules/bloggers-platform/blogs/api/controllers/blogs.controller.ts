@@ -5,7 +5,6 @@ import { SkipThrottle } from '@nestjs/throttler';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { BlogViewModel } from '../dto/view-dto/blog.view-dto';
-import { BlogIdForPostsParamDto } from '../dto/input-dto/blog-params.input-dto';
 import { BlogsQueryDto } from '../dto/input-dto/blogs-query.input-dto';
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
@@ -37,11 +36,11 @@ export class BlogsController {
   @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
   @Get(':blogId/posts')
   async getPostsListForBlog(
-    @Param() params: BlogIdForPostsParamDto,
+    @Param('blogId', UuidValidationPipe) blogId: string,
     @Query() queryDto: PostsQueryDto,
     @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<PostsPaginatedViewModel> {
-    const query = new GetPostsForBlogQuery(params.blogId, queryDto, user?.id);
+    const query = new GetPostsForBlogQuery(blogId, queryDto, user?.id);
 
     return this.queryBus.execute(query);
   }

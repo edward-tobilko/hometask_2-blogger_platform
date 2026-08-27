@@ -96,11 +96,8 @@ export class BlogsQuerySqlRepository {
   ): Promise<PostsPaginatedViewModel> {
     const { pageNumber, pageSize } = queryParam;
 
-    // * фильтруем (получаем) все посты этого блога
-    const where: any[] = [{ id: blogId }];
-
     const [items, totalCount] = await this.postsQueryRepo.findAndCount({
-      where,
+      where: { blogId }, // фильтруем (получаем) все посты этого блога
       order: queryParam.calculateSort(),
       skip: queryParam.calculateSkip(),
       take: pageSize,
