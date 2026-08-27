@@ -1,21 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
-import {
-  Blog,
-  BlogLean,
-  BlogModelType,
-} from '../../domain/entities/blog.entity';
+import { BlogOrmEntity } from '../sql/schemas/blog-orm.entity';
 
 @Injectable()
 export class BlogsExternalQueryRepository {
-  constructor(@InjectModel(Blog.name) private blogModel: BlogModelType) {}
+  constructor(
+    @InjectRepository(BlogOrmEntity)
+    private readonly blogsRepo: Repository<BlogOrmEntity>,
+  ) {}
 
-  async findById(blogId: string): Promise<BlogLean | null> {
-    return this.blogModel
-      .findById(blogId)
-      .select('name') // что бы не гнать поиск в базе по всему обьекту, выбираем только по значению "name" (faster)
-      .lean<BlogLean>()
-      .exec();
+  async findById(blogId: string): Promise<BlogOrmEntity | null> {
+    return this.blogsRepo.findOne({ where: { id: blogId } });
   }
 }
