@@ -45,7 +45,7 @@ import { SubscribeToBlogUseCase } from './blogs/application/use-cases/subscribe-
 import { UnsubscribeFromBlogUseCase } from './blogs/application/use-cases/unsubscribe-from-blog.use-case';
 // import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
 import { PostCreatedEventHandler } from './posts/application/event-handlers/post-created.event-handler';
-// import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
+import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
 import { CommentsExternalRepository } from './comments/infrastructure/external-repositories/comments-external.repository';
 import { BlogOrmEntity } from './blogs/infrastructure/sql/schemas/blog-orm.entity';
 import { BlogsSqlRepository } from './blogs/infrastructure/sql/repositories/blogs-sql.repository';
@@ -62,7 +62,7 @@ const queryHandlers = [
   GetBlogsListQueryHandler,
   GetPostsForBlogQueryHandler,
   GetBlogByIdQueryHandler,
-  // GetPostsCountForBlogHandler,
+  GetPostsCountForBlogHandler,
   // GetBlogSubscribersCountHandler,
 
   // * Posts contract

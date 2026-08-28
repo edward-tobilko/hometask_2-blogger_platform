@@ -122,8 +122,8 @@ export class BlogsQuerySqlRepository {
     });
   }
 
-  async countPostsForBlog(blogId: string): Promise<[PostOrmEntity[], number]> {
-    return this.postsQueryRepo.findAndCount({
+  async countPostsForBlog(blogId: string): Promise<number> {
+    return this.postsQueryRepo.count({
       where: { blogId },
     });
   }

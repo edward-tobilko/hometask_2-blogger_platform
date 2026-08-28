@@ -17,6 +17,8 @@ import { ApiGetPostsForBlogSwagger } from '../decorators/swagger/get-posts-for-b
 import { ApiGetBlogByIdSwagger } from '../decorators/swagger/get-blog-swagger.decorator';
 import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
+import { BlogPostsCountViewModel } from '../dto/view-dto/blog-posts-count.view-dto';
+import { GetPostsCountForBlogQuery } from '../../application/queries/get-posts-count-for-blog.query';
 
 @ApiTags('Blogs')
 @SkipThrottle()
@@ -53,4 +55,56 @@ export class BlogsController {
   ): Promise<BlogViewModel> {
     return await this.queryBus.execute(new GetBlogByIdQuery(id, user?.id));
   }
+
+  // * EXTRA END-POINTS
+
+  // * Fetch posts count of blog
+  @Get(':blogId/posts/count')
+  async getPostsCountForBlog(
+    @Param('blogId', UuidValidationPipe) blogId: string,
+  ): Promise<BlogPostsCountViewModel> {
+    const count = await this.queryBus.execute(
+      new GetPostsCountForBlogQuery(blogId),
+    );
+
+    return BlogPostsCountViewModel.mapToViewModel(count);
+  }
+
+  // * Create subscription
+  // @Post(':blogId/subscribe')
+  // @UseGuards(JwtAuthGuard)
+  // @HttpCode(204)
+  // async subscribe(
+  //   @Param() params: BlogIdForPostsParamDto,
+  //   @CurrentUserFromRequest() user: { id: string },
+  // ) {
+  //   const command = new SubscribeToBlogCommand(user.id, params.blogId);
+
+  //   await this.commandBus.execute(command);
+  // }
+
+  // * Remove subscription
+  // @Delete(':blogId/subscribe')
+  // @UseGuards(JwtAuthGuard)
+  // @HttpCode(204)
+  // async unsubscribe(
+  //   @Param() params: BlogIdForPostsParamDto,
+  //   @CurrentUserFromRequest() user: { id: string },
+  // ): Promise<void> {
+  //   await this.commandBus.execute(
+  //     new UnsubscribeFromBlogCommand(params.blogId, user.id),
+  //   );
+  // }
+
+  // * Fetch blog subscribers count
+  // @Get(':blogId/subscribers/count')
+  // async getSubscribersCount(
+  //   @Param() params: BlogIdForPostsParamDto,
+  // ): Promise<{ subscribersCount: number }> {
+  //   const count = await this.queryBus.execute(
+  //     new GetBlogSubscribersCountQuery(params.blogId),
+  //   );
+
+  //   return count;
+  // }
 }

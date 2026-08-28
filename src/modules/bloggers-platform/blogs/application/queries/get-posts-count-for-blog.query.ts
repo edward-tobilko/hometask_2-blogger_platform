@@ -1,35 +1,32 @@
-// import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, Query, QueryHandler } from '@nestjs/cqrs';
 
-// import { BlogsQueryRepository } from '../../infrastructure/mongo/repositories/blogs.query-repository';
-// import { DomainException } from 'src/core/exceptions/domain.exception';
-// import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-// import { BlogPostsCountViewModel } from '../../api/dto/view-dto/blog-posts-count.view-dto';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { BlogsQuerySqlRepository } from '../../infrastructure/sql/repositories/blogs-query-sql.repository';
 
-// export class GetPostsCountForBlogQuery {
-//   constructor(public blogId: string) {}
-// }
+export class GetPostsCountForBlogQuery extends Query<number> {
+  constructor(public blogId: string) {
+    super();
+  }
+}
 
-// @QueryHandler(GetPostsCountForBlogQuery)
-// export class GetPostsCountForBlogHandler implements IQueryHandler<
-//   GetPostsCountForBlogQuery,
-//   BlogPostsCountViewModel
-// > {
-//   constructor(private blogsQueryRepo: BlogsQueryRepository) {}
+@QueryHandler(GetPostsCountForBlogQuery)
+export class GetPostsCountForBlogHandler implements IQueryHandler<
+  GetPostsCountForBlogQuery,
+  number
+> {
+  constructor(private blogsQueryRepo: BlogsQuerySqlRepository) {}
 
-//   async execute({
-//     blogId,
-//   }: GetPostsCountForBlogQuery): Promise<BlogPostsCountViewModel> {
-//     const blogInstance = await this.blogsQueryRepo.findBlogById(blogId);
+  async execute({ blogId }: GetPostsCountForBlogQuery): Promise<number> {
+    const blogInstance = await this.blogsQueryRepo.findById(blogId);
 
-//     if (!blogInstance) {
-//       throw new DomainException({
-//         code: DomainExceptionCode.NotFound,
-//         message: `This blog with ID:${blogId} was not found`,
-//       });
-//     }
+    if (!blogInstance) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `This blog with ID:${blogId} was not found`,
+      });
+    }
 
-//     const count = await this.blogsQueryRepo.countPostsForBlog(blogId);
-
-//     return BlogPostsCountViewModel.mapToViewModel(count);
-//   }
-// }
+    return this.blogsQueryRepo.countPostsForBlog(blogId);
+  }
+}
