@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { UpdateBlogDto } from '../../api/dto/input-dto/update-blog.input-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { BlogsSqlRepository } from '../../infrastructure/sql/repositories/blogs-sql.repository';
+import { UpdateBlogDomainDto } from '../../domain/dto/update-blog.domain-dto';
 
 export class UpdateBlogCommand {
   constructor(
     public id: string,
-    public dto: UpdateBlogDto,
+    public dto: UpdateBlogDomainDto,
   ) {}
 }
 
