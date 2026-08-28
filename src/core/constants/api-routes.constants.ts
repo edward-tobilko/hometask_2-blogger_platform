@@ -1,11 +1,13 @@
 export const API_ROUTES = {
-  authorization: 'auth',
+  // * Super Admin
   saBlogs: 'sa/blogs',
+  users: 'sa/users',
+
+  authorization: 'auth',
   blogs: 'blogs',
   comments: 'comments',
   posts: 'posts',
   testing: 'testing',
-  users: 'sa/users',
   securityDevices: 'security/devices',
 
   integrations: 'integrations/telegram', // * extra path over the basic API logic
