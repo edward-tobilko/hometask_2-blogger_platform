@@ -122,9 +122,9 @@ export class BlogsQuerySqlRepository {
     });
   }
 
-  //   async countPostsForBlog(blogId: string): Promise<number> {
-  //     return this.postModel.countDocuments({
-  //       blogId: new Types.ObjectId(blogId),
-  //     });
-  //   }
+  async countPostsForBlog(blogId: string): Promise<[PostOrmEntity[], number]> {
+    return this.postsQueryRepo.findAndCount({
+      where: { blogId },
+    });
+  }
 }
