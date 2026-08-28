@@ -3,14 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostOrmEntity } from '../../../infrastructure/sql/schemas/post-orm.entity';
 
-// * Создаем отдельные классы во избежания вложенности аннонимных обьектов в аннонимных обьектах (это нужно если мы исп. swagger doc, так как он не умеет обрабатывать вложенные анонимные типы):
-
-// ! newestLikes: Array<{ ← анонимный объект внутри анонимного объекта
-// ! addedAt: string;
-// ! userId: string;
-// ! login: string;
-// ! }>
-
 export class NewestLikeViewModel {
   @ApiProperty()
   addedAt!: Date;
@@ -93,5 +85,3 @@ export class PostViewModel {
     return dto;
   }
 }
-
-// ? class-validator - проверяет данные на входе в API, до попадания в бизнес-логику. Так как мы исп. ValidationPipe мы можем безопасно доверять нашим свойствам: "!".
