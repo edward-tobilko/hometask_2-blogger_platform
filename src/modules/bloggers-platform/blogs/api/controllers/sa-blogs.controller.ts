@@ -38,12 +38,6 @@ import { CreatePostForBlogSwagger } from '../decorators/swagger/create-post-for-
 import { ApiUpdateBlogSwagger } from '../decorators/swagger/update-blog-swagger.decorator';
 import { ApiDeleteBlogSwagger } from '../decorators/swagger/delete-blog-swagger.decorator';
 import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
-// import { GetPostsCountForBlogQuery } from '../../application/queries/get-posts-count-for-blog.query';
-// import { BlogPostsCountViewModel } from '../dto/view-dto/blog-posts-count.view-dto';
-// import { SubscribeToBlogCommand } from '../../application/use-cases/subscribe-to-blog.use-case';
-// import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
-// import { UnsubscribeFromBlogCommand } from '../../application/use-cases/unsubscribe-from-blog.use-case';
-// import { GetBlogSubscribersCountQuery } from '../../application/queries/get-blog-subscribers-count.query';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 import { UpdatePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/update-post.use-case';
 import { ApiUpdatePostForBlogSwagger } from '../decorators/swagger/update-post-for-blog-swagger.decorator';
@@ -51,7 +45,7 @@ import { ApiDeletePostForBlogSwagger } from '../decorators/swagger/delete-post-f
 import { DeletePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/delete-post.use-case';
 import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 
-@ApiTags('Blogs')
+@ApiTags('SuperAdminBlogs')
 @SkipThrottle()
 @UseGuards(BasicAuthGuard)
 @Controller(API_ROUTES.saBlogs)
@@ -168,47 +162,4 @@ export class SaBlogsController {
   ): Promise<void> {
     return this.commandBus.execute(new DeletePostByIdCommand(postId, blogId));
   }
-
-  // * Extra end-points
-  // @Get(':blogId/posts/count')
-  // async getPostsCountForBlog(
-  //   @Param() params: BlogIdForPostsParamDto,
-  // ): Promise<BlogPostsCountViewModel> {
-  //   return this.queryBus.execute(new GetPostsCountForBlogQuery(params.blogId));
-  // }
-
-  // @Post(':blogId/subscribe')
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(204)
-  // async subscribe(
-  //   @Param() params: BlogIdForPostsParamDto,
-  //   @CurrentUserFromRequest() user: { id: string },
-  // ) {
-  //   const command = new SubscribeToBlogCommand(user.id, params.blogId);
-
-  //   await this.commandBus.execute(command);
-  // }
-
-  // @Delete(':blogId/subscribe')
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(204)
-  // async unsubscribe(
-  //   @Param() params: BlogIdForPostsParamDto,
-  //   @CurrentUserFromRequest() user: { id: string },
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new UnsubscribeFromBlogCommand(params.blogId, user.id),
-  //   );
-  // }
-
-  // @Get(':blogId/subscribers/count')
-  // async getSubscribersCount(
-  //   @Param() params: BlogIdForPostsParamDto,
-  // ): Promise<{ subscribersCount: number }> {
-  //   const count = await this.queryBus.execute(
-  //     new GetBlogSubscribersCountQuery(params.blogId),
-  //   );
-
-  //   return count;
-  // }
 }
