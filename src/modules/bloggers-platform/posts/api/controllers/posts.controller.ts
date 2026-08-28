@@ -126,12 +126,9 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
     const command = new CreatePostCommand(dto);
-
     const postDoc = await this.commandBus.execute(command);
 
-    const postOutput = PostViewModel.mapToViewModel(postDoc);
-
-    return postOutput;
+    return PostViewModel.mapToViewModel(postDoc);
   }
 
   @ApiGetPostByIdSwagger('Return post by id')
@@ -152,7 +149,7 @@ export class PostsController {
     @Body() dto: UpdatePostDto,
   ): Promise<void> {
     return this.commandBus.execute<UpdatePostByIdCommand>(
-      new UpdatePostByIdCommand(params.id, dto),
+      new UpdatePostByIdCommand(dto.blogId, params.id, dto),
     );
   }
 
