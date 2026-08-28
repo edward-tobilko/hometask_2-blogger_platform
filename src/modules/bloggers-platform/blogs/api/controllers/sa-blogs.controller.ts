@@ -18,7 +18,6 @@ import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CreateBlogDto } from '../dto/input-dto/create-blog.input-dto';
 import { BlogViewModel } from '../dto/view-dto/blog.view-dto';
 import { CreatePostForBlogDto } from '../dto/input-dto/create-post-for-blog.input-dto';
-import { BlogIdForPostsParamDto } from '../dto/input-dto/blog-params.input-dto';
 import { UpdateBlogDto } from '../dto/input-dto/update-blog.input-dto';
 import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import { BlogsQueryDto } from '../dto/input-dto/blogs-query.input-dto';
@@ -46,6 +45,11 @@ import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards
 // import { UnsubscribeFromBlogCommand } from '../../application/use-cases/unsubscribe-from-blog.use-case';
 // import { GetBlogSubscribersCountQuery } from '../../application/queries/get-blog-subscribers-count.query';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
+import { UpdatePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/update-post.use-case';
+import { ApiUpdatePostForBlogSwagger } from '../decorators/swagger/update-post-for-blog-swagger.decorator';
+import { ApiDeletePostForBlogSwagger } from '../decorators/swagger/delete-post-for-blog-swagger.decorator';
+import { DeletePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/delete-post.use-case';
+import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 
 @ApiTags('Blogs')
 @SkipThrottle()
@@ -70,11 +74,22 @@ export class SaBlogsController {
   @Post()
   async createBlog(
     @Body()
-    createBlogDto: CreateBlogDto,
+    dto: CreateBlogDto,
   ): Promise<BlogViewModel> {
-    const command = new CreateBlogCommand(createBlogDto);
+    // ! Вопросс ментору: нужно ли мапить данные с dto в command для domain ???
+    const command = new CreateBlogCommand({
+      name: dto.name,
+      description: dto.description,
+      websiteUrl: dto.websiteUrl,
+    });
 
-    return this.commandBus.execute(command);
+    const blogInstance = await this.commandBus.execute(command);
+
+    return BlogViewModel.mapToViewModel(
+      blogInstance,
+      0,
+      SubscriptionStatus.None,
+    );
   }
 
   @ApiUpdateBlogSwagger('Update existing blog by id with input model')
@@ -83,9 +98,15 @@ export class SaBlogsController {
   async updateBlog(
     @Param('id', UuidValidationPipe) id: string,
     @Body()
-    updateBlogDto: UpdateBlogDto,
+    dto: UpdateBlogDto,
   ): Promise<void> {
-    await this.commandBus.execute(new UpdateBlogCommand(id, updateBlogDto));
+    await this.commandBus.execute(
+      new UpdateBlogCommand(id, {
+        name: dto.name,
+        description: dto.description,
+        websiteUrl: dto.websiteUrl,
+      }),
+    );
   }
 
   @ApiDeleteBlogSwagger('Delete blog specified by id')
@@ -112,13 +133,40 @@ export class SaBlogsController {
   @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
   @Get(':blogId/posts')
   async getPostsListForBlog(
-    @Param() params: BlogIdForPostsParamDto,
+    @Param('blogId', UuidValidationPipe) blogId: string,
     @Query() query: PostsQueryDto,
     @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<PostsPaginatedViewModel> {
     return this.queryBus.execute(
-      new GetPostsForBlogQuery(params.blogId, query, user?.id),
+      new GetPostsForBlogQuery(blogId, query, user?.id),
     );
+  }
+
+  @ApiUpdatePostForBlogSwagger('Update existing post by id with input model')
+  @Put(':blogId/posts/:postId')
+  @HttpCode(204)
+  updatePost(
+    @Param('blogId', UuidValidationPipe) blogId: string,
+    @Param('postId', UuidValidationPipe) postId: string,
+    @Body() dto: CreatePostForBlogDto,
+  ): Promise<void> {
+    return this.commandBus.execute(
+      new UpdatePostByIdCommand(blogId, postId, {
+        title: dto.title,
+        shortDescription: dto.shortDescription,
+        content: dto.content,
+      }),
+    );
+  }
+
+  @ApiDeletePostForBlogSwagger('Delete post specified by id')
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(204)
+  deletePost(
+    @Param('postId', UuidValidationPipe) postId: string,
+    @Param('blogId', UuidValidationPipe) blogId: string,
+  ): Promise<void> {
+    return this.commandBus.execute(new DeletePostByIdCommand(postId, blogId));
   }
 
   // * Extra end-points
