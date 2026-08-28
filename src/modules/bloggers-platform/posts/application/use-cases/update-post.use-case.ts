@@ -1,14 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { PostDocument } from '../../domain/entities/post.entity';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { UpdatePostDomainDto } from '../../domain/dto/update-post.domain-dto';
-import { PostsRepository } from '../../infrastructure/mongo/repositories/posts.repository';
+import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
+import { PostOrmEntity } from '../../infrastructure/sql/schemas/post-orm.entity';
 
 export class UpdatePostByIdCommand {
   constructor(
-    public id: string,
+    public blogId: string,
+    public postId: string,
     public dto: UpdatePostDomainDto,
   ) {}
 }
@@ -18,10 +19,10 @@ export class UpdatePostByIdUseCase implements ICommandHandler<
   UpdatePostByIdCommand,
   void
 > {
-  constructor(private postsRepo: PostsRepository) {}
+  constructor(private postsRepo: PostsSqlRepository) {}
 
   // * private helper methods (Extract Method)
-  private async findPostOrFail(id: string): Promise<PostDocument> {
+  private async findPostOrFail(id: string): Promise<PostOrmEntity> {
     const post = await this.postsRepo.findById(id);
 
     if (!post) {
@@ -34,19 +35,21 @@ export class UpdatePostByIdUseCase implements ICommandHandler<
     return post;
   }
 
-  async execute({ id, dto }: UpdatePostByIdCommand): Promise<void> {
+  async execute({ blogId, postId, dto }: UpdatePostByIdCommand): Promise<void> {
     // * достаем инстанс поста по id с его методами
-    const existingPost = await this.findPostOrFail(id);
+    const existingPost = await this.findPostOrFail(postId);
 
     // * Если пост привязан к блогу навсегда — тогда нужно проверять что blogId из запроса совпадает с текущим, а если пост может менять блог — проверка не нужна.
-    if (existingPost.blogId.toString() !== dto.blogId)
+    if (existingPost.blogId !== blogId)
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: 'Post does not exist in this blog!',
       });
 
     // * обновляем поля в памяти доменной сущности
-    existingPost.updatePost(dto);
+    existingPost.title = dto.title;
+    existingPost.shortDescription = dto.shortDescription;
+    existingPost.content = dto.content;
 
     // * сохраняем уже обновленный документ
     await this.postsRepo.save(existingPost);
