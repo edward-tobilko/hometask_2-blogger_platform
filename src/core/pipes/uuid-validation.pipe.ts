@@ -15,7 +15,9 @@ export class UuidValidationPipe implements PipeTransform {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: `Invalid UUID: ${value}`,
-        extensions: [new Extension(`Invalid UUID: ${value}`, 'id')], // response for client
+        extensions: [
+          new Extension(`Invalid UUID: ${value}`, metadata.data ?? 'id'),
+        ], // response for client
       });
     }
 
