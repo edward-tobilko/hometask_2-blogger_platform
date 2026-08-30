@@ -16,7 +16,7 @@ export class TestingDataController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllData(): Promise<void> {
     await this.dataSource.query(
-      `TRUNCATE TABLE user_accounts, security_devices_session RESTART IDENTITY CASCADE`,
+      `TRUNCATE TABLE public.blogs, public.posts, public.security_devices_session, public.user_accounts RESTART IDENTITY CASCADE`,
     );
   }
 }
