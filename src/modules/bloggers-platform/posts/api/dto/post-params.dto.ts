@@ -1,7 +1,7 @@
-import { IsMongoId, IsString } from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 
 export class PostIdParamDto {
   @IsString()
-  @IsMongoId()
+  @IsUUID()
   postId!: string;
 }
