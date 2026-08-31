@@ -9,7 +9,7 @@ import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/input
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 // import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
+// import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 import { BlogOrmEntity } from '../schemas/blog-orm.entity';
 import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
 
@@ -45,19 +45,19 @@ export class BlogsQuerySqlRepository {
       totalCount,
 
       items: items.map((blog) => {
-        const isSubscribed = false;
+        // const isSubscribed = false;
 
-        let status: SubscriptionStatus;
+        // let status: SubscriptionStatus;
 
-        if (!userId) {
-          status = SubscriptionStatus.None;
-        } else if (isSubscribed) {
-          status = SubscriptionStatus.Subscribed;
-        } else {
-          status = SubscriptionStatus.Unsubscribed;
-        }
+        // if (!userId) {
+        //   status = SubscriptionStatus.None;
+        // } else if (isSubscribed) {
+        //   status = SubscriptionStatus.Subscribed;
+        // } else {
+        //   status = SubscriptionStatus.Unsubscribed;
+        // }
 
-        return BlogViewModel.mapToViewModel(blog, 0, status);
+        return BlogViewModel.mapToViewModel(blog);
       }),
     });
   }
@@ -74,19 +74,19 @@ export class BlogsQuerySqlRepository {
 
     if (!blog) return null;
 
-    const isSubscribed = false;
+    // const isSubscribed = false;
 
-    let status: SubscriptionStatus;
+    // let status: SubscriptionStatus;
 
-    if (!userId) {
-      status = SubscriptionStatus.None;
-    } else if (isSubscribed) {
-      status = SubscriptionStatus.Subscribed;
-    } else {
-      status = SubscriptionStatus.Unsubscribed;
-    }
+    // if (!userId) {
+    //   status = SubscriptionStatus.None;
+    // } else if (isSubscribed) {
+    //   status = SubscriptionStatus.Subscribed;
+    // } else {
+    //   status = SubscriptionStatus.Unsubscribed;
+    // }
 
-    return BlogViewModel.mapToViewModel(blog, 0, status);
+    return BlogViewModel.mapToViewModel(blog);
   }
 
   async findPostsForBlog(

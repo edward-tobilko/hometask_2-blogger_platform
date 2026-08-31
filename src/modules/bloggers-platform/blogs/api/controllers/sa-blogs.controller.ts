@@ -43,7 +43,7 @@ import { UpdatePostByIdCommand } from 'src/modules/bloggers-platform/posts/appli
 import { ApiUpdatePostForBlogSwagger } from '../decorators/swagger/update-post-for-blog-swagger.decorator';
 import { ApiDeletePostForBlogSwagger } from '../decorators/swagger/delete-post-for-blog-swagger.decorator';
 import { DeletePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/delete-post.use-case';
-import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
+// import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 
 @ApiTags('SuperAdminBlogs')
 @SkipThrottle()
@@ -79,11 +79,7 @@ export class SaBlogsController {
 
     const blogInstance = await this.commandBus.execute(command);
 
-    return BlogViewModel.mapToViewModel(
-      blogInstance,
-      0,
-      SubscriptionStatus.None,
-    );
+    return BlogViewModel.mapToViewModel(blogInstance);
   }
 
   @ApiUpdateBlogSwagger('Update existing blog by id with input model')

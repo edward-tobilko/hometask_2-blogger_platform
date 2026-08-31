@@ -33,11 +33,25 @@ export class BlogViewModel {
   @ApiProperty()
   currentUserSubscriptionStatus!: SubscriptionStatus; // extra field over the basic API logic
 
-  static mapToViewModel(
+  static mapToViewModel(blog: BlogOrmEntity | BlogLean): BlogViewModel {
+    const dto = new BlogViewModel();
+
+    dto.id =
+      'id' in blog ? blog.id : (blog._id as unknown as string).toString(); // ! проверка пока у нас union types (blog: BlogOrmEntity | BlogLean)
+    dto.name = blog.name;
+    dto.description = blog.description;
+    dto.websiteUrl = blog.websiteUrl;
+    dto.createdAt = blog.createdAt;
+    dto.isMembership = blog.isMembership;
+
+    return dto;
+  }
+
+  static extraLogicMapToViewModel(
     blog: BlogOrmEntity | BlogLean,
     subscribersCount: number,
     currentUserSubscriptionStatus: SubscriptionStatus,
-  ): BlogViewModel {
+  ) {
     const dto = new BlogViewModel();
 
     dto.id =
