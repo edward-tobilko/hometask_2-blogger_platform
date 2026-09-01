@@ -4,8 +4,9 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { UserBannedEvent } from 'src/modules/user-accounts/domain/events/user-banned.event';
 import { UserUnBannedEvent } from 'src/modules/user-accounts/domain/events/user-unbanned.event';
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/mongo/repositories/users.repository';
 import { BanUserDomainDto } from './../../../domain/dto/ban-user.dto';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
+import { calculateExpiresAt } from 'src/core/utils/calculate-expires-at.util';
 
 export class BanUserCommand {
   constructor(public readonly dto: BanUserDomainDto) {}
@@ -14,7 +15,7 @@ export class BanUserCommand {
 @CommandHandler(BanUserCommand)
 export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
   constructor(
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
     private eventBus: EventBus,
   ) {}
 
@@ -31,9 +32,15 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
     // * Сначала persistence, потом side effects:
     // * мутации домена + сохранение в БД
     if (dto.isBanned === true) {
-      user.ban(dto.banReason, dto.banExpiresAt);
+      user.isBanned = true; // бан
+      user.banReason = dto.banReason; // причина
+      user.bannedAt = new Date(); // когда забанен (дата в текущий момент)
+      user.banExpiresAt = calculateExpiresAt(dto.banExpiresAt); // к какой дате и времени будет анбан
     } else if (dto.isBanned === false) {
-      user.unBan();
+      user.isBanned = false;
+      user.banReason = null;
+      user.bannedAt = null;
+      user.banExpiresAt = null;
     }
 
     await this.usersRepo.updateBanStatus(user); // сохранили
