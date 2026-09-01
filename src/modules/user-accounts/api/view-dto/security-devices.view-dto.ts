@@ -1,9 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import {
-  SecurityDevicesDocument,
-  SecurityDevicesLean,
-} from '../../domain/entities/security-devices.entity';
 import { SecurityDeviceOrmEntity } from '../../infrastructure/sql/schemas/security-device-orm.entity';
 
 export class SecurityDevicesViewModel {
@@ -26,20 +22,6 @@ export class SecurityDevicesViewModel {
 
   static mapToViewModel(
     this: void,
-    device: SecurityDevicesDocument | SecurityDevicesLean,
-  ): SecurityDevicesViewModel {
-    const dto = new SecurityDevicesViewModel();
-
-    dto.ip = device.ip;
-    dto.title = device.title;
-    dto.lastActiveDate = device.lastActiveDate.toISOString();
-    dto.deviceId = device.deviceId;
-
-    return dto;
-  }
-
-  static mapToViewModelForSql(
-    this: void,
     device: SecurityDeviceOrmEntity,
   ): SecurityDevicesViewModel {
     const dto = new SecurityDevicesViewModel();
@@ -53,18 +35,10 @@ export class SecurityDevicesViewModel {
   }
 
   static mapToViewModels(
-    devices: SecurityDevicesLean[],
-  ): SecurityDevicesViewModel[] {
-    return devices.map((device) =>
-      SecurityDevicesViewModel.mapToViewModel(device),
-    );
-  }
-
-  static mapToViewModelsForSql(
     devices: SecurityDeviceOrmEntity[],
   ): SecurityDevicesViewModel[] {
     return devices.map((device) =>
-      SecurityDevicesViewModel.mapToViewModelForSql(device),
+      SecurityDevicesViewModel.mapToViewModel(device),
     );
   }
 }

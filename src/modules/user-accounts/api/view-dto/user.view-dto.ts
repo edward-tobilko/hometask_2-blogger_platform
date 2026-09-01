@@ -1,7 +1,4 @@
-import {
-  UserAccountDocument,
-  UserAccountLean,
-} from 'src/modules/user-accounts/domain/entities/user.entity';
+import { UserAccountOrmEntity } from '../../infrastructure/sql/schemas/user-orm.entity';
 
 export class UserViewDto {
   id!: string;
@@ -11,14 +8,14 @@ export class UserViewDto {
 
   static mapToViewModel(
     this: void,
-    user: UserAccountDocument | UserAccountLean,
+    userInstance: UserAccountOrmEntity,
   ): UserViewDto {
     const dto = new UserViewDto();
 
-    dto.id = user._id.toString();
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.createdAt = user.createdAt;
+    dto.id = userInstance.id;
+    dto.login = userInstance.login;
+    dto.email = userInstance.email;
+    dto.createdAt = userInstance.createdAt;
 
     return dto;
   }

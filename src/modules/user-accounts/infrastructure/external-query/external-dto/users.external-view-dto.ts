@@ -1,4 +1,4 @@
-import { UserAccountDocument } from 'src/modules/user-accounts/domain/entities/user.entity';
+import { UserAccountOrmEntity } from '../../sql/schemas/user-orm.entity';
 
 export class UserExternalViewDto {
   id!: string;
@@ -6,13 +6,13 @@ export class UserExternalViewDto {
   email!: string;
   createdAt!: Date;
 
-  static mapToView(user: UserAccountDocument): UserExternalViewDto {
+  static mapToView(userInstance: UserAccountOrmEntity): UserExternalViewDto {
     const dto = new UserExternalViewDto();
 
-    dto.id = user._id.toString();
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.createdAt = user.createdAt;
+    dto.id = userInstance.id;
+    dto.login = userInstance.login;
+    dto.email = userInstance.email;
+    dto.createdAt = userInstance.createdAt;
 
     return dto;
   }
