@@ -60,4 +60,9 @@ export class SecurityDevicesSqlRepository {
   async removeById(deviceId: string): Promise<void> {
     await this.securityDevicesRepo.delete({ deviceId });
   }
+
+  // * Extra method over the API logic
+  async removeAllByUserId(userId: string): Promise<void> {
+    await this.securityDevicesRepo.delete({ userId });
+  }
 }

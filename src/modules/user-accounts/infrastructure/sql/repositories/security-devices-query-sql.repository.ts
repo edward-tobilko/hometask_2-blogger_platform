@@ -29,6 +29,6 @@ export class SecurityDevicesSqlQueryRepository {
       where: { userId },
     });
 
-    return SecurityDevicesViewModel.mapToViewModelsForSql(deviceInstance);
+    return SecurityDevicesViewModel.mapToViewModels(deviceInstance);
   }
 }

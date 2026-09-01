@@ -21,7 +21,7 @@ export class UserAccountOrmEntity {
   @Column({ name: 'password_hash' })
   passwordHash!: string;
 
-  // * EmailConfirmation (сплющенные поля)
+  // * Вложеный обьект (сплющенные поля) "emailConfirmation"
   @Column({ name: 'confirmation_code', type: 'uuid', nullable: true })
   confirmationCode!: string | null;
 
@@ -35,7 +35,7 @@ export class UserAccountOrmEntity {
   @Column({ name: 'is_confirmed', default: false })
   isConfirmed!: boolean;
 
-  // * PasswordRecovery (сплющенные поля)
+  // * Вложеный обьект (сплющенные поля) "passwordRecovery"
   @Column({ name: 'recovery_code', type: 'uuid', nullable: true })
   recoveryCode!: string | null;
 
@@ -50,4 +50,45 @@ export class UserAccountOrmEntity {
 
   @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
   deletedAt!: Date | null;
+
+  // * Extra fields over the basic API logic
+  // * Вложеный обьект (сплющенные поля) "telegramNotification"
+  @Column({ name: 'telegram_chat_id', type: 'uuid', nullable: true })
+  telegramChatId!: string | null;
+
+  @Column({
+    name: 'telegram_confirmation_code',
+    type: 'varchar',
+    default: null,
+    nullable: true,
+  })
+  telegramConfirmationCode!: string | null;
+
+  // * Вложеный обьект (сплющенные поля) "banInfo"
+  @Column({ name: 'is_banned', type: Boolean, default: false })
+  isBanned!: boolean;
+
+  @Column({
+    name: 'ban_reason',
+    type: 'varchar',
+    default: null,
+    nullable: true,
+  })
+  banReason!: string | null;
+
+  @Column({
+    name: 'banned_at',
+    type: 'timestamptz',
+    default: null,
+    nullable: true,
+  })
+  bannedAt!: Date | null;
+
+  @Column({
+    name: 'ban_expires_at',
+    type: 'timestamptz',
+    default: null,
+    nullable: true,
+  })
+  banExpiresAt!: Date | null;
 }

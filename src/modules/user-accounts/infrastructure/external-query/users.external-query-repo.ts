@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Repository } from 'typeorm';
 
-import {
-  UserAccount,
-  UserAccountModel,
-} from '../../domain/entities/user.entity';
 import { UserExternalViewDto } from './external-dto/users.external-view-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { UserAccountOrmEntity } from '../sql/schemas/user-orm.entity';
 
 @Injectable()
 export class UsersExternalQueryRepository {
   constructor(
-    @InjectModel(UserAccount.name)
-    private UserModel: UserAccountModel,
+    @InjectRepository(UserAccountOrmEntity)
+    private readonly userRepo: Repository<UserAccountOrmEntity>,
   ) {}
 
   async getByIdOrNotFoundFail(id: string): Promise<UserExternalViewDto> {
-    const userDoc = await this.UserModel.findOne({
-      _id: id,
-      deletedAt: null,
+    const userDoc = await this.userRepo.findOne({
+      where: {
+        id,
+        deletedAt: IsNull(),
+      },
     });
 
     if (!userDoc) {

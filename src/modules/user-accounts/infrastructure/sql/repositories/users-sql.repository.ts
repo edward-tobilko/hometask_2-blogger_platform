@@ -79,7 +79,6 @@ export class UsersSqlRepository {
   ): Promise<UserAccountOrmEntity> {
     // * В TypeORM мы сами собираем объект: создаём объект в памяти (без SQL) и сохраняем через this.usersRepo.save() - выполняет INSERT в базу.
     const user = this.usersRepo.create({
-      id: randomUUID(),
       login: dto.login,
       email: dto.email,
       passwordHash: dto.password,
@@ -97,7 +96,6 @@ export class UsersSqlRepository {
     expirationDate.setHours(expirationDate.getHours() + 1);
 
     const user = this.usersRepo.create({
-      id: randomUUID(),
       login: dto.login,
       email: dto.email,
       passwordHash: dto.password,
@@ -112,6 +110,22 @@ export class UsersSqlRepository {
   // * hard delete
   async delete(id: string): Promise<void> {
     await this.usersRepo.delete({ id });
+  }
+
+  // * Extra method over the basic API logic
+  async updateBanStatus(user: UserAccountOrmEntity): Promise<void> {
+    await this.usersRepo.update(
+      {
+        id: user.id,
+      },
+
+      {
+        isBanned: user.isBanned,
+        banReason: user.banReason,
+        bannedAt: user.bannedAt,
+        banExpiresAt: user.banExpiresAt,
+      },
+    );
   }
 }
 
