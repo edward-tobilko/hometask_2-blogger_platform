@@ -16,7 +16,6 @@ import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CommentViewModel } from '../dto/view-dto/comment.view-dto';
 import { GetCommentByIdQueryHandler } from '../../application/queries/comments-query.services';
 import { UpdateCommentByIdCommand } from '../../application/use-cases/update-comment.use-case';
-import { CommentIdParam } from '../dto/input-dto/comment-id.input-dto';
 import { UpdateCommentDto } from '../dto/input-dto/update-comment.input-dto';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
 import {
@@ -32,6 +31,7 @@ import { ApiUpdateCommentByIdSwagger } from '../decorators/swagger/update-commen
 import { ApiDeleteCommentSwagger } from '../decorators/swagger/delete-comment-swagger.decorator';
 import { ApiGetCommentByIdSwagger } from '../decorators/swagger/get-comment-swagger.decorator';
 import { IdParamDto } from 'src/core/dto/param.dto';
+import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 
 @ApiTags('Comments')
 @SkipThrottle()
@@ -49,14 +49,14 @@ export class CommentsController {
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   async updateCommentLikeStatus(
-    @Param() params: CommentIdParam,
+    @Param('commentId', UuidValidationPipe) commentId: string,
     @Body() dto: LikeStatusDto,
     @CurrentUserFromRequest()
     currentUser: { id: string },
   ): Promise<void> {
     return this.commandBus.execute(
       new UpdateCommentLikeStatusCommand(
-        params.commentId,
+        commentId,
         currentUser.id,
         dto.likeStatus,
       ),
@@ -68,13 +68,13 @@ export class CommentsController {
   @HttpCode(204) // success
   @UseGuards(JwtAuthGuard) // if error = 401
   async updateCommentById(
-    @Param() params: CommentIdParam,
+    @Param('commentId', UuidValidationPipe) commentId: string,
     @Body() dto: UpdateCommentDto, // if error = 400
     @CurrentUserFromRequest() // if error = 403
     currentUser: { id: string },
   ): Promise<void> {
     return this.commandBus.execute(
-      new UpdateCommentByIdCommand(params.commentId, currentUser.id, dto),
+      new UpdateCommentByIdCommand(commentId, currentUser.id, dto),
     );
   }
 
@@ -83,12 +83,12 @@ export class CommentsController {
   @HttpCode(204)
   @UseGuards(JwtAuthGuard)
   async deleteCommentById(
-    @Param() params: CommentIdParam,
+    @Param('commentId', UuidValidationPipe) commentId: string,
     @CurrentUserFromRequest()
     currentUser: { id: string },
   ): Promise<void> {
     await this.commandBus.execute(
-      new DeleteCommentByIdCommand(params.commentId, currentUser.id),
+      new DeleteCommentByIdCommand(commentId, currentUser.id),
     );
   }
 
