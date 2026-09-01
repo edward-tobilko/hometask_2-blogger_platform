@@ -4,10 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
 import { Post, PostSchema } from './posts/domain/entities/post.entity';
-import {
-  Comment,
-  CommentSchema,
-} from './comments/domain/entities/comment.entity';
 import { SaBlogsController } from './blogs/api/controllers/sa-blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentsController } from './comments/api/controllers/comment.controller';
@@ -15,13 +11,11 @@ import { BlogsRepository } from './blogs/infrastructure/mongo/repositories/blogs
 // import { BlogsQueryRepository } from './blogs/infrastructure/mongo/repositories/blogs.query-repository';
 import { PostsService } from './posts/application/services/posts.service';
 import { GetCommentByIdQuery } from './comments/application/queries/comments-query.services';
-import { CommentsQueryRepository } from './comments/infrastructure/repositories/comments-query.repository';
 import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query';
 import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
 // import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
 import { CreateCommentUseCase } from './posts/application/use-cases/create-comment.use-case';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
-import { CommentsRepository } from './comments/infrastructure/repositories/comments.repo';
 import { BlogsExternalQueryRepository } from './blogs/infrastructure/external-query/blogs.external-query-repo';
 import { CreatePostUseCase } from './posts/application/use-cases/create-post.use-case';
 import { UpdatePostByIdUseCase } from './posts/application/use-cases/update-post.use-case';
@@ -51,11 +45,12 @@ import { BlogOrmEntity } from './blogs/infrastructure/sql/schemas/blog-orm.entit
 import { BlogsSqlRepository } from './blogs/infrastructure/sql/repositories/blogs-sql.repository';
 import { BlogsQuerySqlRepository } from './blogs/infrastructure/sql/repositories/blogs-query-sql.repository';
 import { BlogsController } from './blogs/api/controllers/blogs.controller';
-import { PostsRepository } from './posts/infrastructure/mongo/repositories/posts.repository';
-// import { PostsQueryRepository } from './posts/infrastructure/mongo/repositories/posts-query.repository';
 import { PostOrmEntity } from './posts/infrastructure/sql/schemas/post-orm.entity';
 import { PostsQuerySqlRepository } from './posts/infrastructure/sql/repositories/posts-query-sql.repository';
 import { PostsSqlRepository } from './posts/infrastructure/sql/repositories/posts-sql.repository';
+import { CommentsSqlQueryRepository } from './comments/infrastructure/sql/repositories/comments-sql-query.repo';
+import { CommentsSqlRepository } from './comments/infrastructure/sql/repositories/comments-sql.repo';
+import { CommentOrmEntity } from './comments/infrastructure/sql/schemas/comment-orm.entity';
 
 const queryHandlers = [
   // * Blogs contract
@@ -103,10 +98,9 @@ const eventHandlers = [PostCreatedEventHandler];
       { name: Blog.name, schema: BlogSchema },
       { name: BlogSubscription.name, schema: BlogSubscriptionSchema },
       { name: Post.name, schema: PostSchema },
-      { name: Comment.name, schema: CommentSchema },
     ]),
 
-    TypeOrmModule.forFeature([BlogOrmEntity, PostOrmEntity]),
+    TypeOrmModule.forFeature([BlogOrmEntity, PostOrmEntity, CommentOrmEntity]),
 
     forwardRef(() => UserAccountsModule), // для решения проблеммы с circular dependency
   ],
@@ -133,14 +127,13 @@ const eventHandlers = [PostCreatedEventHandler];
 
     PostsService,
 
-    PostsRepository,
     PostsSqlRepository,
 
     // PostsQueryRepository,
     PostsQuerySqlRepository,
 
-    CommentsQueryRepository,
-    CommentsRepository,
+    CommentsSqlQueryRepository,
+    CommentsSqlRepository,
     CommentsExternalRepository,
   ],
 
