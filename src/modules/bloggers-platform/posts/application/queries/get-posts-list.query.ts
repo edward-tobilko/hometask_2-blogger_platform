@@ -22,6 +22,6 @@ export class GetPostsListQueryHandler implements IQueryHandler<
     queryParam,
     userId,
   }: GetPostsListQuery): Promise<PostsPaginatedViewModel> {
-    return this.postsQueryRepo.findAllPosts(queryParam, userId);
+    return this.postsQueryRepo.findAll(queryParam, userId);
   }
 }

@@ -19,7 +19,7 @@ export class GetPostByIdQueryHandler implements IQueryHandler<
   constructor(private readonly postsQueryRepo: PostsQuerySqlRepository) {}
 
   async execute({ id, userId }: GetPostByIdQuery): Promise<PostViewModel> {
-    const existingPost = await this.postsQueryRepo.findPostById(id, userId);
+    const existingPost = await this.postsQueryRepo.findById(id, userId);
 
     if (!existingPost)
       throw new DomainException({
