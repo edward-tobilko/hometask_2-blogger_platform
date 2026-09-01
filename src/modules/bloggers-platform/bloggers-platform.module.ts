@@ -13,7 +13,6 @@ import { PostsService } from './posts/application/services/posts.service';
 import { GetCommentByIdQuery } from './comments/application/queries/comments-query.services';
 import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query';
 import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
-// import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
 import { CreateCommentUseCase } from './posts/application/use-cases/create-comment.use-case';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 import { BlogsExternalQueryRepository } from './blogs/infrastructure/external-query/blogs.external-query-repo';
@@ -51,6 +50,7 @@ import { PostsSqlRepository } from './posts/infrastructure/sql/repositories/post
 import { CommentsSqlQueryRepository } from './comments/infrastructure/sql/repositories/comments-sql-query.repo';
 import { CommentsSqlRepository } from './comments/infrastructure/sql/repositories/comments-sql.repo';
 import { CommentOrmEntity } from './comments/infrastructure/sql/schemas/comment-orm.entity';
+import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
 
 const queryHandlers = [
   // * Blogs contract
@@ -63,7 +63,7 @@ const queryHandlers = [
   // * Posts contract
   GetPostByIdQueryHandler,
   GetPostsListQueryHandler,
-  // GetCommentByPostIdQueryHandler,
+  GetCommentByPostIdQueryHandler,
 
   // * Comments contract
   GetCommentByIdQuery,
@@ -128,8 +128,6 @@ const eventHandlers = [PostCreatedEventHandler];
     PostsService,
 
     PostsSqlRepository,
-
-    // PostsQueryRepository,
     PostsQuerySqlRepository,
 
     CommentsSqlQueryRepository,

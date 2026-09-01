@@ -18,7 +18,7 @@ import { CreatePostDto } from '../dto/input-dto/create-post.input-dto';
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { PostViewModel } from '../dto/view-dto/post.view-dto';
 import { IdParamDto } from 'src/core/dto/param.dto';
-// import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
+import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
 import { PostsPaginatedViewModel } from '../dto/view-dto/posts-paginated.view-dto';
 import { PostsQueryDto } from '../dto/input-dto/posts-query.input-dto';
 import { UpdatePostDto } from '../dto/input-dto/update-post.input-dto';
@@ -26,7 +26,6 @@ import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-aut
 import { CreateCommentInputDto } from '../dto/input-dto/create-comment.input-dto';
 import { GetPostByIdQuery } from '../../application/queries/get-post-by-id.query';
 import { GetPostsListQuery } from '../../application/queries/get-posts-list.query';
-// import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-postid.query';
 import { CreateCommentCommand } from '../../application/use-cases/create-comment.use-case';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
 import {
@@ -43,11 +42,13 @@ import { ApiGetPostByIdSwagger } from '../decorators/swagger/get-post-swagger.de
 import { ApiCreatePostSwagger } from '../decorators/swagger/create-post-swagger.decorator';
 import { ApiUpdatePostSwagger } from '../decorators/swagger/update-post-swagger.decorator';
 import { ApiDeletePostSwagger } from '../decorators/swagger/delete-post-swagger.decorator';
-// import { ApiGetCommentsForPostSwagger } from '../decorators/swagger/get-comments-for-post-swagger.decorator';
+import { ApiGetCommentsForPostSwagger } from '../decorators/swagger/get-comments-for-post-swagger.decorator';
 import { ApiCreateCommentFroPostSwagger } from '../decorators/swagger/create-comment-for-post-swagger.decorator';
 // import { ApiUpdateLikeStatusForPostSwagger } from '../decorators/swagger/update-like-status-for-post-swagger.decorator';
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
+import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
+import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-postid.query';
 
 @ApiTags('Posts')
 @SkipThrottle()
@@ -78,18 +79,18 @@ export class PostsController {
   //   );
   // }
 
-  // @ApiGetCommentsForPostSwagger('Returns comments for specified post')
-  // @Get(':postId/comments')
-  // @UseGuards(JwtOptionalAuthGuard)
-  // getCommentsForPost(
-  //   @Param() params: PostIdParamDto,
-  //   @Query() queryParams: PostsQueryDto,
-  //   @CurrentUserOptionalFromRequest() user: { id: string } | null,
-  // ): Promise<CommentsPaginatedViewModel> {
-  //   return this.queryBus.execute(
-  //     new GetCommentByPostIdQuery(params.postId, queryParams, user?.id),
-  //   );
-  // }
+  @ApiGetCommentsForPostSwagger('Returns comments for specified post')
+  @Get(':postId/comments')
+  @UseGuards(JwtOptionalAuthGuard)
+  getCommentsForPost(
+    @Param('postId', UuidValidationPipe) postId: string,
+    @Query() queryParams: PostsQueryDto,
+    @CurrentUserOptionalFromRequest() user: { id: string } | null,
+  ): Promise<CommentsPaginatedViewModel> {
+    return this.queryBus.execute(
+      new GetCommentByPostIdQuery(postId, queryParams, user?.id),
+    );
+  }
 
   @ApiCreateCommentFroPostSwagger('Create new comment')
   @Post(':postId/comments')
