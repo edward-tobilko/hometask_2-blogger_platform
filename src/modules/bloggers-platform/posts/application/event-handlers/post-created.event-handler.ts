@@ -2,14 +2,14 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { PostCreatedEvent } from '../../domain/events/post-created.event';
 import { BlogSubscriptionsRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/mongo/repositories/blog-subscriptions.repository';
-import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/mongo/repositories/users-external.repository';
 import { TelegramAdapter } from 'src/core/adapters/telegram.adapter';
+import { UsersSqlExternalRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql-external.repository';
 
 @EventsHandler(PostCreatedEvent)
 export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> {
   constructor(
     private readonly blogSubscriptionsRepo: BlogSubscriptionsRepository,
-    private readonly usersExternalRepo: UsersExternalRepository,
+    private readonly usersExternalRepo: UsersSqlExternalRepository,
     private readonly telegramAdapter: TelegramAdapter,
   ) {}
 
@@ -22,11 +22,11 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
     const users = await this.usersExternalRepo.findByIds(userSubscriberIds); // передаём весь массив ID сразу, получаем всех пользователей одним запросом.
 
     for (const user of users) {
-      if (!user?.telegramNotificationsInfo?.telegramChatId) continue;
+      if (!user.telegramChatId) continue;
 
       try {
         await this.telegramAdapter.sendMessage(
-          user.telegramNotificationsInfo.telegramChatId,
+          user.telegramChatId,
           `New post in blog "${blogName}": ${postTitle}`,
         );
       } catch (error) {

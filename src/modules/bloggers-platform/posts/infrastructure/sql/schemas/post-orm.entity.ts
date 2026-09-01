@@ -23,31 +23,19 @@ export class PostOrmEntity {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
-  //   // * Поля которые должны быть связаны (JOIN) с posts таблицей
-  //   @Column({ name: 'likes_count', type: 'int', default: 0 })
-  //   likesCount!: number;
+  // // * Поля которые должны быть связаны (JOIN) с posts таблицей
+  // @Column({ name: 'likes_count', type: 'int', default: 0 })
+  // likesCount!: number;
 
-  //   @Column({ name: 'dislikes_count', type: 'int', default: 0 })
-  //   dislikesCount!: number;
+  // @Column({ name: 'dislikes_count', type: 'int', default: 0 })
+  // dislikesCount!: number;
 
-  //   @CreateDateColumn({ name: 'added_at', type: 'timestamptz' })
-  //   addedAt!: Date;
+  // @CreateDateColumn({ name: 'added_at', type: 'timestamptz' })
+  // addedAt!: Date;
 
-  //   @Column({ type: 'uuid' })
-  //   userId!: string;
+  // @Column({ type: 'uuid' })
+  // userId!: string;
 
-  //   @Column({ type: 'varchar' })
-  //   login!: string;
-
-  //   // * поле для хранения всех реакций пользователей
-  //   @Column({
-  //     type: [{ userId: String, login: String, status: String, addedAt: Date }],
-  //     default: [],
-  //   })
-  //   userReactions!: {
-  //     userId: string;
-  //     login: string;
-  //     status: LikeStatus;
-  //     addedAt: Date;
-  //   }[];
+  // @Column({ type: 'varchar' })
+  // login!: string;
 }

@@ -22,7 +22,6 @@ import { IdParamDto } from 'src/core/dto/param.dto';
 import { PostsPaginatedViewModel } from '../dto/view-dto/posts-paginated.view-dto';
 import { PostsQueryDto } from '../dto/input-dto/posts-query.input-dto';
 import { UpdatePostDto } from '../dto/input-dto/update-post.input-dto';
-import { PostIdParamDto } from '../dto/input-dto/post-id.input-dto';
 import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
 import { CreateCommentInputDto } from '../dto/input-dto/create-comment.input-dto';
 import { GetPostByIdQuery } from '../../application/queries/get-post-by-id.query';
@@ -96,12 +95,12 @@ export class PostsController {
   @Post(':postId/comments')
   @UseGuards(JwtAuthGuard)
   async createComment(
-    @Param() params: PostIdParamDto,
+    @Param('postId', UuidValidationPipe) postId: string,
     @Body() dto: CreateCommentInputDto,
     @CurrentUserFromRequest() currentUser: { id: string },
   ) {
     const command = new CreateCommentCommand(
-      params.postId,
+      postId,
       dto.content,
       currentUser.id,
     );
