@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { CommentsRepository } from '../../infrastructure/repositories/comments.repo';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { calculateLikeDislike } from 'src/core/utils/calculate-like-dislike.util';
+import { CommentsSqlRepository } from '../../infrastructure/sql/repositories/comments-sql.repo';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -19,7 +19,7 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
   UpdateCommentLikeStatusCommand,
   void
 > {
-  constructor(private commentsRepo: CommentsRepository) {}
+  constructor(private commentsRepo: CommentsSqlRepository) {}
 
   async execute(command: UpdateCommentLikeStatusCommand): Promise<void> {
     const { commentId, userId, likeStatus } = command;

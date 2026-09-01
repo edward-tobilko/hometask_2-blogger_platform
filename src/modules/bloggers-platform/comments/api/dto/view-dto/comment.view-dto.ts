@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { CommentLean } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
+import { CommentOrmEntity } from '../../../infrastructure/sql/schemas/comment-orm.entity';
 
 class CommentatorInfo {
   userId!: string;
@@ -29,24 +30,24 @@ export class CommentViewModel {
   likesInfo?: LikesInfo;
 
   static mapToViewModel(
-    commentDocument: CommentLean,
+    commentInstance: CommentOrmEntity,
     myStatus: LikeStatus = LikeStatus.None,
   ): CommentViewModel {
     const dto = new CommentViewModel();
 
-    dto.id = commentDocument._id.toString();
-    dto.content = commentDocument.content;
+    dto.id = commentInstance.id;
+    dto.content = commentInstance.content;
 
     dto.commentatorInfo = {
-      userId: commentDocument.commentatorInfo.userId.toString(),
-      userLogin: commentDocument.commentatorInfo.userLogin,
+      userId: commentInstance.userId,
+      userLogin: commentInstance.userLogin,
     };
 
-    dto.createdAt = commentDocument.createdAt;
+    dto.createdAt = commentInstance.createdAt;
 
     dto.likesInfo = {
-      likesCount: commentDocument.likesInfo.likesCount ?? 0,
-      dislikesCount: commentDocument.likesInfo.dislikesCount ?? 0,
+      likesCount: commentInstance.likesCount ?? 0,
+      dislikesCount: commentInstance.dislikesCount ?? 0,
       myStatus, // динамический статус
     };
 

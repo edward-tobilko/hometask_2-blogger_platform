@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { CommentsRepository } from '../../infrastructure/repositories/comments.repo';
-import { CommentDocument } from '../../domain/entities/comment.entity';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { UpdateCommentDomainDto } from '../../domain/dto/update-comment.dto';
+import { CommentsSqlRepository } from '../../infrastructure/sql/repositories/comments-sql.repo';
+import { CommentOrmEntity } from '../../infrastructure/sql/schemas/comment-orm.entity';
 
 export class UpdateCommentByIdCommand {
   constructor(
@@ -19,10 +19,12 @@ export class UpdateCommentByIdUseCase implements ICommandHandler<
   UpdateCommentByIdCommand,
   void
 > {
-  constructor(private commentsRepo: CommentsRepository) {}
+  constructor(private commentsRepo: CommentsSqlRepository) {}
 
   // * private helper methods (Extract Method)
-  private async findCommentOrFail(commentId: string): Promise<CommentDocument> {
+  private async findCommentOrFail(
+    commentId: string,
+  ): Promise<CommentOrmEntity> {
     const commentInstance = await this.commentsRepo.findById(commentId);
 
     if (!commentInstance) {
@@ -40,14 +42,14 @@ export class UpdateCommentByIdUseCase implements ICommandHandler<
 
     const existingComment = await this.findCommentOrFail(commentId);
 
-    if (existingComment.commentatorInfo.userId !== userId) {
+    if (existingComment.userId !== userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: "You can't edit someone else's comment",
       });
     }
 
-    existingComment.updateComment(dto);
+    existingComment.content = dto.content;
 
     await this.commentsRepo.save(existingComment);
   }
