@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { CoreConfig } from 'src/core/core.config';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/mongo/repositories/users-external.repository';
+import { UsersSqlExternalRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql-external.repository';
 
 export class GetTelegramAuthLinkCommand {
   constructor(public userId: string) {}
@@ -16,14 +16,14 @@ export class GetTelegramAuthLinkUseCase implements ICommandHandler<
   string
 > {
   constructor(
-    private usersExternalRepo: UsersExternalRepository,
+    private usersExternalRepo: UsersSqlExternalRepository,
     private readonly coreConfig: CoreConfig,
   ) {}
 
   async execute({ userId }: GetTelegramAuthLinkCommand): Promise<string> {
-    const user = await this.usersExternalRepo.findById(userId);
+    const userInstance = await this.usersExternalRepo.findById(userId);
 
-    if (!user) {
+    if (!userInstance) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `User with id:${userId} was not found!`,
@@ -32,9 +32,9 @@ export class GetTelegramAuthLinkUseCase implements ICommandHandler<
 
     const code = randomUUID();
 
-    user.setTelegramConfirmationCode(code);
+    userInstance.telegramConfirmationCode = code;
 
-    await this.usersExternalRepo.save(user);
+    await this.usersExternalRepo.save(userInstance);
 
     const botName = this.coreConfig.telegramBotName;
     const botLink = `https://t.me/${botName}?start=${code}`;

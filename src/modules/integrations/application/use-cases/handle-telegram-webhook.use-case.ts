@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { TelegramWebhookDto } from '../../presentation/input-dto/telegram-webhook.input-dto';
-import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/mongo/repositories/users-external.repository';
+import { UsersSqlExternalRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql-external.repository';
 
 export class HandleTelegramWebhookCommand {
   constructor(public readonly dto: TelegramWebhookDto) {}
@@ -12,7 +12,7 @@ export class HandleTelegramWebhookUseCase implements ICommandHandler<
   HandleTelegramWebhookCommand,
   void
 > {
-  constructor(private usersExternalRepo: UsersExternalRepository) {}
+  constructor(private usersExternalRepo: UsersSqlExternalRepository) {}
 
   async execute({ dto }: HandleTelegramWebhookCommand): Promise<void> {
     console.log('webhook dto:', JSON.stringify(dto));
@@ -26,13 +26,14 @@ export class HandleTelegramWebhookUseCase implements ICommandHandler<
 
     if (command !== '/start' || !code) return;
 
-    const user =
+    const userInstance =
       await this.usersExternalRepo.findByTelegramConfirmationCode(code);
 
-    if (!user) return;
+    if (!userInstance) return;
 
-    user.confirmTelegramIntegration(String(chatId));
+    userInstance.telegramChatId = String(chatId);
+    userInstance.telegramConfirmationCode = null;
 
-    await this.usersExternalRepo.save(user);
+    await this.usersExternalRepo.save(userInstance);
   }
 }
