@@ -50,7 +50,8 @@ import { PostsSqlRepository } from './posts/infrastructure/sql/repositories/post
 import { CommentsSqlQueryRepository } from './comments/infrastructure/sql/repositories/comments-sql-query.repo';
 import { CommentsSqlRepository } from './comments/infrastructure/sql/repositories/comments-sql.repo';
 import { CommentOrmEntity } from './comments/infrastructure/sql/schemas/comment-orm.entity';
-import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-postid.query';
+import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-post-id.query';
+import { CommentLikeOrmEntity } from './comments/infrastructure/sql/schemas/comment-like-orm.entity';
 
 const queryHandlers = [
   // * Blogs contract
@@ -100,7 +101,12 @@ const eventHandlers = [PostCreatedEventHandler];
       { name: Post.name, schema: PostSchema },
     ]),
 
-    TypeOrmModule.forFeature([BlogOrmEntity, PostOrmEntity, CommentOrmEntity]),
+    TypeOrmModule.forFeature([
+      BlogOrmEntity,
+      PostOrmEntity,
+      CommentOrmEntity,
+      CommentLikeOrmEntity,
+    ]),
 
     forwardRef(() => UserAccountsModule), // для решения проблеммы с circular dependency
   ],

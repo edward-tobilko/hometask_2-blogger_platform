@@ -48,7 +48,7 @@ import { ApiCreateCommentFroPostSwagger } from '../decorators/swagger/create-com
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
-import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-postid.query';
+import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-post-id.query';
 
 @ApiTags('Posts')
 @SkipThrottle()
