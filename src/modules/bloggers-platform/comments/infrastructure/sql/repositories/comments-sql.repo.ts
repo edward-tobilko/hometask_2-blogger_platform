@@ -4,12 +4,16 @@ import { Repository } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { CommentOrmEntity } from '../schemas/comment-orm.entity';
+import { CommentLikeOrmEntity } from '../schemas/comment-like-orm.entity';
 
 @Injectable()
 export class CommentsSqlRepository {
   constructor(
     @InjectRepository(CommentOrmEntity)
     private readonly commentRepo: Repository<CommentOrmEntity>,
+
+    @InjectRepository(CommentLikeOrmEntity)
+    private readonly commentLikeRepo: Repository<CommentLikeOrmEntity>,
   ) {}
 
   async findById(commentId: string): Promise<CommentOrmEntity | null> {
@@ -20,9 +24,12 @@ export class CommentsSqlRepository {
     userId: string,
     commentId: string,
   ): Promise<LikeStatus | null> {
-    const commentInstance = await this.findById(commentId);
+    const commentLikeInstance = await this.commentLikeRepo.findOneBy({
+      commentId,
+      userId,
+    });
 
-    const userLikeStatus = userId ? commentInstance!.status : LikeStatus.None;
+    const userLikeStatus = commentLikeInstance?.status ?? LikeStatus.None;
 
     return userLikeStatus;
   }
@@ -57,16 +64,27 @@ export class CommentsSqlRepository {
     likes: number,
     disLikes: number,
   ): Promise<void> {
-    // * Удалить старую реакцию и обновить счётчики
-    await this.commentRepo.update(
-      { id: commentId },
-      { likesCount: likes, dislikesCount: disLikes },
+    await this.commentLikeRepo.upsert(
+      {
+        commentId,
+        userId,
+        status: likeStatus,
+      },
+      {
+        conflictPaths: ['commentId', 'userId'],
+        skipUpdateIfNoValuesChanged: true,
+      },
     );
 
-    // * Добавить новую реакцию (только если статус не "None")
-    if (likeStatus !== LikeStatus.None) {
-      await this.commentRepo.update({ id: commentId }, { status: likeStatus });
-    }
+    await this.commentRepo
+      .createQueryBuilder()
+      .update()
+      .set({
+        likesCount: () => 'likes_count + :likes',
+        dislikesCount: () => 'dislikes_count + :disLikes',
+      })
+      .where('id = :commentId', { commentId, likes, disLikes })
+      .execute();
   }
 
   async delete(commentId: string): Promise<void> {
