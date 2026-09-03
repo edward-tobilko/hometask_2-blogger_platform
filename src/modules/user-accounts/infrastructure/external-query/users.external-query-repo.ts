@@ -15,21 +15,21 @@ export class UsersExternalQueryRepository {
   ) {}
 
   async getByIdOrNotFoundFail(id: string): Promise<UserExternalViewDto> {
-    const userDoc = await this.userRepo.findOne({
+    const userInstance = await this.userRepo.findOne({
       where: {
         id,
         deletedAt: IsNull(),
       },
     });
 
-    if (!userDoc) {
+    if (!userInstance) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: `This user with ID:${id} was not authorized`,
       });
     }
 
-    return UserExternalViewDto.mapToView(userDoc);
+    return UserExternalViewDto.mapToView(userInstance);
   }
 }
 
