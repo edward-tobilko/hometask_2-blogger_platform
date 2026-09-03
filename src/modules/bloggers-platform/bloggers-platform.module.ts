@@ -27,7 +27,7 @@ import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.use
 import { UpdateCommentByIdUseCase } from './comments/application/use-cases/update-comment.use-case';
 import { DeleteCommentByIdUseCase } from './comments/application/use-cases/delete-comment.use-case';
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.use-case';
-// import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
+import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog.query';
 import {
   BlogSubscription,
@@ -52,6 +52,7 @@ import { CommentsSqlRepository } from './comments/infrastructure/sql/repositorie
 import { CommentOrmEntity } from './comments/infrastructure/sql/schemas/comment-orm.entity';
 import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-post-id.query';
 import { CommentLikeOrmEntity } from './comments/infrastructure/sql/schemas/comment-like-orm.entity';
+import { PostLikeOrmEntity } from './posts/infrastructure/sql/schemas/post-like-orm.entity';
 
 const queryHandlers = [
   // * Blogs contract
@@ -83,7 +84,7 @@ const commandHandlers = [
   UpdatePostByIdUseCase,
   DeletePostByIdUseCase,
   CreateCommentUseCase,
-  // UpdatePostLikeStatusUseCase,
+  UpdatePostLikeStatusUseCase,
 
   // * Comments contract
   UpdateCommentByIdUseCase,
@@ -106,6 +107,7 @@ const eventHandlers = [PostCreatedEventHandler];
       PostOrmEntity,
       CommentOrmEntity,
       CommentLikeOrmEntity,
+      PostLikeOrmEntity,
     ]),
 
     forwardRef(() => UserAccountsModule), // для решения проблеммы с circular dependency
@@ -138,6 +140,8 @@ const eventHandlers = [PostCreatedEventHandler];
 
     CommentsSqlQueryRepository,
     CommentsSqlRepository,
+
+    // * External
     CommentsExternalRepository,
   ],
 
