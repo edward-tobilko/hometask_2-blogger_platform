@@ -3,13 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
-import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import { PostOrmEntity } from '../schemas/post-orm.entity';
-import { CommentOrmEntity } from 'src/modules/bloggers-platform/comments/infrastructure/sql/schemas/comment-orm.entity';
+import { PostLikeOrmEntity } from '../schemas/post-like-orm.entity';
 
 @Injectable()
 export class PostsQuerySqlRepository {
@@ -17,9 +15,8 @@ export class PostsQuerySqlRepository {
     @InjectRepository(PostOrmEntity)
     private readonly postsQueryRepo: Repository<PostOrmEntity>,
 
-    // TODO: extract to CommentsExternalQueryRepository
-    @InjectRepository(CommentOrmEntity)
-    private readonly commentsQueryRepo: Repository<CommentOrmEntity>,
+    @InjectRepository(PostLikeOrmEntity)
+    private readonly postLikesQueryRepo: Repository<PostLikeOrmEntity>,
   ) {}
 
   async findAll(
@@ -27,6 +24,7 @@ export class PostsQuerySqlRepository {
     userId?: string,
   ): Promise<PostsPaginatedViewModel> {
     const [items, totalCount] = await this.postsQueryRepo.findAndCount({
+      where: { userId },
       order: query.calculateSort(),
       skip: query.calculateSkip(),
       take: query.pageSize,
@@ -39,14 +37,9 @@ export class PostsQuerySqlRepository {
       totalCount,
 
       items: items.map((post) => {
-        // const myStatus = userId
-        //   ? (post.extendedLikesInfo?.userReactions?.find(
-        //       (reaction) => reaction.userId === userId,
-        //     )?.status ?? LikeStatus.None)
-        //   : LikeStatus.None;
+        const myStatus = LikeStatus.None;
 
-        // return PostViewModel.mapToViewModel(post, myStatus ?? LikeStatus.None);
-        return PostViewModel.mapToViewModel(post);
+        return PostViewModel.mapToViewModel(post, myStatus);
       }),
     });
   }
@@ -56,13 +49,15 @@ export class PostsQuerySqlRepository {
 
     if (!existingPost) return null;
 
-    // const myStatus = userId
-    //   ? await this.findUserCurrentLikeStatus(userId, id)
-    //   : LikeStatus.None;
+    const myStatus = userId
+      ? await this.findUserCurrentLikeStatus(userId, id)
+      : LikeStatus.None;
+    const newestLikes = await this.findNewestLikes(id);
 
     const postOutput = PostViewModel.mapToViewModel(
       existingPost,
-      //   myStatus ?? LikeStatus.None,
+      myStatus ?? LikeStatus.None,
+      newestLikes,
     );
 
     return postOutput;
@@ -72,39 +67,43 @@ export class PostsQuerySqlRepository {
     postId: string,
     query: PostsQueryDto,
     userId?: string,
-  ): Promise<CommentsPaginatedViewModel> {
-    const [items, totalCount] = await this.commentsQueryRepo.findAndCount({
-      where: { postId, isBanned: false },
+  ): Promise<PostsPaginatedViewModel> {
+    const [items, totalCount] = await this.postLikesQueryRepo.findAndCount({
+      where: { postId, userId },
       order: query.calculateSort(),
       skip: query.calculateSkip(),
       take: query.pageSize,
     });
 
-    return CommentsPaginatedViewModel.mapToView({
+    return PostsPaginatedViewModel.mapToView({
       pagesCount: Math.ceil(totalCount / query.pageSize),
       page: query.pageNumber,
       pageSize: query.pageSize,
       totalCount,
 
-      items: items.map((comment) => {
-        return CommentViewModel.mapToViewModel(comment, LikeStatus.None);
+      items: items.map((postComment) => {
+        return PostViewModel.mapToViewModel(postComment, LikeStatus.None);
       }),
     });
   }
 
-  //   async findUserCurrentLikeStatus(
-  //     userId: string,
-  //     postId: string,
-  //   ): Promise<LikeStatus | null> {
-  //     const postInstance = await this.postsQueryRepo.findOne({
-  //       where: { id: postId },
-  //     });
+  async findUserCurrentLikeStatus(
+    userId: string,
+    postId: string,
+  ): Promise<LikeStatus | null> {
+    const postInstance = await this.postLikesQueryRepo.findOne({
+      where: { id: postId, userId },
+    });
 
-  //     const userLikeStatus =
-  //       postInstance?.extendedLikesInfo?.userReactions?.find(
-  //         (reaction) => reaction.userId === userId,
-  //       )?.status ?? LikeStatus.None;
+    return postInstance?.status ?? LikeStatus.None;
+  }
 
-  //     return userLikeStatus;
-  //   }
+  async findNewestLikes(postId: string): Promise<PostLikeOrmEntity[]> {
+    return this.postLikesQueryRepo.find({
+      where: { postId, status: LikeStatus.Like },
+      relations: { user: true }, // @ManyToOne -> чтобы вытащить login
+      order: { addedAt: 'DESC' },
+      take: 3,
+    });
+  }
 }

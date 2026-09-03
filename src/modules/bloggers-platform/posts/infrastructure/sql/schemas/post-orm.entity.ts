@@ -3,19 +3,19 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 @Entity('posts')
 export class PostOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
-  id!: string;
+  id!: string; // PK
 
   @Column({ type: 'varchar' })
-  title!: string;
+  title!: string; // dto
 
   @Column({ name: 'short_description', type: 'varchar' })
-  shortDescription!: string;
+  shortDescription!: string; // dto
 
   @Column({ type: 'varchar' })
-  content!: string;
+  content!: string; // dto
 
   @Column({ name: 'blog_id', type: 'uuid' })
-  blogId!: string;
+  blogId!: string; // FK + blog name
 
   @Column({ name: 'blog_name', type: 'varchar' })
   blogName!: string;
@@ -23,19 +23,9 @@ export class PostOrmEntity {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
-  // // * Поля которые должны быть связаны (JOIN) с posts таблицей
-  // @Column({ name: 'likes_count', type: 'int', default: 0 })
-  // likesCount!: number;
+  @Column({ name: 'likes_count', type: 'int', default: 0 })
+  likesCount!: number; // денормализованный счётчик, обновляются при каждом лайке
 
-  // @Column({ name: 'dislikes_count', type: 'int', default: 0 })
-  // dislikesCount!: number;
-
-  // @CreateDateColumn({ name: 'added_at', type: 'timestamptz' })
-  // addedAt!: Date;
-
-  // @Column({ type: 'uuid' })
-  // userId!: string;
-
-  // @Column({ type: 'varchar' })
-  // login!: string;
+  @Column({ name: 'dislikes_count', type: 'int', default: 0 })
+  dislikesCount!: number; // денормализованный счётчик, обновляются при каждом лайке
 }
