@@ -1,7 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
-import { LikeStatus } from 'src/core/enums/like-status.enum';
-
 @Entity('comment')
 export class CommentOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
@@ -29,9 +27,6 @@ export class CommentOrmEntity {
 
   @Column({ name: 'dislikes_count', type: 'int', default: 0 })
   dislikesCount!: number;
-
-  @Column({ type: 'enum', enum: LikeStatus, default: LikeStatus.None })
-  status!: LikeStatus;
 
   // * Extra fields over the basic API logic
   @Column({ name: 'is_banned', type: 'boolean', default: false })
