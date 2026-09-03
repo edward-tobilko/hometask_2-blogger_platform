@@ -51,7 +51,6 @@ export class CommentsSqlRepository {
       userLogin,
       likesCount: 0,
       dislikesCount: 0,
-      status: LikeStatus.None,
     });
 
     return this.save(commentInstance);
@@ -63,11 +62,13 @@ export class CommentsSqlRepository {
     likeStatus: LikeStatus,
     likes: number,
     disLikes: number,
+    userName: string,
   ): Promise<void> {
     await this.commentLikeRepo.upsert(
       {
         commentId,
         userId,
+        userName,
         status: likeStatus,
       },
       {
