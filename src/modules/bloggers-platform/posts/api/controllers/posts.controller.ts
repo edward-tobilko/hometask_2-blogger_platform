@@ -134,6 +134,7 @@ export class PostsController {
 
   @ApiGetPostByIdSwagger('Return post by id')
   @Get(':id')
+  @UseGuards(JwtOptionalAuthGuard)
   getPostById(
     @Param('id', UuidValidationPipe) id: string,
     @CurrentUserOptionalFromRequest() currentUser: { id: string } | null,
