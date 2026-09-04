@@ -53,6 +53,7 @@ import { CommentOrmEntity } from './comments/infrastructure/sql/schemas/comment-
 import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-post-id.query';
 import { CommentLikeOrmEntity } from './comments/infrastructure/sql/schemas/comment-like-orm.entity';
 import { PostLikeOrmEntity } from './posts/infrastructure/sql/schemas/post-like-orm.entity';
+import { CommentsExternalQueryRepository } from './comments/infrastructure/external-repositories/comments-external-query.repo';
 
 const queryHandlers = [
   // * Blogs contract
@@ -143,6 +144,7 @@ const eventHandlers = [PostCreatedEventHandler];
 
     // * External
     CommentsExternalRepository,
+    CommentsExternalQueryRepository,
   ],
 
   exports: [CommentsExternalRepository],
