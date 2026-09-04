@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
@@ -24,11 +24,27 @@ export class PostsQuerySqlRepository {
     userId?: string,
   ): Promise<PostsPaginatedViewModel> {
     const [items, totalCount] = await this.postsQueryRepo.findAndCount({
-      where: { userId },
       order: query.calculateSort(),
       skip: query.calculateSkip(),
-      take: query.pageSize,
+      take: query.pageSize, // default 10 posts
     });
+
+    // * Batch-load likes for the current page to avoid N+1.
+    const likesMap = new Map<string, LikeStatus>(); // строим Map для быстрого поиска
+
+    if (userId && items.length > 0) {
+      const postIds = items.map((post) => post.id); // in-memory processing
+
+      // один запрос за всеми лайками текущего юзера
+      const userLikes = await this.postLikesQueryRepo.findBy({
+        postId: In(postIds),
+        userId,
+      });
+
+      for (const like of userLikes) {
+        likesMap.set(like.postId, like.status); // 1 запрос вместо N — достаём все лайки текущего юзера на посты этой страницы
+      }
+    }
 
     return PostsPaginatedViewModel.mapToView({
       pagesCount: Math.ceil(totalCount / query.pageSize),
@@ -36,8 +52,9 @@ export class PostsQuerySqlRepository {
       pageSize: query.pageSize,
       totalCount,
 
+      // * Маппим посты синхронно, никаких async / await — всё уже в памяти!
       items: items.map((post) => {
-        const myStatus = LikeStatus.None;
+        const myStatus = likesMap.get(post.id) ?? LikeStatus.None;
 
         return PostViewModel.mapToViewModel(post, myStatus);
       }),
@@ -52,6 +69,7 @@ export class PostsQuerySqlRepository {
     const myStatus = userId
       ? await this.findUserCurrentLikeStatus(userId, id)
       : LikeStatus.None;
+
     const newestLikes = await this.findNewestLikes(id);
 
     const postOutput = PostViewModel.mapToViewModel(
@@ -63,36 +81,12 @@ export class PostsQuerySqlRepository {
     return postOutput;
   }
 
-  async findCommentsByPostId(
-    postId: string,
-    query: PostsQueryDto,
-    userId?: string,
-  ): Promise<PostsPaginatedViewModel> {
-    const [items, totalCount] = await this.postLikesQueryRepo.findAndCount({
-      where: { postId, userId },
-      order: query.calculateSort(),
-      skip: query.calculateSkip(),
-      take: query.pageSize,
-    });
-
-    return PostsPaginatedViewModel.mapToView({
-      pagesCount: Math.ceil(totalCount / query.pageSize),
-      page: query.pageNumber,
-      pageSize: query.pageSize,
-      totalCount,
-
-      items: items.map((postComment) => {
-        return PostViewModel.mapToViewModel(postComment, LikeStatus.None);
-      }),
-    });
-  }
-
   async findUserCurrentLikeStatus(
     userId: string,
     postId: string,
   ): Promise<LikeStatus | null> {
     const postInstance = await this.postLikesQueryRepo.findOne({
-      where: { id: postId, userId },
+      where: { postId, userId },
     });
 
     return postInstance?.status ?? LikeStatus.None;
@@ -101,7 +95,7 @@ export class PostsQuerySqlRepository {
   async findNewestLikes(postId: string): Promise<PostLikeOrmEntity[]> {
     return this.postLikesQueryRepo.find({
       where: { postId, status: LikeStatus.Like },
-      relations: { user: true }, // @ManyToOne -> чтобы вытащить login
+      relations: { user: true }, // @ManyToOne -> что бы вытащить login
       order: { addedAt: 'DESC' },
       take: 3,
     });

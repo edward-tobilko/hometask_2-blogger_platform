@@ -42,7 +42,6 @@ export class PostsSqlRepository {
   async setLikeStatusForPost(
     postId: string,
     userId: string,
-    userLogin: string,
     likes: number,
     dislikes: number,
     likeStatus: LikeStatus,

@@ -6,7 +6,6 @@ import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { calculateLikeDislike } from 'src/core/utils/calculate-like-dislike.util';
 import { PostsQuerySqlRepository } from '../../infrastructure/sql/repositories/posts-query-sql.repository';
 import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
-import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
 
 export class UpdatePostLikeStatusCommand {
   constructor(
@@ -24,7 +23,6 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
   constructor(
     private postsRepo: PostsSqlRepository,
     private readonly postsQueryRepo: PostsQuerySqlRepository,
-    private readonly userAccountsRepo: UsersExternalQueryRepository,
   ) {}
 
   async execute(command: UpdatePostLikeStatusCommand): Promise<void> {
@@ -38,7 +36,6 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
         message: `This post with ${postId} was not found`,
       });
 
-    // * Получаем предыдущий статус лайка
     const prevLike = await this.postsQueryRepo.findUserCurrentLikeStatus(
       userId,
       postId,
@@ -53,14 +50,9 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
       nextLike,
     );
 
-    const userLogin = (
-      await this.userAccountsRepo.getByIdOrNotFoundFail(userId)
-    ).login;
-
     return this.postsRepo.setLikeStatusForPost(
       postId,
       userId,
-      userLogin,
       likes,
       disLikes,
       likeStatus,
