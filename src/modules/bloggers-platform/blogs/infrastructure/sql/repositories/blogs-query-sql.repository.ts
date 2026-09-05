@@ -3,15 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
 
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
-import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blogs-paginated.view-dto';
 import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
-// import { LikeStatus } from 'src/core/enums/like-status.enum';
 // import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 import { BlogOrmEntity } from '../schemas/blog-orm.entity';
 import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
+import { PostsQuerySqlRepository } from 'src/modules/bloggers-platform/posts/infrastructure/sql/repositories/posts-query-sql.repository';
 
 @Injectable()
 export class BlogsQuerySqlRepository {
@@ -20,10 +19,12 @@ export class BlogsQuerySqlRepository {
     private readonly blogsQueryRepo: Repository<BlogOrmEntity>,
 
     @InjectRepository(PostOrmEntity)
-    private readonly postsQueryRepo: Repository<PostOrmEntity>,
+    private readonly postOrmRepo: Repository<PostOrmEntity>,
+
+    private readonly postsQueryRepo: PostsQuerySqlRepository,
   ) {}
 
-  async findBlogs(
+  async findAll(
     queryParam: BlogsQueryDto,
     userId?: string,
   ): Promise<BlogListPaginatedViewModel> {
@@ -94,36 +95,12 @@ export class BlogsQuerySqlRepository {
     queryParam: PostsQueryDto,
     userId?: string,
   ): Promise<PostsPaginatedViewModel> {
-    const { pageNumber, pageSize } = queryParam;
-
-    const [items, totalCount] = await this.postsQueryRepo.findAndCount({
-      where: { blogId }, // фильтруем (получаем) все посты этого блога
-      order: queryParam.calculateSort(),
-      skip: queryParam.calculateSkip(),
-      take: pageSize,
-    });
-
-    return PostsPaginatedViewModel.mapToView({
-      pagesCount: Math.ceil(totalCount / pageSize),
-      page: pageNumber,
-      pageSize,
-      totalCount,
-
-      items: items.map((post) => {
-        // const myStatus = userId
-        //   ? (post.extendedLikesInfo?.userReactions?.find(
-        //       (reaction) => reaction.userId === userId,
-        //     )?.status ?? LikeStatus.None)
-        //   : LikeStatus.None;
-
-        // return PostViewModel.mapToViewModel(post, myStatus ?? LikeStatus.None);
-        return PostViewModel.mapToViewModel(post);
-      }),
-    });
+    return this.postsQueryRepo.findAll(queryParam, userId, blogId);
   }
 
+  // * Extra methods over the basic API
   async countPostsForBlog(blogId: string): Promise<number> {
-    return this.postsQueryRepo.count({
+    return this.postOrmRepo.count({
       where: { blogId },
     });
   }

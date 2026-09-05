@@ -22,6 +22,6 @@ export class GetBlogsListQueryHandler implements IQueryHandler<
     queryParam,
     userId,
   }: GetBlogsListQuery): Promise<BlogListPaginatedViewModel> {
-    return this.blogsQueryRepo.findBlogs(queryParam, userId);
+    return this.blogsQueryRepo.findAll(queryParam, userId);
   }
 }

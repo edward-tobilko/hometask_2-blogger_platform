@@ -31,7 +31,7 @@ export class PostLikeOrmEntity {
   addedAt!: Date; // нужен в ответе для "newestLikes" (3 последних лайка)
 
   // * Joins
-  @ManyToOne(() => PostOrmEntity)
+  @ManyToOne(() => PostOrmEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id' }) // TypeORM знает, что post_id — FK на posts.id
   post!: PostOrmEntity;
 

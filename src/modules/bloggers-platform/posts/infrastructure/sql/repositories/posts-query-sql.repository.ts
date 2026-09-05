@@ -22,8 +22,10 @@ export class PostsQuerySqlRepository {
   async findAll(
     query: PostsQueryDto,
     userId?: string,
+    blogId?: string,
   ): Promise<PostsPaginatedViewModel> {
     const [items, totalCount] = await this.postsQueryRepo.findAndCount({
+      where: blogId ? { blogId } : {}, // параметр для делегирования (без дублирования) метода в BlogsQuerySqlRepository
       order: query.calculateSort(),
       skip: query.calculateSkip(),
       take: query.pageSize, // default 10 posts
@@ -32,9 +34,9 @@ export class PostsQuerySqlRepository {
     // * Batch-load likes for the current page to avoid N+1.
     const likesMap = new Map<string, LikeStatus>(); // строим Map для быстрого поиска
 
-    if (userId && items.length > 0) {
-      const postIds = items.map((post) => post.id); // in-memory processing
+    const postIds = items.map((post) => post.id); // in-memory processing
 
+    if (userId && items.length > 0) {
       // один запрос за всеми лайками текущего юзера
       const userLikes = await this.postLikesQueryRepo.findBy({
         postId: In(postIds),
@@ -46,6 +48,8 @@ export class PostsQuerySqlRepository {
       }
     }
 
+    const newestLikesMap = await this.findNewestLikesBatchLoad(postIds);
+
     return PostsPaginatedViewModel.mapToView({
       pagesCount: Math.ceil(totalCount / query.pageSize),
       page: query.pageNumber,
@@ -55,8 +59,9 @@ export class PostsQuerySqlRepository {
       // * Маппим посты синхронно, никаких async / await — всё уже в памяти!
       items: items.map((post) => {
         const myStatus = likesMap.get(post.id) ?? LikeStatus.None;
+        const newestLikes = newestLikesMap.get(post.id) ?? [];
 
-        return PostViewModel.mapToViewModel(post, myStatus);
+        return PostViewModel.mapToViewModel(post, myStatus, newestLikes);
       }),
     });
   }
@@ -99,5 +104,28 @@ export class PostsQuerySqlRepository {
       order: { addedAt: 'DESC' },
       take: 3,
     });
+  }
+
+  async findNewestLikesBatchLoad(
+    postIds: string[],
+  ): Promise<Map<string, PostLikeOrmEntity[]>> {
+    const newestLikesMap = new Map<string, PostLikeOrmEntity[]>();
+
+    const allLikes = await this.postLikesQueryRepo.find({
+      where: { postId: In(postIds), status: LikeStatus.Like },
+      relations: { user: true },
+      order: { addedAt: 'DESC' },
+    });
+
+    for (const like of allLikes) {
+      const existingPostLike = newestLikesMap.get(like.postId) ?? [];
+
+      if (existingPostLike.length < 3) {
+        existingPostLike.push(like);
+        newestLikesMap.set(like.postId, existingPostLike);
+      }
+    }
+
+    return newestLikesMap;
   }
 }
