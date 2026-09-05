@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
@@ -19,6 +19,7 @@ import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 import { BlogPostsCountViewModel } from '../dto/view-dto/blog-posts-count.view-dto';
 import { GetPostsCountForBlogQuery } from '../../application/queries/get-posts-count-for-blog.query';
+import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 
 @ApiTags('Blogs')
 @SkipThrottle()
@@ -37,6 +38,7 @@ export class BlogsController {
 
   @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
   @Get(':blogId/posts')
+  @UseGuards(JwtOptionalAuthGuard)
   async getPostsListForBlog(
     @Param('blogId', UuidValidationPipe) blogId: string,
     @Query() queryDto: PostsQueryDto,

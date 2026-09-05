@@ -55,7 +55,7 @@ export class SaBlogsController {
     private commandBus: CommandBus,
   ) {}
 
-  @ApiGetBlogsSwagger('Returns blogs with paging')
+  @ApiGetBlogsSwagger('Returns all blogs with paging')
   @Get()
   async getBlogsList(
     @Query() query: BlogsQueryDto,
@@ -82,7 +82,7 @@ export class SaBlogsController {
     return BlogViewModel.mapToViewModel(blogInstance);
   }
 
-  @ApiUpdateBlogSwagger('Update existing blog by id with input model')
+  @ApiUpdateBlogSwagger('Update existing Blog by id with inputModel')
   @Put(':id')
   @HttpCode(204)
   async updateBlog(
@@ -120,7 +120,7 @@ export class SaBlogsController {
     return postOutput;
   }
 
-  @ApiGetPostsForBlogSwagger('Returns all posts for specified blog')
+  @ApiGetPostsForBlogSwagger('Returns posts for bog with paging and sorting')
   @Get(':blogId/posts')
   async getPostsListForBlog(
     @Param('blogId', UuidValidationPipe) blogId: string,
@@ -132,7 +132,7 @@ export class SaBlogsController {
     );
   }
 
-  @ApiUpdatePostForBlogSwagger('Update existing post by id with input model')
+  @ApiUpdatePostForBlogSwagger('Update existing post by id with inputModel')
   @Put(':blogId/posts/:postId')
   @HttpCode(204)
   updatePost(

@@ -63,7 +63,7 @@ export class CommentsController {
     );
   }
 
-  @ApiUpdateCommentByIdSwagger('Update existing comment by id with input model')
+  @ApiUpdateCommentByIdSwagger('Update existing comment by id with inputModel')
   @Put(':commentId')
   @HttpCode(204) // success
   @UseGuards(JwtAuthGuard) // if error = 401

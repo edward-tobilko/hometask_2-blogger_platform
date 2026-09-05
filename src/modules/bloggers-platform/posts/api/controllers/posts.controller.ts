@@ -113,6 +113,7 @@ export class PostsController {
 
   @ApiGetPostsSwagger('Returns all posts')
   @Get()
+  @UseGuards(JwtOptionalAuthGuard)
   getPostsList(
     @Query() queryParams: PostsQueryDto,
     @CurrentUserOptionalFromRequest() currentUser: { id: string } | null,
@@ -142,7 +143,7 @@ export class PostsController {
     return this.queryBus.execute(new GetPostByIdQuery(id, currentUser?.id));
   }
 
-  @ApiUpdatePostSwagger('Update existing post by id with input model')
+  @ApiUpdatePostSwagger('Update existing post by id with inputModel')
   @Put(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
