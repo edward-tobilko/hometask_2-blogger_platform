@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
-import { Post, PostSchema } from './posts/domain/entities/post.entity';
 import { SaBlogsController } from './blogs/api/controllers/sa-blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentsController } from './comments/api/controllers/comment.controller';
@@ -100,7 +99,6 @@ const eventHandlers = [PostCreatedEventHandler];
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
       { name: BlogSubscription.name, schema: BlogSubscriptionSchema },
-      { name: Post.name, schema: PostSchema },
     ]),
 
     TypeOrmModule.forFeature([
