@@ -9,6 +9,15 @@ function makeConfigService(overrides: Record<string, string | undefined> = {}) {
     IS_SWAGGER_ENABLED: 'true',
     INCLUDE_TESTING_MODULE: 'false',
     SEND_INTERNAL_SERVER_ERROR_DETAILS: 'false',
+    POSTGRES_URI: 'postgresql://localhost:5432/test',
+    DB_NAME: 'test_db',
+    TTL_RATE_LIMIT: '10000',
+    COUNT_RATE_LIMIT: '10',
+    IS_DISABLE_RATE_LIMIT: 'false',
+    ADMIN_USER_NAME: 'admin',
+    ADMIN_PASSWORD: 'password',
+    TELEGRAM_BOT_TOKEN: 'test_token',
+    TELEGRAM_BOT_NAME: 'test_bot',
   };
 
   return {
