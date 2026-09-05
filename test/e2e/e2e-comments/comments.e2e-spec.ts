@@ -108,7 +108,7 @@ describe('Comments swagger contract', () => {
 
     it("status 404 - if comment with specified id doesn't exists", async () => {
       await commentTestManager.setLikeStatus(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         LikeStatus.Like,
         accessToken,
         HttpStatus.NOT_FOUND,
@@ -191,7 +191,7 @@ describe('Comments swagger contract', () => {
 
     it('status 404 - if comment is not found', async () => {
       await commentTestManager.updateCommentById(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         dto,
         accessToken,
         HttpStatus.NOT_FOUND,
@@ -280,7 +280,7 @@ describe('Comments swagger contract', () => {
 
     it('status 404 - if comment is not found', async () => {
       await commentTestManager.deleteCommentById(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         accessToken,
         HttpStatus.NOT_FOUND,
       );
@@ -310,7 +310,7 @@ describe('Comments swagger contract', () => {
     });
 
     it('status 404 - if comment not found', async () => {
-      const notExistingId = '123456789012345678901234';
+      const notExistingId = '00000000-0000-0000-0000-000000000000';
 
       await commentTestManager.getCommentById(
         notExistingId,

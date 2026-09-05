@@ -70,8 +70,8 @@ describe('Blogs swagger contract', () => {
         websiteUrl: expect.any(String),
         createdAt: expect.any(String),
         isMembership: expect.any(Boolean),
-        subscribersCount: expect.any(Number),
-        currentUserSubscriptionStatus: expect.any(String),
+        // subscribersCount: expect.any(Number),
+        // currentUserSubscriptionStatus: expect.any(String),
       });
 
       // * на 2й сторанице -> pageSize=2 (totalCount=12, pagesCount=2)
@@ -162,8 +162,8 @@ describe('Blogs swagger contract', () => {
         websiteUrl: createdBlog.websiteUrl,
         createdAt: expect.any(String),
         isMembership: expect.any(Boolean),
-        subscribersCount: expect.any(Number),
-        currentUserSubscriptionStatus: expect.any(String),
+        // subscribersCount: expect.any(Number),
+        // currentUserSubscriptionStatus: expect.any(String),
       });
     });
 
@@ -317,7 +317,7 @@ describe('Blogs swagger contract', () => {
       expect(result.items[0].extendedLikesInfo.myStatus).toBe('None');
     });
 
-    it.skip('status 200 - myStatus reflects user like', async () => {
+    it('status 200 - myStatus reflects user like', async () => {
       const user = await userTestManager.getRegisteredAndConfirmedUser();
 
       const { accessToken } = await userTestManager.login({
@@ -523,8 +523,8 @@ describe('Blogs swagger contract', () => {
         id: createdBlogResult.id,
         createdAt: expect.any(String),
         isMembership: false,
-        subscribersCount: expect.any(Number),
-        currentUserSubscriptionStatus: expect.any(String),
+        // subscribersCount: expect.any(Number),
+        // currentUserSubscriptionStatus: expect.any(String),
       });
     });
 

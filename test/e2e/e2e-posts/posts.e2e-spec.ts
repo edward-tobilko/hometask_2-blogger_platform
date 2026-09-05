@@ -50,7 +50,7 @@ describe('Posts swagger contract', () => {
     createdBlog = await blogTestManager.createBlog(dto);
   });
 
-  describe.skip('Tests for PUT: /api/posts/{postId}/like-status end-point', () => {
+  describe('Tests for PUT: /api/posts/{postId}/like-status end-point', () => {
     let createdPost: PostViewModel;
     let accessToken: string;
 
@@ -157,7 +157,7 @@ describe('Posts swagger contract', () => {
     });
   });
 
-  describe.skip('Tests for POST: /api/posts/{postId}/comments', () => {
+  describe('Tests for POST: /api/posts/{postId}/comments', () => {
     let post: PostViewModel;
     let accessToken: string;
 
@@ -268,7 +268,7 @@ describe('Posts swagger contract', () => {
     });
   });
 
-  describe.skip(`Tests for GET: /api/posts/{postId}/comments end-point`, () => {
+  describe(`Tests for GET: /api/posts/{postId}/comments end-point`, () => {
     let createdPost: PostViewModel;
     let accessToken: string;
 
@@ -486,7 +486,7 @@ describe('Posts swagger contract', () => {
       ).toBe(true);
     });
 
-    it.skip('status 200 - myStatus reflects user like for authorized user', async () => {
+    it('status 200 - myStatus reflects user like for authorized user', async () => {
       const posts = await postTestManager.createSeveralPosts(createdBlog.id, 1);
 
       await postTestManager.updateLikeStatus(posts[0].id, 'Like', accessToken);
