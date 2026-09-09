@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, ILike, Repository } from 'typeorm';
 
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blogs-paginated.view-dto';
 import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
-// import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
+import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 import { BlogOrmEntity } from '../schemas/blog-orm.entity';
 import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
 import { PostsQuerySqlRepository } from 'src/modules/bloggers-platform/posts/infrastructure/sql/repositories/posts-query-sql.repository';
@@ -21,6 +21,9 @@ export class BlogsQuerySqlRepository {
     @InjectRepository(PostOrmEntity)
     private readonly postOrmRepo: Repository<PostOrmEntity>,
 
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+
     private readonly postsQueryRepo: PostsQuerySqlRepository,
   ) {}
 
@@ -32,12 +35,32 @@ export class BlogsQuerySqlRepository {
 
     const nameTerm = searchNameTerm ? searchNameTerm.trim() : null;
 
-    const [items, totalCount] = await this.blogsQueryRepo.findAndCount({
-      where: nameTerm ? { name: ILike(`%${nameTerm}%`) } : {},
-      order: queryParam.calculateSort(),
-      skip: queryParam.calculateSkip(),
-      take: pageSize,
-    });
+    const baseQb = this.blogsQueryRepo
+      .createQueryBuilder('blog')
+      .addSelect(
+        '(SELECT COUNT(*) FROM blog_subscriptions bs WHERE bs.blog_id = blog.id)',
+        'subscribersCount',
+      )
+      .addSelect(
+        "CASE WHEN :userId::uuid IS NULL THEN 'None' WHEN EXISTS(SELECT 1 FROM blog_subscriptions bs WHERE bs.blog_id = blog.id AND bs.user_id = :userId::uuid) THEN 'Subscribed' ELSE 'Unsubscribed' END",
+        'currentUserSubscriptionStatus',
+      )
+      .setParameter('userId', userId ?? null)
+      .where(nameTerm ? { name: ILike(`%${nameTerm}%`) } : {})
+      .orderBy(
+        `blog.${queryParam.sortBy}`,
+        queryParam.sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      );
+
+    const totalCount = await baseQb.getCount(); // считает без LIMIT / OFFSET
+
+    const { entities, raw } = await baseQb
+      .skip(queryParam.calculateSkip())
+      .take(pageSize)
+      .getRawAndEntities<{
+        subscribersCount: string;
+        currentUserSubscriptionStatus: SubscriptionStatus;
+      }>();
 
     return BlogListPaginatedViewModel.mapToView({
       pagesCount: Math.ceil(totalCount / pageSize),
@@ -45,20 +68,12 @@ export class BlogsQuerySqlRepository {
       pageSize,
       totalCount,
 
-      items: items.map((blog) => {
-        // const isSubscribed = false;
-
-        // let status: SubscriptionStatus;
-
-        // if (!userId) {
-        //   status = SubscriptionStatus.None;
-        // } else if (isSubscribed) {
-        //   status = SubscriptionStatus.Subscribed;
-        // } else {
-        //   status = SubscriptionStatus.Unsubscribed;
-        // }
-
-        return BlogViewModel.mapToViewModel(blog);
+      items: entities.map((blog, index) => {
+        return BlogViewModel.extraLogicMapToViewModel(
+          blog,
+          Number(raw[index].subscribersCount),
+          raw[index].currentUserSubscriptionStatus,
+        );
       }),
     });
   }
@@ -67,27 +82,34 @@ export class BlogsQuerySqlRepository {
     blogId: string,
     userId?: string,
   ): Promise<BlogViewModel | null> {
-    const blog = await this.blogsQueryRepo.findOne({
-      where: {
-        id: blogId,
-      },
-    });
+    const result = await this.dataSource.query<
+      (BlogOrmEntity & {
+        subscribersCount: string;
+        currentUserSubscriptionStatus: SubscriptionStatus;
+      })[]
+    >(
+      `SELECT b.id, b.name, b.description, b.website_url as "websiteUrl", b.is_membership as "isMembership", b.created_at as "createdAt",
+        (SELECT COUNT(*) FROM blog_subscriptions bs WHERE bs.blog_id = b.id) AS "subscribersCount",
+        CASE
+          WHEN $2::uuid IS NULL THEN 'None'
+          WHEN EXISTS (
+            SELECT 1 FROM blog_subscriptions bs
+            WHERE bs.blog_id = b.id AND bs.user_id = $2::uuid
+          ) THEN 'Subscribed'
+          ELSE 'Unsubscribed'
+        END AS "currentUserSubscriptionStatus"
+      FROM blogs b
+    WHERE b.id = $1`,
+      [blogId, userId ?? null],
+    );
 
-    if (!blog) return null;
+    if (!result[0]) return null;
 
-    // const isSubscribed = false;
-
-    // let status: SubscriptionStatus;
-
-    // if (!userId) {
-    //   status = SubscriptionStatus.None;
-    // } else if (isSubscribed) {
-    //   status = SubscriptionStatus.Subscribed;
-    // } else {
-    //   status = SubscriptionStatus.Unsubscribed;
-    // }
-
-    return BlogViewModel.mapToViewModel(blog);
+    return BlogViewModel.extraLogicMapToViewModel(
+      result[0],
+      Number(result[0].subscribersCount),
+      result[0].currentUserSubscriptionStatus,
+    );
   }
 
   async findPostsForBlog(

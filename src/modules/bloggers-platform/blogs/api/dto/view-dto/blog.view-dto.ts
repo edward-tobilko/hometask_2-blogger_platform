@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { BlogLean } from '../../../domain/entities/blog.entity';
 import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 import { BlogOrmEntity } from '../../../infrastructure/sql/schemas/blog-orm.entity';
 
@@ -33,11 +32,10 @@ export class BlogViewModel {
   @ApiProperty()
   currentUserSubscriptionStatus!: SubscriptionStatus; // extra field over the basic API logic
 
-  static mapToViewModel(blog: BlogOrmEntity | BlogLean): BlogViewModel {
+  static mapToViewModel(blog: BlogOrmEntity): BlogViewModel {
     const dto = new BlogViewModel();
 
-    dto.id =
-      'id' in blog ? blog.id : (blog._id as unknown as string).toString(); // ! проверка пока у нас union types (blog: BlogOrmEntity | BlogLean)
+    dto.id = blog.id;
     dto.name = blog.name;
     dto.description = blog.description;
     dto.websiteUrl = blog.websiteUrl;
@@ -48,14 +46,13 @@ export class BlogViewModel {
   }
 
   static extraLogicMapToViewModel(
-    blog: BlogOrmEntity | BlogLean,
+    blog: BlogOrmEntity,
     subscribersCount: number,
     currentUserSubscriptionStatus: SubscriptionStatus,
   ) {
     const dto = new BlogViewModel();
 
-    dto.id =
-      'id' in blog ? blog.id : (blog._id as unknown as string).toString(); // ! проверка пока у нас union types (blog: BlogOrmEntity | BlogLean)
+    dto.id = blog.id;
     dto.name = blog.name;
     dto.description = blog.description;
     dto.websiteUrl = blog.websiteUrl;
