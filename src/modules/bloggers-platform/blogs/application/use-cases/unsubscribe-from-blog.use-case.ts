@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { BlogSubscriptionsRepository } from '../../infrastructure/mongo/repositories/blog-subscriptions.repository';
+import { BlogSubscriptionsRepository } from '../../infrastructure/sql/repositories/blog-subscriptions.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { BlogsRepository } from '../../infrastructure/mongo/repositories/blogs.repository';
+import { BlogsSqlRepository } from '../../infrastructure/sql/repositories/blogs-sql.repository';
 
 export class UnsubscribeFromBlogCommand {
   constructor(
@@ -19,7 +19,7 @@ export class UnsubscribeFromBlogUseCase implements ICommandHandler<
 > {
   constructor(
     private blogSubscriptionRepo: BlogSubscriptionsRepository,
-    private blogsRepo: BlogsRepository,
+    private blogsRepo: BlogsSqlRepository,
   ) {}
 
   async execute({ blogId, userId }: UnsubscribeFromBlogCommand): Promise<void> {

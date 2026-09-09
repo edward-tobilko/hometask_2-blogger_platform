@@ -1,13 +1,13 @@
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { BlogSubscriptionDocument } from '../../domain/entities/blog-subscription.entity';
-import { BlogSubscriptionsRepository } from '../../infrastructure/mongo/repositories/blog-subscriptions.repository';
-import { BlogsRepository } from '../../infrastructure/mongo/repositories/blogs.repository';
+import { BlogSubscriptionsRepository } from '../../infrastructure/sql/repositories/blog-subscriptions.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { BlogSubscriptionsOrmEntity } from '../../infrastructure/sql/schemas/blog-subscription-orm.entity';
+import { BlogsSqlRepository } from '../../infrastructure/sql/repositories/blogs-sql.repository';
+import { CreateBlogSubscriptionDomainDto } from '../../domain/dto/create-blog-subscription.domain-dto';
 
-// * Розширяем (extends) Command, что бы не типизировать .commandBus.execute в контроллере.
-export class SubscribeToBlogCommand extends Command<BlogSubscriptionDocument> {
+export class SubscribeToBlogCommand extends Command<BlogSubscriptionsOrmEntity> {
   constructor(
     public userId: string,
     public blogId: string,
@@ -19,16 +19,16 @@ export class SubscribeToBlogCommand extends Command<BlogSubscriptionDocument> {
 @CommandHandler(SubscribeToBlogCommand)
 export class SubscribeToBlogUseCase implements ICommandHandler<
   SubscribeToBlogCommand,
-  BlogSubscriptionDocument
+  BlogSubscriptionsOrmEntity
 > {
   constructor(
     private blogSubscriptionRepo: BlogSubscriptionsRepository,
-    private blogsRepo: BlogsRepository,
+    private blogsRepo: BlogsSqlRepository,
   ) {}
 
   async execute(
     command: SubscribeToBlogCommand,
-  ): Promise<BlogSubscriptionDocument> {
+  ): Promise<BlogSubscriptionsOrmEntity> {
     const existingBlog = await this.blogsRepo.findById(command.blogId);
 
     if (!existingBlog) {
@@ -57,6 +57,8 @@ export class SubscribeToBlogUseCase implements ICommandHandler<
       });
     }
 
-    return this.blogSubscriptionRepo.createAndSave(command);
+    return this.blogSubscriptionRepo.createAndSave(
+      new CreateBlogSubscriptionDomainDto(command.userId, command.blogId),
+    );
   }
 }

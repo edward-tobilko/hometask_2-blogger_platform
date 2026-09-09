@@ -1,14 +1,9 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { Blog, BlogSchema } from './blogs/domain/entities/blog.entity';
 import { SaBlogsController } from './blogs/api/controllers/sa-blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentsController } from './comments/api/controllers/comment.controller';
-import { BlogsRepository } from './blogs/infrastructure/mongo/repositories/blogs.repository';
-// import { BlogsQueryRepository } from './blogs/infrastructure/mongo/repositories/blogs.query-repository';
-import { PostsService } from './posts/application/services/posts.service';
 import { GetCommentByIdQuery } from './comments/application/queries/comments-query.services';
 import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query';
 import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
@@ -28,14 +23,9 @@ import { DeleteCommentByIdUseCase } from './comments/application/use-cases/delet
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.use-case';
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.use-case';
 import { GetBlogByIdQueryHandler } from './blogs/application/queries/get-blog.query';
-import {
-  BlogSubscription,
-  BlogSubscriptionSchema,
-} from './blogs/domain/entities/blog-subscription.entity';
-import { BlogSubscriptionsRepository } from './blogs/infrastructure/mongo/repositories/blog-subscriptions.repository';
+import { BlogSubscriptionsRepository } from './blogs/infrastructure/sql/repositories/blog-subscriptions.repository';
 import { SubscribeToBlogUseCase } from './blogs/application/use-cases/subscribe-to-blog.use-case';
 import { UnsubscribeFromBlogUseCase } from './blogs/application/use-cases/unsubscribe-from-blog.use-case';
-// import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
 import { PostCreatedEventHandler } from './posts/application/event-handlers/post-created.event-handler';
 import { GetPostsCountForBlogHandler } from './blogs/application/queries/get-posts-count-for-blog.query';
 import { CommentsExternalRepository } from './comments/infrastructure/external-repositories/comments-external.repository';
@@ -53,6 +43,8 @@ import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-
 import { CommentLikeOrmEntity } from './comments/infrastructure/sql/schemas/comment-like-orm.entity';
 import { PostLikeOrmEntity } from './posts/infrastructure/sql/schemas/post-like-orm.entity';
 import { CommentsExternalQueryRepository } from './comments/infrastructure/external-repositories/comments-external-query.repo';
+import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
+import { BlogSubscriptionsOrmEntity } from './blogs/infrastructure/sql/schemas/blog-subscription-orm.entity';
 
 const queryHandlers = [
   // * Blogs contract
@@ -60,7 +52,7 @@ const queryHandlers = [
   GetPostsForBlogQueryHandler,
   GetBlogByIdQueryHandler,
   GetPostsCountForBlogHandler,
-  // GetBlogSubscribersCountHandler,
+  GetBlogSubscribersCountHandler,
 
   // * Posts contract
   GetPostByIdQueryHandler,
@@ -96,13 +88,9 @@ const eventHandlers = [PostCreatedEventHandler];
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: Blog.name, schema: BlogSchema },
-      { name: BlogSubscription.name, schema: BlogSubscriptionSchema },
-    ]),
-
     TypeOrmModule.forFeature([
       BlogOrmEntity,
+      BlogSubscriptionsOrmEntity,
       PostOrmEntity,
       CommentOrmEntity,
       CommentLikeOrmEntity,
@@ -123,26 +111,23 @@ const eventHandlers = [PostCreatedEventHandler];
     ...commandHandlers,
     ...eventHandlers,
 
-    BlogsRepository,
+    // * Blogs contract
     BlogsSqlRepository,
-
-    // BlogsQueryRepository,
     BlogsQuerySqlRepository,
-
-    BlogsExternalQueryRepository,
     BlogSubscriptionsRepository,
 
-    PostsService,
-
+    // * Posts contract
     PostsSqlRepository,
     PostsQuerySqlRepository,
 
+    // * Comments contract
     CommentsSqlQueryRepository,
     CommentsSqlRepository,
 
     // * External
     CommentsExternalRepository,
     CommentsExternalQueryRepository,
+    BlogsExternalQueryRepository,
   ],
 
   exports: [CommentsExternalRepository],
