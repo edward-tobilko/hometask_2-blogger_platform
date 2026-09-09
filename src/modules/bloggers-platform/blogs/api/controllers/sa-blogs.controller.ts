@@ -43,7 +43,6 @@ import { UpdatePostByIdCommand } from 'src/modules/bloggers-platform/posts/appli
 import { ApiUpdatePostForBlogSwagger } from '../decorators/swagger/update-post-for-blog-swagger.decorator';
 import { ApiDeletePostForBlogSwagger } from '../decorators/swagger/delete-post-for-blog-swagger.decorator';
 import { DeletePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/delete-post.use-case';
-// import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 
 @ApiTags('SuperAdminBlogs')
 @SkipThrottle()
@@ -70,7 +69,6 @@ export class SaBlogsController {
     @Body()
     dto: CreateBlogDto,
   ): Promise<BlogViewModel> {
-    // ! Вопросс ментору: нужно ли мапить данные с dto в command для domain ???
     const command = new CreateBlogCommand({
       name: dto.name,
       description: dto.description,

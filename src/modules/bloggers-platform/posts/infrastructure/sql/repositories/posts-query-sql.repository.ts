@@ -112,8 +112,8 @@ export class PostsQuerySqlRepository {
     const newestLikesMap = new Map<string, PostLikeOrmEntity[]>();
 
     const allLikes = await this.postLikesQueryRepo.find({
-      where: { postId: In(postIds), status: LikeStatus.Like },
-      relations: { user: true },
+      where: { postId: In(postIds), status: LikeStatus.Like }, // postId - скалярное значения, просто фильтрация, join не нужен
+      relations: { user: true }, // relation (обьект) - нужен login пользователя из другой таблицы
       order: { addedAt: 'DESC' },
     });
 
