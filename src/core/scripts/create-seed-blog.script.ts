@@ -1,12 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { getModelToken } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
 
 import { AppModule } from '../../app.module';
-import {
-  Blog,
-  BlogDocument,
-} from 'src/modules/bloggers-platform/blogs/domain/entities/blog.entity';
+import { BlogOrmEntity } from 'src/modules/bloggers-platform/blogs/infrastructure/sql/schemas/blog-orm.entity';
 
 async function createSeedBlog() {
   if (process.env.NODE_ENV === 'production') {
@@ -15,17 +12,19 @@ async function createSeedBlog() {
     process.exit(1);
   }
 
-  const app = await NestFactory.createApplicationContext(AppModule); // поднимает Nest-приложение без HTTP-сервера. Нам нужен только DI-контейнер, чтобы достать BlogModel. Это стандартный паттерн для CLI-скриптов в Nest.
+  const app = await NestFactory.createApplicationContext(AppModule); // поднимает Nest-приложение без HTTP-сервера. Нам нужен только DI-контейнер, чтобы достать BlogEntity. Это стандартный паттерн для CLI-скриптов в Nest.
 
-  const blogModel = app.get<Model<BlogDocument>>(getModelToken(Blog.name)); // специальный хелпер от @nestjs/mongoose, который генерирует токен для @InjectModel. В скриптах мы не можем использовать сам декоратор, поэтому достаём модель через app.get() по токену.
+  const blogRepo = app.get<Repository<BlogOrmEntity>>(
+    getRepositoryToken(BlogOrmEntity), // получаем токен, по которому достаем BlogOrmEntity из DI
+  );
 
   const COUNT = 100_000; // кол-во елементов
-  const PAGE_SIZE = 5_000; // кол-во страниц
+  const PAGE_SIZE = 5_000; // кол-во записей за одну итерацию
 
   console.log(`Seeding ${COUNT} blogs...`);
   console.time('seed'); // замер реального времени выполнения
 
-  await blogModel.deleteMany({}); // удаляем старые записи
+  await blogRepo.delete({}); // удаляем старые записи
 
   for (let i = 0; i < COUNT; i += PAGE_SIZE) {
     const batch = Array.from({ length: PAGE_SIZE }, (_, j) => ({
@@ -38,9 +37,9 @@ async function createSeedBlog() {
       isMembership: false,
     }));
 
-    await blogModel.insertMany(batch, { ordered: false }); // MongoDB-операция пачечной вставки
+    await blogRepo.insert(batch);
 
-    console.log(`  inserted ${i + PAGE_SIZE}/${COUNT}`);
+    console.log(`inserted ${i + PAGE_SIZE}/${COUNT}`);
   }
 
   console.timeEnd('seed'); // замер реального времени выполнения
