@@ -29,8 +29,7 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
       });
     }
 
-    // * Сначала persistence, потом side effects:
-    // * мутации домена + сохранение в БД
+    // * Сначала persistence, потом side effects: мутации домена + сохранение в БД
     if (dto.isBanned === true) {
       user.isBanned = true; // бан
       user.banReason = dto.banReason; // причина
@@ -45,7 +44,7 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
 
     await this.usersRepo.updateBanStatus(user); // сохранили
 
-    // * публикация событий
+    // * Публикация событий
     if (dto.isBanned === true) {
       const event = new UserBannedEvent(user.id); // создаем событие
 

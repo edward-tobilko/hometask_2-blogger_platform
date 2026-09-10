@@ -29,7 +29,6 @@ import { ApiCreateUserSwagger } from '../decorators/users/swagger/create-swagger
 import { ApiDeleteUserSwagger } from '../decorators/users/swagger/delete-swagger.decorator';
 import { BanUserInputDto } from '../input-dto/ban-user.input-dto';
 import { BanUserCommand } from '../../application/use-cases/admins/ban-user.use-case';
-import { IdValidationPipe } from 'src/core/pipes/id-validation.pipe';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 
 @ApiTags('Users')
@@ -74,7 +73,7 @@ export class UsersController {
   @Put(':id/ban') // ban / unban user
   @HttpCode(204)
   async banUser(
-    @Param('id', IdValidationPipe) id: string,
+    @Param('id', UuidValidationPipe) id: string,
     @Body() dto: BanUserInputDto,
   ) {
     const command = new BanUserCommand({ userId: id, ...dto });
