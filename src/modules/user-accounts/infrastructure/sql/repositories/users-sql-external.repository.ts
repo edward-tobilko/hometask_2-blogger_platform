@@ -31,7 +31,7 @@ export class UsersSqlExternalRepository {
   ): Promise<UserAccountOrmEntity | null> {
     return this.userRepo.findOne({
       where: {
-        confirmationCode: code,
+        telegramConfirmationCode: code,
       },
     });
   }

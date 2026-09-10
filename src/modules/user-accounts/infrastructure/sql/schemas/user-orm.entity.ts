@@ -53,7 +53,7 @@ export class UserAccountOrmEntity {
 
   // * Extra fields over the basic API logic
   // * Вложеный обьект (сплющенные поля) "telegramNotification"
-  @Column({ name: 'telegram_chat_id', type: 'uuid', nullable: true })
+  @Column({ name: 'telegram_chat_id', type: 'varchar', nullable: true })
   telegramChatId!: string | null;
 
   @Column({
