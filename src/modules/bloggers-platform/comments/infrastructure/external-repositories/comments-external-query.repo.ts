@@ -25,7 +25,7 @@ export class CommentsExternalQueryRepository {
     userId?: string,
   ): Promise<CommentsPaginatedViewModel> {
     const [items, totalCount] = await this.commentRepo.findAndCount({
-      where: { postId },
+      where: { postId, isBanned: false },
       order: query.calculateSort(),
       skip: query.calculateSkip(),
       take: query.pageSize,
