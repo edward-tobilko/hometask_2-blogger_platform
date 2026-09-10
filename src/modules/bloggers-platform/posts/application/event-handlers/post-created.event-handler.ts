@@ -28,7 +28,7 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
         try {
           await this.telegramAdapter.sendMessage(
             user.telegramChatId,
-            `New post in blog "${blogName}": ${postTitle}`,
+            `🆕 New post published!\n\n📖 Blog: "${blogName}"\n📝 Post: ${postTitle}`,
           );
         } catch (error) {
           console.error('TELEGRAM_SEND_ERROR', error);

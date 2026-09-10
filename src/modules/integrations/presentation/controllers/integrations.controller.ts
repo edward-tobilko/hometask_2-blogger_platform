@@ -28,7 +28,7 @@ export class IntegrationsController {
 
     const link = await this.commandBus.execute(command);
 
-    return { link }; // возвращаем { link } с ссылкой на бота
+    return { link }; // возвращаем ссылку на бота
   }
 
   @Post('webhook')
