@@ -5,7 +5,7 @@ import { Server } from 'http';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
-import { BadRequestError } from '../utils/bad-request-error.util';
+import { BadRequestError } from '../../utils/bad-request-error.util';
 import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { SortDirections } from 'src/core/enums/sort-directions.enum';

@@ -9,8 +9,8 @@ import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
-import { BadRequestError } from '../utils/bad-request-error.util';
-import { expectErrorField } from '../utils/expect-error-field.util';
+import { BadRequestError } from '../../utils/bad-request-error.util';
+import { expectErrorField } from '../../utils/expect-error-field.util';
 import { CreateUserInputDto } from 'src/modules/user-accounts/api/input-dto/create-user.input-dto';
 import {
   loginConstraints,
