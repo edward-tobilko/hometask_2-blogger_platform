@@ -7,7 +7,10 @@ import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { GLOBAL_PREFIX } from 'src/setup/global-prefix.setup';
-import { BadRequestError } from '../utils/bad-request-error.util';
+import { BadRequestError } from '../../utils/bad-request-error.util';
+import { BanDuration } from 'src/core/enums/ban-duration.enum';
+import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
+import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
 
 describe('Users swagger contract', () => {
   let app: INestApplication;
@@ -15,6 +18,8 @@ describe('Users swagger contract', () => {
   let usersPath: string;
 
   let userTestManager: UserTestManager;
+  let blogTestManager: BlogTestManager;
+  let postTestManager: PostTestManager;
 
   beforeAll(async () => {
     const result = await initSettings((moduleBuilder) =>
@@ -28,6 +33,9 @@ describe('Users swagger contract', () => {
 
     app = result.app;
     userTestManager = result.userTestManager;
+    blogTestManager = result.blogTestManager;
+    postTestManager = result.postTestManager;
+
     httpServer = app.getHttpServer() as Server;
     usersPath = `/${GLOBAL_PREFIX}/sa/users` as string;
   });
@@ -36,7 +44,7 @@ describe('Users swagger contract', () => {
 
   beforeEach(async () => await deleteAllData(app));
 
-  describe('Tests for GET /api/sa/users end-point', () => {
+  describe('Tests for GET: /api/sa/users end-point', () => {
     it('status 200 - should return users list (12 users with pagination)', async () => {
       // * create 12 users
       await userTestManager.createSeveralUsers(12);
@@ -129,7 +137,7 @@ describe('Users swagger contract', () => {
     });
   });
 
-  describe('Tests for POST /api/sa/users end-point', () => {
+  describe('Tests for POST: /api/sa/users end-point', () => {
     it('status 201 - returns created user and this user appears in list', async () => {
       const dto = userTestManager.getUserInputDto();
 
@@ -255,7 +263,7 @@ describe('Users swagger contract', () => {
     });
   });
 
-  describe('Tests for DELETE /api/sa/users/{id} end-point', () => {
+  describe('Tests for DELETE: /api/sa/users/{id} end-point', () => {
     it('status 204 - should delete user', async () => {
       const dto = userTestManager.getUserInputDto();
 
@@ -286,6 +294,125 @@ describe('Users swagger contract', () => {
         '00000000-0000-0000-0000-000000000000',
         HttpStatus.NOT_FOUND,
       );
+    });
+  });
+
+  describe('Tests for PUT: /api/sa/users/:userId/ban end-point', () => {
+    it('status 204 - should ban user', async () => {
+      const dto = userTestManager.getUserInputDto();
+      const user = await userTestManager.createUser(dto);
+
+      await userTestManager.banUser(user.id, {
+        isBanned: true,
+        banReason: 'spam',
+        banExpiresAt: BanDuration.HOURS_12,
+      });
+    });
+
+    it('status 204 - should unban user', async () => {
+      const dto = userTestManager.getUserInputDto();
+      const user = await userTestManager.createUser(dto);
+
+      await userTestManager.banUser(user.id, {
+        isBanned: true,
+        banReason: 'spam',
+        banExpiresAt: BanDuration.DAYS_7,
+      });
+
+      await userTestManager.banUser(user.id, {
+        isBanned: false,
+        banExpiresAt: null,
+      });
+    });
+
+    it('status 401 - without Basic auth', async () => {
+      const user = await userTestManager.createUser(
+        userTestManager.getUserInputDto(),
+      );
+
+      await request(httpServer)
+        .put(`${usersPath}/${user.id}/ban`)
+        .send({ isBanned: true, banReason: 'spam', banExpiresAt: null })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('status 404 - user not found', async () => {
+      await userTestManager.banUser(
+        '00000000-0000-0000-0000-000000000000',
+        { isBanned: true, banReason: 'spam', banExpiresAt: null },
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('status 401 - banned user cannot login', async () => {
+      const dto = userTestManager.getUserInputDto(); // get dto
+
+      await userTestManager.createUser(dto); // create user
+
+      const users = await userTestManager.getUsersPaginatedList(); // get users
+      const userId = users.items[0].id; // get the firth user id
+
+      await userTestManager.banUser(userId, {
+        isBanned: true,
+        banReason: 'spam',
+        banExpiresAt: null,
+      });
+
+      await userTestManager.login(
+        { loginOrEmail: dto.login, password: dto.password },
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
+
+    // * Extra test over the basic logic
+    it('status 200 - banned user comments are hidden from GET /posts/:postId/comments', async () => {
+      // * создаём подтверждённого юзера
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      // * создаём блог и пост
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+      const post = await blogTestManager.createPostForBlog(
+        blog.id,
+        blogTestManager.getPostForBlogInputDto(),
+      );
+
+      // * юзер пишет комментарий
+      await postTestManager.createSeveralCommentsForPost(
+        post.id,
+        accessToken,
+        1,
+      );
+
+      // * до бана — комментарий виден
+      const before = await postTestManager.getCommentsForPostPaginatedList(
+        post.id,
+      );
+
+      expect(before.totalCount).toBe(1);
+
+      // * баним юзера
+      const users = await userTestManager.getUsersPaginatedList();
+
+      await userTestManager.banUser(users.items[0].id, {
+        isBanned: true,
+        banReason: 'spam',
+        banExpiresAt: null,
+      });
+
+      // * после бана — комментарий скрыт
+      const after = await postTestManager.getCommentsForPostPaginatedList(
+        post.id,
+      );
+
+      expect(after.totalCount).toBe(0);
+      expect(after.items).toHaveLength(0);
     });
   });
 });

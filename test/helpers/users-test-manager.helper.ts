@@ -20,6 +20,7 @@ import { RegistrationEmailResendingInputDto } from 'src/modules/user-accounts/ap
 import { NewPassword } from 'src/modules/user-accounts/api/input-dto/new-password.input-dto';
 import { UserSessionViewDto } from 'src/modules/user-accounts/api/view-dto/user-session.view-dto';
 import { UserAccountOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/user-orm.entity';
+import { BanUserInputDto } from 'src/modules/user-accounts/api/input-dto/ban-user.input-dto';
 
 export class UserTestManager {
   constructor(
@@ -250,6 +251,21 @@ export class UserTestManager {
     const response = await request(this.httpServer)
       .delete(`${this.usersPath}/${userId}`)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
+      .expect(statusCode);
+
+    return response.body;
+  }
+
+  // * Extra methods over the basic logic
+  async banUser(
+    userId: string,
+    dto: Partial<BanUserInputDto>,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<unknown> {
+    const response = await request(this.httpServer)
+      .put(`${this.usersPath}/${userId}/ban`)
+      .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
+      .send(dto)
       .expect(statusCode);
 
     return response.body;
