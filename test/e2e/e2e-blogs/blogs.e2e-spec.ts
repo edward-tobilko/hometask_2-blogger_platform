@@ -5,7 +5,7 @@ import { Server } from 'http';
 import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
-import { BadRequestError } from '../utils/bad-request-error.util';
+import { BadRequestError } from '../../utils/bad-request-error.util';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { SortDirections } from 'src/core/enums/sort-directions.enum';
 import { BlogsSortBy } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
@@ -22,10 +22,12 @@ import {
 } from 'src/modules/bloggers-platform/blogs/api/constraints/blogs.constraints';
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
+import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 
 describe('Blogs swagger contract', () => {
   let app: INestApplication;
   let httpServer: Server;
+  let saBlogsPath: string;
   let blogsPath: string;
 
   let blogTestManager: BlogTestManager;
@@ -37,7 +39,8 @@ describe('Blogs swagger contract', () => {
 
     app = result.app;
     httpServer = app.getHttpServer();
-    blogsPath = `/${GLOBAL_PREFIX}/sa/blogs` as string;
+    saBlogsPath = `/${GLOBAL_PREFIX}/sa/blogs` as string;
+    blogsPath = `/${GLOBAL_PREFIX}/blogs` as string;
 
     blogTestManager = result.blogTestManager;
     userTestManager = result.userTestManager;
@@ -70,8 +73,8 @@ describe('Blogs swagger contract', () => {
         websiteUrl: expect.any(String),
         createdAt: expect.any(String),
         isMembership: expect.any(Boolean),
-        // subscribersCount: expect.any(Number),
-        // currentUserSubscriptionStatus: expect.any(String),
+        subscribersCount: expect.any(Number),
+        currentUserSubscriptionStatus: expect.any(String),
       });
 
       // * на 2й сторанице -> pageSize=2 (totalCount=12, pagesCount=2)
@@ -162,8 +165,6 @@ describe('Blogs swagger contract', () => {
         websiteUrl: createdBlog.websiteUrl,
         createdAt: expect.any(String),
         isMembership: expect.any(Boolean),
-        // subscribersCount: expect.any(Number),
-        // currentUserSubscriptionStatus: expect.any(String),
       });
     });
 
@@ -237,7 +238,7 @@ describe('Blogs swagger contract', () => {
       const dto = blogTestManager.getBlogInputDto();
 
       await request(httpServer)
-        .post(blogsPath)
+        .post(saBlogsPath)
         .send(dto)
         .expect(HttpStatus.UNAUTHORIZED);
     });
@@ -474,7 +475,7 @@ describe('Blogs swagger contract', () => {
       const postDto = blogTestManager.getPostForBlogInputDto();
 
       await request(httpServer)
-        .post(`${blogsPath}/${createdBlog.id}/posts`)
+        .post(`${saBlogsPath}/${createdBlog.id}/posts`)
         .send(postDto)
         .expect(HttpStatus.UNAUTHORIZED);
     });
@@ -487,7 +488,11 @@ describe('Blogs swagger contract', () => {
 
       const blogIdRes = await blogTestManager.getBlogById(result.id);
 
-      expect(blogIdRes).toEqual(result);
+      expect(blogIdRes).toEqual({
+        ...result,
+        subscribersCount: 0,
+        currentUserSubscriptionStatus: 'None',
+      });
     });
 
     it('status 404 - if blog not found', async () => {
@@ -523,8 +528,8 @@ describe('Blogs swagger contract', () => {
         id: createdBlogResult.id,
         createdAt: expect.any(String),
         isMembership: false,
-        // subscribersCount: expect.any(Number),
-        // currentUserSubscriptionStatus: expect.any(String),
+        subscribersCount: expect.any(Number),
+        currentUserSubscriptionStatus: expect.any(String),
       });
     });
 
@@ -616,7 +621,7 @@ describe('Blogs swagger contract', () => {
       const createdBlogResult = await blogTestManager.createBlog(dto);
 
       await request(httpServer)
-        .put(`${blogsPath}/${createdBlogResult.id}`)
+        .put(`${saBlogsPath}/${createdBlogResult.id}`)
         .send(blogTestManager.getBlogInputDto())
         .expect(HttpStatus.UNAUTHORIZED);
     });
@@ -649,8 +654,167 @@ describe('Blogs swagger contract', () => {
       const blog = await blogTestManager.createBlog(dto);
 
       await request(httpServer)
-        .delete(`${blogsPath}/${blog.id}`)
+        .delete(`${saBlogsPath}/${blog.id}`)
         .expect(HttpStatus.UNAUTHORIZED);
+    });
+  });
+
+  describe('Tests for POST: /api/blogs/:id/subscribe end-point', () => {
+    it('status 204 - should subscribe to blog', async () => {
+      const blogDto = blogTestManager.getBlogInputDto();
+      const blog = await blogTestManager.createBlog(blogDto);
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+    });
+  });
+
+  describe('Tests for POST: /api/blogs/:id/subscribe end-point', () => {
+    it('status 204 - should subscribe to blog', async () => {
+      const blogDto = blogTestManager.getBlogInputDto();
+      const blog = await blogTestManager.createBlog(blogDto);
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+    });
+
+    it('status 401 - subscribe without auth token', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      await request(httpServer)
+        .post(`${blogsPath}/${blog.id}/subscribe`)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('status 404 - subscribe to non-existent blog', async () => {
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(
+        '00000000-0000-0000-0000-000000000000',
+        accessToken,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('status 400 - subscribe twice (already subscribed)', async () => {
+      const blogDto = blogTestManager.getBlogInputDto();
+      const blog = await blogTestManager.createBlog(blogDto);
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+      await blogTestManager.subscribeToBlog(
+        blog.id,
+        accessToken,
+        HttpStatus.BAD_REQUEST,
+      );
+    });
+  });
+
+  describe('Tests for DELETE: /api/blogs/:id/subscribe end-point', () => {
+    it('status 204 - should unsubscribe from blog', async () => {
+      const blogDto = blogTestManager.getBlogInputDto();
+      const blog = await blogTestManager.createBlog(blogDto);
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+      await blogTestManager.unsubscribeFromBlog(blog.id, accessToken);
+    });
+  });
+
+  describe('Tests for GET: /api/blogs/:id/subscribers/count end-point', () => {
+    it('status 200 - subscribersCount increments after subscribe', async () => {
+      const blogDto = blogTestManager.getBlogInputDto();
+      const blog = await blogTestManager.createBlog(blogDto);
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+
+      const updated = await blogTestManager.getBlogById(blog.id);
+
+      expect(updated.subscribersCount).toBe(1);
+    });
+
+    it('status 200 - currentUserSubscriptionStatus changes after subscribe / unsubscribe', async () => {
+      const blogDto = blogTestManager.getBlogInputDto();
+      const blog = await blogTestManager.createBlog(blogDto);
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      // * before subscribe — "None" (не авторизован или не подписан)
+      // * after subscribe — "Subscribed"
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+
+      const afterSubscribe = await blogTestManager.getBlogById(
+        blog.id,
+        HttpStatus.OK,
+        accessToken,
+      );
+
+      expect(afterSubscribe.currentUserSubscriptionStatus).toBe(
+        SubscriptionStatus.Subscribed,
+      );
+
+      // * after unsubscribe — Unsubscribed
+      await blogTestManager.unsubscribeFromBlog(blog.id, accessToken);
+
+      const afterUnsubscribe = await blogTestManager.getBlogById(
+        blog.id,
+        HttpStatus.OK,
+        accessToken,
+      );
+
+      expect(afterUnsubscribe.currentUserSubscriptionStatus).toBe(
+        'Unsubscribed',
+      );
     });
   });
 });

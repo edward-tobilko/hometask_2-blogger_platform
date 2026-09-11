@@ -112,10 +112,15 @@ export class BlogTestManager {
   async getBlogById(
     id: string,
     statusCode: number = HttpStatus.OK,
+    accessToken?: string,
   ): Promise<BlogViewModel> {
-    const response = await request(this.httpServer)
-      .get(`${this.blogsPath}/${id}`)
-      .expect(statusCode);
+    const req = request(this.httpServer).get(`${this.blogsPath}/${id}`);
+
+    if (accessToken) {
+      req.set('Authorization', `Bearer ${accessToken}`);
+    }
+
+    const response = await req.expect(statusCode);
 
     return response.body as BlogViewModel;
   }
@@ -209,6 +214,29 @@ export class BlogTestManager {
     await request(this.httpServer)
       .delete(`${this.saBlogsPath}/${id}`)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
+      .expect(statusCode);
+  }
+
+  // * Extra methods over the basic logic
+  async subscribeToBlog(
+    blogId: string,
+    accessToken: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<void> {
+    await request(this.httpServer)
+      .post(`${this.blogsPath}/${blogId}/subscribe`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(statusCode);
+  }
+
+  async unsubscribeFromBlog(
+    blogId: string,
+    accessToken: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<void> {
+    await request(this.httpServer)
+      .delete(`${this.blogsPath}/${blogId}/subscribe`)
+      .set('Authorization', `Bearer ${accessToken}`)
       .expect(statusCode);
   }
 }
