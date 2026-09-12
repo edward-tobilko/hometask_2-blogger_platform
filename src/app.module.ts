@@ -11,7 +11,6 @@ import { CoreModule } from './core/core.module';
 import { AllHttpExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
 import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exceptions.filter';
 import { configModule } from './config/dynamic-config.module';
-import { mongooseModule } from './config/mongoose.module';
 import { throttlerModule } from './config/throttler.module';
 import { CoreConfig } from './core/core.config';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
@@ -21,7 +20,6 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
   // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
   imports: [
     configModule,
-    mongooseModule,
 
     // * ограничение количества запросов с одного IP (Максимум 10 запросов за 60 секунд с одного IP).
     throttlerModule,

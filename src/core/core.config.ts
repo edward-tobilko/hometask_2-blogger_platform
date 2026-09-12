@@ -26,12 +26,6 @@ export class CoreConfig {
 
   @IsNotEmpty({
     message:
-      'Set env variable MONGO_URI, for example: mongodb://localhost:27017/my-app-local-db',
-  })
-  mongoURI: string = this.configService.get('MONGO_URI') ?? '';
-
-  @IsNotEmpty({
-    message:
       'Set env variable POSTGRES_URI, for example: postgresql://localhost:5432/my_app_local_db',
   })
   postgresURI: string = this.configService.get('POSTGRES_URI') ?? '';
