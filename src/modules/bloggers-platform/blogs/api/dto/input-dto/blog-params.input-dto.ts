@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsObjectId } from 'src/core/decorators/is-object-id.decorator';
+import { IsUUId } from 'src/core/decorators/is-object-id.decorator';
 
 export class BlogIdParamDto {
   @ApiProperty({ description: 'Existing blog id' })
-  @IsObjectId()
+  @IsUUId()
   id!: string;
 }
 
 export class BlogIdForPostsParamDto {
-  @IsObjectId()
+  @IsUUId()
   blogId!: string;
 }

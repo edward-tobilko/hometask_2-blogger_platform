@@ -1,6 +1,6 @@
-import { IsObjectId } from 'src/core/decorators/is-object-id.decorator';
+import { IsUUId } from 'src/core/decorators/is-object-id.decorator';
 
 export class PostIdParamDto {
-  @IsObjectId()
+  @IsUUId()
   postId!: string;
 }
