@@ -5,7 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  // ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -62,7 +61,6 @@ export class SecurityDevicesController {
   @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteSecurityDevice(
-    // @Param('deviceId', ParseUUIDPipe) deviceId: string, // ! для авто теста отключаем UUID, так как тест ожидает ObjectId
     @Param('deviceId') deviceId: string,
     @CurrentUserFromRequest() currentUser: { id: string },
   ) {
@@ -74,5 +72,3 @@ export class SecurityDevicesController {
     return this.commandBus.execute(command);
   }
 }
-
-// ? ParseUUIDPipe - валидирует UUID с коробки
