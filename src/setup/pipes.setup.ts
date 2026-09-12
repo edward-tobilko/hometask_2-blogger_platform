@@ -9,9 +9,8 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { ObjectIdValidationTransformationPipe } from 'src/core/pipes/object-id-validation-transformation.pipe';
 
-// * функция использует рекурсию для обхода объекта children при вложенных полях при валидации (корректно обрабатывает вложенные объекты в обьекте).
+// * Функция использует рекурсию для обхода объекта children при вложенных полях при валидации (корректно обрабатывает вложенные объекты в обьекте).
 export const errorFormatter = (
   errors: ValidationError[],
   errorMessage?: Extension[],
@@ -25,11 +24,11 @@ export const errorFormatter = (
     } else if (error.constraints) {
       const constrainKeys = Object.keys(error.constraints);
 
-      // * перебираем нарушения одного вложеного поля (name). Одно поле может нарушать несколько правил одновременно (но у нас stopAtFirstError: true, поэтому будет максимум одно).
+      // * Перебираем нарушения одного вложеного поля (name). Одно поле может нарушать несколько правил одновременно (но у нас stopAtFirstError: true, поэтому будет максимум одно).
       for (const key of constrainKeys) {
         errorsForResponse.push({
           message: error.constraints[key]
-            ? `${error.constraints[key]}; Received value: ${error?.value}` // -> blogId must be a mongodb id; Received value: 1
+            ? `${error.constraints[key]}; Received value: ${error?.value}` // -> blogId must be a UUID id; Received value: 1
             : '',
           key: error.property, // -> blogId
         });
@@ -43,14 +42,12 @@ export const errorFormatter = (
 export function pipesSetup(app: INestApplication) {
   // * Глобальный пайп для валидации и трансформации входящих данных
   app.useGlobalPipes(
-    new ObjectIdValidationTransformationPipe(),
-
     new ValidationPipe({
       transform: true, // входные данные автоматически преобразуются в экземпляр DTO-класса, разрешает @Transform декораторы работать (без этого, например, строки не превратятся в числа).
       whitelist: true, // убирает из DTO поля, которых нет в классе (защита от лишних данных в запросе)
       stopAtFirstError: true, // выдает первую ошибку для каждого поля
 
-      // * Для преобразования ошибок класс валидатора в необходимый вид (превращает ошибки валидации в DomainException → они попадут в DomainHttpExceptionsFilter → ответ будет в едином формате для всего API).
+      // * Для преобразования ошибок класс валидатора в необходимый вид (превращает ошибки валидации в DomainException -> они попадут в DomainHttpExceptionsFilter -> ответ будет в едином формате для всего API).
       exceptionFactory: (errors) => {
         const formattedErrors = errorFormatter(errors);
 
