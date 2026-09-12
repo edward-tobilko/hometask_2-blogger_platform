@@ -27,5 +27,5 @@ export class PostOrmEntity {
   likesCount!: number; // денормализованный счётчик, обновляются при каждом лайке
 
   @Column({ name: 'dislikes_count', type: 'int', default: 0 })
-  dislikesCount!: number; // денормализованный счётчик, обновляются при каждом лайке
+  dislikesCount!: number; // денормализация
 }
