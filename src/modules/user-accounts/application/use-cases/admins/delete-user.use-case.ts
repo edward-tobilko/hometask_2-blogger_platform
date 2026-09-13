@@ -24,8 +24,10 @@ export class DeleteUserUseCase implements ICommandHandler<
         message: `The user with ID:${id} was not found`,
       });
 
-    existingUser.deletedAt = new Date(); // прямое присвоение даты удаления (так как у нас нету domain methods)
+    // existingUser.deletedAt = new Date(); // прямое присвоение даты удаления
 
-    await this.usersRepo.save(existingUser);
+    // await this.usersRepo.save(existingUser);
+
+    await this.usersRepo.softDelete(existingUser.id); // typeORM автоматически присваевает дату удаления
   }
 }

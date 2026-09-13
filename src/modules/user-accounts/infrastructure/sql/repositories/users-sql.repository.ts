@@ -108,8 +108,13 @@ export class UsersSqlRepository {
   }
 
   // * hard delete
-  async delete(id: string): Promise<void> {
+  async hardDelete(id: string): Promise<void> {
     await this.usersRepo.delete({ id });
+  }
+
+  // * soft delete
+  async softDelete(id: string): Promise<void> {
+    await this.usersRepo.softDelete({ id });
   }
 
   // * Extra method over the basic API logic
