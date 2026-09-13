@@ -12,6 +12,7 @@ export const typeOrmModule = TypeOrmModule.forRootAsync({
       url: coreConfig.postgresURI,
       autoLoadEntities: true,
       synchronize: true,
+      // logging: coreConfig.isProduction ? false : true,
     };
   },
 });
