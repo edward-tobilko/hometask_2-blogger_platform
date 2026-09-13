@@ -1,17 +1,9 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity } from 'typeorm';
+
+import { BaseDBEntity } from 'src/core/base-entity/base-db.entity';
 
 @Entity('user_accounts') // in SQL the convention is 'snake_case'
-export class UserAccountOrmEntity {
-  @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
-  id!: string;
-
+export class UserAccountOrmEntity extends BaseDBEntity {
   @Column({ unique: true })
   login!: string;
 
@@ -41,15 +33,6 @@ export class UserAccountOrmEntity {
 
   @Column({ name: 'recovery_code_expiry', type: 'timestamptz', nullable: true })
   recoveryCodeExpiry!: Date | null;
-
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
-  updatedAt!: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
-  deletedAt!: Date | null;
 
   // * Extra fields over the basic API logic
   // * Вложеный обьект (сплющенные поля) "telegramNotification"
