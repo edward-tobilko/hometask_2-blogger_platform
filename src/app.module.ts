@@ -29,10 +29,10 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
     UserAccountsModule,
     // CounterModule,
 
+    CoreModule,
+
     // * Extra module over the basic API logic
     IntegrationsModule,
-
-    CoreModule,
   ],
 
   // * обработчики HTTP-запросов (они инжектятся в DI, но не "используются" другими классами — они точка входа HTTP-запросов)
