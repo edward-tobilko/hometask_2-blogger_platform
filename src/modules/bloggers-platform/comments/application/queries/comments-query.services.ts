@@ -23,7 +23,10 @@ export class GetCommentByIdQuery implements IQueryHandler<
     id,
     userId,
   }: GetCommentByIdQueryHandler): Promise<CommentViewModel> {
-    const existingComment = await this.commentsQueryRepo.findById(id, userId);
+    const existingComment = await this.commentsQueryRepo.findByIdRaw(
+      id,
+      userId,
+    );
 
     if (!existingComment)
       throw new DomainException({
