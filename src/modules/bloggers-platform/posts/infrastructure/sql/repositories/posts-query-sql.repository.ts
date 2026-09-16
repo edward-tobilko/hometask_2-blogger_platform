@@ -100,7 +100,7 @@ export class PostsQuerySqlRepository {
   async findNewestLikes(postId: string): Promise<PostLikeOrmEntity[]> {
     return this.postLikesQueryRepo.find({
       where: { postId, status: LikeStatus.Like },
-      relations: { user: true }, // @ManyToOne -> что бы вытащить login
+      relations: { user: true }, // snapshot: [{1},{2},{3}]
       order: { addedAt: 'DESC' },
       take: 3,
     });
@@ -113,7 +113,7 @@ export class PostsQuerySqlRepository {
 
     const allLikes = await this.postLikesQueryRepo.find({
       where: { postId: In(postIds), status: LikeStatus.Like }, // postId - скалярное значения, просто фильтрация, join не нужен
-      relations: { user: true }, // relation (обьект) - нужен login пользователя из другой таблицы
+      relations: { user: true }, // @ManyToOne -> нужен login пользователя из другой таблицы
       order: { addedAt: 'DESC' },
     });
 

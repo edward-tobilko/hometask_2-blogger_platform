@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-  Unique,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { CommentOrmEntity } from './comment-orm.entity';
@@ -29,6 +22,5 @@ export class CommentLikeOrmEntity {
   userName!: string | null;
 
   @ManyToOne(() => CommentOrmEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'comment_id' })
   comment!: CommentOrmEntity;
 }

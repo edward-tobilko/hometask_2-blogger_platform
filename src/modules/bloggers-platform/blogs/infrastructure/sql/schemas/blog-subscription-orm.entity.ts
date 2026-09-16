@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryColumn,
   Unique,
@@ -28,10 +27,8 @@ export class BlogSubscriptionsOrmEntity {
 
   // * Joins
   @ManyToOne(() => UserAccountOrmEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
   user!: UserAccountOrmEntity;
 
   @ManyToOne(() => BlogOrmEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'blog_id' })
   blog!: BlogOrmEntity;
 }
