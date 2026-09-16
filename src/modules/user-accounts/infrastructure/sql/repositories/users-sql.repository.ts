@@ -24,6 +24,13 @@ export class UsersSqlRepository {
     return existingUser;
   }
 
+  async findByIdWithBanInfo(id: string): Promise<UserAccountOrmEntity | null> {
+    return this.usersRepo.findOne({
+      where: { id, deletedAt: IsNull() },
+      relations: { userBanInfo: true },
+    });
+  }
+
   async findByEmail(email: string): Promise<UserAccountOrmEntity | null> {
     return this.usersRepo.findOne({ where: { email, deletedAt: IsNull() } });
   }
@@ -39,9 +46,11 @@ export class UsersSqlRepository {
     return this.usersRepo.findOne({
       where: [
         { login, deletedAt: IsNull() },
-        // * or
+        // * SQL -> OR
         { email, deletedAt: IsNull() },
       ],
+
+      relations: { userBanInfo: true },
     });
   }
 
@@ -107,32 +116,15 @@ export class UsersSqlRepository {
     return this.usersRepo.save(user);
   }
 
-  // * hard delete
+  // * Hard delete
   async hardDelete(id: string): Promise<void> {
     await this.usersRepo.delete({ id });
   }
 
-  // * soft delete
+  // * Soft delete (если есть @DeleteDateColumn)
   async softDelete(id: string): Promise<void> {
-    await this.usersRepo.softDelete({ id });
-  }
+    await this.usersRepo.softDelete({ id }); // UPDATE wallet SET "deletedAt" = NOW() WHERE id = 12
 
-  // * Extra method over the basic API logic
-  async updateBanStatus(user: UserAccountOrmEntity): Promise<void> {
-    await this.usersRepo.update(
-      {
-        id: user.id,
-      },
-
-      {
-        isBanned: user.isBanned,
-        banReason: user.banReason,
-        bannedAt: user.bannedAt,
-        banExpiresAt: user.banExpiresAt,
-      },
-    );
+    // await this.usersRepo.restore({ id }); // восстановить soft-удалённое: UPDATE wallet SET "deletedAt" = NULL WHERE id = 12
   }
 }
-
-// ? [] в where = SQL OR.
-// ? метод save(...) — обновить существующую запись.

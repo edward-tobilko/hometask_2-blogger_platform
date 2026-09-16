@@ -49,6 +49,7 @@ import { SecurityDevicesSqlRepository } from './infrastructure/sql/repositories/
 import { SecurityDeviceOrmEntity } from './infrastructure/sql/schemas/security-device-orm.entity';
 import { SecurityDevicesSqlQueryRepository } from './infrastructure/sql/repositories/security-devices-query-sql.repository';
 import { UsersSqlExternalRepository } from './infrastructure/sql/repositories/users-sql-external.repository';
+import { ExtraUserBanInfoOrmEntity } from './infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
@@ -94,7 +95,11 @@ const strategies = [
     JwtModule,
     PassportModule,
 
-    TypeOrmModule.forFeature([UserAccountOrmEntity, SecurityDeviceOrmEntity]),
+    TypeOrmModule.forFeature([
+      UserAccountOrmEntity,
+      SecurityDeviceOrmEntity,
+      ExtraUserBanInfoOrmEntity,
+    ]),
 
     forwardRef(() => BloggersPlatformModule), // для решения проблеммы с circular dependency
   ],

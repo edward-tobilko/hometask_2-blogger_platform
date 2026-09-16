@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 
 import { BaseDBEntity } from 'src/core/base-entity/base-db.entity';
+import { ExtraUserBanInfoOrmEntity } from './extra-user-ban-info-orm.entity';
 
 @Entity('user_accounts') // in SQL the convention is 'snake_case'
 export class UserAccountOrmEntity extends BaseDBEntity {
@@ -47,31 +48,13 @@ export class UserAccountOrmEntity extends BaseDBEntity {
   })
   telegramConfirmationCode!: string | null;
 
-  // * Вложеный обьект (сплющенные поля) "banInfo"
-  @Column({ name: 'is_banned', type: Boolean, default: false })
-  isBanned!: boolean;
-
-  @Column({
-    name: 'ban_reason',
-    type: 'varchar',
-    default: null,
-    nullable: true,
-  })
-  banReason!: string | null;
-
-  @Column({
-    name: 'banned_at',
-    type: 'timestamptz',
-    default: null,
-    nullable: true,
-  })
-  bannedAt!: Date | null;
-
-  @Column({
-    name: 'ban_expires_at',
-    type: 'timestamptz',
-    default: null,
-    nullable: true,
-  })
-  banExpiresAt!: Date | null;
+  // * Joins
+  @OneToOne(
+    () => ExtraUserBanInfoOrmEntity,
+    (userBanInfo) => userBanInfo.userAccount,
+    {
+      cascade: true,
+    },
+  )
+  userBanInfo!: ExtraUserBanInfoOrmEntity;
 }

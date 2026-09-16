@@ -35,24 +35,29 @@ export class AuthService {
 
     // * Проверка если isBanned = true
     if (
-      user.isBanned &&
-      (!user.banExpiresAt || user.banExpiresAt > new Date())
+      user.userBanInfo?.isBanned &&
+      (!user.userBanInfo?.banExpiresAt ||
+        user.userBanInfo?.banExpiresAt > new Date())
     ) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        message: user.banExpiresAt
-          ? `Your account is banned until ${user.banExpiresAt.toISOString()}`
+        message: user.userBanInfo?.banExpiresAt
+          ? `Your account is banned until ${user.userBanInfo?.banExpiresAt.toISOString()}`
           : 'Your account is permanently banned',
       });
     }
 
     // * Бан истёк — сбрасываем флаги в БД
-    if (user.isBanned && user.banExpiresAt && user.banExpiresAt <= new Date()) {
-      user.isBanned = false;
-      user.banExpiresAt = null;
-      user.banReason = null;
+    if (
+      user.userBanInfo?.isBanned &&
+      user.userBanInfo?.banExpiresAt &&
+      user.userBanInfo?.banExpiresAt <= new Date()
+    ) {
+      user.userBanInfo.isBanned = false;
+      user.userBanInfo.banExpiresAt = null;
+      user.userBanInfo.banReason = null;
 
-      await this.usersRepo.updateBanStatus(user);
+      await this.usersRepo.save(user);
     }
 
     const isValidPass = await this.cryptoService.compareHash(

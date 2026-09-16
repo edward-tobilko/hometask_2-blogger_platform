@@ -7,6 +7,7 @@ import { UserUnBannedEvent } from 'src/modules/user-accounts/domain/events/user-
 import { BanUserDomainDto } from './../../../domain/dto/ban-user.dto';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 import { calculateExpiresAt } from 'src/core/utils/calculate-expires-at.util';
+import { ExtraUserBanInfoOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
 
 export class BanUserCommand {
   constructor(public readonly dto: BanUserDomainDto) {}
@@ -20,7 +21,7 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
   ) {}
 
   async execute({ dto }: BanUserCommand): Promise<void> {
-    const user = await this.usersRepo.findById(dto.userId);
+    const user = await this.usersRepo.findByIdWithBanInfo(dto.userId);
 
     if (!user) {
       throw new DomainException({
@@ -29,20 +30,24 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
       });
     }
 
-    // * Сначала persistence, потом side effects: мутации домена + сохранение в БД
-    if (dto.isBanned === true) {
-      user.isBanned = true; // бан
-      user.banReason = dto.banReason; // причина
-      user.bannedAt = new Date(); // когда забанен (дата в текущий момент)
-      user.banExpiresAt = calculateExpiresAt(dto.banExpiresAt); // к какой дате и времени будет анбан
-    } else if (dto.isBanned === false) {
-      user.isBanned = false;
-      user.banReason = null;
-      user.bannedAt = null;
-      user.banExpiresAt = null;
+    if (!user.userBanInfo) {
+      user.userBanInfo = new ExtraUserBanInfoOrmEntity();
     }
 
-    await this.usersRepo.updateBanStatus(user); // сохранили
+    // * Сначала persistence, потом side effects: мутации домена + сохранение в БД
+    if (dto.isBanned === true) {
+      user.userBanInfo.isBanned = true; // бан
+      user.userBanInfo.banReason = dto.banReason; // причина
+      user.userBanInfo.bannedAt = new Date(); // когда забанен (дата в текущий момент)
+      user.userBanInfo.banExpiresAt = calculateExpiresAt(dto.banExpiresAt); // к какой дате и времени будет анбан
+    } else if (dto.isBanned === false) {
+      user.userBanInfo.isBanned = false;
+      user.userBanInfo.banReason = null;
+      user.userBanInfo.bannedAt = null;
+      user.userBanInfo.banExpiresAt = null;
+    }
+
+    await this.usersRepo.save(user); // сохранили
 
     // * Публикация событий
     if (dto.isBanned === true) {
