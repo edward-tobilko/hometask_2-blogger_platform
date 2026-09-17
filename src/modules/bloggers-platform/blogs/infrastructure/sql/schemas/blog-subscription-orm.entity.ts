@@ -10,7 +10,7 @@ import {
 import { UserAccountOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/user-orm.entity';
 import { BlogOrmEntity } from './blog-orm.entity';
 
-@Unique(['userId', 'blogId'])
+@Unique('UQ_blog_subscriptions_user_id_blog_id', ['userId', 'blogId'])
 @Entity('blog_subscriptions')
 export class BlogSubscriptionsOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })

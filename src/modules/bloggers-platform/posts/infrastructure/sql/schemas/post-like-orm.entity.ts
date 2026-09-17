@@ -12,7 +12,7 @@ import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostOrmEntity } from './post-orm.entity';
 import { UserAccountOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/user-orm.entity';
 
-@Unique(['postId', 'userId'])
+@Unique('UQ_post_likes_post_id_user_id', ['postId', 'userId']) // UQ
 @Entity('post_likes')
 export class PostLikeOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })

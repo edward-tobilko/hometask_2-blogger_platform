@@ -3,7 +3,7 @@ import { Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { CommentOrmEntity } from './comment-orm.entity';
 
-@Unique(['commentId', 'userId'])
+@Unique('UQ_comment_likes_comment_id_user_id', ['commentId', 'userId'])
 @Entity('comment_likes')
 export class CommentLikeOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
