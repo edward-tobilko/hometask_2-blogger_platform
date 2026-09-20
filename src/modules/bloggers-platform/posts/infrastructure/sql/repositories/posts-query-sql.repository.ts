@@ -66,24 +66,34 @@ export class PostsQuerySqlRepository {
     });
   }
 
-  async findById(id: string, userId?: string): Promise<PostViewModel | null> {
-    const existingPost = await this.postsQueryRepo.findOneBy({ id });
+  async findById(id: string, userId?: string): Promise<any> {
+    const builder = this.postsQueryRepo
+      .createQueryBuilder('p')
+      // .leftJoinAndSelect('p', 'u')
+      .where('p.id = :id', { id });
+    // .andWhere('u.id = :userId', { userId });
 
-    if (!existingPost) return null;
+    const [sql, params] = builder.getQueryAndParameters();
 
-    const myStatus = userId
-      ? await this.findUserCurrentLikeStatus(userId, id)
-      : LikeStatus.None;
+    console.log(sql, params);
 
-    const newestLikes = await this.findNewestLikes(id);
+    return builder.getOne();
 
-    const postOutput = PostViewModel.mapToViewModel(
-      existingPost,
-      myStatus ?? LikeStatus.None,
-      newestLikes,
-    );
+    // if (!existingPost) return null;
 
-    return postOutput;
+    // const myStatus = userId
+    //   ? await this.findUserCurrentLikeStatus(userId, id)
+    //   : LikeStatus.None;
+
+    // const newestLikes = await this.findNewestLikes(id);
+
+    // const postOutput = PostViewModel.mapToViewModel(
+    //   existingPost,
+    //   myStatus ?? LikeStatus.None,
+    //   newestLikes,
+    // );
+
+    // return postOutput;
   }
 
   async findUserCurrentLikeStatus(
