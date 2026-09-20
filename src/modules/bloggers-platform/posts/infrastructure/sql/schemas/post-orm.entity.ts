@@ -17,8 +17,8 @@ export class PostOrmEntity {
   @Column({ name: 'blog_id', type: 'uuid' })
   blogId!: string; // FK + blog name
 
-  @Column({ name: 'blog_name', type: 'varchar' })
-  blogName!: string;
+  @Column({ name: 'blog_name', type: 'varchar', nullable: true })
+  blogName!: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;

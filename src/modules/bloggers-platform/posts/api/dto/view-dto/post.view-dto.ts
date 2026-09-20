@@ -42,7 +42,7 @@ export class PostViewModel {
   @ApiProperty() shortDescription!: string;
   @ApiProperty() content!: string;
   @ApiProperty() blogId!: string;
-  @ApiProperty() blogName!: string;
+  @ApiProperty() blogName!: string | null;
   @ApiProperty() createdAt!: Date;
 
   @ApiProperty({
