@@ -9,6 +9,20 @@ import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api
 import { PostOrmEntity } from '../schemas/post-orm.entity';
 import { PostLikeOrmEntity } from '../schemas/post-like-orm.entity';
 
+interface PostAndPostLikeRaw {
+  p_id: string;
+  p_title: string;
+  p_short_description: string;
+  p_content: string;
+  p_blog_id: string;
+  p_created_at: Date;
+  p_likes_count: number;
+  p_dislikes_count: number;
+  p_blog_name: string | null;
+
+  pl_status: LikeStatus | null;
+}
+
 @Injectable()
 export class PostsQuerySqlRepository {
   constructor(
@@ -18,6 +32,35 @@ export class PostsQuerySqlRepository {
     @InjectRepository(PostLikeOrmEntity)
     private readonly postLikesQueryRepo: Repository<PostLikeOrmEntity>,
   ) {}
+
+  static mapRawToViewModel(
+    raw: PostAndPostLikeRaw,
+    newestLikes: PostLikeOrmEntity[] = [],
+  ): PostViewModel {
+    const dto = new PostViewModel();
+
+    dto.id = raw.p_id;
+    dto.title = raw.p_title;
+    dto.shortDescription = raw.p_short_description;
+    dto.content = raw.p_content;
+    dto.blogId = raw.p_blog_id;
+    dto.blogName = raw.p_blog_name;
+    dto.createdAt = raw.p_created_at;
+
+    dto.extendedLikesInfo = {
+      likesCount: raw.p_likes_count,
+      dislikesCount: raw.p_dislikes_count,
+      myStatus: raw.pl_status ?? LikeStatus.None,
+
+      newestLikes: newestLikes.map((newestLike) => ({
+        addedAt: newestLike.addedAt,
+        userId: newestLike.userId,
+        login: newestLike.user.login,
+      })),
+    };
+
+    return dto;
+  }
 
   async findAll(
     query: PostsQueryDto,
@@ -31,13 +74,13 @@ export class PostsQuerySqlRepository {
       take: query.pageSize, // default 10 posts
     });
 
-    // * Batch-load likes for the current page to avoid N+1.
+    // * Batch-load likes for the current page to avoid N+1 (быстрый поиск по ключу без повторных запросов к БД).
     const likesMap = new Map<string, LikeStatus>(); // строим Map для быстрого поиска
 
     const postIds = items.map((post) => post.id); // in-memory processing
 
     if (userId && items.length > 0) {
-      // один запрос за всеми лайками текущего юзера
+      // * Один запрос — все лайки текущего юзера для всех постов страницы
       const userLikes = await this.postLikesQueryRepo.findBy({
         postId: In(postIds),
         userId,
@@ -59,41 +102,45 @@ export class PostsQuerySqlRepository {
       // * Маппим посты синхронно, никаких async / await — всё уже в памяти!
       items: items.map((post) => {
         const myStatus = likesMap.get(post.id) ?? LikeStatus.None;
-        const newestLikes = newestLikesMap.get(post.id) ?? [];
+        const newestLikes = newestLikesMap.get(post.id) ?? []; // поиск по хешу
 
         return PostViewModel.mapToViewModel(post, myStatus, newestLikes);
       }),
     });
   }
 
-  async findById(id: string, userId?: string): Promise<any> {
+  async findById(id: string, userId?: string): Promise<PostViewModel | null> {
     const builder = this.postsQueryRepo
       .createQueryBuilder('p')
-      // .leftJoinAndSelect('p', 'u')
+      .select([
+        'p.id',
+        'p.title',
+        'p.shortDescription',
+        'p.content',
+        'p.blogId',
+        'p.blogName',
+        'p.createdAt',
+      ])
+      .addSelect(['p.likesCount', 'p.dislikesCount'])
+      .leftJoin(
+        PostLikeOrmEntity,
+        'pl',
+        'pl.post_id = p.id AND pl.user_id = :userId',
+        { userId: userId ?? null },
+      )
+      .addSelect(['pl.status'])
       .where('p.id = :id', { id });
-    // .andWhere('u.id = :userId', { userId });
+
+    const raw = await builder.getRawOne<PostAndPostLikeRaw>();
+
+    if (!raw) return null;
+
+    const newestLikes = await this.findNewestLikes(id);
 
     const [sql, params] = builder.getQueryAndParameters();
-
     console.log(sql, params);
 
-    return builder.getOne();
-
-    // if (!existingPost) return null;
-
-    // const myStatus = userId
-    //   ? await this.findUserCurrentLikeStatus(userId, id)
-    //   : LikeStatus.None;
-
-    // const newestLikes = await this.findNewestLikes(id);
-
-    // const postOutput = PostViewModel.mapToViewModel(
-    //   existingPost,
-    //   myStatus ?? LikeStatus.None,
-    //   newestLikes,
-    // );
-
-    // return postOutput;
+    return PostsQuerySqlRepository.mapRawToViewModel(raw, newestLikes);
   }
 
   async findUserCurrentLikeStatus(
