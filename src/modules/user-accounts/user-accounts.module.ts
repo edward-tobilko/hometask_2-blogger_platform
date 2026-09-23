@@ -23,7 +23,7 @@ import { PasswordRecoveryUseCase } from './application/use-cases/users/password-
 import { NewPasswordUseCase } from './application/use-cases/users/new-password.use-case';
 import { LoginUseCase } from './application/use-cases/users/login.use-case';
 import { MeUseCase } from './application/queries/me.query';
-import { UsersExternalQueryRepository } from './infrastructure/external-query/users.external-query-repo';
+import { UsersExternalQueryRepository } from './infrastructure/external-repo/users.external-query-repo';
 import { UserAccountsConfig } from './config/user-accounts.config';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
@@ -48,7 +48,7 @@ import { UsersSqlQueryRepository } from './infrastructure/sql/repositories/users
 import { SecurityDevicesSqlRepository } from './infrastructure/sql/repositories/security-devices-sql.repository';
 import { SecurityDeviceOrmEntity } from './infrastructure/sql/schemas/security-device-orm.entity';
 import { SecurityDevicesSqlQueryRepository } from './infrastructure/sql/repositories/security-devices-query-sql.repository';
-import { UsersSqlExternalRepository } from './infrastructure/sql/repositories/users-sql-external.repository';
+import { UsersExternalRepository } from './infrastructure/external-repo/users.external-repo';
 import { ExtraUserBanInfoOrmEntity } from './infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
 
 const handlers = {
@@ -155,9 +155,9 @@ const strategies = [
 
     // * Externals
     UsersExternalQueryRepository,
-    UsersSqlExternalRepository,
+    UsersExternalRepository,
   ],
 
-  exports: [UsersExternalQueryRepository, UsersSqlExternalRepository],
+  exports: [UsersExternalQueryRepository, UsersExternalRepository],
 })
 export class UserAccountsModule {}

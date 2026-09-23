@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, Repository } from 'typeorm';
 
-import { UserAccountOrmEntity } from '../schemas/user-orm.entity';
+import { UserAccountOrmEntity } from '../sql/schemas/user-orm.entity';
 
 @Injectable()
-export class UsersSqlExternalRepository {
+export class UsersExternalRepository {
   constructor(
     @InjectRepository(UserAccountOrmEntity)
     private readonly userRepo: Repository<UserAccountOrmEntity>,
