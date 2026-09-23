@@ -5,7 +5,7 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { calculateLikeDislike } from 'src/core/utils/calculate-like-dislike.util';
 import { CommentsSqlRepository } from '../../infrastructure/sql/repositories/comments-sql.repo';
-import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
+import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-query-repo';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
