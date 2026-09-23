@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { TelegramWebhookDto } from '../../presentation/input-dto/telegram-webhook.input-dto';
-import { UsersSqlExternalRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql-external.repository';
+import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-repo';
 
 export class HandleTelegramWebhookCommand {
   constructor(public readonly dto: TelegramWebhookDto) {}
@@ -12,7 +12,7 @@ export class HandleTelegramWebhookUseCase implements ICommandHandler<
   HandleTelegramWebhookCommand,
   void
 > {
-  constructor(private usersExternalRepo: UsersSqlExternalRepository) {}
+  constructor(private usersExternalRepo: UsersExternalRepository) {}
 
   async execute({ dto }: HandleTelegramWebhookCommand): Promise<void> {
     console.log('webhook dto:', JSON.stringify(dto));
