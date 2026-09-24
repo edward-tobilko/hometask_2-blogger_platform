@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
-import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
+import {
+  NewestLikeViewModel,
+  PostViewModel,
+} from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import { PostOrmEntity } from '../schemas/post-orm.entity';
 import { PostLikeOrmEntity } from '../schemas/post-like-orm.entity';
@@ -23,6 +26,15 @@ interface PostAndPostLikeRaw {
   pl_status: LikeStatus | null;
 }
 
+interface NewestLikeRaw {
+  post_id: string;
+  user_id: string;
+  added_at: Date;
+  login: string;
+
+  row_number: string; // PostgreSQL возвращает bigint как string
+}
+
 @Injectable()
 export class PostsQuerySqlRepository {
   constructor(
@@ -31,6 +43,8 @@ export class PostsQuerySqlRepository {
 
     @InjectRepository(PostLikeOrmEntity)
     private readonly postLikesQueryRepo: Repository<PostLikeOrmEntity>,
+
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   static mapRawToViewModel(
@@ -91,7 +105,28 @@ export class PostsQuerySqlRepository {
       }
     }
 
-    const newestLikesMap = await this.findNewestLikesBatchLoad(postIds);
+    const newestLikesRaw = await this.dataSource.query<NewestLikeRaw[]>(
+      `
+        WITH newestLikesBatchLoad AS (
+          SELECT pl.post_id, pl.user_id, pl.added_at, u.login,
+          ROW_NUMBER() OVER (PARTITION BY pl.post_id ORDER BY pl.added_at DESC) as "row_number"
+          FROM PUBLIC.post_likes pl
+          JOIN PUBLIC.user_accounts u ON u.id = pl.user_id
+          WHERE pl.post_id = ANY($1::uuid[]) AND pl.status = 'Like'
+        ) SELECT * FROM newestLikesBatchLoad WHERE row_number <= 3;
+      `,
+      [postIds], // $1
+    );
+
+    const newestLikesMap = new Map<string, NewestLikeRaw[]>();
+
+    // * Групируем плоский массив в Map
+    for (const likeRow of newestLikesRaw) {
+      const existingPostLike = newestLikesMap.get(likeRow.post_id) ?? [];
+
+      existingPostLike.push(likeRow);
+      newestLikesMap.set(likeRow.post_id, existingPostLike);
+    }
 
     return PostsPaginatedViewModel.mapToView({
       pagesCount: Math.ceil(totalCount / query.pageSize),
@@ -102,7 +137,13 @@ export class PostsQuerySqlRepository {
       // * Маппим посты синхронно, никаких async / await — всё уже в памяти!
       items: items.map((post) => {
         const myStatus = likesMap.get(post.id) ?? LikeStatus.None;
-        const newestLikes = newestLikesMap.get(post.id) ?? []; // поиск по хешу
+
+        const newestLikes: NewestLikeViewModel[] =
+          newestLikesMap.get(post.id)?.map((newestLikeRow) => ({
+            addedAt: newestLikeRow.added_at,
+            userId: newestLikeRow.user_id,
+            login: newestLikeRow.login,
+          })) ?? [];
 
         return PostViewModel.mapToViewModel(post, myStatus, newestLikes);
       }),
@@ -161,28 +202,5 @@ export class PostsQuerySqlRepository {
       order: { addedAt: 'DESC' },
       take: 3,
     });
-  }
-
-  async findNewestLikesBatchLoad(
-    postIds: string[],
-  ): Promise<Map<string, PostLikeOrmEntity[]>> {
-    const newestLikesMap = new Map<string, PostLikeOrmEntity[]>();
-
-    const allLikes = await this.postLikesQueryRepo.find({
-      where: { postId: In(postIds), status: LikeStatus.Like }, // postId - скалярное значения, просто фильтрация, join не нужен
-      relations: { user: true }, // @ManyToOne -> нужен login пользователя из другой таблицы
-      order: { addedAt: 'DESC' },
-    });
-
-    for (const like of allLikes) {
-      const existingPostLike = newestLikesMap.get(like.postId) ?? [];
-
-      if (existingPostLike.length < 3) {
-        existingPostLike.push(like);
-        newestLikesMap.set(like.postId, existingPostLike);
-      }
-    }
-
-    return newestLikesMap;
   }
 }

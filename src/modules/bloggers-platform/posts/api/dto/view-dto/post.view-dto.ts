@@ -1,8 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { PostOrmEntity } from '../../../infrastructure/sql/schemas/post-orm.entity';
-import { PostLikeOrmEntity } from '../../../infrastructure/sql/schemas/post-like-orm.entity';
+
+interface PostFields {
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string | null;
+  createdAt: Date;
+  likesCount: number;
+  dislikesCount: number;
+}
 
 export class NewestLikeViewModel {
   @ApiProperty()
@@ -51,9 +61,9 @@ export class PostViewModel {
   extendedLikesInfo!: ExtendedLikesInfoViewModel;
 
   static mapToViewModel(
-    post: PostOrmEntity,
+    post: PostFields,
     myStatus: LikeStatus = LikeStatus.None,
-    newestLikes: PostLikeOrmEntity[] = [],
+    newestLikes: NewestLikeViewModel[] = [],
   ): PostViewModel {
     const dto = new PostViewModel();
 
@@ -63,7 +73,7 @@ export class PostViewModel {
     dto.content = post.content;
     dto.blogId = post.blogId.toString();
     dto.blogName = post.blogName;
-    dto.createdAt = post.createdAt; // отдаем ту дату, которая в entity
+    dto.createdAt = post.createdAt;
 
     dto.extendedLikesInfo = {
       likesCount: post.likesCount,
@@ -73,7 +83,7 @@ export class PostViewModel {
       newestLikes: newestLikes.map((newestLike) => ({
         addedAt: newestLike.addedAt,
         userId: newestLike.userId,
-        login: newestLike.user.login,
+        login: newestLike.login,
       })),
     };
 
