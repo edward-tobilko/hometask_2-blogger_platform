@@ -7,6 +7,20 @@ import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto
 import { CommentOrmEntity } from '../schemas/comment-orm.entity';
 import { CommentLikeOrmEntity } from '../schemas/comment-like-orm.entity';
 
+interface CommentRaw {
+  c_id: string;
+  c_post_id: string;
+  c_content: string;
+  c_created_at: Date;
+  c_user_id: string;
+  c_user_login: string;
+  c_likes_count: number;
+  c_dislikes_count: number;
+  c_is_banned: boolean;
+
+  cl_status: LikeStatus | null;
+}
+
 @Injectable()
 export class CommentsSqlQueryRepository {
   constructor(
@@ -19,6 +33,28 @@ export class CommentsSqlQueryRepository {
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
+
+  static mapRawToViewModel(commentRaw: CommentRaw): CommentViewModel {
+    const dto = new CommentViewModel();
+
+    dto.id = commentRaw.c_id;
+    dto.content = commentRaw.c_content;
+
+    dto.commentatorInfo = {
+      userId: commentRaw.c_user_id,
+      userLogin: commentRaw.c_user_login,
+    };
+
+    dto.createdAt = commentRaw.c_created_at;
+
+    dto.likesInfo = {
+      likesCount: commentRaw.c_likes_count ?? 0,
+      dislikesCount: commentRaw.c_dislikes_count ?? 0,
+      myStatus: commentRaw.cl_status ?? LikeStatus.None,
+    };
+
+    return dto;
+  }
 
   async findByIdRaw(
     id: string,
@@ -46,6 +82,46 @@ export class CommentsSqlQueryRepository {
       result[0],
       result[0].status ?? LikeStatus.None,
     );
+  }
+
+  async findByIdCTE(
+    id: string,
+    userId?: string,
+  ): Promise<CommentViewModel | null> {
+    // * Тело CTE (внутренний запрос)
+    const commentCTEBuilder = this.commentRepo
+      .createQueryBuilder('c')
+      .select([
+        'c.id',
+        'c.postId',
+        'c.content',
+        'c.createdAt',
+        'c.userId',
+        'c.userLogin',
+        'c.likesCount',
+        'c.dislikesCount',
+        'c.isBanned',
+      ])
+      .addSelect(['cl.status'])
+      .leftJoin(
+        'comment_likes',
+        'cl',
+        'cl.comment_id = c.id AND cl.user_id = :userId', // связь таблиц по условию (ON cl.comment_id = c.id) и (AND) след. условие нужно если лайка нет, строка комментария всё равно вернётся, просто cl.status будет NULL;
+        { userId },
+      )
+      .where('c.id = :id', { id }) // фильтр по конкретному комментарию, который запрашивается. Без него вернулись бы все комментарии;
+      .andWhere('c.is_banned = false');
+
+    // * Оборачиваем в CTE и делаем внешний SELECT
+    const commentRaw = await this.dataSource
+      .createQueryBuilder()
+      .addCommonTableExpression(commentCTEBuilder, 'comment_with_status')
+      .from('comment_with_status', 'cws')
+      .getRawOne<CommentRaw>();
+
+    if (!commentRaw) return null;
+
+    return CommentsSqlQueryRepository.mapRawToViewModel(commentRaw);
   }
 
   async findById(
