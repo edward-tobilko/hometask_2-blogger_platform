@@ -1,7 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryColumn, Unique } from 'typeorm';
+import { Column, Entity, PrimaryColumn, Unique } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { CommentOrmEntity } from './comment-orm.entity';
 
 @Unique('UQ_comment_likes_comment_id_user_id', ['commentId', 'userId'])
 @Entity('comment_likes')
@@ -20,7 +19,4 @@ export class CommentLikeOrmEntity {
 
   @Column({ name: 'user_name', type: 'varchar', nullable: true })
   userName!: string | null;
-
-  @ManyToOne(() => CommentOrmEntity, { onDelete: 'CASCADE' })
-  comment!: CommentOrmEntity;
 }
