@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 
-interface PostFields {
+interface PostViewFields {
   id: string;
   title: string;
   shortDescription: string;
@@ -61,7 +61,7 @@ export class PostViewModel {
   extendedLikesInfo!: ExtendedLikesInfoViewModel;
 
   static mapToViewModel(
-    post: PostFields,
+    post: PostViewFields,
     myStatus: LikeStatus = LikeStatus.None,
     newestLikes: NewestLikeViewModel[] = [],
   ): PostViewModel {
