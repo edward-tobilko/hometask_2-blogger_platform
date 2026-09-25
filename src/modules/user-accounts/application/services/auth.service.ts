@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CryptoService } from './crypto.service';
 import { UsersSqlRepository } from '../../infrastructure/sql/repositories/users-sql.repository';
+import { UserUnBannedEvent } from '../../domain/events/user-unbanned.event';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersRepo: UsersSqlRepository,
     private cryptoService: CryptoService,
+
+    private eventBus: EventBus,
   ) {}
 
   async validateUser(
@@ -58,6 +62,7 @@ export class AuthService {
       user.userBanInfo.banReason = null;
 
       await this.usersRepo.save(user);
+      await this.eventBus.publish(new UserUnBannedEvent(user.id));
     }
 
     const isValidPass = await this.cryptoService.compareHash(
