@@ -50,7 +50,7 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
       nextLikeStatus,
     );
 
-    const user = await this.userAccounts.getByIdOrNotFoundFail(userId);
+    const user = await this.userAccounts.getByIdOrNotFoundFailQB(userId);
 
     return this.commentsRepo.setLikeStatusForComment(
       commentId,

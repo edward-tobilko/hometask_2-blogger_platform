@@ -38,7 +38,7 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
         message: `This post with ID:${postId} was not found`,
       });
 
-    const user = await this.externalUsersRepo.getByIdOrNotFoundFail(userId);
+    const user = await this.externalUsersRepo.getByIdOrNotFoundFailQB(userId);
 
     const commentInstance = await this.commentsRepo.create(
       postId,
