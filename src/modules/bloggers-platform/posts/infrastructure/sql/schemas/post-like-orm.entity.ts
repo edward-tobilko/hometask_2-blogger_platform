@@ -2,15 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   PrimaryColumn,
   Unique,
 } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { PostOrmEntity } from './post-orm.entity';
-import { UserAccountOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/user-orm.entity';
 
 @Unique('UQ_post_likes_post_id_user_id', ['postId', 'userId']) // UQ
 @Entity('post_likes')
@@ -29,13 +25,4 @@ export class PostLikeOrmEntity {
 
   @CreateDateColumn({ name: 'added_at', type: 'timestamptz' })
   addedAt!: Date; // нужен в ответе для "newestLikes" (3 последних лайка)
-
-  // * Joins
-  @ManyToOne(() => PostOrmEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'post_id' }) // TypeORM знает, что post_id — FK на posts.id
-  post!: PostOrmEntity;
-
-  @ManyToOne(() => UserAccountOrmEntity)
-  @JoinColumn({ name: 'user_id' }) // TypeORM знает, что user_id — FK на user_accounts.id
-  user!: UserAccountOrmEntity; // нужен для JOIN чтобы вытащить login пользователя в newestLikes
 }

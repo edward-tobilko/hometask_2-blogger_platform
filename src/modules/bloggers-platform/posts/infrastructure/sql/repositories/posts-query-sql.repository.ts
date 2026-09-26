@@ -11,8 +11,9 @@ import {
 import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import { PostOrmEntity } from '../schemas/post-orm.entity';
 import { PostLikeOrmEntity } from '../schemas/post-like-orm.entity';
+import { UserAccountOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/user-orm.entity';
 
-interface PostAndPostLikeRaw {
+interface PostAndPostLikeQBRaw {
   p_id: string;
   p_title: string;
   p_short_description: string;
@@ -48,8 +49,8 @@ export class PostsQuerySqlRepository {
   ) {}
 
   static mapRawToViewModel(
-    raw: PostAndPostLikeRaw,
-    newestLikes: PostLikeOrmEntity[] = [],
+    raw: PostAndPostLikeQBRaw,
+    newestLikes: NewestLikeRaw[] = [],
   ): PostViewModel {
     const dto = new PostViewModel();
 
@@ -67,9 +68,9 @@ export class PostsQuerySqlRepository {
       myStatus: raw.pl_status ?? LikeStatus.None,
 
       newestLikes: newestLikes.map((newestLike) => ({
-        addedAt: newestLike.addedAt,
-        userId: newestLike.userId,
-        login: newestLike.user.login,
+        addedAt: newestLike.added_at,
+        userId: newestLike.user_id,
+        login: newestLike.login,
       })),
     };
 
@@ -110,8 +111,8 @@ export class PostsQuerySqlRepository {
         WITH newestLikesBatchLoad AS (
           SELECT pl.post_id, pl.user_id, pl.added_at, u.login,
           ROW_NUMBER() OVER (PARTITION BY pl.post_id ORDER BY pl.added_at DESC) as "row_number"
-          FROM PUBLIC.post_likes pl
-          JOIN PUBLIC.user_accounts u ON u.id = pl.user_id
+          FROM post_likes pl
+          JOIN user_accounts u ON u.id = pl.user_id
           WHERE pl.post_id = ANY($1::uuid[]) AND pl.status = 'Like'
         ) SELECT * FROM newestLikesBatchLoad WHERE row_number <= 3;
       `,
@@ -151,7 +152,7 @@ export class PostsQuerySqlRepository {
   }
 
   async findById(id: string, userId?: string): Promise<PostViewModel | null> {
-    const builder = this.postsQueryRepo
+    const builderForPosts = this.postsQueryRepo
       .createQueryBuilder('p')
       .select([
         'p.id',
@@ -172,16 +173,27 @@ export class PostsQuerySqlRepository {
       .addSelect(['pl.status'])
       .where('p.id = :id', { id });
 
-    const raw = await builder.getRawOne<PostAndPostLikeRaw>();
+    const builderForNewestLikes = this.postLikesQueryRepo
+      .createQueryBuilder('pl')
+      .select('"pl"."user_id"', 'user_id')
+      .addSelect('"pl"."added_at"', 'added_at')
+      .addSelect('"u"."login"', 'login')
+      .leftJoin(UserAccountOrmEntity, 'u', 'u.id = pl.user_id')
+      .where('pl.post_id = :id', { id })
+      .andWhere('pl.status = :status', { status: LikeStatus.Like })
+      .orderBy('pl.added_at', 'DESC')
+      .take(3);
 
-    if (!raw) return null;
+    const postsRow = await builderForPosts.getRawOne<PostAndPostLikeQBRaw>();
+    const newestLikesRow =
+      await builderForNewestLikes.getRawMany<NewestLikeRaw>();
 
-    const newestLikes = await this.findNewestLikes(id);
+    if (!postsRow) return null;
 
-    const [sql, params] = builder.getQueryAndParameters();
+    const [sql, params] = builderForNewestLikes.getQueryAndParameters();
     console.log(sql, params);
 
-    return PostsQuerySqlRepository.mapRawToViewModel(raw, newestLikes);
+    return PostsQuerySqlRepository.mapRawToViewModel(postsRow, newestLikesRow);
   }
 
   async findUserCurrentLikeStatus(
@@ -193,14 +205,5 @@ export class PostsQuerySqlRepository {
     });
 
     return postInstance?.status ?? LikeStatus.None;
-  }
-
-  async findNewestLikes(postId: string): Promise<PostLikeOrmEntity[]> {
-    return this.postLikesQueryRepo.find({
-      where: { postId, status: LikeStatus.Like },
-      relations: { user: true }, // snapshot: [{1},{2},{3}]
-      order: { addedAt: 'DESC' },
-      take: 3,
-    });
   }
 }
