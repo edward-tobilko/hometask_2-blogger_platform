@@ -42,7 +42,12 @@ export class BlogsQuerySqlRepository {
         'subscribersCount',
       )
       .addSelect(
-        "CASE WHEN :userId::uuid IS NULL THEN 'None' WHEN EXISTS(SELECT 1 FROM blog_subscriptions bs WHERE bs.blog_id = blog.id AND bs.user_id = :userId::uuid) THEN 'Subscribed' ELSE 'Unsubscribed' END",
+        `CASE
+          WHEN :userId::uuid IS NULL THEN 'None'
+          WHEN EXISTS (SELECT 1 FROM blog_subscriptions bs WHERE bs.blog_id = blog.id AND bs.user_id = :userId::uuid) THEN 'Subscribed'
+          ELSE 'Unsubscribed'
+        END`,
+
         'currentUserSubscriptionStatus',
       )
       .setParameter('userId', userId ?? null)
