@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, IsNull, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, IsNull, Repository } from 'typeorm';
 
 import { UserAccountOrmEntity } from '../schemas/user-orm.entity';
 import { UsersQueryInputDto } from '../../../api/input-dto/users-query.input-dto';
@@ -23,20 +23,12 @@ export class UsersSqlQueryRepository {
     const loginTerm = searchLoginTerm?.trim();
     const emailTerm = searchEmailTerm?.trim();
 
-    const where: any[] = [];
+    const where: FindOptionsWhere<UserAccountOrmEntity>[] = [];
+    const base = { deletedAt: IsNull() };
 
-    if (loginTerm && emailTerm) {
-      where.push(
-        { login: ILike(`%${loginTerm}%`), deletedAt: IsNull() },
-        { email: ILike(`%${emailTerm}%`), deletedAt: IsNull() },
-      );
-    } else if (loginTerm) {
-      where.push({ login: ILike(`%${loginTerm}%`), deletedAt: IsNull() });
-    } else if (emailTerm) {
-      where.push({ email: ILike(`%${emailTerm}%`), deletedAt: IsNull() });
-    } else {
-      where.push({ deletedAt: IsNull() });
-    }
+    if (loginTerm) where.push({ ...base, login: ILike(`%${loginTerm}%`) });
+    if (emailTerm) where.push({ ...base, email: ILike(`%${emailTerm}%`) });
+    if (!loginTerm && !emailTerm) where.push(base);
 
     const [users, totalCount] = await this.usersRepo.findAndCount({
       where,
@@ -50,12 +42,7 @@ export class UsersSqlQueryRepository {
       pageSize,
       totalCount,
 
-      items: users.map((user) => ({
-        id: user.id,
-        login: user.login,
-        email: user.email,
-        createdAt: user.createdAt,
-      })),
+      items: users.map(UserViewDto.mapToViewModel),
     });
   }
 }
