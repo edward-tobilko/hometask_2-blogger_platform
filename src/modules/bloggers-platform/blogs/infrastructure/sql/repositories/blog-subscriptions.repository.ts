@@ -42,9 +42,13 @@ export class BlogSubscriptionsRepository {
   }
 
   async findSubscribersByBlogId(blogId: string): Promise<string[]> {
-    const subscriptions = await this.blogSubscriptionRepo.findBy({ blogId });
+    const userSubscriptions = await this.blogSubscriptionRepo
+      .createQueryBuilder('bs')
+      .select('bs.userId')
+      .where('bs.blogId = :blogId', { blogId })
+      .getMany();
 
-    const userIds = subscriptions.map((subscribe) => subscribe.userId);
+    const userIds = userSubscriptions.map((subscribe) => subscribe.userId);
 
     return userIds;
   }
