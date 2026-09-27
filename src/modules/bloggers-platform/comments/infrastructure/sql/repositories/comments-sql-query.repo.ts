@@ -6,6 +6,8 @@ import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import { CommentOrmEntity } from '../schemas/comment-orm.entity';
 import { CommentLikeOrmEntity } from '../schemas/comment-like-orm.entity';
+import { QueryDto } from 'src/core/dto/query.dto';
+import { CommentsPaginatedViewModel } from '../../../api/dto/view-dto/comments-paginated.view-dto';
 
 interface CommentRaw {
   c_id: string;
@@ -150,5 +152,60 @@ export class CommentsSqlQueryRepository {
     const myStatus = like?.status ?? LikeStatus.None;
 
     return CommentViewModel.mapToViewModel(commentInstance, myStatus);
+  }
+
+  async findByPostId(
+    postId: string,
+    query: QueryDto,
+    userId?: string,
+  ): Promise<CommentsPaginatedViewModel> {
+    const baseQb = this.commentRepo
+      .createQueryBuilder('c')
+      .select([
+        'c.id',
+        'c.postId',
+        'c.content',
+        'c.createdAt',
+        'c.userid',
+        'c.userLogin',
+        'c.likesCount',
+        'c.dislikesCount',
+        'c.isBanned',
+      ])
+      .addSelect(
+        (subQb) =>
+          subQb
+            .select('cl.status')
+            .from(CommentLikeOrmEntity, 'cl') // типа join
+            .where('cl.comment_id = c.id') // корреляция с внешним запросом
+            .andWhere('cl.user_id = :userId'), // параметр из внешнего QB
+
+        'cl_status', // alias — имя поля в getRawMany результате
+      )
+      .where('c.post_id = :postId', { postId })
+      .andWhere('c.is_banned = false')
+      .setParameter('userId', userId ?? null);
+
+    const totalCount = await baseQb.getCount();
+
+    const raw = await baseQb
+      .orderBy(
+        `c.${query.sortBy}`,
+        query.sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
+      .offset(query.calculateSkip())
+      .limit(query.pageSize)
+      .getRawMany<CommentRaw>();
+
+    return CommentsPaginatedViewModel.mapToView({
+      pagesCount: Math.ceil(totalCount / query.pageSize),
+      page: query.pageNumber,
+      pageSize: query.pageSize,
+      totalCount,
+
+      items: raw.map((postComment) => {
+        return CommentsSqlQueryRepository.mapRawToViewModel(postComment);
+      }),
+    });
   }
 }

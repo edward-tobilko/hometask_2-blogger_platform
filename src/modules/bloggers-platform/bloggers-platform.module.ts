@@ -42,7 +42,6 @@ import { CommentOrmEntity } from './comments/infrastructure/sql/schemas/comment-
 import { GetCommentByPostIdQueryHandler } from './posts/application/queries/get-comment-by-post-id.query';
 import { CommentLikeOrmEntity } from './comments/infrastructure/sql/schemas/comment-like-orm.entity';
 import { PostLikeOrmEntity } from './posts/infrastructure/sql/schemas/post-like-orm.entity';
-import { CommentsExternalQueryRepository } from './comments/infrastructure/external-repositories/comments-external-query.repo';
 import { GetBlogSubscribersCountHandler } from './blogs/application/queries/get-blog-subscribers-count.query';
 import { BlogSubscriptionsOrmEntity } from './blogs/infrastructure/sql/schemas/blog-subscription-orm.entity';
 
@@ -126,7 +125,6 @@ const eventHandlers = [PostCreatedEventHandler];
 
     // * External
     CommentsExternalRepository,
-    CommentsExternalQueryRepository,
     BlogsExternalQueryRepository,
   ],
 

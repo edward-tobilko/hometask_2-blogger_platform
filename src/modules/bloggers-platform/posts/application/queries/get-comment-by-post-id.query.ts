@@ -5,7 +5,7 @@ import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/commen
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
-import { CommentsExternalQueryRepository } from 'src/modules/bloggers-platform/comments/infrastructure/external-repositories/comments-external-query.repo';
+import { CommentsSqlQueryRepository } from 'src/modules/bloggers-platform/comments/infrastructure/sql/repositories/comments-sql-query.repo';
 
 export class GetCommentByPostIdQuery {
   constructor(
@@ -22,7 +22,7 @@ export class GetCommentByPostIdQueryHandler implements IQueryHandler<
 > {
   constructor(
     private postsRepo: PostsSqlRepository,
-    private commentsQueryRepo: CommentsExternalQueryRepository,
+    private commentsQueryRepo: CommentsSqlQueryRepository,
   ) {}
 
   async execute({
