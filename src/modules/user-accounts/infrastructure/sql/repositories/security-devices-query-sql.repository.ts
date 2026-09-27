@@ -12,18 +12,6 @@ export class SecurityDevicesSqlQueryRepository {
     private readonly securityDevicesQueryRepo: Repository<SecurityDeviceOrmEntity>,
   ) {}
 
-  async findByDeviceId(
-    deviceId: string,
-  ): Promise<SecurityDeviceOrmEntity | null> {
-    const deviceInstance = await this.securityDevicesQueryRepo.findOne({
-      where: {
-        deviceId,
-      },
-    });
-
-    return !deviceInstance ? null : deviceInstance;
-  }
-
   async findAllByUserId(userId: string): Promise<SecurityDevicesViewModel[]> {
     const deviceInstance = await this.securityDevicesQueryRepo.find({
       where: { userId },

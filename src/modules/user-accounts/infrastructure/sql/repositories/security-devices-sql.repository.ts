@@ -13,7 +13,11 @@ export class SecurityDevicesSqlRepository {
   ) {}
 
   async findById(deviceId: string): Promise<SecurityDeviceOrmEntity | null> {
-    return this.securityDevicesRepo.findOne({ where: { deviceId } });
+    const deviceInstance = await this.securityDevicesRepo.findOne({
+      where: { deviceId },
+    });
+
+    return !deviceInstance ? null : deviceInstance;
   }
 
   async save(securityDevices: SecurityDeviceOrmEntity): Promise<void> {
