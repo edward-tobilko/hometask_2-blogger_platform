@@ -57,7 +57,7 @@ export class BlogsQuerySqlRepository {
         queryParam.sortDirection.toUpperCase() as 'ASC' | 'DESC',
       );
 
-    const totalCount = await baseQb.getCount(); // считает без LIMIT / OFFSET
+    const totalCount = await baseQb.getCount(); // отдельный COUNT запрос, который считает без LIMIT / OFFSET
 
     const [sql, params] = baseQb.getQueryAndParameters();
     console.log(sql, params);
@@ -65,6 +65,8 @@ export class BlogsQuerySqlRepository {
     const { entities, raw } = await baseQb
       .skip(queryParam.calculateSkip())
       .take(pageSize)
+
+      // * Гибридный метод TypeORM: entities — маппинг в BlogOrmEntity (для основных полей), raw — "сырые" строки с агрегатами (subscribersCount, currentUserSubscriptionStatus;
       .getRawAndEntities<{
         subscribersCount: string;
         currentUserSubscriptionStatus: SubscriptionStatus;

@@ -114,7 +114,9 @@ export class PostsQuerySqlRepository {
           FROM post_likes pl
           JOIN user_accounts u ON u.id = pl.user_id
           WHERE pl.post_id = ANY($1::uuid[]) AND pl.status = 'Like'
-        ) SELECT * FROM newestLikesBatchLoad WHERE row_number <= 3;
+        )
+          
+        SELECT * FROM newestLikesBatchLoad WHERE row_number <= 3;
       `,
       [postIds], // $1
     );
@@ -178,7 +180,7 @@ export class PostsQuerySqlRepository {
       .select('"pl"."user_id"', 'user_id')
       .addSelect('"pl"."added_at"', 'added_at')
       .addSelect('"u"."login"', 'login')
-      .leftJoin(UserAccountOrmEntity, 'u', 'u.id = pl.user_id')
+      .leftJoin(UserAccountOrmEntity, 'u', 'u.id = pl.user_id') // кастомное ON-условие
       .where('pl.post_id = :id', { id })
       .andWhere('pl.status = :status', { status: LikeStatus.Like })
       .orderBy('pl.added_at', 'DESC')
