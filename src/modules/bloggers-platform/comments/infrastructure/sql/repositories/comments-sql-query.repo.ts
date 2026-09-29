@@ -166,7 +166,7 @@ export class CommentsSqlQueryRepository {
         'c.postId',
         'c.content',
         'c.createdAt',
-        'c.userid',
+        'c.userId',
         'c.userLogin',
         'c.likesCount',
         'c.dislikesCount',
