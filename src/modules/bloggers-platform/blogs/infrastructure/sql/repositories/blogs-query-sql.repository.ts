@@ -62,7 +62,7 @@ export class BlogsQuerySqlRepository {
     const [sql, params] = baseQb.getQueryAndParameters();
     console.log(sql, params);
 
-    const { entities, raw } = await baseQb
+    const { entities } = await baseQb
       .skip(queryParam.calculateSkip())
       .take(pageSize)
 
@@ -78,11 +78,11 @@ export class BlogsQuerySqlRepository {
       pageSize,
       totalCount,
 
-      items: entities.map((blog, index) => {
-        return BlogViewModel.extraLogicMapToViewModel(
+      items: entities.map((blog) => {
+        return BlogViewModel.mapToViewModel(
           blog,
-          Number(raw[index].subscribersCount),
-          raw[index].currentUserSubscriptionStatus,
+          // Number(raw[index].subscribersCount),
+          // raw[index].currentUserSubscriptionStatus,
         );
       }),
     });
@@ -115,10 +115,10 @@ export class BlogsQuerySqlRepository {
 
     if (!result[0]) return null;
 
-    return BlogViewModel.extraLogicMapToViewModel(
+    return BlogViewModel.mapToViewModel(
       result[0],
-      Number(result[0].subscribersCount),
-      result[0].currentUserSubscriptionStatus,
+      // Number(result[0].subscribersCount),
+      // result[0].currentUserSubscriptionStatus,
     );
   }
 
