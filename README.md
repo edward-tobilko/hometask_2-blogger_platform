@@ -84,23 +84,37 @@ Base URL: `/api`
 | `DELETE` | `/sa/users/:id`        | Basic | Delete a user                  |
 | `PUT`    | `/sa/users/:id/ban`    | Basic | Ban or unban a user            |
 
-### Blogs
+### Blogs (Public)
 
-| Method   | Endpoint                      | Auth  | Description                        |
-| -------- | ----------------------------- | ----- | ---------------------------------- |
-| `GET`    | `/blogs`                      | —     | List blogs (paginated, searchable) |
-| `GET`    | `/blogs/:id`                  | —     | Get blog by ID                     |
-| `GET`    | `/blogs/:blogId/posts`        | —     | List posts for a blog              |
-| `POST`   | `/sa/blogs`                   | Basic | Create a blog                      |
-| `PUT`    | `/sa/blogs/:id`               | Basic | Update a blog                      |
-| `DELETE` | `/sa/blogs/:id`               | Basic | Delete a blog                      |
-| `POST`   | `/sa/blogs/:blogId/posts`     | Basic | Create a post for a blog           |
+| Method   | Endpoint                           | Auth              | Description                        |
+| -------- | ---------------------------------- | ----------------- | ---------------------------------- |
+| `GET`    | `/blogs`                           | —                 | List blogs (paginated, searchable) |
+| `GET`    | `/blogs/:id`                       | —                 | Get blog by ID                     |
+| `GET`    | `/blogs/:blogId/posts`             | —                 | List posts for a blog              |
+| `GET`    | `/blogs/:blogId/posts/count`       | —                 | Get posts count for a blog (extra) |
+| `GET`    | `/blogs/:blogId/subscribers/count` | —                 | Get subscribers count (extra)      |
+| `POST`   | `/blogs/:blogId/subscribe`         | Bearer JWT        | Subscribe to a blog (extra)        |
+| `DELETE` | `/blogs/:blogId/subscribe`         | Bearer JWT        | Unsubscribe from a blog (extra)    |
+
+### Blogs (Admin)
+
+| Method   | Endpoint                              | Auth  | Description                      |
+| -------- | ------------------------------------- | ----- | -------------------------------- |
+| `GET`    | `/sa/blogs`                           | Basic | List all blogs (paginated)       |
+| `POST`   | `/sa/blogs`                           | Basic | Create a blog                    |
+| `PUT`    | `/sa/blogs/:id`                       | Basic | Update a blog                    |
+| `DELETE` | `/sa/blogs/:id`                       | Basic | Delete a blog                    |
+| `POST`   | `/sa/blogs/:blogId/posts`             | Basic | Create a post for a blog         |
+| `GET`    | `/sa/blogs/:blogId/posts`             | Basic | List posts for a blog            |
+| `PUT`    | `/sa/blogs/:blogId/posts/:postId`     | Basic | Update a post for a blog         |
+| `DELETE` | `/sa/blogs/:blogId/posts/:postId`     | Basic | Delete a post for a blog         |
 
 ### Posts
 
 | Method   | Endpoint                     | Auth       | Description                     |
 | -------- | ---------------------------- | ---------- | ------------------------------- |
 | `GET`    | `/posts`                     | —          | List posts (paginated)          |
+| `POST`   | `/posts`                     | Basic      | Create a post                   |
 | `GET`    | `/posts/:id`                 | —          | Get post by ID                  |
 | `PUT`    | `/posts/:id`                 | Basic      | Update a post                   |
 | `DELETE` | `/posts/:id`                 | Basic      | Delete a post                   |
@@ -316,12 +330,7 @@ Users can subscribe and unsubscribe from blogs. Each blog response includes:
 - `subscribersCount` — total number of active subscribers
 - `currentUserSubscriptionStatus` — `Subscribed` / `Unsubscribed` / `None` for the requesting user
 
-Implemented via SQL subqueries in TypeORM QueryBuilder to avoid N+1 queries.
-
-| Method   | Endpoint                   | Auth       | Description             |
-| -------- | -------------------------- | ---------- | ----------------------- |
-| `POST`   | `/blogs/:blogId/subscribe` | Bearer JWT | Subscribe to a blog     |
-| `DELETE` | `/blogs/:blogId/subscribe` | Bearer JWT | Unsubscribe from a blog |
+Implemented via SQL subqueries in TypeORM QueryBuilder to avoid N+1 queries. Endpoints listed in the [Blogs (Public)](#blogs-public) section above.
 
 ---
 
@@ -334,10 +343,10 @@ Users can link their Telegram account to receive notifications when a new post i
 - Notifications sent via domain event `PostCreatedEvent` → `PostCreatedEventHandler`
 - Failures are isolated per user — one failed send does not block others
 
-| Method | Endpoint                               | Auth       | Description                            |
-| ------ | -------------------------------------- | ---------- | -------------------------------------- |
-| `POST` | `/integrations/telegram/webhook`       | —          | Webhook receiver for Telegram Bot API  |
-| `GET`  | `/integrations/telegram/auth-bot-link` | Bearer JWT | Get personal deep-link to activate bot |
+| Method | Endpoint                         | Auth       | Description                            |
+| ------ | -------------------------------- | ---------- | -------------------------------------- |
+| `POST` | `/integrations/telegram/webhook` | —          | Webhook receiver for Telegram Bot API  |
+| `POST` | `/integrations/telegram/auth`    | Bearer JWT | Get personal deep-link to activate bot |
 
 ---
 
@@ -348,6 +357,7 @@ Admins can ban users with a configurable duration. Banned users cannot log in an
 - `BanDuration` enum: `HOURS_12`, `DAYS_7`, `PERMANENT`
 - `banExpiresAt` calculated and stored as `timestamptz | null` in `user_accounts` table
 - Ban state checked in `AuthService.validateUser` on every login attempt
+- Ban state also checked in `JwtStrategy.validate()` — banned users are immediately rejected on every authenticated request, even with a valid access token
 - Ban triggers `UserBannedEvent` → cascades: session revocation + comment visibility hidden
 - Unban triggers `UserUnBannedEvent` → comments restored
 
