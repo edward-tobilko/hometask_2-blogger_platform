@@ -12,7 +12,6 @@ import { AuthController } from './api/controllers/auth.controller';
 import { CryptoService } from './application/services/crypto.service';
 import { NodeMailerService } from './infrastructure/external-services/mailer.external-service';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
-import { BasicStrategy } from './guards/basic/basic.strategy';
 import { CreateUserUseCase } from './application/use-cases/admins/create-user.use-case';
 import { DeleteUserUseCase } from './application/use-cases/admins/delete-user.use-case';
 import { GetUsersListHandler } from './application/queries/get-users-list.query';
@@ -83,12 +82,7 @@ const handlers = {
   ],
 };
 
-const strategies = [
-  LocalStrategy,
-  JwtStrategy,
-  BasicStrategy,
-  RefreshTokenStrategy,
-];
+const strategies = [LocalStrategy, JwtStrategy, RefreshTokenStrategy];
 
 @Module({
   imports: [
