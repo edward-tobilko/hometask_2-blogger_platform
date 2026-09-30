@@ -49,7 +49,7 @@ export class UpdateCommentByIdUseCase implements ICommandHandler<
       });
     }
 
-    existingComment.content = dto.content;
+    existingComment.update(dto.content);
 
     await this.commentsRepo.save(existingComment);
   }

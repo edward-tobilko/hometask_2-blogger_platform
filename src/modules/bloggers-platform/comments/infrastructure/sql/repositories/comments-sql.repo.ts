@@ -44,14 +44,12 @@ export class CommentsSqlRepository {
     userId: string,
     userLogin: string,
   ): Promise<CommentOrmEntity> {
-    const commentInstance = this.commentRepo.create({
-      content,
+    const commentInstance = CommentOrmEntity.create(
       postId,
+      content,
       userId,
       userLogin,
-      likesCount: 0,
-      dislikesCount: 0,
-    });
+    );
 
     return this.save(commentInstance);
   }
