@@ -21,7 +21,7 @@ export class UpdatePostByIdUseCase implements ICommandHandler<
 > {
   constructor(private postsRepo: PostsSqlRepository) {}
 
-  // * private helper methods (Extract Method)
+  // * Private helper methods (Extract Method)
   private async findPostOrFail(id: string): Promise<PostOrmEntity> {
     const post = await this.postsRepo.findById(id);
 
@@ -36,7 +36,7 @@ export class UpdatePostByIdUseCase implements ICommandHandler<
   }
 
   async execute({ blogId, postId, dto }: UpdatePostByIdCommand): Promise<void> {
-    // * достаем инстанс поста по id с его методами
+    // * Достаем инстанс поста по id с его методами
     const existingPost = await this.findPostOrFail(postId);
 
     // * Если пост привязан к блогу навсегда — тогда нужно проверять что blogId из запроса совпадает с текущим, а если пост может менять блог — проверка не нужна.
@@ -46,12 +46,10 @@ export class UpdatePostByIdUseCase implements ICommandHandler<
         message: 'Post does not exist in this blog!',
       });
 
-    // * обновляем поля в памяти доменной сущности
-    existingPost.title = dto.title;
-    existingPost.shortDescription = dto.shortDescription;
-    existingPost.content = dto.content;
+    // * Обновляем поля в памяти доменной сущности
+    existingPost.update(dto);
 
-    // * сохраняем уже обновленный документ
+    // * Сохраняем уже обновленный документ
     await this.postsRepo.save(existingPost);
   }
 }

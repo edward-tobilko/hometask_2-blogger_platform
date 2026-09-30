@@ -1,5 +1,8 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
+import { CreatePostDomainDto } from '../../../domain/dto/create-post.domain-dto';
+import { UpdatePostDomainDto } from '../../../domain/dto/update-post.domain-dto';
+
 @Entity('posts')
 export class PostOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
@@ -28,4 +31,23 @@ export class PostOrmEntity {
 
   @Column({ name: 'dislikes_count', type: 'int', default: 0 })
   dislikesCount!: number; // денормализация
+
+  static create(dto: CreatePostDomainDto, blogName: string): PostOrmEntity {
+    const postInstance = new PostOrmEntity();
+
+    postInstance.title = dto.title;
+    postInstance.shortDescription = dto.shortDescription;
+    postInstance.content = dto.content;
+    postInstance.blogId = dto.blogId;
+
+    postInstance.blogName = blogName;
+
+    return postInstance;
+  }
+
+  update(dto: UpdatePostDomainDto): void {
+    this.title = dto.title;
+    this.shortDescription = dto.shortDescription;
+    this.content = dto.content;
+  }
 }
