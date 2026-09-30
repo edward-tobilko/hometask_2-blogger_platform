@@ -13,11 +13,7 @@ export class BlogsSqlRepository {
   ) {}
 
   async createByAdmin(dto: CreateBlogDomainDto): Promise<BlogOrmEntity> {
-    const blogInstance = this.blogsRepo.create({
-      name: dto.name,
-      description: dto.description,
-      websiteUrl: dto.websiteUrl,
-    });
+    const blogInstance = BlogOrmEntity.create(dto);
 
     return this.blogsRepo.save(blogInstance);
   }

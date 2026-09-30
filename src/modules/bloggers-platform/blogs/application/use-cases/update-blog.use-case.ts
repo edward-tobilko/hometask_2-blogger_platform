@@ -20,7 +20,7 @@ export class UpdateBlogUseCase implements ICommandHandler<
   constructor(private blogsRepo: BlogsSqlRepository) {}
 
   async execute({ id, dto }: UpdateBlogCommand): Promise<void> {
-    // * проверяем и достаем инстанс блога по id с его методами
+    // * Проверяем и достаем инстанс блога по id с его методами
     const blogInstance = await this.blogsRepo.findById(id);
 
     if (!blogInstance)
@@ -29,12 +29,10 @@ export class UpdateBlogUseCase implements ICommandHandler<
         message: `This blog with ID:${id} was not found`,
       });
 
-    // * обновляем поля в памяти доменной сущности
-    blogInstance.name = dto.name;
-    blogInstance.description = dto.description;
-    blogInstance.websiteUrl = dto.websiteUrl;
+    // * Обновляем поля в памяти доменной сущности
+    blogInstance.update(dto);
 
-    // * сохраняем уже обновленный документ
+    // * Сохраняем уже обновленный документ
     await this.blogsRepo.save(blogInstance);
   }
 }

@@ -1,5 +1,8 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
+import { UpdateBlogDomainDto } from '../../../domain/dto/update-blog.domain-dto';
+import { CreateBlogDomainDto } from '../../../domain/dto/create-blog.domain-dto';
+
 @Entity('blogs')
 export class BlogOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
@@ -19,4 +22,20 @@ export class BlogOrmEntity {
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
+
+  static create(dto: CreateBlogDomainDto): BlogOrmEntity {
+    const blogInstance = new BlogOrmEntity();
+
+    blogInstance.name = dto.name;
+    blogInstance.description = dto.description;
+    blogInstance.websiteUrl = dto.websiteUrl;
+
+    return blogInstance;
+  }
+
+  update(dto: UpdateBlogDomainDto) {
+    this.name = dto.name;
+    this.description = dto.description;
+    this.websiteUrl = dto.websiteUrl;
+  }
 }
