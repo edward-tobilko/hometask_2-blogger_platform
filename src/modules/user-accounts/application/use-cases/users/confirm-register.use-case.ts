@@ -57,8 +57,7 @@ export class ConfirmationRegistrationUseCase implements ICommandHandler<
         ],
       });
 
-    userAccount.emailConfirmationCodeExpiry = null;
-    userAccount.isConfirmed = true;
+    userAccount.confirmEmail();
 
     await this.usersRepo.save(userAccount);
   }

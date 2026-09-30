@@ -40,8 +40,6 @@ export class NewPasswordUseCase implements ICommandHandler<
         ],
       });
 
-    const passwordHash = await this.cryptoService.generateHash(newPassword);
-
     if (
       !user.recoveryCode ||
       !user.recoveryCodeExpiry ||
@@ -58,9 +56,9 @@ export class NewPasswordUseCase implements ICommandHandler<
         ],
       });
 
-    user.passwordHash = passwordHash;
-    user.recoveryCode = null;
-    user.recoveryCodeExpiry = null;
+    const passwordHash = await this.cryptoService.generateHash(newPassword);
+
+    user.setPassword(passwordHash);
 
     await this.usersRepo.save(user);
   }

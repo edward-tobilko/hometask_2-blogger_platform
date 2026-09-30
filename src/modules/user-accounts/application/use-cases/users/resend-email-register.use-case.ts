@@ -1,5 +1,4 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { randomUUID } from 'crypto';
 
 import {
   DomainException,
@@ -42,16 +41,12 @@ export class ResendConfirmationEmailUseCase implements ICommandHandler<
         extensions: [new Extension('Email is already confirmed', 'email')],
       });
 
-    const expirationDate = new Date();
-    expirationDate.setHours(expirationDate.getHours() + 1); // set new deadline
-
-    user.confirmationCode = randomUUID();
-    user.emailConfirmationCodeExpiry = expirationDate;
+    user.resendEmail();
 
     await this.usersRepo.save(user);
 
     this.eventBus.publish(
-      new UserRegisteredEvent(user.email, user.confirmationCode),
+      new UserRegisteredEvent(user.email, user.confirmationCode!),
     );
   }
 }

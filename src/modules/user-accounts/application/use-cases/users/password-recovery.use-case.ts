@@ -1,5 +1,4 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { randomUUID } from 'crypto';
 
 import { UserPasswordRecoveryEvent } from 'src/modules/user-accounts/domain/events/user-password-recovery.event';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
@@ -23,17 +22,12 @@ export class PasswordRecoveryUseCase implements ICommandHandler<
 
     if (!user) return; // не раскрываем факт существования email
 
-    // * set deadline for recovery code
-    const expirationDate = new Date();
-    expirationDate.setHours(expirationDate.getHours() + 1);
-
-    user.recoveryCode = randomUUID();
-    user.recoveryCodeExpiry = expirationDate;
+    user.setRecoveryCode();
 
     await this.usersRepo.save(user);
 
     this.eventBus.publish(
-      new UserPasswordRecoveryEvent(user.email, user.recoveryCode),
+      new UserPasswordRecoveryEvent(user.email, user.recoveryCode!),
     );
   }
 }

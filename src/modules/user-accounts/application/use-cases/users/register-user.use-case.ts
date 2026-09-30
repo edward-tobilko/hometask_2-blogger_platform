@@ -5,7 +5,6 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
 import { CryptoService } from '../../services/crypto.service';
 import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
 import { UsersService } from '../../services/users.service';
@@ -32,14 +31,11 @@ export class RegisterUserUseCase implements ICommandHandler<
 
     const passwordHash = await this.cryptoService.generateHash(dto.password);
 
-    const domainDto: CreateUserDomainDto = {
-      login: dto.login,
-      email: dto.email,
-      password: passwordHash,
-    };
-
     try {
-      const newUser = await this.usersRepo.create(domainDto);
+      const newUser = await this.usersRepo.create({
+        ...dto,
+        password: passwordHash,
+      });
 
       // * Вешаем ивент (сервис) для отправки письма. Нужно, что бы нашь кейс не зависил на прямую от стороннего сервиса (NodeMailerService).
       this.eventBus.publish(

@@ -31,27 +31,19 @@ export class CreateUserUseCase implements ICommandHandler<
   async execute({ dto }: CreateUserCommand): Promise<UserViewDto> {
     const passwordHash = await this.cryptoService.generateHash(dto.password);
 
-    const domainDto: CreateUserDomainDto = {
-      login: dto.login,
-      email: dto.email,
-      password: passwordHash,
-    };
-
-    // * проверка для создания юзера с однаковым login or email, так как у нас индексация по login / email в БД, а обьекты целиком не удалены с БД, а только позначены как deletedAt.
+    // * Проверка для создания юзера с однаковым login or email, так как у нас индексация по login / email в БД, а обьекты целиком не удалены с БД, а только позначены как deletedAt.
     try {
       const isUserConfirmed = this.userAccountsConfig.isUserConfirmed;
 
-      const userInstanceDoc = await this.usersRepo.createByAdmin(
-        domainDto,
+      const user = await this.usersRepo.createByAdmin(
+        {
+          ...dto,
+          password: passwordHash,
+        },
         isUserConfirmed,
       );
 
-      return {
-        id: userInstanceDoc.id,
-        login: userInstanceDoc.login,
-        email: userInstanceDoc.email,
-        createdAt: userInstanceDoc.createdAt,
-      };
+      return UserViewDto.mapToViewModel(user);
     } catch (error: unknown) {
       // * Эта проверка нужно для теста: парсим поле из ошибки PostgreSQL (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
       if (error instanceof Error && error.message.includes('duplicate key')) {

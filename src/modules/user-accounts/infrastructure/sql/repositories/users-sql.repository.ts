@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
-import { randomUUID } from 'crypto';
 
 import { UserAccountOrmEntity } from '../schemas/user-orm.entity';
 import { CreateUserDomainDto } from '../../../domain/dto/create-user.dto';
@@ -86,32 +85,13 @@ export class UsersSqlRepository {
     dto: CreateUserDomainDto,
     isUserConfirmed: boolean,
   ): Promise<UserAccountOrmEntity> {
-    // * В TypeORM мы сами собираем объект: создаём объект в памяти (без SQL) и сохраняем через this.usersRepo.save() - выполняет INSERT в базу.
-    const user = this.usersRepo.create({
-      login: dto.login,
-      email: dto.email,
-      passwordHash: dto.password,
-      confirmationCode: null,
-      emailConfirmationCodeExpiry: null,
-      isConfirmed: isUserConfirmed,
-    });
+    const user = UserAccountOrmEntity.create(dto, isUserConfirmed);
 
     return this.usersRepo.save(user);
   }
 
   async create(dto: CreateUserDomainDto): Promise<UserAccountOrmEntity> {
-    const expirationDate = new Date();
-
-    expirationDate.setHours(expirationDate.getHours() + 1);
-
-    const user = this.usersRepo.create({
-      login: dto.login,
-      email: dto.email,
-      passwordHash: dto.password,
-      confirmationCode: randomUUID(),
-      emailConfirmationCodeExpiry: expirationDate,
-      isConfirmed: false,
-    });
+    const user = UserAccountOrmEntity.createForRegistration(dto);
 
     return this.usersRepo.save(user);
   }
@@ -121,7 +101,7 @@ export class UsersSqlRepository {
     await this.usersRepo.delete({ id });
   }
 
-  // * Soft delete (если есть @DeleteDateColumn)
+  // * Soft delete (если есть @DeleteDateColumn() decorator)
   async softDelete(id: string): Promise<void> {
     await this.usersRepo.softDelete({ id }); // UPDATE wallet SET "deletedAt" = NOW() WHERE id = 12
 
