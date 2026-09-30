@@ -27,14 +27,7 @@ export class SecurityDevicesSqlRepository {
   async create(
     dto: CreateSecurityDevicesDomainDto,
   ): Promise<SecurityDeviceOrmEntity> {
-    const securityDevice = {
-      ip: dto.ip,
-      title: dto.title,
-      lastActiveDate: dto.lastActiveDate,
-      deviceId: dto.deviceId,
-      userId: dto.userId,
-      expiresAt: dto.expiresAt,
-    };
+    const securityDevice = SecurityDeviceOrmEntity.create(dto);
 
     return this.securityDevicesRepo.save(securityDevice);
   }

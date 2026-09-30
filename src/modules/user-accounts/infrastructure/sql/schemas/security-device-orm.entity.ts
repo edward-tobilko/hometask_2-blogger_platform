@@ -1,5 +1,7 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
+import { CreateSecurityDevicesDomainDto } from 'src/modules/user-accounts/domain/dto/create-security-devices.dto';
+
 @Entity('security_devices_session')
 export class SecurityDeviceOrmEntity {
   @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' }) // create PK id at the DB level
@@ -22,4 +24,17 @@ export class SecurityDeviceOrmEntity {
 
   @Column({ name: 'expires_at', type: 'timestamptz' })
   expiresAt!: Date;
+
+  static create(dto: CreateSecurityDevicesDomainDto): SecurityDeviceOrmEntity {
+    const securityDeviceInstance = new SecurityDeviceOrmEntity();
+
+    securityDeviceInstance.ip = dto.ip;
+    securityDeviceInstance.title = dto.title;
+    securityDeviceInstance.lastActiveDate = dto.lastActiveDate;
+    securityDeviceInstance.deviceId = dto.deviceId;
+    securityDeviceInstance.userId = dto.userId;
+    securityDeviceInstance.expiresAt = dto.expiresAt;
+
+    return securityDeviceInstance;
+  }
 }
