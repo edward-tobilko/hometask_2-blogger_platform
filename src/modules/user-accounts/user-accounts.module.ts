@@ -49,6 +49,7 @@ import { SecurityDeviceOrmEntity } from './infrastructure/sql/schemas/security-d
 import { SecurityDevicesSqlQueryRepository } from './infrastructure/sql/repositories/security-devices-query-sql.repository';
 import { UsersExternalRepository } from './infrastructure/external-repo/users.external-repo';
 import { ExtraUserBanInfoOrmEntity } from './infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
+import { UserPasswordRecoveryEventHandler } from './application/event-handlers/user-password-recovery.event-handler';
 
 const handlers = {
   queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
@@ -79,6 +80,7 @@ const handlers = {
     RevokeSessionsOnBanEventHandler,
     HideCommentsOnBanEventHandler,
     ShowCommentsOnUnBanEventHandler,
+    UserPasswordRecoveryEventHandler,
   ],
 };
 
