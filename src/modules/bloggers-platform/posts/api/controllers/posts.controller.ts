@@ -50,6 +50,7 @@ import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jw
 import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-post-id.query';
 import { PostIdParamDto } from '../dto/post-params.dto';
 import { UpdatePostLikeStatusCommand } from './../../application/use-cases/update-post-like-status.use-case';
+import { CommentsQueryDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
 
 @ApiTags('Posts')
 @SkipThrottle()
@@ -85,7 +86,7 @@ export class PostsController {
   @UseGuards(JwtOptionalAuthGuard)
   getCommentsForPost(
     @Param('postId', UuidValidationPipe) postId: string,
-    @Query() queryParams: PostsQueryDto,
+    @Query() queryParams: CommentsQueryDto,
     @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<CommentsPaginatedViewModel> {
     return this.queryBus.execute(

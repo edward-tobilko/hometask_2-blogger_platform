@@ -1,16 +1,16 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
-import { PostsQueryDto } from '../../api/dto/input-dto/posts-query.input-dto';
 import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
 import { CommentsSqlQueryRepository } from 'src/modules/bloggers-platform/comments/infrastructure/sql/repositories/comments-sql-query.repo';
+import { CommentsQueryDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
 
 export class GetCommentByPostIdQuery {
   constructor(
     public postId: string,
-    public query: PostsQueryDto,
+    public query: CommentsQueryDto,
     public userId?: string,
   ) {}
 }
