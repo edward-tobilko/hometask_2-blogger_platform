@@ -18,7 +18,7 @@ export class HandleTelegramWebhookUseCase implements ICommandHandler<
     console.log('webhook dto:', JSON.stringify(dto));
 
     const text = dto.message?.text;
-    const chatId = dto.message?.from.id;
+    const chatId = dto.message?.from.id; // сдесь chatId приходит из Telegram как number
 
     if (!text || !chatId) return;
 
@@ -26,14 +26,6 @@ export class HandleTelegramWebhookUseCase implements ICommandHandler<
 
     if (command !== '/start' || !code) return;
 
-    const userInstance =
-      await this.usersExternalRepo.findByTelegramConfirmationCode(code);
-
-    if (!userInstance) return;
-
-    userInstance.telegramChatId = String(chatId);
-    userInstance.telegramConfirmationCode = null;
-
-    await this.usersExternalRepo.save(userInstance);
+    await this.usersExternalRepo.linkTelegramChat(code, String(chatId));
   }
 }

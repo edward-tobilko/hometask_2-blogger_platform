@@ -1,5 +1,4 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { randomUUID } from 'crypto';
 
 import { CoreConfig } from 'src/core/core.config';
 import { DomainException } from 'src/core/exceptions/domain.exception';
@@ -21,23 +20,18 @@ export class GetTelegramAuthLinkUseCase implements ICommandHandler<
   ) {}
 
   async execute({ userId }: GetTelegramAuthLinkCommand): Promise<string> {
-    const userInstance = await this.usersExternalRepo.findById(userId);
+    const telegramConfirmCode =
+      await this.usersExternalRepo.issueTelegramConfirmationCode(userId);
 
-    if (!userInstance) {
+    if (!telegramConfirmCode) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `User with id:${userId} was not found!`,
       });
     }
 
-    const code = randomUUID();
-
-    userInstance.telegramConfirmationCode = code;
-
-    await this.usersExternalRepo.save(userInstance);
-
     const botName = this.coreConfig.telegramBotName;
-    const botLink = `https://t.me/${botName}?start=${code}`;
+    const botLink = `https://t.me/${botName}?start=${telegramConfirmCode}`;
 
     return botLink;
   }
