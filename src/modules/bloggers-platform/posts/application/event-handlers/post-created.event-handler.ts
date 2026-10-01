@@ -17,10 +17,15 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
     try {
       const { blogId, blogName, postTitle } = event;
 
+      // * Получаем массив userIds всех подписчиков этого блога.
       const userSubscriberIds =
-        await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId); // получаем массив userIds всех подписчиков этого блога
+        await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId);
 
-      const users = await this.usersExternalRepo.findByIds(userSubscriberIds); // передаём весь массив ID сразу, получаем всех пользователей одним запросом.
+      // * Передаём весь массив ID сразу, получаем всех пользователей одним запросом с выбраными двумя свойствами.
+      const users =
+        await this.usersExternalRepo.findTelegramContactsByIds(
+          userSubscriberIds,
+        );
 
       for (const user of users) {
         if (!user.telegramChatId) continue;
