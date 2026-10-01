@@ -1,7 +1,5 @@
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/post.view-dto';
-import { PostLikeOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-like-orm.entity';
-import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
 
 describe('PostViewModel.mapToViewModel', () => {
   const mockPostInstance = {
@@ -14,7 +12,7 @@ describe('PostViewModel.mapToViewModel', () => {
     createdAt: new Date('2024-01-01T00:00:00.000Z'),
     likesCount: 3,
     dislikesCount: 1,
-  } as PostOrmEntity;
+  };
 
   it('should map all basic fields correctly', () => {
     const result = PostViewModel.mapToViewModel(mockPostInstance);
@@ -56,12 +54,12 @@ describe('PostViewModel.mapToViewModel', () => {
     expect(result.extendedLikesInfo.myStatus).toBe(LikeStatus.Like);
   });
 
-  it('should map newestLikes with "user.login"', () => {
+  it('should map newestLikes with "login"', () => {
     const mockLikeInstance = {
       addedAt: new Date('2024-02-01T00:00:00.000Z'),
       userId: 'user-uuid-111',
-      user: { login: 'john' },
-    } as PostLikeOrmEntity;
+      login: 'john',
+    };
 
     const result = PostViewModel.mapToViewModel(
       mockPostInstance,
