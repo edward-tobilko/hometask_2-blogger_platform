@@ -43,6 +43,7 @@ export class ExtraUserBanInfoOrmEntity extends BaseDBEntity {
   @JoinColumn({ name: 'user_account_id' }) // FK
   userAccount!: UserAccountOrmEntity;
 
+  // * Extra methods over the basic logic
   private ban(dto: BanUserDomainDto): void {
     this.isBanned = true; // бан
     this.banReason = dto.banReason; // причина
@@ -65,7 +66,7 @@ export class ExtraUserBanInfoOrmEntity extends BaseDBEntity {
     }
   }
 
-  // * Бан действует прямо сейчас ?
+  // ? Бан действует прямо сейчас ?
   isBanActive(now: Date = new Date()): boolean {
     if (!this.isBanned) return false; // не забанен -> бан не действует
     if (this.banExpiresAt === null) return true; // бан навсегда -> действует
@@ -73,7 +74,7 @@ export class ExtraUserBanInfoOrmEntity extends BaseDBEntity {
     return this.banExpiresAt > now; // срок ещё не наступил -> действует
   }
 
-  // * Бан истёк ? Тогда снять его и сообщить, что он снят.
+  // ? Бан истёк ? Тогда снять его и сообщить, что он снят.
   liftIfBanExpired(now: Date = new Date()): boolean {
     if (!this.isBanned) return false; // не забанен -> снимать нечего
     if (this.banExpiresAt === null) return false; // бан навсегда -> сам не истекает

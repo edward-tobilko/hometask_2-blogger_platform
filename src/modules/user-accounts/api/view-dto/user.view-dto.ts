@@ -8,7 +8,7 @@ export class UserViewDto {
 
   static mapToViewModel(
     this: void,
-    userInstance: UserAccountOrmEntity,
+    userInstance: UserAccountOrmEntity, // ! не очень хорошая практика прокидывать в api dto -> orm entity, лучше ясвно обьект с полями!
   ): UserViewDto {
     const dto = new UserViewDto();
 
