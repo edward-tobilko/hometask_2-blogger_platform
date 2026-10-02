@@ -43,17 +43,44 @@ export class ExtraUserBanInfoOrmEntity extends BaseDBEntity {
   @JoinColumn({ name: 'user_account_id' }) // FK
   userAccount!: UserAccountOrmEntity;
 
+  private ban(dto: BanUserDomainDto): void {
+    this.isBanned = true; // бан
+    this.banReason = dto.banReason; // причина
+    this.bannedAt = new Date(); // когда забанен (дата в текущий момент)
+    this.banExpiresAt = calculateExpiresAt(dto.banExpiresAt); // к какой дате и времени будет анбан
+  }
+
+  private unBan(): void {
+    this.isBanned = false;
+    this.banReason = null;
+    this.bannedAt = null;
+    this.banExpiresAt = null;
+  }
+
   banUnBan(dto: BanUserDomainDto): void {
     if (dto.isBanned === true) {
-      this.isBanned = true; // бан
-      this.banReason = dto.banReason; // причина
-      this.bannedAt = new Date(); // когда забанен (дата в текущий момент)
-      this.banExpiresAt = calculateExpiresAt(dto.banExpiresAt); // к какой дате и времени будет анбан
+      this.ban(dto);
     } else if (dto.isBanned === false) {
-      this.isBanned = false;
-      this.banReason = null;
-      this.bannedAt = null;
-      this.banExpiresAt = null;
+      this.unBan();
     }
+  }
+
+  // * Бан действует прямо сейчас ?
+  isBanActive(now: Date = new Date()): boolean {
+    if (!this.isBanned) return false; // не забанен -> бан не действует
+    if (this.banExpiresAt === null) return true; // бан навсегда -> действует
+
+    return this.banExpiresAt > now; // срок ещё не наступил -> действует
+  }
+
+  // * Бан истёк ? Тогда снять его и сообщить, что он снят.
+  liftIfBanExpired(now: Date = new Date()): boolean {
+    if (!this.isBanned) return false; // не забанен -> снимать нечего
+    if (this.banExpiresAt === null) return false; // бан навсегда -> сам не истекает
+    if (this.banExpiresAt > now) return false; // срок ещё не наступил -> рано снимать
+
+    this.unBan(); // все проверки пройдены -> бан истёк, снимаем
+
+    return true;
   }
 }

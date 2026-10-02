@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: { userId: string }): Promise<{ id: string }> {
     const user = await this.usersRepo.findByIdWithBanInfo(payload.userId);
 
-    if (!user || user.userBanInfo?.isBanned === true) {
+    if (!user || user.userBanInfo?.isBanActive()) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
         message: 'You are not authorized',
