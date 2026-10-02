@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
 
 import { SecurityDeviceOrmEntity } from '../schemas/security-device-orm.entity';
 import { CreateSecurityDevicesDomainDto } from '../../../domain/dto/create-security-devices.dto';
@@ -13,6 +14,8 @@ export class SecurityDevicesSqlRepository {
   ) {}
 
   async findById(deviceId: string): Promise<SecurityDeviceOrmEntity | null> {
+    if (!isUUID(deviceId)) return null; // return 404 instead 500
+
     const deviceInstance = await this.securityDevicesRepo.findOne({
       where: { deviceId },
     });
