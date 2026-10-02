@@ -4,6 +4,11 @@ import { randomUUID } from 'crypto';
 import { BaseDBEntity } from 'src/core/base-entity/base-db.entity';
 import { ExtraUserBanInfoOrmEntity } from './extra-user-ban-info-orm.entity';
 import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
+import {
+  DomainException,
+  Extension,
+} from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Entity('user_accounts') // in SQL the convention is 'snake_case'
 export class UserAccountOrmEntity extends BaseDBEntity {
@@ -91,7 +96,29 @@ export class UserAccountOrmEntity extends BaseDBEntity {
     return userInstance;
   }
 
-  confirmEmail(): void {
+  confirmEmail(nowDate: Date = new Date()): void {
+    if (this.isConfirmed === true)
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Email is already confirmed',
+        extensions: [new Extension('Email is already confirmed', 'code')],
+      });
+
+    if (
+      !this.emailConfirmationCodeExpiry ||
+      this.emailConfirmationCodeExpiry < nowDate
+    )
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Confirmation code is expired or already been applied',
+        extensions: [
+          new Extension(
+            'Confirmation code is expired or already been applied',
+            'code',
+          ),
+        ],
+      });
+
     this.emailConfirmationCodeExpiry = null;
     this.isConfirmed = true;
   }
