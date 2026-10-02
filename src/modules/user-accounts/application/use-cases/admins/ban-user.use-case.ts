@@ -37,7 +37,7 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
 
     await this.usersRepo.save(user);
 
-    if (dto.isBanned === true) {
+    if (user.userBanInfo.isBanned) {
       const event = new UserBannedEvent(user.id); // создаем событие
 
       this.eventBus.publish(event); // публикуем

@@ -19,6 +19,5 @@ export class BanUserInputDto {
   banExpiresAt!: BanDuration | null;
 
   @IsBoolean()
-  @IsOptional()
   isBanned!: boolean;
 }
