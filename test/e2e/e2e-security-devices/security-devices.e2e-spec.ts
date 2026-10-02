@@ -242,5 +242,24 @@ describe('Security Devices swagger contract', () => {
         HttpStatus.NOT_FOUND,
       );
     });
+
+    it('status 404 - if deviceId is not UUID format', async () => {
+      const user = await userTestManager.getRegisteredAndConfirmedUser();
+
+      const loginResult = await userTestManager.login({
+        loginOrEmail: user.login,
+        password: user.password,
+      });
+
+      const cookie = loginResult.cookies.find((c) =>
+        c.startsWith('refreshToken='),
+      )!;
+
+      await securityDevicesTestManager.deleteSecurityDeviceById(
+        'invalid-device-id',
+        cookie,
+        HttpStatus.NOT_FOUND,
+      );
+    });
   });
 });
