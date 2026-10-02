@@ -18,7 +18,11 @@ export class CoreConfig {
   }
 
   get isProduction(): boolean {
-    return this.env === 'production';
+    return this.env === Environments.PRODUCTION;
+  }
+
+  get isTesting(): boolean {
+    return this.env === Environments.TESTING;
   }
 
   @IsNumber({}, { message: 'Set env variable PORT, for example: 5001' })
@@ -35,7 +39,7 @@ export class CoreConfig {
       'Ser correct NODE_ENV value, available values: ' +
       configValidationUtility.getEnumValues(Environments).join(', '),
   })
-  env: string = this.configService.get('NODE_ENV') ?? '';
+  env: Environments = this.configService.get('NODE_ENV') as Environments;
 
   @IsBoolean({
     message:
