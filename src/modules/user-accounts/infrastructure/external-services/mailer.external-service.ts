@@ -1,17 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import nodemailer, { Transporter } from 'nodemailer';
-import { ConfigService } from '@nestjs/config';
+
+import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
+import { CoreConfig } from 'src/core/core.config';
 
 @Injectable()
 export class NodeMailerService {
   private transporter: Transporter;
 
-  constructor(private configService: ConfigService) {
+  constructor(
+    private coreConfig: CoreConfig,
+    private userConfig: UserAccountsConfig,
+  ) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: this.configService.get('EMAIL'), // нашь email в .env
-        pass: this.configService.get('EMAIL_PASS'), // получаем сгенерированный код в настройках гугл аккаунта (https://myaccount.google.com/security )
+        user: this.userConfig.email,
+        pass: this.userConfig.emailPass,
       },
     });
   }
@@ -22,14 +27,12 @@ export class NodeMailerService {
     template: (code: string) => string, // ф-я которая принимает код и отправляет html строку)
   ): Promise<boolean> {
     // * Проверка для тестов (что бы письмо отправлялось фейково)
-    if (process.env.NODE_ENV === 'testing') return true;
+    if (this.coreConfig.isTesting) return true;
 
     console.log('SENDING EMAIL TO:', email);
 
-    // * если сторонний сервис плохо типизирован, и никакая типизация не помогает -> исп. ниже строку
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const info = await this.transporter.sendMail({
-      from: `"eddie" <${this.configService.get('EMAIL')}>`,
+      from: `"eddie" <${this.userConfig.email}>`,
       to: email,
       subject:
         'This email was sent using nodemailer. View your confirmation code here.',

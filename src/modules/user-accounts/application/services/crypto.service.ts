@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
-const SALT_ROUNDS = Number(process.env.SALT_ROUNDS ?? 10);
+import { UserAccountsConfig } from '../../config/user-accounts.config';
 
 @Injectable()
 export class CryptoService {
-  constructor() {}
+  constructor(private config: UserAccountsConfig) {}
 
   async generateHash(password: string): Promise<string> {
-    const saltRounds = await bcrypt.genSalt(SALT_ROUNDS);
+    const saltRounds = await bcrypt.genSalt(this.config.saltRounds);
 
     return bcrypt.hash(password, saltRounds);
   }
