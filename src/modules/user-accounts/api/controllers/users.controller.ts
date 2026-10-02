@@ -30,6 +30,7 @@ import { ApiDeleteUserSwagger } from '../decorators/users/swagger/delete-swagger
 import { BanUserInputDto } from '../input-dto/ban-user.input-dto';
 import { BanUserCommand } from '../../application/use-cases/admins/ban-user.use-case';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
+import { GetUserByIdQuery } from '../../application/queries/get-user-by-id.query';
 
 @ApiTags('Users')
 @SkipThrottle()
@@ -57,7 +58,11 @@ export class UsersController {
   async createUser(@Body() dto: CreateUserInputDto): Promise<UserViewDto> {
     const command = new CreateUserCommand(dto);
 
-    return this.commandBus.execute(command);
+    const { id } = await this.commandBus.execute(command);
+
+    const query = new GetUserByIdQuery(id);
+
+    return this.queryBus.execute(query);
   }
 
   @ApiDeleteUserSwagger('Delete user specified by id')

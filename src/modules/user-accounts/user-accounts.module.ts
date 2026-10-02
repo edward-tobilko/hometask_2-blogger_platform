@@ -21,7 +21,7 @@ import { ResendConfirmationEmailUseCase } from './application/use-cases/users/re
 import { PasswordRecoveryUseCase } from './application/use-cases/users/password-recovery.use-case';
 import { NewPasswordUseCase } from './application/use-cases/users/new-password.use-case';
 import { LoginUseCase } from './application/use-cases/users/login.use-case';
-import { MeUseCase } from './application/queries/me.query';
+import { MeQueryHandler } from './application/queries/me.query';
 import { UsersExternalQueryRepository } from './infrastructure/external-repo/users.external-query-repo';
 import { UserAccountsConfig } from './config/user-accounts.config';
 import {
@@ -50,9 +50,15 @@ import { SecurityDevicesSqlQueryRepository } from './infrastructure/sql/reposito
 import { UsersExternalRepository } from './infrastructure/external-repo/users.external-repo';
 import { ExtraUserBanInfoOrmEntity } from './infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
 import { UserPasswordRecoveryEventHandler } from './application/event-handlers/user-password-recovery.event-handler';
+import { GetUserByIdQueryHandler } from './application/queries/get-user-by-id.query';
 
 const handlers = {
-  queryHandlers: [GetUsersListHandler, MeUseCase, SecurityDevicesHandler],
+  queryHandlers: [
+    GetUsersListHandler,
+    GetUserByIdQueryHandler,
+    MeQueryHandler,
+    SecurityDevicesHandler,
+  ],
 
   commandHandlers: [
     // * Users

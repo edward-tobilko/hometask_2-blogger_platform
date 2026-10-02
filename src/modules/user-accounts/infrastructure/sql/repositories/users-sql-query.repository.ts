@@ -7,12 +7,13 @@ import { UsersQueryInputDto } from '../../../api/input-dto/users-query.input-dto
 import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
 import { UserViewDto } from '../../../api/view-dto/user.view-dto';
 import { UsersPaginatedViewDto } from '../../../api/view-dto/users-paginated.view-dto';
+import { UserSessionViewDto } from 'src/modules/user-accounts/api/view-dto/user-session.view-dto';
 
 @Injectable()
 export class UsersSqlQueryRepository {
   constructor(
     @InjectRepository(UserAccountOrmEntity)
-    private readonly usersRepo: Repository<UserAccountOrmEntity>,
+    private readonly userQueryRepo: Repository<UserAccountOrmEntity>,
   ) {}
 
   async findUsersList(
@@ -30,7 +31,7 @@ export class UsersSqlQueryRepository {
     if (emailTerm) where.push({ ...base, email: ILike(`%${emailTerm}%`) });
     if (!loginTerm && !emailTerm) where.push(base);
 
-    const [users, totalCount] = await this.usersRepo.findAndCount({
+    const [users, totalCount] = await this.userQueryRepo.findAndCount({
       where,
       order: query.calculateSort(),
       skip: query.calculateSkip(),
@@ -44,5 +45,31 @@ export class UsersSqlQueryRepository {
 
       items: users.map(UserViewDto.mapToViewModel),
     });
+  }
+
+  async findById(id: string): Promise<UserViewDto | null> {
+    const userInstance = await this.userQueryRepo.findOne({
+      where: {
+        id,
+        deletedAt: IsNull(),
+      },
+    });
+
+    if (!userInstance) return null;
+
+    return UserViewDto.mapToViewModel(userInstance);
+  }
+
+  async findMeById(id: string): Promise<UserSessionViewDto | null> {
+    const userInstance = await this.userQueryRepo.findOne({
+      where: {
+        id,
+        deletedAt: IsNull(),
+      },
+    });
+
+    if (!userInstance) return null;
+
+    return UserSessionViewDto.mapToViewModel(userInstance);
   }
 }

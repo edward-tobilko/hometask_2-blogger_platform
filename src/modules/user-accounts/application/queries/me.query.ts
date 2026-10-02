@@ -1,27 +1,33 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 
 import { UserSessionViewDto } from '../../api/view-dto/user-session.view-dto';
-import { UsersSqlRepository } from '../../infrastructure/sql/repositories/users-sql.repository';
+import { UsersSqlQueryRepository } from '../../infrastructure/sql/repositories/users-sql-query.repository';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 export class MeQuery {
   constructor(public userId: string) {}
 }
 
 @QueryHandler(MeQuery)
-export class MeUseCase implements IQueryHandler<MeQuery, UserSessionViewDto> {
-  constructor(private usersRepo: UsersSqlRepository) {}
+export class MeQueryHandler implements IQueryHandler<
+  MeQuery,
+  UserSessionViewDto
+> {
+  constructor(private userQueryRepo: UsersSqlQueryRepository) {}
 
   async execute({ userId }: MeQuery): Promise<UserSessionViewDto> {
-    const user = await this.usersRepo.findById(userId);
+    const mappedUser = await this.userQueryRepo.findMeById(userId);
 
-    // ! проверку можно не делать, так как в контроллере -> JwtAuthGuard гард ее делает
+    // ! Проверку на юзера можно не делать, так как в контроллере -> JwtAuthGuard гард ее делает, но между гардом и query его могли удалить. Вывод: лучше делать проверку и там и там!
 
-    const userSessionView: UserSessionViewDto = {
-      email: user!.email,
-      login: user!.login,
-      userId: user!.id,
-    };
+    if (!mappedUser) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'You are not authorized',
+      });
+    }
 
-    return userSessionView;
+    return mappedUser;
   }
 }
