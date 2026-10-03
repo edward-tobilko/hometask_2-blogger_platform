@@ -67,8 +67,6 @@ export class UsersExternalRepository {
       select: { id: true, telegramChatId: true }, // читаем из БД только эти 2 свойства
     });
 
-    console.log(users);
-
     return users;
   }
 }
