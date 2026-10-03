@@ -1,10 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { TelegramWebhookDto } from '../../presentation/input-dto/telegram-webhook.input-dto';
 import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-repo';
 
 export class HandleTelegramWebhookCommand {
-  constructor(public readonly dto: TelegramWebhookDto) {}
+  constructor(
+    public readonly chatId: string,
+    public readonly text: string,
+  ) {}
 }
 
 @CommandHandler(HandleTelegramWebhookCommand)
@@ -14,18 +16,11 @@ export class HandleTelegramWebhookUseCase implements ICommandHandler<
 > {
   constructor(private usersExternalRepo: UsersExternalRepository) {}
 
-  async execute({ dto }: HandleTelegramWebhookCommand): Promise<void> {
-    console.log('webhook dto:', JSON.stringify(dto));
-
-    const text = dto.message?.text;
-    const chatId = dto.message?.from.id; // сдесь chatId приходит из Telegram как number
-
-    if (!text || !chatId) return;
-
+  async execute({ chatId, text }: HandleTelegramWebhookCommand): Promise<void> {
     const [command, code] = text.split(' ');
 
     if (command !== '/start' || !code) return;
 
-    await this.usersExternalRepo.linkTelegramChat(code, String(chatId));
+    await this.usersExternalRepo.linkTelegramChat(code, chatId);
   }
 }

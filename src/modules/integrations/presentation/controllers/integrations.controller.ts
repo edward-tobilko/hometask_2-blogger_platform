@@ -14,6 +14,7 @@ import { CurrentUserFromRequest } from 'src/modules/user-accounts/guards/decorat
 import { GetTelegramAuthLinkCommand } from '../../application/use-cases/get-telegram-auth-link.use-case';
 import { TelegramWebhookDto } from '../input-dto/telegram-webhook.input-dto';
 import { HandleTelegramWebhookCommand } from '../../application/use-cases/handle-telegram-webhook.use-case';
+import { TelegramWebhookGuard } from '../guards/telegram-webhook.guard';
 
 @Controller(API_ROUTES.integrations)
 export class IntegrationsController {
@@ -32,8 +33,18 @@ export class IntegrationsController {
   }
 
   @Post('webhook')
+  @UseGuards(TelegramWebhookGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async handleWebhook(@Body() dto: TelegramWebhookDto): Promise<void> {
-    await this.commandBus.execute(new HandleTelegramWebhookCommand(dto));
+    console.log('webhook dto:', JSON.stringify(dto)); // http://127.0.0.1:4040/inspect/http -> POST: /api/integration/telegram/webhook -> Headers -> X-Telegram-Bot-Api-Secret-Token;
+
+    const chatId = dto.message?.from?.id;
+    const text = dto.message?.text;
+
+    if (!text || !chatId) return; // не текстовое сообщение (стикер, фото и т.п.) — игнорируем!
+
+    const command = new HandleTelegramWebhookCommand(String(chatId), text);
+
+    await this.commandBus.execute(command);
   }
 }
