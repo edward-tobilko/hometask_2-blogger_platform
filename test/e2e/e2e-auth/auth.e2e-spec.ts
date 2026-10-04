@@ -211,6 +211,36 @@ describe('Auth swagger contract', () => {
         );
       },
     );
+
+    it('status 401 - old refresh token is revoked after password change', async () => {
+      const user = await userTestManager.getRegisteredAndConfirmedUser();
+
+      // * логинимся ДО смены пароля — эту сессию "украл" злоумышленник
+      const loginResult = await userTestManager.login({
+        loginOrEmail: user.login,
+        password: user.password,
+      });
+
+      const oldRefreshCookie = loginResult.cookies.find((cookie) =>
+        cookie.startsWith('refreshToken='),
+      )!;
+
+      // * владелец сбрасывает пароль
+      await userTestManager.getRecoveryPassword({ email: user.email });
+
+      const dbUser = await userTestManager.findUserByEmail(user.email);
+
+      await userTestManager.getNewPassword({
+        newPassword: 'NewPass123!',
+        recoveryCode: dbUser!.recoveryCode!,
+      });
+
+      // * старая сессия удалена -> refresh токен больше не работает
+      await userTestManager.getRefreshToken(
+        oldRefreshCookie,
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
   });
 
   describe('Tests for POST: /api/auth/login end-point -> Try login user to the system', () => {
