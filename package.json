@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "dev": "lsof -ti:5001; cross-env NODE_ENV=development nest start --watch",
+    "dev": "kill -9 $(lsof -ti:5001) 2>/dev/null; cross-env NODE_ENV=development nest start --watch",
     "debug": "lsof -ti:5001 | xargs kill -9; lsof -ti:9229 | xargs kill -9; cross-env NODE_ENV=development nest start --debug 9229",
     "prod": "cross-env NODE_ENV=production yarn build && cross-env NODE_ENV=production node dist/main",
     "fly": "fly deploy",
