@@ -2,6 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/security-devices-sql.repository';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 
 export class DeleteUserCommand {
@@ -13,7 +14,10 @@ export class DeleteUserUseCase implements ICommandHandler<
   DeleteUserCommand,
   void
 > {
-  constructor(private usersRepo: UsersSqlRepository) {}
+  constructor(
+    private usersRepo: UsersSqlRepository,
+    private securityDevicesRepo: SecurityDevicesSqlRepository,
+  ) {}
 
   async execute({ id }: DeleteUserCommand): Promise<void> {
     const existingUser = await this.usersRepo.findById(id);
@@ -29,5 +33,6 @@ export class DeleteUserUseCase implements ICommandHandler<
     // await this.usersRepo.save(existingUser);
 
     await this.usersRepo.softDelete(existingUser.id); // typeORM автоматически присваевает дату удаления
+    await this.securityDevicesRepo.removeAllByUserId(existingUser.id); // удалить все сессии
   }
 }

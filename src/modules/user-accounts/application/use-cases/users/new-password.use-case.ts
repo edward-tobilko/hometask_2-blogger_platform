@@ -7,6 +7,7 @@ import {
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CryptoService } from '../../services/crypto.service';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/security-devices-sql.repository';
 
 export class NewPasswordCommand {
   constructor(
@@ -22,6 +23,7 @@ export class NewPasswordUseCase implements ICommandHandler<
 > {
   constructor(
     private usersRepo: UsersSqlRepository,
+    private securityDevicesRepo: SecurityDevicesSqlRepository,
     private cryptoService: CryptoService,
   ) {}
 
@@ -61,5 +63,6 @@ export class NewPasswordUseCase implements ICommandHandler<
     user.setPassword(passwordHash);
 
     await this.usersRepo.save(user);
+    await this.securityDevicesRepo.removeAllByUserId(user.id); // удалить все сессии после смены пароля
   }
 }
