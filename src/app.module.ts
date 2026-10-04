@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -17,14 +18,17 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
 // import { CounterModule } from './modules/scope-logger-example/counter.module';
 
 @Module({
-  // * классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
+  // * Классы-модули — уже собранные блоки с controllers / providers (какие другие модули нам нужны)
   imports: [
     configModule,
 
-    // * ограничение количества запросов с одного IP (Максимум 10 запросов за 60 секунд с одного IP).
+    // * Ограничение количества запросов с одного IP (Максимум 10 запросов за 60 секунд с одного IP).
     throttlerModule,
 
-    // * импортируем модули, что бы переиспользовать их провайдеры (из массива exports)
+    // * Планировщик задач по расписанию (cron).
+    ScheduleModule.forRoot(),
+
+    // * Импортируем модули, что бы переиспользовать их провайдеры (из массива exports)
     BloggersPlatformModule,
     UserAccountsModule,
     // CounterModule,
@@ -35,14 +39,14 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
     IntegrationsModule,
   ],
 
-  // * обработчики HTTP-запросов (они инжектятся в DI, но не "используются" другими классами — они точка входа HTTP-запросов)
+  // * Обработчики HTTP-запросов (они инжектятся в DI, но не "используются" другими классами — они точка входа HTTP-запросов)
   controllers: [AppController],
 
-  // * отдельные классы — сервисы, репозитории, гарды и тд... (все что инжектиться). Это то, что Nest регистрирует в DI-контейнере модуля и умеет инжектить через конструктор.
+  // * Отдельные классы — сервисы, репозитории, гарды и тд... (все что инжектиться). Это то, что Nest регистрирует в DI-контейнере модуля и умеет инжектить через конструктор.
   providers: [
     AppService,
 
-    // * регистрация глобальных exception filters, важен порядок регистрации! Первым сработает DomainHttpExceptionsFilter! В NestJS глобальные фильтры применяются в порядке LIFO (последний зарегистрированный — первый срабатывает).
+    // * Регистрация глобальных exception filters, важен порядок регистрации! Первым сработает DomainHttpExceptionsFilter! В NestJS глобальные фильтры применяются в порядке LIFO (последний зарегистрированный — первый срабатывает).
     {
       provide: APP_FILTER, // работает через DI-контейнер NestJS, поэтому в фильтр можно инжектить зависимости через конструктор
       useClass: AllHttpExceptionsFilter,
@@ -53,14 +57,14 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
       useClass: DomainHttpExceptionsFilter,
     },
 
-    // * ограничение количества запросов с одного IP (распространяеться на все роуты, если хотим отдельно на кажный роут -> @UseGuards(ThrottlerGuard) над каждым декоратором (@Post() / @Get() etc...)).
+    // * Ограничение количества запросов с одного IP (распространяеться на все роуты, если хотим отдельно на кажный роут -> @UseGuards(ThrottlerGuard) над каждым декоратором (@Post() / @Get() etc...)).
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
   ],
 
-  // * что из providers мы "разрешаем использовать" другим модулям (инкапсуляция)
+  // * Что из providers мы "разрешаем использовать" другим модулям (инкапсуляция)
   exports: [],
 })
 export class AppModule {

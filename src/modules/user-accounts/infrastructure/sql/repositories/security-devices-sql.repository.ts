@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 
 import { SecurityDeviceOrmEntity } from '../schemas/security-device-orm.entity';
@@ -65,7 +65,15 @@ export class SecurityDevicesSqlRepository {
     await this.securityDevicesRepo.delete({ deviceId });
   }
 
-  // * Extra method over the API logic
+  async removeExpired(nowDate: Date = new Date()): Promise<number> {
+    const result = await this.securityDevicesRepo.delete({
+      expiresAt: LessThan(nowDate), // DELETE ... WHERE expires_at < now
+    });
+
+    return result.affected ?? 0; // сколько сессий удалено — для лога
+  }
+
+  // * Extra methods over the API logic
   async removeAllByUserId(userId: string): Promise<void> {
     await this.securityDevicesRepo.delete({ userId });
   }

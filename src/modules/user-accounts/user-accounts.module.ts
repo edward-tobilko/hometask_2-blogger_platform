@@ -51,6 +51,7 @@ import { UsersExternalRepository } from './infrastructure/external-repo/users.ex
 import { ExtraUserBanInfoOrmEntity } from './infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
 import { UserPasswordRecoveryEventHandler } from './application/event-handlers/user-password-recovery.event-handler';
 import { GetUserByIdQueryHandler } from './application/queries/get-user-by-id.query';
+import { AutoRemoveExpiredSessionsTask } from './application/tasks/auto-remove-expired-sessions.task';
 
 const handlers = {
   queryHandlers: [
@@ -91,6 +92,7 @@ const handlers = {
 };
 
 const strategies = [LocalStrategy, JwtStrategy, RefreshTokenStrategy];
+const tasks = [AutoRemoveExpiredSessionsTask];
 
 @Module({
   imports: [
@@ -154,6 +156,7 @@ const strategies = [LocalStrategy, JwtStrategy, RefreshTokenStrategy];
     SecurityDevicesSqlQueryRepository,
 
     ...strategies,
+    ...tasks,
 
     // * Externals
     UsersExternalQueryRepository,
