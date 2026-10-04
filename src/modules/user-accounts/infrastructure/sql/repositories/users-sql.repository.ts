@@ -4,6 +4,7 @@ import { IsNull, Repository } from 'typeorm';
 
 import { UserAccountOrmEntity } from '../schemas/user-orm.entity';
 import { CreateUserDomainDto } from '../../../domain/dto/create-user.dto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class UsersSqlRepository {
@@ -56,25 +57,21 @@ export class UsersSqlRepository {
   async findByConfirmationCode(
     confirmCode: string,
   ): Promise<UserAccountOrmEntity | null> {
-    try {
-      return await this.usersRepo.findOne({
-        where: { confirmationCode: confirmCode, deletedAt: IsNull() },
-      });
-    } catch {
-      return null;
-    }
+    if (!isUUID(confirmCode)) return null; // проверка на UUID так как в БД тип uuid
+
+    return await this.usersRepo.findOne({
+      where: { confirmationCode: confirmCode, deletedAt: IsNull() },
+    });
   }
 
   async findByRecoveryCode(
     recoveryCode: string,
   ): Promise<UserAccountOrmEntity | null> {
-    try {
-      return await this.usersRepo.findOne({
-        where: { recoveryCode, deletedAt: IsNull() },
-      });
-    } catch {
-      return null;
-    }
+    if (!isUUID(recoveryCode)) return null;
+
+    return await this.usersRepo.findOne({
+      where: { recoveryCode, deletedAt: IsNull() },
+    });
   }
 
   async save(user: UserAccountOrmEntity): Promise<void> {
