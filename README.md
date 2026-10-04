@@ -8,17 +8,17 @@ A production-ready REST API for a blogging platform featuring full user account 
 
 ## Tech Stack
 
-| Layer          | Technology                                        |
-| -------------- | ------------------------------------------------- |
-| Framework      | NestJS 11, Express 5                              |
-| Language       | TypeScript 5.7                                    |
-| Database       | PostgreSQL + TypeORM (all modules)                |
-| Authentication | JWT (access + refresh tokens), Passport.js        |
-| Validation     | class-validator, class-transformer                |
-| API Docs       | Swagger / OpenAPI (@nestjs/swagger)               |
-| Email          | Nodemailer                                        |
-| Testing        | Jest, Supertest                                   |
-| Deployment     | Fly.io, Docker, Neon (PostgreSQL cloud)           |
+| Layer          | Technology                                 |
+| -------------- | ------------------------------------------ |
+| Framework      | NestJS 11, Express 5                       |
+| Language       | TypeScript 5.7                             |
+| Database       | PostgreSQL + TypeORM (all modules)         |
+| Authentication | JWT (access + refresh tokens), Passport.js |
+| Validation     | class-validator, class-transformer         |
+| API Docs       | Swagger / OpenAPI (@nestjs/swagger)        |
+| Email          | Nodemailer                                 |
+| Testing        | Jest, Supertest                            |
+| Deployment     | Fly.io, Docker, Neon (PostgreSQL cloud)    |
 
 ---
 
@@ -77,59 +77,59 @@ Base URL: `/api`
 
 ### Users (Admin)
 
-| Method   | Endpoint               | Auth  | Description                    |
-| -------- | ---------------------- | ----- | ------------------------------ |
-| `GET`    | `/sa/users`            | Basic | List users (paginated)         |
-| `POST`   | `/sa/users`            | Basic | Create a user                  |
-| `DELETE` | `/sa/users/:id`        | Basic | Delete a user                  |
-| `PUT`    | `/sa/users/:id/ban`    | Basic | Ban or unban a user            |
+| Method   | Endpoint            | Auth  | Description            |
+| -------- | ------------------- | ----- | ---------------------- |
+| `GET`    | `/sa/users`         | Basic | List users (paginated) |
+| `POST`   | `/sa/users`         | Basic | Create a user          |
+| `DELETE` | `/sa/users/:id`     | Basic | Delete a user          |
+| `PUT`    | `/sa/users/:id/ban` | Basic | Ban or unban a user    |
 
 ### Blogs (Public)
 
-| Method   | Endpoint                           | Auth              | Description                        |
-| -------- | ---------------------------------- | ----------------- | ---------------------------------- |
-| `GET`    | `/blogs`                           | —                 | List blogs (paginated, searchable) |
-| `GET`    | `/blogs/:id`                       | —                 | Get blog by ID                     |
-| `GET`    | `/blogs/:blogId/posts`             | —                 | List posts for a blog              |
-| `GET`    | `/blogs/:blogId/posts/count`       | —                 | Get posts count for a blog (extra) |
-| `GET`    | `/blogs/:blogId/subscribers/count` | —                 | Get subscribers count (extra)      |
-| `POST`   | `/blogs/:blogId/subscribe`         | Bearer JWT        | Subscribe to a blog (extra)        |
-| `DELETE` | `/blogs/:blogId/subscribe`         | Bearer JWT        | Unsubscribe from a blog (extra)    |
+| Method   | Endpoint                           | Auth       | Description                        |
+| -------- | ---------------------------------- | ---------- | ---------------------------------- |
+| `GET`    | `/blogs`                           | —          | List blogs (paginated, searchable) |
+| `GET`    | `/blogs/:id`                       | —          | Get blog by ID                     |
+| `GET`    | `/blogs/:blogId/posts`             | —          | List posts for a blog              |
+| `GET`    | `/blogs/:blogId/posts/count`       | —          | Get posts count for a blog (extra) |
+| `GET`    | `/blogs/:blogId/subscribers/count` | —          | Get subscribers count (extra)      |
+| `POST`   | `/blogs/:blogId/subscribe`         | Bearer JWT | Subscribe to a blog (extra)        |
+| `DELETE` | `/blogs/:blogId/subscribe`         | Bearer JWT | Unsubscribe from a blog (extra)    |
 
 ### Blogs (Admin)
 
-| Method   | Endpoint                              | Auth  | Description                      |
-| -------- | ------------------------------------- | ----- | -------------------------------- |
-| `GET`    | `/sa/blogs`                           | Basic | List all blogs (paginated)       |
-| `POST`   | `/sa/blogs`                           | Basic | Create a blog                    |
-| `PUT`    | `/sa/blogs/:id`                       | Basic | Update a blog                    |
-| `DELETE` | `/sa/blogs/:id`                       | Basic | Delete a blog                    |
-| `POST`   | `/sa/blogs/:blogId/posts`             | Basic | Create a post for a blog         |
-| `GET`    | `/sa/blogs/:blogId/posts`             | Basic | List posts for a blog            |
-| `PUT`    | `/sa/blogs/:blogId/posts/:postId`     | Basic | Update a post for a blog         |
-| `DELETE` | `/sa/blogs/:blogId/posts/:postId`     | Basic | Delete a post for a blog         |
+| Method   | Endpoint                          | Auth  | Description                |
+| -------- | --------------------------------- | ----- | -------------------------- |
+| `GET`    | `/sa/blogs`                       | Basic | List all blogs (paginated) |
+| `POST`   | `/sa/blogs`                       | Basic | Create a blog              |
+| `PUT`    | `/sa/blogs/:id`                   | Basic | Update a blog              |
+| `DELETE` | `/sa/blogs/:id`                   | Basic | Delete a blog              |
+| `POST`   | `/sa/blogs/:blogId/posts`         | Basic | Create a post for a blog   |
+| `GET`    | `/sa/blogs/:blogId/posts`         | Basic | List posts for a blog      |
+| `PUT`    | `/sa/blogs/:blogId/posts/:postId` | Basic | Update a post for a blog   |
+| `DELETE` | `/sa/blogs/:blogId/posts/:postId` | Basic | Delete a post for a blog   |
 
 ### Posts
 
-| Method   | Endpoint                     | Auth       | Description                     |
-| -------- | ---------------------------- | ---------- | ------------------------------- |
-| `GET`    | `/posts`                     | —          | List posts (paginated)          |
-| `POST`   | `/posts`                     | Basic      | Create a post                   |
-| `GET`    | `/posts/:id`                 | —          | Get post by ID                  |
-| `PUT`    | `/posts/:id`                 | Basic      | Update a post                   |
-| `DELETE` | `/posts/:id`                 | Basic      | Delete a post                   |
-| `PUT`    | `/posts/:postId/like-status` | Bearer JWT | Like / dislike / reset          |
-| `GET`    | `/posts/:postId/comments`    | —          | List comments for a post        |
-| `POST`   | `/posts/:postId/comments`    | Bearer JWT | Create a comment                |
+| Method   | Endpoint                     | Auth       | Description              |
+| -------- | ---------------------------- | ---------- | ------------------------ |
+| `GET`    | `/posts`                     | —          | List posts (paginated)   |
+| `POST`   | `/posts`                     | Basic      | Create a post            |
+| `GET`    | `/posts/:id`                 | —          | Get post by ID           |
+| `PUT`    | `/posts/:id`                 | Basic      | Update a post            |
+| `DELETE` | `/posts/:id`                 | Basic      | Delete a post            |
+| `PUT`    | `/posts/:postId/like-status` | Bearer JWT | Like / dislike / reset   |
+| `GET`    | `/posts/:postId/comments`    | —          | List comments for a post |
+| `POST`   | `/posts/:postId/comments`    | Bearer JWT | Create a comment         |
 
 ### Comments
 
-| Method   | Endpoint                           | Auth       | Description                 |
-| -------- | ---------------------------------- | ---------- | --------------------------- |
-| `GET`    | `/comments/:id`                    | —          | Get comment by ID           |
-| `PUT`    | `/comments/:commentId`             | Bearer JWT | Update comment              |
-| `DELETE` | `/comments/:commentId`             | Bearer JWT | Delete comment              |
-| `PUT`    | `/comments/:commentId/like-status` | Bearer JWT | Like / dislike / reset      |
+| Method   | Endpoint                           | Auth       | Description            |
+| -------- | ---------------------------------- | ---------- | ---------------------- |
+| `GET`    | `/comments/:id`                    | —          | Get comment by ID      |
+| `PUT`    | `/comments/:commentId`             | Bearer JWT | Update comment         |
+| `DELETE` | `/comments/:commentId`             | Bearer JWT | Delete comment         |
+| `PUT`    | `/comments/:commentId/like-status` | Bearer JWT | Like / dislike / reset |
 
 ### Security Devices
 
@@ -170,7 +170,6 @@ ACCESS_TOKEN_SECRET=your_access_token_secret
 ACCESS_TOKEN_EXPIRE_IN=10m
 REFRESH_TOKEN_SECRET=your_refresh_token_secret
 REFRESH_TOKEN_EXPIRE_IN=30d
-REFRESH_TOKEN_COOKIE_MAX_AGE=86400000
 
 ADMIN_USER_NAME=admin
 ADMIN_PASSWORD=qwerty
@@ -255,27 +254,26 @@ E2E tests use **Test Managers** (`BlogTestManager`, `UserTestManager`, etc.) for
 
 ## Environment Variables Reference
 
-| Variable                          | Description                          | Example                       |
-| --------------------------------- | ------------------------------------ | ----------------------------- |
-| `POSTGRES_URI`                    | PostgreSQL connection string         | `postgresql://user@host/db`   |
-| `DB_AUTO_SYNC`                    | TypeORM auto-sync schema (dev only)  | `true`                        |
-| `ACCESS_TOKEN_SECRET`             | JWT access token secret              | `supersecret`                 |
-| `ACCESS_TOKEN_EXPIRE_IN`          | Access token TTL                     | `10m`                         |
-| `REFRESH_TOKEN_SECRET`            | JWT refresh token secret             | `anothersecret`               |
-| `REFRESH_TOKEN_EXPIRE_IN`         | Refresh token TTL                    | `30d`                         |
-| `REFRESH_TOKEN_COOKIE_MAX_AGE`    | Cookie max age (ms)                  | `86400000`                    |
-| `ADMIN_USER_NAME`                 | Basic auth username                  | `admin`                       |
-| `ADMIN_PASSWORD`                  | Basic auth password                  | `qwerty`                      |
-| `EMAIL`                           | Sender email address                 | `bot@gmail.com`               |
-| `EMAIL_PASS`                      | Google App Password                  | `xxxx xxxx xxxx xxxx`         |
-| `TELEGRAM_BOT_TOKEN`              | Telegram bot token                   | `123456:AAF...`               |
-| `TELEGRAM_BOT_NAME`               | Telegram bot username                | `my_bot`                      |
-| `PORT`                            | Server port                          | `5004`                        |
-| `IS_DISABLE_RATE_LIMIT`           | Disable IP rate limiting             | `true`                        |
-| `INCLUDE_TESTING_MODULE`          | Expose `/testing/all-data` endpoint  | `true`                        |
-| `IS_SWAGGER_ENABLED`              | Enable Swagger UI                    | `true`                        |
-| `IS_USER_AUTOMATICALLY_CONFIRMED` | Skip email confirmation (dev only)   | `true`                        |
-| `SEND_INTERNAL_SERVER_ERROR_DETAILS` | Expose error details in response  | `false`                       |
+| Variable                             | Description                         | Example                     |
+| ------------------------------------ | ----------------------------------- | --------------------------- |
+| `POSTGRES_URI`                       | PostgreSQL connection string        | `postgresql://user@host/db` |
+| `DB_AUTO_SYNC`                       | TypeORM auto-sync schema (dev only) | `true`                      |
+| `ACCESS_TOKEN_SECRET`                | JWT access token secret             | `supersecret`               |
+| `ACCESS_TOKEN_EXPIRE_IN`             | Access token TTL                    | `10m`                       |
+| `REFRESH_TOKEN_SECRET`               | JWT refresh token secret            | `anothersecret`             |
+| `REFRESH_TOKEN_EXPIRE_IN`            | Refresh token TTL                   | `30d`                       |
+| `ADMIN_USER_NAME`                    | Basic auth username                 | `admin`                     |
+| `ADMIN_PASSWORD`                     | Basic auth password                 | `qwerty`                    |
+| `EMAIL`                              | Sender email address                | `bot@gmail.com`             |
+| `EMAIL_PASS`                         | Google App Password                 | `xxxx xxxx xxxx xxxx`       |
+| `TELEGRAM_BOT_TOKEN`                 | Telegram bot token                  | `123456:AAF...`             |
+| `TELEGRAM_BOT_NAME`                  | Telegram bot username               | `my_bot`                    |
+| `PORT`                               | Server port                         | `5004`                      |
+| `IS_DISABLE_RATE_LIMIT`              | Disable IP rate limiting            | `true`                      |
+| `INCLUDE_TESTING_MODULE`             | Expose `/testing/all-data` endpoint | `true`                      |
+| `IS_SWAGGER_ENABLED`                 | Enable Swagger UI                   | `true`                      |
+| `IS_USER_AUTOMATICALLY_CONFIRMED`    | Skip email confirmation (dev only)  | `true`                      |
+| `SEND_INTERNAL_SERVER_ERROR_DETAILS` | Expose error details in response    | `false`                     |
 
 ---
 
@@ -361,6 +359,6 @@ Admins can ban users with a configurable duration. Banned users cannot log in an
 - Ban triggers `UserBannedEvent` → cascades: session revocation + comment visibility hidden
 - Unban triggers `UserUnBannedEvent` → comments restored
 
-| Method | Endpoint            | Auth  | Description                                          |
-| ------ | ------------------- | ----- | ---------------------------------------------------- |
-| `PUT`  | `/sa/users/:id/ban` | Basic | Ban (`isBanned: true`) or unban (`isBanned: false`)  |
+| Method | Endpoint            | Auth  | Description                                         |
+| ------ | ------------------- | ----- | --------------------------------------------------- |
+| `PUT`  | `/sa/users/:id/ban` | Basic | Ban (`isBanned: true`) or unban (`isBanned: false`) |
