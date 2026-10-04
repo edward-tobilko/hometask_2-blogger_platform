@@ -19,16 +19,20 @@ export class AuthService {
   async validateUser(
     loginOrEmail: string,
     password: string,
-  ): Promise<{ id: string } | null> {
+  ): Promise<{ id: string }> {
     const user = await this.usersRepo.findUserByLoginOrEmail(
       loginOrEmail,
       loginOrEmail,
     );
 
-    if (!user)
+    const isValidPass = user
+      ? await this.cryptoService.compareHash(password, user.passwordHash)
+      : false;
+
+    if (!user || !isValidPass)
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        message: 'User is not found',
+        message: 'Invalid login or password',
       });
 
     if (!user.isConfirmed)
@@ -44,7 +48,7 @@ export class AuthService {
       await this.eventBus.publish(new UserUnBannedEvent(user.id));
     }
 
-    // * Бан действует — не пускаем
+    // * Бан действует — не пускаем.
     if (user.userBanInfo?.isBanActive()) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
@@ -53,17 +57,6 @@ export class AuthService {
           : 'Your account is permanently banned',
       });
     }
-
-    const isValidPass = await this.cryptoService.compareHash(
-      password,
-      user.passwordHash,
-    );
-
-    if (!isValidPass)
-      throw new DomainException({
-        code: DomainExceptionCode.Unauthorized,
-        message: 'Your password is not valid',
-      });
 
     return { id: user.id.toString() };
   }
