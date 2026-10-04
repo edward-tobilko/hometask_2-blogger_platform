@@ -3,7 +3,6 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 
-import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
@@ -33,7 +32,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
     private refreshTokenContext: JwtService,
 
-    private userAccountConfig: UserAccountsConfig,
     private securityDevicesRepo: SecurityDevicesSqlRepository,
   ) {}
 
@@ -58,9 +56,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     } = this.refreshTokenContext.decode(refreshToken);
     const expiresAt = new Date(decoded.exp * 1000); // переводим секунды в миллисекунды
 
-    const cookieMaxAge = Number(
-      this.userAccountConfig.refreshTokenCookieMaxAge,
-    );
+    const cookieMaxAge = expiresAt.getTime() - Date.now(); // кука будет жить ровно столько же, сколько токен внутри неё
 
     await this.securityDevicesRepo.create({
       ip,

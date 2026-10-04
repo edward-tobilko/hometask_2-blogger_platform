@@ -2,7 +2,6 @@ import { Inject } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 
-import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
@@ -31,7 +30,6 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
     @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
     private refreshTokenContext: JwtService,
 
-    private userAccountConfig: UserAccountsConfig,
     private securityDevicesRepo: SecurityDevicesSqlRepository,
   ) {}
 
@@ -62,9 +60,7 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
       expiresAt,
     );
 
-    const cookieMaxAge = Number(
-      this.userAccountConfig.refreshTokenCookieMaxAge,
-    );
+    const cookieMaxAge = expiresAt.getTime() - Date.now(); // кука будет жить ровно столько же, сколько токен внутри неё
 
     return Promise.resolve({ accessToken, refreshToken, cookieMaxAge }); // ICommandHandler всегда требует Promise, так как метод синхронный а возвр. promise, нужно дожидаться.
   }

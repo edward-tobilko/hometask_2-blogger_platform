@@ -31,13 +31,6 @@ export class UserAccountsConfig {
     this.configService.get('REFRESH_TOKEN_EXPIRE_IN') ?? '';
 
   @IsNotEmpty({
-    message:
-      'Set env variable REFRESH_TOKEN_COOKIE_MAX_AGE, for examples: 1h, 5m, 2d',
-  })
-  refreshTokenCookieMaxAge: string =
-    this.configService.get('REFRESH_TOKEN_COOKIE_MAX_AGE') ?? '';
-
-  @IsNotEmpty({
     message: 'Set env variable REFRESH_TOKEN_SECRET, dangerous for security!',
   })
   refreshTokenSecret: string =
