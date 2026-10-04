@@ -44,17 +44,23 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
 
     const lastActiveDate = new Date();
 
-    await this.securityDevicesRepo.updateLastActiveDate(
-      deviceId,
-      lastActiveDate,
-    );
-
     // * Все то, что мы запишем в cookie
     const refreshToken = this.refreshTokenContext.sign({
       userId,
       deviceId,
       lastActiveDate,
     });
+
+    const decoded: {
+      exp: number;
+    } = this.refreshTokenContext.decode(refreshToken);
+    const expiresAt = new Date(decoded.exp * 1000); // переводим секунды в миллисекунды
+
+    await this.securityDevicesRepo.updateSessionDates(
+      deviceId,
+      lastActiveDate,
+      expiresAt,
+    );
 
     const cookieMaxAge = Number(
       this.userAccountConfig.refreshTokenCookieMaxAge,

@@ -35,11 +35,15 @@ export class SecurityDevicesSqlRepository {
     return this.securityDevicesRepo.save(securityDevice);
   }
 
-  async updateLastActiveDate(
+  async updateSessionDates(
     deviceId: string,
     lastActiveDate: Date,
+    expiresAt: Date,
   ): Promise<void> {
-    await this.securityDevicesRepo.update({ deviceId }, { lastActiveDate });
+    await this.securityDevicesRepo.update(
+      { deviceId },
+      { lastActiveDate, expiresAt },
+    );
   }
 
   async removeAllExceptCurrent(
