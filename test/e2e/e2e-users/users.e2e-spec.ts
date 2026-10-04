@@ -238,15 +238,28 @@ describe('Users swagger contract', () => {
 
       await userTestManager.createUser(dto);
 
-      const duplicateResult = (await userTestManager.createUser(
-        dto,
+      const duplicateLogin = (await userTestManager.createUser(
+        { ...dto, email: 'other@gmail.com' },
         HttpStatus.BAD_REQUEST,
       )) as unknown as BadRequestError;
 
-      expect(duplicateResult.errorsMessages).toEqual(
+      const duplicateEmail = (await userTestManager.createUser(
+        { ...dto, login: 'other' },
+        HttpStatus.BAD_REQUEST,
+      )) as unknown as BadRequestError;
+
+      expect(duplicateLogin.errorsMessages).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
-            field: expect.stringMatching(/login|email/i),
+            field: 'login',
+            message: expect.any(String),
+          }),
+        ]),
+      );
+      expect(duplicateEmail.errorsMessages).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            field: 'email',
             message: expect.any(String),
           }),
         ]),
