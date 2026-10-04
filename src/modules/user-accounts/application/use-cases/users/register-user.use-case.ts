@@ -9,6 +9,7 @@ import { CryptoService } from '../../services/crypto.service';
 import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/user-registered.event';
 import { UsersService } from '../../services/users.service';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
+import { getUniqueViolationField } from 'src/core/utils/get-unique-violation-field.util';
 
 export class RegisterUserCommand {
   constructor(public dto: { login: string; password: string; email: string }) {}
@@ -43,11 +44,9 @@ export class RegisterUserUseCase implements ICommandHandler<
       );
     } catch (error) {
       // * проверка на дубликат обьекта в бд: если обьект был удален, а мы хотим создать его с теме же полями (проблема soft delete + индекса).
-      if (error instanceof Error && error.message.includes('duplicate key')) {
-        const duplicatedField = error.message.includes('login')
-          ? 'login'
-          : 'email';
+      const duplicatedField = getUniqueViolationField(error);
 
+      if (duplicatedField) {
         throw new DomainException({
           code: DomainExceptionCode.BadRequest,
           message: 'User with this login or email already exists',

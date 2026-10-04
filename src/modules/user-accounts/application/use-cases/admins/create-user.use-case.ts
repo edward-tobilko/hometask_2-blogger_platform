@@ -9,6 +9,7 @@ import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create
 import { CryptoService } from '../../services/crypto.service';
 import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
+import { getUniqueViolationField } from 'src/core/utils/get-unique-violation-field.util';
 
 export class CreateUserCommand extends Command<{ id: string }> {
   constructor(public dto: CreateUserDomainDto) {
@@ -46,18 +47,16 @@ export class CreateUserUseCase implements ICommandHandler<
       return { id };
     } catch (error: unknown) {
       // * Эта проверка нужно для теста: парсим поле из ошибки PostgreSQL (так как нам нужно сверять только login or email и возвращать их, а не loginOrEmail).
-      if (error instanceof Error && error.message.includes('duplicate key')) {
-        const duplicatedField = error.message.includes('login')
-          ? 'login'
-          : 'email';
+      const duplicatedField = getUniqueViolationField(error);
 
+      if (duplicatedField) {
         throw new DomainException({
           code: DomainExceptionCode.BadRequest,
           message: 'User with this login or email already exists',
           extensions: [
             new Extension(
               'User with this login or email already exists',
-              duplicatedField, // just for status code 400 (bad request)
+              duplicatedField,
             ),
           ],
         });
