@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
+import { isUUID } from 'class-validator';
 
 import { UserAccountOrmEntity } from '../schemas/user-orm.entity';
 import { CreateUserDomainDto } from '../../../domain/dto/create-user.dto';
-import { isUUID } from 'class-validator';
 
 @Injectable()
 export class UsersSqlRepository {
@@ -59,7 +59,7 @@ export class UsersSqlRepository {
   ): Promise<UserAccountOrmEntity | null> {
     if (!isUUID(confirmCode)) return null; // проверка на UUID так как в БД тип uuid
 
-    return await this.usersRepo.findOne({
+    return this.usersRepo.findOne({
       where: { confirmationCode: confirmCode, deletedAt: IsNull() },
     });
   }
@@ -69,7 +69,7 @@ export class UsersSqlRepository {
   ): Promise<UserAccountOrmEntity | null> {
     if (!isUUID(recoveryCode)) return null;
 
-    return await this.usersRepo.findOne({
+    return this.usersRepo.findOne({
       where: { recoveryCode, deletedAt: IsNull() },
     });
   }
