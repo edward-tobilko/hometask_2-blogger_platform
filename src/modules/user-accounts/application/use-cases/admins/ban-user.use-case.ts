@@ -1,4 +1,9 @@
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import {
+  Command,
+  CommandHandler,
+  EventBus,
+  ICommandHandler,
+} from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
@@ -8,8 +13,10 @@ import { BanUserDomainDto } from './../../../domain/dto/ban-user.dto';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 import { ExtraUserBanInfoOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
 
-export class BanUserCommand {
-  constructor(public readonly dto: BanUserDomainDto) {}
+export class BanUserCommand extends Command<void> {
+  constructor(public readonly dto: BanUserDomainDto) {
+    super();
+  }
 }
 
 @CommandHandler(BanUserCommand)

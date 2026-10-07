@@ -61,7 +61,7 @@ export class ExtraUserBanInfoOrmEntity extends BaseDBEntity {
   banUnBan(dto: BanUserDomainDto): void {
     if (dto.isBanned === true) {
       this.ban(dto);
-    } else if (dto.isBanned === false) {
+    } else {
       this.unBan();
     }
   }
