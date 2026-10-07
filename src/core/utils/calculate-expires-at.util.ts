@@ -1,8 +1,6 @@
 import { BanDuration } from '../enums/ban-duration.enum';
 
-export function calculateExpiresAt(duration: BanDuration | null): Date | null {
-  if (!duration) return null;
-
+export function calculateExpiresAt(duration: BanDuration): Date | null {
   const date = new Date(); // current date
 
   switch (duration) {
