@@ -1,4 +1,9 @@
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import {
+  Command,
+  CommandHandler,
+  EventBus,
+  ICommandHandler,
+} from '@nestjs/cqrs';
 
 import {
   DomainException,
@@ -10,9 +15,12 @@ import { UserRegisteredEvent } from 'src/modules/user-accounts/domain/events/use
 import { UsersService } from '../../services/users.service';
 import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 import { getUniqueViolationField } from 'src/core/utils/get-unique-violation-field.util';
+import { CreateUserDomainDto } from 'src/modules/user-accounts/domain/dto/create-user.dto';
 
-export class RegisterUserCommand {
-  constructor(public dto: { login: string; password: string; email: string }) {}
+export class RegisterUserCommand extends Command<void> {
+  constructor(public dto: CreateUserDomainDto) {
+    super();
+  }
 }
 
 @CommandHandler(RegisterUserCommand)
