@@ -51,7 +51,7 @@ export class RegisterUserUseCase implements ICommandHandler<
         new UserRegisteredEvent(newUser.email, newUser.confirmationCode!),
       );
     } catch (error) {
-      // * проверка на дубликат обьекта в бд: если обьект был удален, а мы хотим создать его с теме же полями (проблема soft delete + индекса).
+      // * Проверка на дубликат обьекта в бд: если обьект был удален, а мы хотим создать его с теме же полями (проблема soft delete + индекса).
       const duplicatedField = getUniqueViolationField(error);
 
       if (duplicatedField) {
