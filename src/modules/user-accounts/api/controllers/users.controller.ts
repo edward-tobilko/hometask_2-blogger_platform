@@ -81,7 +81,7 @@ export class UsersController {
     @Param('id', UuidValidationPipe) id: string,
     @Body() dto: BanUserInputDto,
   ) {
-    const command = new BanUserCommand({ userId: id, ...dto });
+    const command = new BanUserCommand({ ...dto, userId: id });
 
     await this.commandBus.execute(command);
   }
