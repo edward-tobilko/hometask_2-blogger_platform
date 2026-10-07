@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import nodemailer, { Transporter } from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import { CoreConfig } from 'src/core/core.config';
 
 @Injectable()
 export class NodeMailerService {
-  private transporter: Transporter;
+  private transporter: Transporter<SMTPTransport.SentMessageInfo>;
 
   constructor(
     private coreConfig: CoreConfig,
@@ -21,28 +22,17 @@ export class NodeMailerService {
     });
   }
 
-  async sendRegistrationConfirmationEmail(
-    email: string, // куда отправляем
-    code: string, // код подтверджения
-    template: (code: string) => string, // ф-я которая принимает код и отправляет html строку)
-  ): Promise<boolean> {
+  async sendEmail(to: string, subject: string, html: string): Promise<boolean> {
     // * Проверка для тестов (что бы письмо отправлялось фейково)
     if (this.coreConfig.isTesting) return true;
 
-    console.log('SENDING EMAIL TO:', email);
-
     const info = await this.transporter.sendMail({
       from: `"eddie" <${this.userConfig.email}>`,
-      to: email,
-      subject:
-        'This email was sent using nodemailer. View your confirmation code here.',
-      html: template(code), // html body
+      to,
+      subject,
+      html,
     });
 
-    console.log('SENT:', info);
-
-    return !!info;
+    return info.accepted.length > 0;
   }
 }
-
-// ? "!!info" - превращает значения в true or false

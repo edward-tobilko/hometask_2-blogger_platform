@@ -9,13 +9,13 @@ export class UserPasswordRecoveryEventHandler implements IEventHandler<UserPassw
   constructor(private mailerService: NodeMailerService) {}
 
   async handle(event: UserPasswordRecoveryEvent) {
+    const { subject, html } = emailTemplates.passwordRecoveryEmail(
+      event.recoveryCode,
+    );
+
     // * По контракту нужно всегда возвращать 204, при ошибке не раскрывая деталей существования email
     try {
-      await this.mailerService.sendRegistrationConfirmationEmail(
-        event.email,
-        event.recoveryCode,
-        (code: string) => emailTemplates.passwordRecoveryEmail(code),
-      );
+      await this.mailerService.sendEmail(event.email, subject, html);
     } catch (error) {
       console.error('EMAIL_SEND_ERROR', error);
 

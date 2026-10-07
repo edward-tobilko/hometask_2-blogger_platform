@@ -9,15 +9,14 @@ export class UserRegisteredEventHandler implements IEventHandler<UserRegisteredE
   constructor(private mailerService: NodeMailerService) {}
 
   async handle(event: UserRegisteredEvent) {
+    const { subject, html } = emailTemplates.registrationEmail(
+      event.confirmationCode,
+    );
+
     try {
-      await this.mailerService.sendRegistrationConfirmationEmail(
-        event.email,
-        event.confirmationCode,
-        (code: string) => emailTemplates.registrationEmail(code),
-      );
+      await this.mailerService.sendEmail(event.email, subject, html);
     } catch (error: unknown) {
       console.error('EMAIL_SEND_ERROR', error);
-      // возможно: поставить в очередь на повторную отправку (но это уже тема очередей задач: Bull/BullMQ (Redis-based) для nest)
     }
   }
 }
