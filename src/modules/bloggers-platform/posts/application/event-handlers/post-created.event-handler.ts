@@ -21,6 +21,9 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
       const userSubscriberIds =
         await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId);
 
+      // * Пропускаем поиск подписок в бд, если их нет (оптимизация на уровне гонки между асинхронным event handler-ом и закрытием приложения в конце тестов).
+      if (userSubscriberIds.length === 0) return;
+
       // * Передаём весь массив ID сразу, получаем всех пользователей одним запросом с выбраными двумя свойствами.
       const users =
         await this.usersExternalRepo.findTelegramContactsByIds(
