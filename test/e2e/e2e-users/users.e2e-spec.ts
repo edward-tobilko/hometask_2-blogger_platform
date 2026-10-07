@@ -11,6 +11,7 @@ import { BadRequestError } from '../../utils/bad-request-error.util';
 import { BanDuration } from 'src/core/enums/ban-duration.enum';
 import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
+import { BanUserInputDto } from 'src/modules/user-accounts/api/input-dto/ban-user.input-dto';
 
 describe('Users swagger contract', () => {
   let app: INestApplication;
@@ -310,7 +311,7 @@ describe('Users swagger contract', () => {
     });
   });
 
-  describe('Tests for PUT: /api/sa/users/:userId/ban end-point', () => {
+  describe('Extra tests over the basic api for PUT: /api/sa/users/:userId/ban end-point', () => {
     it('status 204 - should ban user', async () => {
       const dto = userTestManager.getUserInputDto();
       const user = await userTestManager.createUser(dto);
@@ -334,7 +335,6 @@ describe('Users swagger contract', () => {
 
       await userTestManager.banUser(user.id, {
         isBanned: false,
-        banExpiresAt: null,
       });
     });
 
@@ -345,14 +345,22 @@ describe('Users swagger contract', () => {
 
       await request(httpServer)
         .put(`${usersPath}/${user.id}/ban`)
-        .send({ isBanned: true, banReason: 'spam', banExpiresAt: null })
+        .send({
+          isBanned: true,
+          banReason: 'spam',
+          banExpiresAt: BanDuration.PERMANENT,
+        })
         .expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('status 404 - user not found', async () => {
       await userTestManager.banUser(
         '00000000-0000-0000-0000-000000000000',
-        { isBanned: true, banReason: 'spam', banExpiresAt: null },
+        {
+          isBanned: true,
+          banReason: 'spam',
+          banExpiresAt: BanDuration.PERMANENT,
+        },
         HttpStatus.NOT_FOUND,
       );
     });
@@ -368,7 +376,7 @@ describe('Users swagger contract', () => {
       await userTestManager.banUser(userId, {
         isBanned: true,
         banReason: 'spam',
-        banExpiresAt: null,
+        banExpiresAt: BanDuration.PERMANENT,
       });
 
       await userTestManager.login(
@@ -377,9 +385,8 @@ describe('Users swagger contract', () => {
       );
     });
 
-    // * Extra test over the basic logic
-    it('status 200 - banned user comments are hidden from GET /posts/:postId/comments', async () => {
-      // * создаём подтверждённого юзера
+    it('status 200 - banned user comments are hidden from GET: /posts/:postId/comments', async () => {
+      // * Создаём подтверждённого юзера
       const { login, password } =
         await userTestManager.getRegisteredAndConfirmedUser();
       const { accessToken } = await userTestManager.login({
@@ -387,7 +394,7 @@ describe('Users swagger contract', () => {
         password,
       });
 
-      // * создаём блог и пост
+      // * Создаём блог и пост
       const blog = await blogTestManager.createBlog(
         blogTestManager.getBlogInputDto(),
       );
@@ -396,30 +403,30 @@ describe('Users swagger contract', () => {
         blogTestManager.getPostForBlogInputDto(),
       );
 
-      // * юзер пишет комментарий
+      // * Юзер пишет комментарий
       await postTestManager.createSeveralCommentsForPost(
         post.id,
         accessToken,
         1,
       );
 
-      // * до бана — комментарий виден
+      // * До бана — комментарий виден
       const before = await postTestManager.getCommentsForPostPaginatedList(
         post.id,
       );
 
       expect(before.totalCount).toBe(1);
 
-      // * баним юзера
+      // * Баним юзера
       const users = await userTestManager.getUsersPaginatedList();
 
       await userTestManager.banUser(users.items[0].id, {
         isBanned: true,
         banReason: 'spam',
-        banExpiresAt: null,
+        banExpiresAt: BanDuration.PERMANENT,
       });
 
-      // * после бана — комментарий скрыт
+      // * После бана — комментарий скрыт
       const after = await postTestManager.getCommentsForPostPaginatedList(
         post.id,
       );
@@ -427,5 +434,70 @@ describe('Users swagger contract', () => {
       expect(after.totalCount).toBe(0);
       expect(after.items).toHaveLength(0);
     });
+  });
+
+  it.each([
+    // * banReason
+    {
+      name: 'banReason is missing when isBanned = true',
+      payload: { isBanned: true, banExpiresAt: BanDuration.DAYS_7 },
+      field: 'banReason',
+    },
+    {
+      name: 'banReason is empty when isBanned = true',
+      payload: {
+        isBanned: true,
+        banReason: '',
+        banExpiresAt: BanDuration.DAYS_7,
+      },
+      field: 'banReason',
+    },
+
+    // * banExpiresAt
+    {
+      name: 'banExpiresAt is missing when isBanned = true',
+      payload: { isBanned: true, banReason: 'spam' },
+      field: 'banExpiresAt',
+    },
+    {
+      name: 'banExpiresAt is null when isBanned = true',
+      payload: { isBanned: true, banReason: 'spam', banExpiresAt: null },
+      field: 'banExpiresAt',
+    },
+    {
+      name: 'banExpiresAt is not a valid enum value',
+      payload: {
+        isBanned: true,
+        banReason: 'spam',
+        banExpiresAt: '100_years',
+      },
+      field: 'banExpiresAt',
+    },
+
+    // * isBanned
+    {
+      name: 'isBanned is missing',
+      payload: { banReason: 'spam', banExpiresAt: BanDuration.DAYS_7 },
+      field: 'isBanned',
+    },
+  ])('status 400 - $name', async ({ payload, field }) => {
+    const user = await userTestManager.createUser(
+      userTestManager.getUserInputDto(),
+    );
+
+    const response = (await userTestManager.banUser(
+      user.id,
+      payload as unknown as Partial<BanUserInputDto>, // намеренно невалидные данные
+      HttpStatus.BAD_REQUEST,
+    )) as BadRequestError;
+
+    expect(response.errorsMessages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+          field,
+        }),
+      ]),
+    );
   });
 });
