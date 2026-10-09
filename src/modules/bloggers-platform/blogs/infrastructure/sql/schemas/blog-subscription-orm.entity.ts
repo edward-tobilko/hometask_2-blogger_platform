@@ -2,14 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 
 @Unique('UQ_blog_subscriptions_user_id_blog_id', ['userId', 'blogId'])
 @Entity('blog_subscriptions')
 export class BlogSubscriptionsOrmEntity {
-  @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
+  @PrimaryGeneratedColumn('uuid')
   id!: string; // PK
 
   @Column({ name: 'user_id', type: 'uuid' })

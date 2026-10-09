@@ -1,10 +1,10 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { CreateSecurityDevicesDomainDto } from 'src/modules/user-accounts/domain/dto/create-security-devices.dto';
 
 @Entity('security_devices_session')
 export class SecurityDeviceOrmEntity {
-  @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' }) // create PK id at the DB level
+  @PrimaryGeneratedColumn('uuid') // create PK id at the DB level
   id!: string;
 
   @Column({ type: 'varchar' })

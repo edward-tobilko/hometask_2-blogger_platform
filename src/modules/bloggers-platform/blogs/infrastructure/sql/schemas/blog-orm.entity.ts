@@ -1,11 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { UpdateBlogDomainDto } from '../../../domain/dto/update-blog.domain-dto';
 import { CreateBlogDomainDto } from '../../../domain/dto/create-blog.domain-dto';
 
 @Entity('blogs')
 export class BlogOrmEntity {
-  @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ type: 'varchar' })

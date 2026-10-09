@@ -1,12 +1,12 @@
 import {
   CreateDateColumn,
   DeleteDateColumn,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 export class BaseDBEntity {
-  @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

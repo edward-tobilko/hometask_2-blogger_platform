@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 
@@ -11,7 +11,7 @@ import { LikeStatus } from 'src/core/enums/like-status.enum';
 @Unique('UQ_post_likes_post_id_user_id', ['postId', 'userId']) // UQ
 @Entity('post_likes')
 export class PostLikeOrmEntity {
-  @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
+  @PrimaryGeneratedColumn('uuid')
   id!: string; // PK
 
   @Column({ name: 'post_id', type: 'uuid' })

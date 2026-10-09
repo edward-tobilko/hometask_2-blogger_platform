@@ -1,11 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { CreatePostDomainDto } from '../../../domain/dto/create-post.domain-dto';
 import { UpdatePostDomainDto } from '../../../domain/dto/update-post.domain-dto';
 
 @Entity('posts')
 export class PostOrmEntity {
-  @PrimaryColumn({ type: 'uuid', default: () => 'gen_random_uuid()' })
+  @PrimaryGeneratedColumn('uuid')
   id!: string; // PK
 
   @Column({ type: 'varchar' })
