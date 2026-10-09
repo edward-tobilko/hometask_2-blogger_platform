@@ -59,9 +59,6 @@ export class BlogsQuerySqlRepository {
 
     const totalCount = await baseQb.getCount(); // отдельный COUNT запрос, который считает без LIMIT / OFFSET
 
-    const [sql, params] = baseQb.getQueryAndParameters();
-    console.log(sql, params);
-
     const { entities } = await baseQb
       .skip(queryParam.calculateSkip())
       .take(pageSize)
