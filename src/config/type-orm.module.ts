@@ -11,7 +11,8 @@ export const typeOrmModule = TypeOrmModule.forRootAsync({
       schema: 'public',
       url: coreConfig.postgresURI,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
+      uuidExtension: 'pgcrypto',
       // logging: coreConfig.isProduction ? false : true,
     };
   },
