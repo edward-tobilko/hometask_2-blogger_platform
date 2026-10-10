@@ -1,18 +1,11 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 import { UpdateBlogDomainDto } from '../../../domain/dto/update-blog.domain-dto';
 import { CreateBlogDomainDto } from '../../../domain/dto/create-blog.domain-dto';
+import { BaseDBEntity } from 'src/core/base-entity/base-db.entity';
 
 @Entity('blogs')
-export class BlogOrmEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
-
+export class BlogOrmEntity extends BaseDBEntity {
   @Column({ type: 'varchar' })
   name!: string;
 
@@ -24,9 +17,6 @@ export class BlogOrmEntity {
 
   @Column({ name: 'is_membership', type: Boolean, default: false })
   isMembership!: boolean;
-
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
-  createdAt!: Date;
 
   static create(dto: CreateBlogDomainDto): BlogOrmEntity {
     const blogInstance = new BlogOrmEntity();
