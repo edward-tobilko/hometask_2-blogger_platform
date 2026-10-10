@@ -184,16 +184,14 @@ export class PostsQuerySqlRepository {
       .where('pl.post_id = :id', { id })
       .andWhere('pl.status = :status', { status: LikeStatus.Like })
       .orderBy('pl.added_at', 'DESC')
-      .take(3);
+      // .take(3); // only for getMany / getManyAndCount (entity)
+      .limit(3); // for getRawMany
 
     const postsRow = await builderForPosts.getRawOne<PostAndPostLikeQBRaw>();
     const newestLikesRow =
       await builderForNewestLikes.getRawMany<NewestLikeRaw>();
 
     if (!postsRow) return null;
-
-    const [sql, params] = builderForNewestLikes.getQueryAndParameters();
-    console.log(sql, params);
 
     return PostsQuerySqlRepository.mapRawToViewModel(postsRow, newestLikesRow);
   }
