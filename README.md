@@ -13,6 +13,7 @@ A production-ready REST API for a blogging platform featuring full user account 
 | Framework      | NestJS 11, Express 5                       |
 | Language       | TypeScript 5.7                             |
 | Database       | PostgreSQL + TypeORM (all modules)         |
+| Schema         | TypeORM migrations (`synchronize` is off)  |
 | Authentication | JWT (access + refresh tokens), Passport.js |
 | Validation     | class-validator, class-transformer         |
 | API Docs       | Swagger / OpenAPI (@nestjs/swagger)        |
@@ -54,6 +55,7 @@ Each domain module is split into four layers:
 - **External Repositories:** cross-module reads use `*ExternalRepository` (read-only). Direct imports between modules are forbidden.
 - **Exception handling:** custom `DomainException` with global `DomainHttpExceptionsFilter` and `AllHttpExceptionsFilter`
 - **Rate limiting:** global `ThrottlerGuard` configurable via env, can be disabled for testing
+- **Schema migrations:** the database schema is changed only through versioned TypeORM migrations; production applies them automatically before each rollout
 
 ---
 
@@ -187,12 +189,71 @@ IS_USER_AUTOMATICALLY_CONFIRMED=true
 SEND_INTERNAL_SERVER_ERROR_DETAILS=true
 ```
 
+### Apply Migrations
+
+TypeORM `synchronize` is disabled, so the schema must be created by migrations before the first run:
+
+```bash
+npx cross-env NODE_ENV=development yarn migration:run
+```
+
 ### Run
 
 ```bash
 yarn dev       # Development with hot reload (port 5004)
 yarn build     # Compile to dist/
 ```
+
+---
+
+## Database Migrations
+
+The schema is versioned with **TypeORM migrations**. `synchronize: false` is set for every environment, so the application never changes the schema on its own — every change is an explicit, reviewable file in git.
+
+| Path                    | Purpose                                                                |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `src/db/data-source.ts` | Standalone `DataSource` for the TypeORM CLI (Nest DI is not available) |
+| `src/db/migrations/`    | Migration files (`<timestamp>-<Name>.ts`), each with `up()` / `down()` |
+| `migrations` table      | Per-database journal of applied migrations                             |
+
+### Commands
+
+`NODE_ENV` selects the target database (`.env.<NODE_ENV>.local` → `.env.<NODE_ENV>`). It is required on purpose — without it the CLI fails instead of connecting to an unknown database.
+
+```bash
+# Generate a migration from the diff between entities and the database
+npx cross-env NODE_ENV=development yarn migration:generate src/db/migrations/AddUserAddress
+
+# Preview the generated SQL without creating a file
+npx cross-env NODE_ENV=development yarn migration:generate src/db/migrations/Check --dryrun
+
+# Apply all pending migrations
+npx cross-env NODE_ENV=development yarn migration:run
+
+# Revert the last applied migration (runs its down())
+npx cross-env NODE_ENV=development yarn migration:revert
+
+# Show applied [X] and pending [ ] migrations
+npx cross-env NODE_ENV=development yarn migration:show
+```
+
+### Changing the Schema
+
+1. Change the ORM entity
+2. `migration:generate` with a descriptive PascalCase name (`AddPostsBlogIdForeignKey`, `RenameLoginToUsername`)
+3. Read the generated SQL — check for unexpected `DROP` statements or noise
+4. `migration:run` on development, verify with `migration:show`
+5. `migration:run` on testing, then `yarn test:e2e`
+6. Commit the entity and the migration together
+
+> Never edit, rename or delete a migration that has already been pushed or deployed — fix it with a new migration instead.
+
+### Applied Migrations
+
+| Migration                                  | Change                                                          |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `1791566062146-Baseline`                   | Initial schema snapshot (all tables)                            |
+| `1791652410008-AddBlogsUpdatedAtDeletedAt` | `blogs` extends `BaseDBEntity`: adds `updated_at`, `deleted_at` |
 
 ---
 
@@ -217,6 +278,12 @@ TELEGRAM_BOT_NAME=your_bot_username
 IS_DISABLE_RATE_LIMIT=true
 IS_USER_AUTOMATICALLY_CONFIRMED=false
 INCLUDE_TESTING_MODULE=true
+```
+
+Create the schema in the test database (and re-run after pulling new migrations):
+
+```bash
+npx cross-env NODE_ENV=testing yarn migration:run
 ```
 
 ### Commands
@@ -256,7 +323,6 @@ E2E tests use **Test Managers** (`BlogTestManager`, `UserTestManager`, etc.) for
 | Variable                             | Description                         | Example                     |
 | ------------------------------------ | ----------------------------------- | --------------------------- |
 | `POSTGRES_URI`                       | PostgreSQL connection string        | `postgresql://user@host/db` |
-| `DB_AUTO_SYNC`                       | TypeORM auto-sync schema (dev only) | `true`                      |
 | `ACCESS_TOKEN_SECRET`                | JWT access token secret             | `supersecret`               |
 | `ACCESS_TOKEN_EXPIRE_IN`             | Access token TTL                    | `10m`                       |
 | `REFRESH_TOKEN_SECRET`               | JWT refresh token secret            | `anothersecret`             |
@@ -295,6 +361,25 @@ fly secrets set POSTGRES_URI="postgresql://..." \
 
 Docker image is based on `node:20.20.0-slim`. The app listens on port `8080` in production.
 
+### Migrations on Deploy
+
+Pending migrations are applied by a Fly.io **release command** (`fly.toml`), which runs in a temporary machine from the new image **before** traffic is switched:
+
+```toml
+[deploy]
+  release_command = "node ./node_modules/typeorm/cli.js migration:run -d dist/db/data-source.js"
+```
+
+- The production image contains only `dist/`, so the compiled data source and the plain JS CLI are used (no ts-node).
+- If a migration fails, the deployment is aborted and the previous version keeps serving traffic.
+- Re-running is safe: already applied migrations are skipped.
+
+Check the production migration journal without exposing the database URI locally:
+
+```bash
+fly ssh console -C "node ./node_modules/typeorm/cli.js migration:show -d dist/db/data-source.js"
+```
+
 ---
 
 ## Project Structure
@@ -305,6 +390,9 @@ src/
 ├── main.ts
 ├── config/               # TypeORM, Config, Throttler modules
 ├── core/                 # Shared: decorators, exceptions, pipes, constants, DTOs, enums, utils
+├── db/
+│   ├── data-source.ts    # DataSource for the TypeORM CLI
+│   └── migrations/       # Versioned schema migrations
 ├── modules/
 │   ├── bloggers-platform/  # Blogs, posts, comments, likes, subscriptions (PostgreSQL/TypeORM)
 │   ├── user-accounts/      # Users, auth, security-devices, ban/unban (PostgreSQL/TypeORM)
