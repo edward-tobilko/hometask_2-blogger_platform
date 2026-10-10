@@ -2,12 +2,11 @@ import { Inject } from '@nestjs/common';
 import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 
-import { UserAccountsConfig } from 'src/modules/user-accounts/config/user-accounts.config';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from 'src/modules/user-accounts/constants/auth-tokens.inject-constants';
-import { SecurityDevicesRepository } from 'src/modules/user-accounts/infrastructure/repositories/security-devices.repository';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/security-devices-sql.repository';
 
 export class RefreshTokenCommand extends Command<{
   accessToken: string;
@@ -31,8 +30,7 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
     @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
     private refreshTokenContext: JwtService,
 
-    private userAccountConfig: UserAccountsConfig,
-    private securityDevicesRepo: SecurityDevicesRepository,
+    private securityDevicesRepo: SecurityDevicesSqlRepository,
   ) {}
 
   async execute({ userId, deviceId }: RefreshTokenCommand): Promise<{
@@ -44,21 +42,25 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
 
     const lastActiveDate = new Date();
 
-    await this.securityDevicesRepo.updateLastActiveDate(
-      deviceId,
-      lastActiveDate,
-    );
-
-    // * все то, что мы запишем в cookie
+    // * Все то, что мы запишем в cookie
     const refreshToken = this.refreshTokenContext.sign({
       userId,
       deviceId,
       lastActiveDate,
     });
 
-    const cookieMaxAge = Number(
-      this.userAccountConfig.refreshTokenCookieMaxAge,
+    const decoded: {
+      exp: number;
+    } = this.refreshTokenContext.decode(refreshToken);
+    const expiresAt = new Date(decoded.exp * 1000); // переводим секунды в миллисекунды
+
+    await this.securityDevicesRepo.updateSessionDates(
+      deviceId,
+      lastActiveDate,
+      expiresAt,
     );
+
+    const cookieMaxAge = expiresAt.getTime() - Date.now(); // кука будет жить ровно столько же, сколько токен внутри неё
 
     return Promise.resolve({ accessToken, refreshToken, cookieMaxAge }); // ICommandHandler всегда требует Promise, так как метод синхронный а возвр. promise, нужно дожидаться.
   }

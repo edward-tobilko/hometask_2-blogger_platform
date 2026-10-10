@@ -2,20 +2,20 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { UserPasswordRecoveryEvent } from '../../domain/events/user-password-recovery.event';
 import { NodeMailerService } from '../../infrastructure/external-services/mailer.external-service';
-import { emailTemplates } from '../../infrastructure/external-services/email-templates.external-service';
+import { emailTemplates } from '../../infrastructure/external-services/templates/email.template';
 
 @EventsHandler(UserPasswordRecoveryEvent)
 export class UserPasswordRecoveryEventHandler implements IEventHandler<UserPasswordRecoveryEvent> {
   constructor(private mailerService: NodeMailerService) {}
 
   async handle(event: UserPasswordRecoveryEvent) {
+    const { subject, html } = emailTemplates.passwordRecoveryEmail(
+      event.recoveryCode,
+    );
+
     // * По контракту нужно всегда возвращать 204, при ошибке не раскрывая деталей существования email
     try {
-      await this.mailerService.sendRegistrationConfirmationEmail(
-        event.email,
-        event.recoveryCode,
-        (code: string) => emailTemplates.passwordRecoveryEmail(code),
-      );
+      await this.mailerService.sendEmail(event.email, subject, html);
     } catch (error) {
       console.error('EMAIL_SEND_ERROR', error);
 

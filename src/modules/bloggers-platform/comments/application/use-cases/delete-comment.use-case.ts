@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { CommentsRepository } from '../../infrastructure/repositories/comments.repo';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { CommentsSqlRepository } from '../../infrastructure/sql/repositories/comments-sql.repo';
 
 export class DeleteCommentByIdCommand {
   constructor(
@@ -16,7 +16,7 @@ export class DeleteCommentByIdUseCase implements ICommandHandler<
   DeleteCommentByIdCommand,
   void
 > {
-  constructor(private commentsRepo: CommentsRepository) {}
+  constructor(private commentsRepo: CommentsSqlRepository) {}
 
   async execute(command: DeleteCommentByIdCommand): Promise<void> {
     const { commentId, userId } = command;
@@ -28,7 +28,7 @@ export class DeleteCommentByIdUseCase implements ICommandHandler<
         code: DomainExceptionCode.NotFound,
         message: `This Comment with ID:${commentId} was not found`,
       });
-    } else if (existingComment.commentatorInfo.userId !== userId) {
+    } else if (existingComment.userId !== userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: "You can't edit someone else's comment",

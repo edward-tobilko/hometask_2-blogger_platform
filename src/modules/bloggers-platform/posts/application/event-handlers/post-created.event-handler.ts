@@ -1,9 +1,9 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { PostCreatedEvent } from '../../domain/events/post-created.event';
-import { BlogSubscriptionsRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/repositories/blog-subscriptions.repository';
-import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/repositories/users-external.repository';
+import { BlogSubscriptionsRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/sql/repositories/blog-subscriptions.repository';
 import { TelegramAdapter } from 'src/core/adapters/telegram.adapter';
+import { UsersExternalRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-repo';
 
 @EventsHandler(PostCreatedEvent)
 export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> {
@@ -14,24 +14,36 @@ export class PostCreatedEventHandler implements IEventHandler<PostCreatedEvent> 
   ) {}
 
   async handle(event: PostCreatedEvent): Promise<void> {
-    const { blogId, blogName, postTitle } = event;
+    try {
+      const { blogId, blogName, postTitle } = event;
 
-    const userSubscriberIds =
-      await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId); // получаем массив userIds всех подписчиков этого блога
+      // * Получаем массив userIds всех подписчиков этого блога.
+      const userSubscriberIds =
+        await this.blogSubscriptionsRepo.findSubscribersByBlogId(blogId);
 
-    const users = await this.usersExternalRepo.findByIds(userSubscriberIds); // передаём весь массив ID сразу, получаем всех пользователей одним запросом.
+      // * Пропускаем поиск подписок в бд, если их нет (оптимизация на уровне гонки между асинхронным event handler-ом и закрытием приложения в конце тестов).
+      if (userSubscriberIds.length === 0) return;
 
-    for (const user of users) {
-      if (!user?.telegramNotificationsInfo?.telegramChatId) continue;
-
-      try {
-        await this.telegramAdapter.sendMessage(
-          user.telegramNotificationsInfo.telegramChatId,
-          `New post in blog "${blogName}": ${postTitle}`,
+      // * Передаём весь массив ID сразу, получаем всех пользователей одним запросом с выбраными двумя свойствами.
+      const users =
+        await this.usersExternalRepo.findTelegramContactsByIds(
+          userSubscriberIds,
         );
-      } catch (error) {
-        console.error('TELEGRAM_SEND_ERROR', error);
+
+      for (const user of users) {
+        if (!user.telegramChatId) continue;
+
+        try {
+          await this.telegramAdapter.sendMessage(
+            user.telegramChatId,
+            `🆕 New post published!\n\n📖 Blog: "${blogName}"\n📝 Post: ${postTitle}`,
+          );
+        } catch (error) {
+          console.error('TELEGRAM_SEND_ERROR', error);
+        }
       }
+    } catch (error) {
+      console.error('POST_CREATED_HANDLER_ERROR', error);
     }
   }
 }

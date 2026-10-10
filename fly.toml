@@ -19,4 +19,5 @@ primary_region = 'iad'
   cpu_kind = 'shared'
   cpus = 1
 
-
+[deploy]
+  release_command = "node ./node_modules/typeorm/cli.js migration:run -d dist/db/data-source.js"

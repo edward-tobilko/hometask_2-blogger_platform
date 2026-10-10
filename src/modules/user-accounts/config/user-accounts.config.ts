@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IsBoolean, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 
 import { configValidationUtility } from 'src/config/config-validation.utility';
 
@@ -31,13 +31,6 @@ export class UserAccountsConfig {
     this.configService.get('REFRESH_TOKEN_EXPIRE_IN') ?? '';
 
   @IsNotEmpty({
-    message:
-      'Set env variable REFRESH_TOKEN_COOKIE_MAX_AGE, for examples: 1h, 5m, 2d',
-  })
-  refreshTokenCookieMaxAge: string =
-    this.configService.get('REFRESH_TOKEN_COOKIE_MAX_AGE') ?? '';
-
-  @IsNotEmpty({
     message: 'Set env variable REFRESH_TOKEN_SECRET, dangerous for security!',
   })
   refreshTokenSecret: string =
@@ -50,4 +43,17 @@ export class UserAccountsConfig {
   isUserConfirmed: boolean = configValidationUtility.convertToBoolean(
     this.configService.get('IS_USER_AUTOMATICALLY_CONFIRMED') ?? '',
   ) as boolean;
+
+  @IsNotEmpty({
+    message: 'Set env variable EMAIL, sender address for nodemailer',
+  })
+  email: string = this.configService.get('EMAIL') ?? '';
+
+  @IsNotEmpty({
+    message: 'Set env variable EMAIL_PASS, Gmail app password for nodemailer',
+  })
+  emailPass: string = this.configService.get('EMAIL_PASS') ?? ''; // получаем сгенерированный код в настройках гугл аккаунта (https://myaccount.google.com/security );
+
+  @IsNumber({}, { message: 'SALT_ROUNDS must be a number, for example: 10' })
+  saltRounds: number = Number(this.configService.get('SALT_ROUNDS') ?? 10);
 }

@@ -38,8 +38,8 @@ coverage/
 *.swp
 *.swo
 
-# Comments
-package.comment.md
+# Modules
+backup.sql
 
 # Notes
 **/*.notes.md
@@ -48,7 +48,6 @@ package.comment.md
 CLAUDE.md
 .claude/
 
-# If needed
-### .yarn.lock
-### .package-lock.json
-### .pnpm-lock.yaml
+# Other
+query-builder.ts
+use-builder.ts

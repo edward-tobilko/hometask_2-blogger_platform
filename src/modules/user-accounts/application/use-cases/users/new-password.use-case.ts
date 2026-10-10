@@ -5,8 +5,9 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { CryptoService } from '../../services/crypto.service';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/security-devices-sql.repository';
 
 export class NewPasswordCommand {
   constructor(
@@ -21,7 +22,8 @@ export class NewPasswordUseCase implements ICommandHandler<
   void
 > {
   constructor(
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
+    private securityDevicesRepo: SecurityDevicesSqlRepository,
     private cryptoService: CryptoService,
   ) {}
 
@@ -40,10 +42,27 @@ export class NewPasswordUseCase implements ICommandHandler<
         ],
       });
 
+    if (
+      !user.recoveryCode ||
+      !user.recoveryCodeExpiry ||
+      user.recoveryCodeExpiry < new Date()
+    )
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Recovery code is expired or incorrect',
+        extensions: [
+          new Extension(
+            'Recovery code is expired or incorrect',
+            'recoveryCode',
+          ),
+        ],
+      });
+
     const passwordHash = await this.cryptoService.generateHash(newPassword);
 
-    user.setNewPassword(passwordHash);
+    user.setPassword(passwordHash);
 
     await this.usersRepo.save(user);
+    await this.securityDevicesRepo.removeAllByUserId(user.id); // удалить все сессии после смены пароля
   }
 }

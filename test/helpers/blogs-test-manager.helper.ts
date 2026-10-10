@@ -30,6 +30,7 @@ export class BlogTestManager {
 
   httpServer = this.app.getHttpServer() as Server;
   blogsPath = `/${GLOBAL_PREFIX}/blogs` as string;
+  saBlogsPath = `/${GLOBAL_PREFIX}/sa/blogs` as string;
   postsPath = `/${GLOBAL_PREFIX}/posts` as string;
 
   getBlogInputDto(payloadValidation?: Record<string, unknown>): CreateBlogDto {
@@ -111,10 +112,15 @@ export class BlogTestManager {
   async getBlogById(
     id: string,
     statusCode: number = HttpStatus.OK,
+    accessToken?: string,
   ): Promise<BlogViewModel> {
-    const response = await request(this.httpServer)
-      .get(`${this.blogsPath}/${id}`)
-      .expect(statusCode);
+    const req = request(this.httpServer).get(`${this.blogsPath}/${id}`);
+
+    if (accessToken) {
+      req.set('Authorization', `Bearer ${accessToken}`);
+    }
+
+    const response = await req.expect(statusCode);
 
     return response.body as BlogViewModel;
   }
@@ -124,7 +130,7 @@ export class BlogTestManager {
     statusCode: number = HttpStatus.CREATED,
   ): Promise<BlogViewModel> {
     const response = await request(this.httpServer)
-      .post(`${this.blogsPath}`)
+      .post(`${this.saBlogsPath}`)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
@@ -155,7 +161,7 @@ export class BlogTestManager {
     statusCode: number = HttpStatus.CREATED,
   ): Promise<PostViewModel> {
     const response = await request(this.httpServer)
-      .post(`${this.blogsPath}/${blogId}/posts`)
+      .post(`${this.saBlogsPath}/${blogId}/posts`)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
@@ -171,7 +177,7 @@ export class BlogTestManager {
 
     for (let i = 1; i <= count; i++) {
       const response = await request(this.httpServer)
-        .post(`${this.postsPath}`)
+        .post(`${this.saBlogsPath}/${blogId}/posts`)
         .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
         .send({
           title: `Title ${i}`,
@@ -193,7 +199,7 @@ export class BlogTestManager {
     statusCode: number = HttpStatus.NO_CONTENT,
   ): Promise<UpdateBlogDto> {
     const response = await request(this.httpServer)
-      .put(`${this.blogsPath}/${id}`)
+      .put(`${this.saBlogsPath}/${id}`)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
       .send(dto)
       .expect(statusCode);
@@ -206,8 +212,31 @@ export class BlogTestManager {
     statusCode: number = HttpStatus.NO_CONTENT,
   ): Promise<void> {
     await request(this.httpServer)
-      .delete(`${this.blogsPath}/${id}`)
+      .delete(`${this.saBlogsPath}/${id}`)
       .auth(this.ADMIN_LOGIN, this.ADMIN_PASSWORD)
+      .expect(statusCode);
+  }
+
+  // * Extra methods over the basic logic
+  async subscribeToBlog(
+    blogId: string,
+    accessToken: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<void> {
+    await request(this.httpServer)
+      .post(`${this.blogsPath}/${blogId}/subscribe`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(statusCode);
+  }
+
+  async unsubscribeFromBlog(
+    blogId: string,
+    accessToken: string,
+    statusCode: number = HttpStatus.NO_CONTENT,
+  ): Promise<void> {
+    await request(this.httpServer)
+      .delete(`${this.blogsPath}/${blogId}/subscribe`)
+      .set('Authorization', `Bearer ${accessToken}`)
       .expect(statusCode);
   }
 }

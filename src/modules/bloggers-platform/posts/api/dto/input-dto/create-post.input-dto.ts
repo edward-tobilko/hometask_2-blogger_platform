@@ -1,10 +1,10 @@
-import { IsObjectId } from 'src/core/decorators/is-object-id.decorator';
+import { IsUUID } from 'class-validator';
 
 import { CreatePostForBlogDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/create-post-for-blog.input-dto';
 
 // * DTO model - response for db
 export class CreatePostDto extends CreatePostForBlogDto {
-  @IsObjectId()
+  @IsUUID()
   blogId!: string;
 }
 

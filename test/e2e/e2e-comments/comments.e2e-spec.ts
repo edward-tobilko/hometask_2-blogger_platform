@@ -11,7 +11,7 @@ import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { UpdateCommentDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/update-comment.input-dto';
 import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/api/constraints/comments.constraints';
-import { BadRequestError } from '../utils/bad-request-error.util';
+import { BadRequestError } from '../../utils/bad-request-error.util';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 
 describe('Comments swagger contract', () => {
@@ -108,7 +108,7 @@ describe('Comments swagger contract', () => {
 
     it("status 404 - if comment with specified id doesn't exists", async () => {
       await commentTestManager.setLikeStatus(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         LikeStatus.Like,
         accessToken,
         HttpStatus.NOT_FOUND,
@@ -191,7 +191,7 @@ describe('Comments swagger contract', () => {
 
     it('status 404 - if comment is not found', async () => {
       await commentTestManager.updateCommentById(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         dto,
         accessToken,
         HttpStatus.NOT_FOUND,
@@ -280,7 +280,7 @@ describe('Comments swagger contract', () => {
 
     it('status 404 - if comment is not found', async () => {
       await commentTestManager.deleteCommentById(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         accessToken,
         HttpStatus.NOT_FOUND,
       );
@@ -310,7 +310,7 @@ describe('Comments swagger contract', () => {
     });
 
     it('status 404 - if comment not found', async () => {
-      const notExistingId = '123456789012345678901234';
+      const notExistingId = '00000000-0000-0000-0000-000000000000';
 
       await commentTestManager.getCommentById(
         notExistingId,

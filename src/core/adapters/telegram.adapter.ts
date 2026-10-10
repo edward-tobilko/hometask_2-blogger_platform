@@ -21,7 +21,3 @@ export class TelegramAdapter {
     await firstValueFrom(this.httpService.post(url, { chat_id: chatId, text }));
   }
 }
-
-// ? sendMessage - POST-запрос к Telegram Bot API, chat_id  - это уникальный ID чата пользователя
-
-// ? firstValueFrom - конвертирует Observable (rxjs) в Promise

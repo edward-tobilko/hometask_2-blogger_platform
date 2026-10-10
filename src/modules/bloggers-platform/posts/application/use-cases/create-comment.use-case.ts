@@ -2,12 +2,12 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { CommentsRepository } from 'src/modules/bloggers-platform/comments/infrastructure/repositories/comments.repo';
-import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
-import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-query/users.external-query-repo';
-import { CommentDocument } from 'src/modules/bloggers-platform/comments/domain/entities/comment.entity';
+import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-query-repo';
+import { CommentOrmEntity } from 'src/modules/bloggers-platform/comments/infrastructure/sql/schemas/comment-orm.entity';
+import { CommentsSqlRepository } from 'src/modules/bloggers-platform/comments/infrastructure/sql/repositories/comments-sql.repo';
+import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
 
-export class CreateCommentCommand extends Command<CommentDocument> {
+export class CreateCommentCommand extends Command<CommentOrmEntity> {
   constructor(
     public postId: string,
     public content: string,
@@ -20,8 +20,8 @@ export class CreateCommentCommand extends Command<CommentDocument> {
 @CommandHandler(CreateCommentCommand)
 export class CreateCommentUseCase implements ICommandHandler<CreateCommentCommand> {
   constructor(
-    private readonly postsRepo: PostsRepository,
-    private readonly commentsRepo: CommentsRepository,
+    private readonly postsRepo: PostsSqlRepository,
+    private readonly commentsRepo: CommentsSqlRepository,
     private readonly externalUsersRepo: UsersExternalQueryRepository,
   ) {}
 
@@ -29,7 +29,7 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
     postId,
     content,
     userId,
-  }: CreateCommentCommand): Promise<CommentDocument> {
+  }: CreateCommentCommand): Promise<CommentOrmEntity> {
     const post = await this.postsRepo.findById(postId);
 
     if (!post)
@@ -38,7 +38,7 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
         message: `This post with ID:${postId} was not found`,
       });
 
-    const user = await this.externalUsersRepo.getByIdOrNotFoundFail(userId);
+    const user = await this.externalUsersRepo.getByIdOrNotFoundFailQB(userId);
 
     const commentInstance = await this.commentsRepo.create(
       postId,

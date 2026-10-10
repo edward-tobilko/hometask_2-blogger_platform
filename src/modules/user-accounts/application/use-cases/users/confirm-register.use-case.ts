@@ -5,7 +5,7 @@ import {
   Extension,
 } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 
 export class ConfirmationRegistrationCommand {
   constructor(public code: string) {}
@@ -16,7 +16,7 @@ export class ConfirmationRegistrationUseCase implements ICommandHandler<
   ConfirmationRegistrationCommand,
   void
 > {
-  constructor(private usersRepo: UsersRepository) {}
+  constructor(private usersRepo: UsersSqlRepository) {}
 
   async execute({ code }: ConfirmationRegistrationCommand): Promise<void> {
     const userAccount = await this.usersRepo.findByConfirmationCode(code);
@@ -28,7 +28,7 @@ export class ConfirmationRegistrationUseCase implements ICommandHandler<
         extensions: [new Extension('Incorrect code', 'code')],
       });
 
-    userAccount.sendConfirmEmail(code);
+    userAccount.confirmEmail();
 
     await this.usersRepo.save(userAccount);
   }

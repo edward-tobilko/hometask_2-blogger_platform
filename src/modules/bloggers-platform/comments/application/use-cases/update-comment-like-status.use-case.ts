@@ -1,10 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { CommentsRepository } from '../../infrastructure/repositories/comments.repo';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { calculateLikeDislike } from 'src/core/utils/calculate-like-dislike.util';
+import { CommentsSqlRepository } from '../../infrastructure/sql/repositories/comments-sql.repo';
+import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-query-repo';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -19,7 +20,10 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
   UpdateCommentLikeStatusCommand,
   void
 > {
-  constructor(private commentsRepo: CommentsRepository) {}
+  constructor(
+    private commentsRepo: CommentsSqlRepository,
+    private readonly userAccounts: UsersExternalQueryRepository,
+  ) {}
 
   async execute(command: UpdateCommentLikeStatusCommand): Promise<void> {
     const { commentId, userId, likeStatus } = command;
@@ -46,12 +50,15 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
       nextLikeStatus,
     );
 
+    const user = await this.userAccounts.getByIdOrNotFoundFailQB(userId);
+
     return this.commentsRepo.setLikeStatusForComment(
       commentId,
       userId,
       likeStatus,
       likes,
       disLikes,
+      user.login,
     );
   }
 }

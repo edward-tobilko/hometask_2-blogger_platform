@@ -5,7 +5,7 @@ import { Server } from 'http';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
 import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
-import { BadRequestError } from '../utils/bad-request-error.util';
+import { BadRequestError } from '../../utils/bad-request-error.util';
 import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
 import { SortDirections } from 'src/core/enums/sort-directions.enum';
@@ -137,7 +137,7 @@ describe('Posts swagger contract', () => {
 
     it('status 404 - if post not found', async () => {
       await postTestManager.updateLikeStatus(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         LikeStatus.Like,
         accessToken,
         HttpStatus.NOT_FOUND,
@@ -256,7 +256,7 @@ describe('Posts swagger contract', () => {
     });
 
     it("status - 404 if post with specified postId doesn't exists", async () => {
-      const notExistingPostId = '000000000000000000000000';
+      const notExistingPostId = '00000000-0000-0000-0000-000000000000';
 
       await request(app.getHttpServer() as Server)
         .post(`/api/posts/${notExistingPostId}/comments`)
@@ -350,7 +350,7 @@ describe('Posts swagger contract', () => {
     });
 
     it('status 404 - if specificity post is not exists', async () => {
-      const notExistingPostId = '012345678901234567890123';
+      const notExistingPostId = '00000000-0000-0000-0000-000000000000';
 
       await postTestManager.getCommentsForPostPaginatedList(
         notExistingPostId,
@@ -520,7 +520,7 @@ describe('Posts swagger contract', () => {
     });
 
     it('status 404 - if blogId does not exist', async () => {
-      const nonExistingBlogId = '507f1f77bcf86cd799439011';
+      const nonExistingBlogId = '00000000-0000-0000-0000-000000000000';
 
       const dto = postTestManager.getPostInputDto({
         blogId: nonExistingBlogId,
@@ -579,7 +579,7 @@ describe('Posts swagger contract', () => {
         field: 'blogId',
       },
       {
-        name: 'blogId is not a valid ObjectId',
+        name: 'blogId is not a valid UUID',
         payload: { blogId: 'not-an-id' },
         field: 'blogId',
       },
@@ -629,7 +629,7 @@ describe('Posts swagger contract', () => {
       await postTestManager.createPost(dto);
 
       await postTestManager.getPostById(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         HttpStatus.NOT_FOUND,
       );
     });
@@ -668,7 +668,7 @@ describe('Posts swagger contract', () => {
       await postTestManager.createPost(dto);
 
       await postTestManager.updatePost(
-        '000000000000000000000000',
+        '00000000-0000-0000-0000-000000000000',
         dto,
         HttpStatus.NOT_FOUND,
       );
@@ -724,7 +724,7 @@ describe('Posts swagger contract', () => {
         field: 'blogId',
       },
       {
-        name: 'blogId is not a valid ObjectId',
+        name: 'blogId is not a valid UUID',
         payload: { blogId: 'not-an-id' },
         field: 'blogId',
       },
@@ -776,7 +776,7 @@ describe('Posts swagger contract', () => {
     });
 
     it('status 404 - if post not found', async () => {
-      const invalidPostId = '012345678901234567890123';
+      const invalidPostId = '00000000-0000-0000-0000-000000000000';
 
       await postTestManager.deletePost(invalidPostId, HttpStatus.NOT_FOUND);
     });

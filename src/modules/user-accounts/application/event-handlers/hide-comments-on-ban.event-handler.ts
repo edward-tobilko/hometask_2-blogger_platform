@@ -8,6 +8,10 @@ export class HideCommentsOnBanEventHandler implements IEventHandler<UserBannedEv
   constructor(private commentsExternalRepo: CommentsExternalRepository) {}
 
   async handle({ userId }: UserBannedEvent): Promise<void> {
-    await this.commentsExternalRepo.hideAllByUserId(userId);
+    try {
+      await this.commentsExternalRepo.hideAllByUserId(userId);
+    } catch (error) {
+      console.error('HIDE_COMMENTS_ON_BAN_ERROR', error);
+    }
   }
 }

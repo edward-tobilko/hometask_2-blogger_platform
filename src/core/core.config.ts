@@ -18,7 +18,11 @@ export class CoreConfig {
   }
 
   get isProduction(): boolean {
-    return this.env === 'production';
+    return this.env === Environments.PRODUCTION;
+  }
+
+  get isTesting(): boolean {
+    return this.env === Environments.TESTING;
   }
 
   @IsNumber({}, { message: 'Set env variable PORT, for example: 5001' })
@@ -26,16 +30,16 @@ export class CoreConfig {
 
   @IsNotEmpty({
     message:
-      'Set env variable MONGO_URI, for example: mongodb://localhost:27017/my-app-local-db',
+      'Set env variable POSTGRES_URI, for example: postgresql://localhost:5432/my_app_local_db',
   })
-  mongoURI: string = this.configService.get('MONGO_URI') ?? '';
+  postgresURI: string = this.configService.get('POSTGRES_URI') ?? '';
 
   @IsEnum(Environments, {
     message:
       'Ser correct NODE_ENV value, available values: ' +
       configValidationUtility.getEnumValues(Environments).join(', '),
   })
-  env: string = this.configService.get('NODE_ENV') ?? '';
+  env: Environments = this.configService.get('NODE_ENV') as Environments;
 
   @IsBoolean({
     message:
@@ -101,10 +105,17 @@ export class CoreConfig {
   })
   adminPassword = this.configService.get('ADMIN_PASSWORD');
 
+  // * Extra values over the basic logic
   @IsNotEmpty({
     message: 'Set env variable TELEGRAM_BOT_TOKEN',
   })
   telegramBotToken: string = this.configService.get('TELEGRAM_BOT_TOKEN') ?? '';
+
+  @IsNotEmpty({
+    message: 'Set env variable TELEGRAM_WEBHOOK_SECRET',
+  })
+  telegramWebhookSecret: string =
+    this.configService.get('TELEGRAM_WEBHOOK_SECRET') ?? '';
 
   @IsNotEmpty({ message: 'Set env variable TELEGRAM_BOT_NAME' })
   telegramBotName: string = this.configService.get('TELEGRAM_BOT_NAME') ?? '';

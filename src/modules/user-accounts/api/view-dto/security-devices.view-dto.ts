@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  SecurityDevicesDocument,
-  SecurityDevicesLean,
-} from '../../domain/entities/security-devices.entity';
+
+import { SecurityDeviceOrmEntity } from '../../infrastructure/sql/schemas/security-device-orm.entity';
 
 export class SecurityDevicesViewModel {
   @ApiProperty({ description: 'IP address of device during signing in' })
@@ -24,20 +22,20 @@ export class SecurityDevicesViewModel {
 
   static mapToViewModel(
     this: void,
-    device: SecurityDevicesDocument | SecurityDevicesLean,
+    device: SecurityDeviceOrmEntity,
   ): SecurityDevicesViewModel {
     const dto = new SecurityDevicesViewModel();
 
     dto.ip = device.ip;
     dto.title = device.title;
-    dto.lastActiveDate = device.lastActiveDate.toISOString();
     dto.deviceId = device.deviceId;
+    dto.lastActiveDate = device.lastActiveDate.toISOString();
 
     return dto;
   }
 
   static mapToViewModels(
-    devices: SecurityDevicesLean[],
+    devices: SecurityDeviceOrmEntity[],
   ): SecurityDevicesViewModel[] {
     return devices.map((device) =>
       SecurityDevicesViewModel.mapToViewModel(device),

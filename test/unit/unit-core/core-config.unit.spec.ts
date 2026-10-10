@@ -4,15 +4,23 @@ import { CoreConfig, Environments } from 'src/core/core.config';
 function makeConfigService(overrides: Record<string, string | undefined> = {}) {
   const defaults: Record<string, string> = {
     PORT: '3000',
-    MONGO_URI: 'mongodb://localhost:27017/test',
     NODE_ENV: 'development',
     IS_SWAGGER_ENABLED: 'true',
     INCLUDE_TESTING_MODULE: 'false',
     SEND_INTERNAL_SERVER_ERROR_DETAILS: 'false',
+    POSTGRES_URI: 'postgresql://localhost:5432/test',
+    DB_NAME: 'test_db',
+    TTL_RATE_LIMIT: '10000',
+    COUNT_RATE_LIMIT: '10',
+    IS_DISABLE_RATE_LIMIT: 'false',
+    ADMIN_USER_NAME: 'admin',
+    ADMIN_PASSWORD: 'password',
+    TELEGRAM_BOT_TOKEN: 'test_token',
+    TELEGRAM_BOT_NAME: 'test_bot',
   };
 
   return {
-    get: (key: string) => (key in overrides ? overrides[key] : defaults[key]), // Оператор in возвращает true если свойство существует, даже если его значение undefined. То есть key in overrides позволяет явно переопределить поле значением undefined, чтобы симулировать отсутствующую env-переменную.
+    get: (key: string) => (key in overrides ? overrides[key] : defaults[key]), // Оператор in возвращает true если свойство существует, даже если его значение undefined. То есть, key in overrides позволяет явно переопределить поле значением undefined, чтобы симулировать отсутствующую env-переменную.
   };
 }
 
@@ -53,27 +61,27 @@ describe('Unit test for CoreConfig', () => {
   describe('Invalid config', () => {
     it('should throw if PORT is missing', () => {
       expect(
-        () => new CoreConfig(makeConfigService({ PORT: undefined }) as any), // overrides = { PORT: undefined } - 'PORT' in overrides -> true -> вернёт undefined -> тестируем отсутствие
-      ).toThrow('PORT');
+        () => new CoreConfig(makeConfigService({ PORT: undefined }) as any), // overrides = { PORT: undefined } - 'PORT' in overrides -> true -> вернёт undefined -> тестируем отсутствие;
+      ).toThrow(/\bPORT\b/); // воизбежания подстроки PORT в coreConfig (например будет переменная REPORT_URL или SUPPORT_EMAIL);
     });
 
     it('should throw if PORT is not a number', () => {
       expect(
         () => new CoreConfig(makeConfigService({ PORT: 'abc' }) as any),
-      ).toThrow('PORT');
+      ).toThrow(/\bPORT\b/);
     });
 
-    it('should throw if MONGO_URI is empty', () => {
+    it('should throw if POSTGRES_URI is empty', () => {
       expect(
-        () => new CoreConfig(makeConfigService({ MONGO_URI: '' }) as any),
-      ).toThrow('MONGO_URI');
+        () => new CoreConfig(makeConfigService({ POSTGRES_URI: '' }) as any),
+      ).toThrow('POSTGRES_URI');
     });
 
-    it('should throw if MONGO_URI is missing', () => {
+    it('should throw if POSTGRES_URI is missing', () => {
       expect(
         () =>
-          new CoreConfig(makeConfigService({ MONGO_URI: undefined }) as any),
-      ).toThrow('MONGO_URI');
+          new CoreConfig(makeConfigService({ POSTGRES_URI: undefined }) as any),
+      ).toThrow('POSTGRES_URI');
     });
 
     it('should throw if NODE_ENV is invalid', () => {

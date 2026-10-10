@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { UserAccountsConfig } from '../../config/user-accounts.config';
-import { UsersRepository } from '../../infrastructure/repositories/users.repository';
+import { UsersSqlRepository } from '../../infrastructure/sql/repositories/users-sql.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
@@ -11,7 +11,8 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes'
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     userAccountConfig: UserAccountsConfig,
-    private usersRepo: UsersRepository,
+
+    private usersRepo: UsersSqlRepository,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -21,13 +22,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: { userId: string }): Promise<{ id: string }> {
-    const user = await this.usersRepo.findById(payload.userId);
+    const user = await this.usersRepo.findByIdWithBanInfo(payload.userId);
 
-    // * Проверка юзера на ban / unban
-    if (user?.banInfo?.isBanned) {
+    if (!user || user.userBanInfo?.isBanActive()) {
       throw new DomainException({
         code: DomainExceptionCode.Unauthorized,
-        message: `Your account is permanently banned`,
+        message: 'You are not authorized',
       });
     }
 

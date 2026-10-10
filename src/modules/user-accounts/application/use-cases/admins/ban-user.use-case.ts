@@ -1,25 +1,33 @@
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import {
+  Command,
+  CommandHandler,
+  EventBus,
+  ICommandHandler,
+} from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { UserBannedEvent } from 'src/modules/user-accounts/domain/events/user-banned.event';
 import { UserUnBannedEvent } from 'src/modules/user-accounts/domain/events/user-unbanned.event';
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { BanUserDomainDto } from './../../../domain/dto/ban-user.dto';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
+import { ExtraUserBanInfoOrmEntity } from 'src/modules/user-accounts/infrastructure/sql/schemas/extra-user-ban-info-orm.entity';
 
-export class BanUserCommand {
-  constructor(public readonly dto: BanUserDomainDto) {}
+export class BanUserCommand extends Command<void> {
+  constructor(public readonly dto: BanUserDomainDto) {
+    super();
+  }
 }
 
 @CommandHandler(BanUserCommand)
 export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
   constructor(
-    private usersRepo: UsersRepository,
+    private usersRepo: UsersSqlRepository,
     private eventBus: EventBus,
   ) {}
 
   async execute({ dto }: BanUserCommand): Promise<void> {
-    const user = await this.usersRepo.findById(dto.userId);
+    const user = await this.usersRepo.findByIdWithBanInfo(dto.userId);
 
     if (!user) {
       throw new DomainException({
@@ -28,20 +36,20 @@ export class BanUserUseCase implements ICommandHandler<BanUserCommand, void> {
       });
     }
 
-    if (dto.isBanned === true) {
-      user.ban(dto.banReason, dto.banExpiresAt);
-
-      // * создаем событие
-      const event = new UserBannedEvent(user.id);
-
-      // * публикуем
-      this.eventBus.publish(event);
-    } else if (dto.isBanned === false) {
-      user.unBan();
-
-      this.eventBus.publish(new UserUnBannedEvent(user.id));
+    if (!user.userBanInfo) {
+      user.userBanInfo = new ExtraUserBanInfoOrmEntity();
     }
 
-    await this.usersRepo.updateBanStatus(user);
+    user.userBanInfo.banUnBan(dto); // ban / unban
+
+    await this.usersRepo.save(user);
+
+    if (user.userBanInfo.isBanned) {
+      const event = new UserBannedEvent(user.id); // создаем событие
+
+      this.eventBus.publish(event); // публикуем
+    } else {
+      this.eventBus.publish(new UserUnBannedEvent(user.id));
+    }
   }
 }

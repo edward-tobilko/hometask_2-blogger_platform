@@ -1,0 +1,22 @@
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+
+import { LikeStatus } from 'src/core/enums/like-status.enum';
+
+@Unique('UQ_comment_likes_comment_id_user_id', ['commentId', 'userId'])
+@Entity('comment_likes')
+export class CommentLikeOrmEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ name: 'comment_id', type: 'uuid' })
+  commentId!: string;
+
+  @Column({ name: 'user_id', type: 'uuid' })
+  userId!: string;
+
+  @Column({ type: 'enum', enum: LikeStatus, default: LikeStatus.None })
+  status!: LikeStatus;
+
+  @Column({ name: 'user_name', type: 'varchar', nullable: true })
+  userName!: string | null;
+}

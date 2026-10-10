@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { PostsQueryRepository } from '../../infrastructure/repositories/posts-query.repository';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { calculateLikeDislike } from 'src/core/utils/calculate-like-dislike.util';
+import { PostsQuerySqlRepository } from '../../infrastructure/sql/repositories/posts-query-sql.repository';
+import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
 
 export class UpdatePostLikeStatusCommand {
   constructor(
@@ -21,8 +21,8 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
   void
 > {
   constructor(
-    private postsRepo: PostsRepository,
-    private readonly postsQueryRepo: PostsQueryRepository,
+    private postsRepo: PostsSqlRepository,
+    private readonly postsQueryRepo: PostsQuerySqlRepository,
   ) {}
 
   async execute(command: UpdatePostLikeStatusCommand): Promise<void> {
@@ -36,7 +36,6 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
         message: `This post with ${postId} was not found`,
       });
 
-    // * Получаем предыдущий статус лайка
     const prevLike = await this.postsQueryRepo.findUserCurrentLikeStatus(
       userId,
       postId,

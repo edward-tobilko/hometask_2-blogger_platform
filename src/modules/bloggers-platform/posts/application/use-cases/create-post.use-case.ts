@@ -5,15 +5,15 @@ import {
   ICommandHandler,
 } from '@nestjs/cqrs';
 
-import { PostDocument } from '../../domain/entities/post.entity';
-import { PostsRepository } from '../../infrastructure/repositories/posts.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { BlogsExternalQueryRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/external-query/blogs.external-query-repo';
 import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
 import { PostCreatedEvent } from '../../domain/events/post-created.event';
+import { PostOrmEntity } from '../../infrastructure/sql/schemas/post-orm.entity';
+import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
 
-export class CreatePostCommand extends Command<PostDocument> {
+export class CreatePostCommand extends Command<PostOrmEntity> {
   constructor(public dto: CreatePostDomainDto) {
     super();
   }
@@ -22,16 +22,16 @@ export class CreatePostCommand extends Command<PostDocument> {
 @CommandHandler(CreatePostCommand)
 export class CreatePostUseCase implements ICommandHandler<
   CreatePostCommand,
-  PostDocument
+  PostOrmEntity
 > {
   constructor(
     private readonly blogsQueryRepo: BlogsExternalQueryRepository,
-    private postsRepo: PostsRepository,
+    private postsRepo: PostsSqlRepository,
 
     private readonly eventBus: EventBus,
   ) {}
 
-  async execute({ dto }: CreatePostCommand): Promise<PostDocument> {
+  async execute({ dto }: CreatePostCommand): Promise<PostOrmEntity> {
     const existingBlog = await this.blogsQueryRepo.findById(dto.blogId);
 
     if (!existingBlog) {

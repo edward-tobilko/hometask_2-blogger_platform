@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { BlogsRepository } from '../../infrastructure/repositories/blogs.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { BlogsSqlRepository } from '../../infrastructure/sql/repositories/blogs-sql.repository';
 
 export class DeleteBlogCommand {
   constructor(public id: string) {}
@@ -13,7 +13,7 @@ export class DeleteBlogUseCase implements ICommandHandler<
   DeleteBlogCommand,
   void
 > {
-  constructor(private blogsRepo: BlogsRepository) {}
+  constructor(private blogsRepo: BlogsSqlRepository) {}
 
   async execute({ id }: DeleteBlogCommand): Promise<void> {
     const blogInstance = await this.blogsRepo.findById(id);

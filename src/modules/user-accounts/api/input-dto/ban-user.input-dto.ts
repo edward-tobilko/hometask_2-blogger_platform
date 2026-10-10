@@ -2,23 +2,22 @@ import {
   IsBoolean,
   IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsString,
+  ValidateIf,
 } from 'class-validator';
 
 import { BanDuration } from 'src/core/enums/ban-duration.enum';
 
 export class BanUserInputDto {
+  @IsBoolean()
+  isBanned!: boolean;
+
   @IsNotEmpty()
-  @IsOptional()
   @IsString()
+  @ValidateIf((dto: BanUserInputDto) => dto.isBanned === true)
   banReason!: string;
 
-  @IsOptional()
+  @ValidateIf((object: BanUserInputDto) => object.isBanned === true)
   @IsEnum(BanDuration)
-  banExpiresAt!: BanDuration | null;
-
-  @IsBoolean()
-  @IsOptional()
-  isBanned!: boolean;
+  banExpiresAt!: BanDuration;
 }

@@ -75,7 +75,7 @@ export class AuthController {
   @ApiLoginSwagger('Try login user to the system')
   @Post('login')
   @HttpCode(HttpStatusCodes.OK_200)
-  @UseGuards(LocalAuthGuard) // LocalAuthGuard запускает LocalStrategy.validate → кладёт { id } в req.user → контроллер берёт id и генерирует токен.
+  @UseGuards(LocalAuthGuard) // LocalAuthGuard запускает LocalStrategy.validate -> кладёт { id } в req.user -> контроллер берёт id и генерирует токен.
   async login(
     @CurrentUserFromRequest() currentUser: { id: string },
     @Ip() ip: string,
@@ -95,7 +95,7 @@ export class AuthController {
       secure: this.coreConfig.isProduction,
       sameSite: 'strict',
       path: '/',
-      maxAge: cookieMaxAge, // время жизни cookie в браузере. Браузер удалит cookie через 24 часа, но запись в MongoDB останется
+      maxAge: cookieMaxAge, // время жизни cookie в браузере. Браузер удалит cookie через 24 часа, но запись в BD останется
     });
 
     return { accessToken };

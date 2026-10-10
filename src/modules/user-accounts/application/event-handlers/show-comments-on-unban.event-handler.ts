@@ -8,6 +8,10 @@ export class ShowCommentsOnUnBanEventHandler implements IEventHandler<UserUnBann
   constructor(private commentsExternalRepo: CommentsExternalRepository) {}
 
   async handle({ userId }: UserUnBannedEvent): Promise<void> {
-    await this.commentsExternalRepo.showAllByUserId(userId);
+    try {
+      await this.commentsExternalRepo.showAllByUserId(userId);
+    } catch (error) {
+      console.error('SHOW_COMMENTS_ON_BAN_ERROR', error);
+    }
   }
 }

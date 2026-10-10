@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-
-import { IsObjectId } from '../decorators/is-object-id.decorator';
+import { IsUUID } from 'class-validator';
 
 export class IdParamDto {
   @ApiProperty({ description: 'Id of existing post' })
-  @IsObjectId()
+  @IsUUID()
   id!: string;
 }

@@ -1,8 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { UsersRepository } from 'src/modules/user-accounts/infrastructure/repositories/users.repository';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
+import { SecurityDevicesSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/security-devices-sql.repository';
+import { UsersSqlRepository } from 'src/modules/user-accounts/infrastructure/sql/repositories/users-sql.repository';
 
 export class DeleteUserCommand {
   constructor(public id: string) {}
@@ -13,7 +14,10 @@ export class DeleteUserUseCase implements ICommandHandler<
   DeleteUserCommand,
   void
 > {
-  constructor(private usersRepo: UsersRepository) {}
+  constructor(
+    private usersRepo: UsersSqlRepository,
+    private securityDevicesRepo: SecurityDevicesSqlRepository,
+  ) {}
 
   async execute({ id }: DeleteUserCommand): Promise<void> {
     const existingUser = await this.usersRepo.findById(id);
@@ -24,8 +28,11 @@ export class DeleteUserUseCase implements ICommandHandler<
         message: `The user with ID:${id} was not found`,
       });
 
-    existingUser.makeDeleted();
+    // existingUser.deletedAt = new Date(); // прямое присвоение даты удаления
 
-    await this.usersRepo.save(existingUser);
+    // await this.usersRepo.save(existingUser);
+
+    await this.usersRepo.softDelete(existingUser.id); // typeORM автоматически присваевает дату удаления
+    await this.securityDevicesRepo.removeAllByUserId(existingUser.id); // удалить все сессии
   }
 }

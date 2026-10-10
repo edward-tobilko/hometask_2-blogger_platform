@@ -1,27 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { Comment, CommentModel } from '../../domain/entities/comment.entity';
+import { CommentOrmEntity } from '../sql/schemas/comment-orm.entity';
 
 @Injectable()
 export class CommentsExternalRepository {
-  constructor(@InjectModel(Comment.name) private commentModel: CommentModel) {}
+  constructor(
+    @InjectRepository(CommentOrmEntity)
+    private readonly commentRepo: Repository<CommentOrmEntity>,
+  ) {}
 
   async hideAllByUserId(userId: string): Promise<void> {
-    await this.commentModel
-      .updateMany(
-        { 'commentatorInfo.userId': userId }, // фильтр — все комменты этого юзера
-        { $set: { isBanned: true } }, // обновление — ставим флаг
-      )
-      .exec();
+    await this.commentRepo.update(
+      { userId }, // фильтр — все комменты этого юзера
+      { isBanned: true }, // обновление — ставим флаг
+    );
   }
 
   async showAllByUserId(userId: string): Promise<void> {
-    await this.commentModel
-      .updateMany(
-        { 'commentatorInfo.userId': userId },
-        { $set: { isBanned: false } },
-      )
-      .exec();
+    await this.commentRepo.update({ userId }, { isBanned: false });
   }
 }

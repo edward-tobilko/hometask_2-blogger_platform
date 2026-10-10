@@ -22,12 +22,10 @@ import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/commen
 import { PostsPaginatedViewModel } from '../dto/view-dto/posts-paginated.view-dto';
 import { PostsQueryDto } from '../dto/input-dto/posts-query.input-dto';
 import { UpdatePostDto } from '../dto/input-dto/update-post.input-dto';
-import { PostIdParamDto } from '../dto/input-dto/post-id.input-dto';
 import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-auth.guard';
 import { CreateCommentInputDto } from '../dto/input-dto/create-comment.input-dto';
 import { GetPostByIdQuery } from '../../application/queries/get-post-by-id.query';
 import { GetPostsListQuery } from '../../application/queries/get-posts-list.query';
-import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-postid.query';
 import { CreateCommentCommand } from '../../application/use-cases/create-comment.use-case';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
 import {
@@ -35,12 +33,9 @@ import {
   CurrentUserOptionalFromRequest,
 } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 import { CreatePostCommand } from '../../application/use-cases/create-post.use-case';
-import { PostDocument } from '../../domain/entities/post.entity';
 import { UpdatePostByIdCommand } from '../../application/use-cases/update-post.use-case';
 import { DeletePostByIdCommand } from '../../application/use-cases/delete-post.use-case';
-import { UpdatePostLikeStatusCommand } from '../../application/use-cases/update-post-like-status.use-case';
 import { LikeStatusDto } from 'src/core/dto/like-status.dto';
-import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { ApiGetPostsSwagger } from '../decorators/swagger/get-posts-swagger.decorator';
 import { ApiGetPostByIdSwagger } from '../decorators/swagger/get-post-swagger.decorator';
 import { ApiCreatePostSwagger } from '../decorators/swagger/create-post-swagger.decorator';
@@ -50,6 +45,12 @@ import { ApiGetCommentsForPostSwagger } from '../decorators/swagger/get-comments
 import { ApiCreateCommentFroPostSwagger } from '../decorators/swagger/create-comment-for-post-swagger.decorator';
 import { ApiUpdateLikeStatusForPostSwagger } from '../decorators/swagger/update-like-status-for-post-swagger.decorator';
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
+import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
+import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
+import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-post-id.query';
+import { PostIdParamDto } from '../dto/post-params.dto';
+import { UpdatePostLikeStatusCommand } from './../../application/use-cases/update-post-like-status.use-case';
+import { CommentsQueryDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
 
 @ApiTags('Posts')
 @SkipThrottle()
@@ -84,12 +85,12 @@ export class PostsController {
   @Get(':postId/comments')
   @UseGuards(JwtOptionalAuthGuard)
   getCommentsForPost(
-    @Param() params: PostIdParamDto,
-    @Query() queryParams: PostsQueryDto,
+    @Param('postId', UuidValidationPipe) postId: string,
+    @Query() queryParams: CommentsQueryDto,
     @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<CommentsPaginatedViewModel> {
     return this.queryBus.execute(
-      new GetCommentByPostIdQuery(params.postId, queryParams, user?.id),
+      new GetCommentByPostIdQuery(postId, queryParams, user?.id),
     );
   }
 
@@ -97,12 +98,12 @@ export class PostsController {
   @Post(':postId/comments')
   @UseGuards(JwtAuthGuard)
   async createComment(
-    @Param() params: PostIdParamDto,
+    @Param('postId', UuidValidationPipe) postId: string,
     @Body() dto: CreateCommentInputDto,
     @CurrentUserFromRequest() currentUser: { id: string },
   ) {
     const command = new CreateCommentCommand(
-      params.postId,
+      postId,
       dto.content,
       currentUser.id,
     );
@@ -128,30 +129,22 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
     const command = new CreatePostCommand(dto);
+    const postDoc = await this.commandBus.execute(command);
 
-    const postDoc = await this.commandBus.execute<
-      CreatePostCommand,
-      PostDocument
-    >(command);
-
-    const postOutput = PostViewModel.mapToViewModel(postDoc);
-
-    return postOutput;
+    return PostViewModel.mapToViewModel(postDoc);
   }
 
   @ApiGetPostByIdSwagger('Return post by id')
   @Get(':id')
   @UseGuards(JwtOptionalAuthGuard)
   getPostById(
-    @Param() params: IdParamDto,
+    @Param('id', UuidValidationPipe) id: string,
     @CurrentUserOptionalFromRequest() currentUser: { id: string } | null,
   ): Promise<PostViewModel | null> {
-    return this.queryBus.execute(
-      new GetPostByIdQuery(params.id, currentUser?.id),
-    );
+    return this.queryBus.execute(new GetPostByIdQuery(id, currentUser?.id));
   }
 
-  @ApiUpdatePostSwagger('Update existing post by id with input model')
+  @ApiUpdatePostSwagger('Update existing post by id with inputModel')
   @Put(':id')
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
@@ -160,7 +153,7 @@ export class PostsController {
     @Body() dto: UpdatePostDto,
   ): Promise<void> {
     return this.commandBus.execute<UpdatePostByIdCommand>(
-      new UpdatePostByIdCommand(params.id, dto),
+      new UpdatePostByIdCommand(dto.blogId, params.id, dto),
     );
   }
 

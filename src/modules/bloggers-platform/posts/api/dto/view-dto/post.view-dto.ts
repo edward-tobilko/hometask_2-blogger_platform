@@ -1,15 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { PostDocument, PostLean } from '../../../domain/entities/post.entity';
 
-// * Создаем отдельные классы во избежания вложенности аннонимных обьектов в аннонимных обьектах (это нужно если мы исп. swagger doc, так как он не умеет обрабатывать вложенные анонимные типы):
-
-// ! newestLikes: Array<{ ← анонимный объект внутри анонимного объекта
-// ! addedAt: string;
-// ! userId: string;
-// ! login: string;
-// ! }>
+interface PostViewFields {
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string | null;
+  createdAt: Date;
+  likesCount: number;
+  dislikesCount: number;
+}
 
 export class NewestLikeViewModel {
   @ApiProperty()
@@ -49,7 +52,7 @@ export class PostViewModel {
   @ApiProperty() shortDescription!: string;
   @ApiProperty() content!: string;
   @ApiProperty() blogId!: string;
-  @ApiProperty() blogName!: string;
+  @ApiProperty() blogName!: string | null;
   @ApiProperty() createdAt!: Date;
 
   @ApiProperty({
@@ -58,33 +61,32 @@ export class PostViewModel {
   extendedLikesInfo!: ExtendedLikesInfoViewModel;
 
   static mapToViewModel(
-    post: PostDocument | PostLean,
+    post: PostViewFields,
     myStatus: LikeStatus = LikeStatus.None,
+    newestLikes: NewestLikeViewModel[] = [],
   ): PostViewModel {
     const dto = new PostViewModel();
 
-    dto.id = post._id.toString();
+    dto.id = post.id;
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
     dto.content = post.content;
     dto.blogId = post.blogId.toString();
     dto.blogName = post.blogName;
-    dto.createdAt = post.createdAt; // отдаем ту дату, которая в entity
+    dto.createdAt = post.createdAt;
 
     dto.extendedLikesInfo = {
-      likesCount: post.extendedLikesInfo.likesCount,
-      dislikesCount: post.extendedLikesInfo.dislikesCount,
+      likesCount: post.likesCount,
+      dislikesCount: post.dislikesCount,
       myStatus,
 
-      newestLikes: post.extendedLikesInfo.newestLikes.map((like) => ({
-        addedAt: like.addedAt,
-        userId: like.userId.toString(),
-        login: like.login,
+      newestLikes: newestLikes.map((newestLike) => ({
+        addedAt: newestLike.addedAt,
+        userId: newestLike.userId,
+        login: newestLike.login,
       })),
     };
 
     return dto;
   }
 }
-
-// ? class-validator - проверяет данные на входе в API, до попадания в бизнес-логику. Так как мы исп. ValidationPipe мы можем безопасно доверять нашим свойствам: "!".

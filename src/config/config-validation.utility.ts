@@ -15,7 +15,7 @@ export const configValidationUtility = {
     }
   },
 
-  // * метод который обрабатывает все варианты
+  // * Метод который обрабатывает все варианты.
   convertToBoolean(value: string) {
     const trimmedValue = value?.trim();
 

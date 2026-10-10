@@ -6,7 +6,7 @@ import { Request } from 'express';
 import { UserAccountsConfig } from '../../config/user-accounts.config';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { SecurityDevicesQueryRepository } from '../../infrastructure/repositories/security-devices-query.repository';
+import { SecurityDevicesSqlRepository } from '../../infrastructure/sql/repositories/security-devices-sql.repository';
 
 type ValidatePayload = {
   userId: string;
@@ -27,7 +27,8 @@ export class RefreshTokenStrategy extends PassportStrategy(
 ) {
   constructor(
     userAccountConfig: UserAccountsConfig,
-    private queryRepo: SecurityDevicesQueryRepository,
+
+    private readonly repo: SecurityDevicesSqlRepository,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -43,7 +44,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(payload: ValidatePayload): Promise<ValidatedPayloadResult> {
-    const session = await this.queryRepo.findByDeviceId(payload.deviceId);
+    const session = await this.repo.findById(payload.deviceId);
 
     if (
       !session ||

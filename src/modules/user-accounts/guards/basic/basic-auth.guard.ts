@@ -1,4 +1,3 @@
-// import { AuthGuard } from '@nestjs/passport';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
@@ -7,9 +6,7 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { CoreConfig } from 'src/core/core.config';
 
-// * Нужно инжектировать в контроллер или стратегию или гард.
 @Injectable()
-// export class BasicAuthGuard extends AuthGuard('basic') {}
 export class BasicAuthGuard implements CanActivate {
   private readonly validUsername: string | undefined;
   private readonly validPassword: string | undefined;
@@ -39,18 +36,14 @@ export class BasicAuthGuard implements CanActivate {
 
     if (!authHeader || !authHeader.startsWith('Basic ')) {
       throw new DomainException({
-        code: DomainExceptionCode.Unauthorized, // -> 401
+        code: DomainExceptionCode.Unauthorized,
         message: 'unauthorized',
       });
     }
 
-    // ? Basic Auth выглядит так: Authorization: Basic dXNlcjpwYXNz
-
     const base64Credentials = authHeader.split(' ')[1]; // берем "dXNlcjpwYXNz"
 
-    const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8'); // → "user:pass"
-
-    // ? Basic Auth — это просто username:password закодированный в Base64.
+    const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8'); // "user:pass"
 
     // * Используем indexOf(':') а не split(':') — потому что пароль сам может содержать :.
     const colonIndex = decoded.indexOf(':');
@@ -63,9 +56,12 @@ export class BasicAuthGuard implements CanActivate {
       return true;
     } else {
       throw new DomainException({
-        code: DomainExceptionCode.Unauthorized, // -> 401
+        code: DomainExceptionCode.Unauthorized,
         message: 'unauthorized',
       });
     }
   }
 }
+
+// ? Basic Auth in Postman выглядит так: Authorization: Basic dXNlcjpwYXNz...;
+// ? Basic Auth — это просто username:password закодированный в Base64;
