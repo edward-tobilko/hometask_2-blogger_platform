@@ -1,4 +1,9 @@
 {
+  // * Учит Node понимать .ts
+  "ts-node": {
+    "require": ["tsconfig-paths/register"] // после этой настройки typeorm-ts-node-commonjs будет подключать tsconfig-paths сам
+  },
+
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
