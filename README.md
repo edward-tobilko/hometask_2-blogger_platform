@@ -194,7 +194,7 @@ SEND_INTERNAL_SERVER_ERROR_DETAILS=true
 TypeORM `synchronize` is disabled, so the schema must be created by migrations before the first run:
 
 ```bash
-npx cross-env NODE_ENV=development yarn migration:run
+yarn migration:run:dev
 ```
 
 ### Run
@@ -218,35 +218,49 @@ The schema is versioned with **TypeORM migrations**. `synchronize: false` is set
 
 ### Commands
 
-`NODE_ENV` selects the target database (`.env.<NODE_ENV>.local` → `.env.<NODE_ENV>`). It is required on purpose — without it the CLI fails instead of connecting to an unknown database.
+Each script sets `NODE_ENV` itself, which selects the target database (`.env.<NODE_ENV>.local` → `.env.<NODE_ENV>`). The `:dev` / `:test` suffix is the environment.
 
 ```bash
-# Generate a migration from the diff between entities and the database
-npx cross-env NODE_ENV=development yarn migration:generate src/db/migrations/AddUserAddress
+# Generate a migration from the diff between entities and the development database
+yarn migration:generate src/db/migrations/AddPostsBlogIdIndex
 
 # Preview the generated SQL without creating a file
-npx cross-env NODE_ENV=development yarn migration:generate src/db/migrations/Check --dryrun
+yarn migration:generate src/db/migrations/AddPostsBlogIdIndex --dryrun -p
+
+# Verify entities and database are in sync (no file is written; exits 1 if a migration is needed)
+yarn migration:generate src/db/migrations/Check --check
+
+# Create an empty migration for hand-written SQL (no database connection)
+yarn migration:create src/db/migrations/AddPostsBlogIdIndexConcurrently
 
 # Apply all pending migrations
-npx cross-env NODE_ENV=development yarn migration:run
+yarn migration:run:dev
+yarn migration:run:test
 
 # Revert the last applied migration (runs its down())
-npx cross-env NODE_ENV=development yarn migration:revert
+yarn migration:revert:dev
+yarn migration:revert:test
 
 # Show applied [X] and pending [ ] migrations
-npx cross-env NODE_ENV=development yarn migration:show
+yarn migration:show:dev
+yarn migration:show:test
 ```
+
+- `migration:generate` exists only for development — a migration is generated once and the same file is applied to every environment.
+- There are no production scripts on purpose — production is migrated only by the release command (see [Migrations on Deploy](#migrations-on-deploy)).
+- Path aliases (`src/...`) in entities are resolved by `tsconfig-paths`, registered for ts-node in `tsconfig.json`.
+- An empty `POSTGRES_URI` exported in the shell overrides `.env` files (dotenv never overwrites existing variables) — run `unset POSTGRES_URI` if the CLI reports it as empty.
 
 ### Changing the Schema
 
 1. Change the ORM entity
-2. `migration:generate` with a descriptive PascalCase name (`AddPostsBlogIdForeignKey`, `RenameLoginToUsername`)
+2. Preview with `--dryrun`, then `migration:generate` with a descriptive PascalCase name (`AddPostsBlogIdForeignKey`, `RenameLoginToUsername`)
 3. Read the generated SQL — check for unexpected `DROP` statements or noise
-4. `migration:run` on development, verify with `migration:show`
-5. `migration:run` on testing, then `yarn test:e2e`
+4. `yarn migration:run:dev`, verify with `yarn migration:show:dev` and `--check`
+5. `yarn migration:run:test`, then `yarn test:e2e`
 6. Commit the entity and the migration together
 
-> Never edit, rename or delete a migration that has already been pushed or deployed — fix it with a new migration instead.
+> A migration that exists only locally (not committed, applied only to your development database) may be reverted with `migration:revert:dev`, deleted and regenerated. Never edit, rename or delete a migration that has already been pushed or deployed — fix it with a new migration instead.
 
 ### Applied Migrations
 
@@ -283,7 +297,7 @@ INCLUDE_TESTING_MODULE=true
 Create the schema in the test database (and re-run after pulling new migrations):
 
 ```bash
-npx cross-env NODE_ENV=testing yarn migration:run
+yarn migration:run:test
 ```
 
 ### Commands
