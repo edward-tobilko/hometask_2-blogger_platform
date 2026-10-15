@@ -1,3 +1,5 @@
+import { ConfigService } from '@nestjs/config';
+
 import { CoreConfig, Environments } from 'src/core/core.config';
 
 // * Вспомогательная функция: дефолтные валидные значения + возможность переопределить любое поле.
@@ -21,7 +23,7 @@ function makeConfigService(overrides: Record<string, string | undefined> = {}) {
 
   return {
     get: (key: string) => (key in overrides ? overrides[key] : defaults[key]), // Оператор in возвращает true если свойство существует, даже если его значение undefined. То есть, key in overrides позволяет явно переопределить поле значением undefined, чтобы симулировать отсутствующую env-переменную.
-  };
+  } as unknown as ConfigService;
 }
 
 describe('Unit test for CoreConfig', () => {
@@ -29,11 +31,11 @@ describe('Unit test for CoreConfig', () => {
     let config: CoreConfig;
 
     beforeEach(() => {
-      config = new CoreConfig(makeConfigService() as any);
+      config = new CoreConfig(makeConfigService());
     });
 
     it('should be created without errors', () => {
-      expect(() => new CoreConfig(makeConfigService() as any)).not.toThrow();
+      expect(() => new CoreConfig(makeConfigService())).not.toThrow();
     });
 
     it('port should be a number', () => {
@@ -61,50 +63,44 @@ describe('Unit test for CoreConfig', () => {
   describe('Invalid config', () => {
     it('should throw if PORT is missing', () => {
       expect(
-        () => new CoreConfig(makeConfigService({ PORT: undefined }) as any), // overrides = { PORT: undefined } - 'PORT' in overrides -> true -> вернёт undefined -> тестируем отсутствие;
+        () => new CoreConfig(makeConfigService({ PORT: undefined })), // overrides = { PORT: undefined } - 'PORT' in overrides -> true -> вернёт undefined -> тестируем отсутствие;
       ).toThrow(/\bPORT\b/); // воизбежания подстроки PORT в coreConfig (например будет переменная REPORT_URL или SUPPORT_EMAIL);
     });
 
     it('should throw if PORT is not a number', () => {
-      expect(
-        () => new CoreConfig(makeConfigService({ PORT: 'abc' }) as any),
-      ).toThrow(/\bPORT\b/);
+      expect(() => new CoreConfig(makeConfigService({ PORT: 'abc' }))).toThrow(
+        /\bPORT\b/,
+      );
     });
 
     it('should throw if POSTGRES_URI is empty', () => {
       expect(
-        () => new CoreConfig(makeConfigService({ POSTGRES_URI: '' }) as any),
+        () => new CoreConfig(makeConfigService({ POSTGRES_URI: '' })),
       ).toThrow('POSTGRES_URI');
     });
 
     it('should throw if POSTGRES_URI is missing', () => {
       expect(
-        () =>
-          new CoreConfig(makeConfigService({ POSTGRES_URI: undefined }) as any),
+        () => new CoreConfig(makeConfigService({ POSTGRES_URI: undefined })),
       ).toThrow('POSTGRES_URI');
     });
 
     it('should throw if NODE_ENV is invalid', () => {
       expect(
-        () => new CoreConfig(makeConfigService({ NODE_ENV: 'invalid' }) as any),
+        () => new CoreConfig(makeConfigService({ NODE_ENV: 'invalid' })),
       ).toThrow();
     });
 
     it('should throw if IS_SWAGGER_ENABLED has unknown value', () => {
       expect(
-        () =>
-          new CoreConfig(
-            makeConfigService({ IS_SWAGGER_ENABLED: 'yes' }) as any,
-          ),
+        () => new CoreConfig(makeConfigService({ IS_SWAGGER_ENABLED: 'yes' })),
       ).toThrow();
     });
 
     it('should throw if INCLUDE_TESTING_MODULE has unknown value', () => {
       expect(
         () =>
-          new CoreConfig(
-            makeConfigService({ INCLUDE_TESTING_MODULE: 'on' }) as any,
-          ),
+          new CoreConfig(makeConfigService({ INCLUDE_TESTING_MODULE: 'on' })),
       ).toThrow();
     });
 
@@ -114,7 +110,7 @@ describe('Unit test for CoreConfig', () => {
           new CoreConfig(
             makeConfigService({
               SEND_INTERNAL_SERVER_ERROR_DETAILS: undefined,
-            }) as any,
+            }),
           ),
       ).toThrow();
     });
@@ -134,7 +130,7 @@ describe('Unit test for CoreConfig', () => {
       'IS_SWAGGER_ENABLED="%s" should produce %s',
       (value, expected) => {
         const config = new CoreConfig(
-          makeConfigService({ IS_SWAGGER_ENABLED: value }) as any,
+          makeConfigService({ IS_SWAGGER_ENABLED: value }),
         );
 
         expect(config.isSwaggerEnabled).toBe(expected);
@@ -143,7 +139,7 @@ describe('Unit test for CoreConfig', () => {
 
     it('should trim whitespace before converting ("  true  " → true)', () => {
       const config = new CoreConfig(
-        makeConfigService({ IS_SWAGGER_ENABLED: '  true  ' }) as any,
+        makeConfigService({ IS_SWAGGER_ENABLED: '  true  ' }),
       );
 
       expect(config.isSwaggerEnabled).toBe(true);
