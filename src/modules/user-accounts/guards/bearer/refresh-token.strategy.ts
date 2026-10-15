@@ -33,7 +33,6 @@ export class RefreshTokenStrategy extends PassportStrategy(
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           const token = req.cookies?.refreshToken as string | null;
 
           return token;
