@@ -230,8 +230,8 @@ yarn migration:generate src/db/migrations/AddPostsBlogIdIndex --dryrun -p
 # Verify entities and database are in sync (no file is written; exits 1 if a migration is needed)
 yarn migration:generate src/db/migrations/Check --check
 
-# Create an empty migration for hand-written SQL (no database connection)
-yarn migration:create src/db/migrations/AddPostsBlogIdIndexConcurrently
+# Create an empty migration for hand-written SQL
+yarn migration:create src/db/migrations/RecalculatePostsLikesCounters
 
 # Apply all pending migrations
 yarn migration:run:dev
@@ -264,10 +264,11 @@ yarn migration:show:test
 
 ### Applied Migrations
 
-| Migration                                  | Change                                                          |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| `1791566062146-Baseline`                   | Initial schema snapshot (all tables)                            |
-| `1791652410008-AddBlogsUpdatedAtDeletedAt` | `blogs` extends `BaseDBEntity`: adds `updated_at`, `deleted_at` |
+| Migration                                     | Change                                                                  |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| `1791566062146-Baseline`                      | Initial schema snapshot (all tables)                                    |
+| `1791652410008-AddBlogsUpdatedAtDeletedAt`    | `blogs` extends `BaseDBEntity`: adds `updated_at`, `deleted_at`         |
+| `1792091015767-RecalculatePostsLikesCounters` | recalculates `posts.likes_count` and `dislikes_count` from `post_likes` |
 
 ---
 
