@@ -8,7 +8,7 @@ import {
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 
-@Unique('UQ_post_likes_post_id_user_id', ['postId', 'userId']) // UQ
+@Unique('UQ_post_likes_post_id_user_id', ['postId', 'userId']) // UQ constraint -> под капотом составной уникальный индекс (post_id, user_id);
 @Entity('post_likes')
 export class PostLikeOrmEntity {
   @PrimaryGeneratedColumn('uuid')
