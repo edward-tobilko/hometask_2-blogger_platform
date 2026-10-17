@@ -7,11 +7,11 @@ import {
 } from 'typeorm';
 
 @Entity('comments')
+@Index(['postId', 'createdAt'])
 export class CommentOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Index(['postId'])
   @Column({ name: 'post_id', type: 'uuid' })
   postId!: string;
 
