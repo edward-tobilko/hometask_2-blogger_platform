@@ -18,7 +18,7 @@ ANALYSE comments; -- count = 2m, обновить статистику план�
 EXPLAIN ANALYSE SELECT * FROM comments
 WHERE post_id = '184293d6-d421-41dd-99ef-04b1c83181ba' AND is_banned = false
 ORDER BY created_at DESC
-LIMIT 10; -- average request speed without post_id_index = 64ms / with post_id_index = 6ms
+LIMIT 10; -- average request speed without indexes = 64ms / with post_id_index = 6ms / with составным ключом (post_id, created_at) = 0.064ms
 
 -- * Сколько комментариев у каждого поста
 SELECT post_id, COUNT(*) AS comments_count
