@@ -4,7 +4,7 @@ INSERT INTO comments (post_id, content, created_at, user_id, user_login)
 SELECT
 CASE 
     WHEN i % 1000 = 0 THEN '184293d6-d421-41dd-99ef-04b1c83181ba'::uuid -- post_id = ~1000 комментариев
-    ELSE md5((i % 1000)::text)::uuid -- ещё 999 «постов» по ~1000
+    ELSE md5((i % 1000)::text)::uuid -- ещё 999 «фейковых постов» по ~1000 comments
 END,
 'seed comment ' || i, -- content
 now() - (i || ' seconds')::INTERVAL, -- created_at
