@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -10,6 +11,7 @@ export class CommentOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Index(['postId'])
   @Column({ name: 'post_id', type: 'uuid' })
   postId!: string;
 
