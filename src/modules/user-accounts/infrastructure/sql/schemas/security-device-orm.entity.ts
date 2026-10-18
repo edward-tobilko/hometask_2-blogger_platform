@@ -1,8 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
 import { CreateSecurityDevicesDomainDto } from 'src/modules/user-accounts/domain/dto/create-security-devices.dto';
 
 @Entity('security_devices_session')
+@Index('IDX_security_devices_session_user_id', ['userId'])
 export class SecurityDeviceOrmEntity {
   @PrimaryGeneratedColumn('uuid') // create PK id at the DB level
   id!: string;
