@@ -30,6 +30,7 @@ export class PostOrmEntity {
   @Column({ name: 'blog_name', type: 'varchar', nullable: true })
   blogName!: string | null;
 
+  @Index('IDX_posts_created_at')
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
