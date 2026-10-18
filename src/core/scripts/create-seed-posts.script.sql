@@ -26,4 +26,4 @@ ORDER BY created_at DESC
 LIMIT 10; -- ~ 80ms / ~ 0.1ms
 
 SELECT count(*) as posts_count FROM posts; -- 2000015
-EXPLAIN ANALYSE SELECT * FROM posts ORDER BY created_at DESC LIMIT 10; -- ~ 180ms, Seq Scan + Sort
+EXPLAIN ANALYSE SELECT * FROM posts ORDER BY created_at DESC LIMIT 10; -- ~ 180ms, Seq Scan + Sort / ~ 0.07ms, Index Scan Backward, no Sort;
