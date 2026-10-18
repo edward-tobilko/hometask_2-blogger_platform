@@ -17,4 +17,13 @@ END,
 now() - (i || ' seconds')::INTERVAL -- created_at
 FROM generate_series(1, 2000000) as i;
 
-ANALYSE posts; -- ~ 130ms
+ANALYSE posts;
+
+EXPLAIN ANALYSE
+SELECT * FROM posts
+WHERE blog_id = '3a835d32-1575-5c43-5ef4-fe9965a3f2a0'
+ORDER BY created_at DESC
+LIMIT 10; -- ~ 80ms / ~ 0.1ms
+
+SELECT count(*) as posts_count FROM posts; -- 2000015
+EXPLAIN ANALYSE SELECT * FROM posts ORDER BY created_at DESC LIMIT 10; -- ~ 180ms, Seq Scan + Sort
