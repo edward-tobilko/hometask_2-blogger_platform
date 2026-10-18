@@ -1,1 +1,0 @@
-DELETE FROM comments WHERE user_login = 'seed_user';
