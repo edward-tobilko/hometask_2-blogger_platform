@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -9,6 +10,7 @@ import { CreatePostDomainDto } from '../../../domain/dto/create-post.domain-dto'
 import { UpdatePostDomainDto } from '../../../domain/dto/update-post.domain-dto';
 
 @Entity('posts')
+@Index('IDX_posts_blog_id_created_at', ['blogId', 'createdAt'])
 export class PostOrmEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string; // PK
