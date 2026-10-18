@@ -6,7 +6,7 @@ import {
   Unique,
 } from 'typeorm';
 
-@Unique('UQ_blog_subscriptions_user_id_blog_id', ['userId', 'blogId'])
+@Unique('UQ_blog_subscriptions_blog_id_user_id', ['blogId', 'userId'])
 @Entity('blog_subscriptions')
 export class BlogSubscriptionsOrmEntity {
   @PrimaryGeneratedColumn('uuid')
