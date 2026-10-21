@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, Index, OneToOne } from 'typeorm';
 import { randomUUID } from 'crypto';
 
 import { BaseDBEntity } from 'src/core/base-entity/base-db.entity';
@@ -23,6 +23,7 @@ export class UserAccountOrmEntity extends BaseDBEntity {
 
   // * Вложеный обьект (сплющенные поля) "emailConfirmation"
   @Column({ name: 'confirmation_code', type: 'uuid', nullable: true })
+  @Index('IDX_user_accounts_confirmation_code')
   confirmationCode!: string | null;
 
   @Column({
@@ -37,6 +38,9 @@ export class UserAccountOrmEntity extends BaseDBEntity {
 
   // * Вложеный обьект (сплющенные поля) "passwordRecovery"
   @Column({ name: 'recovery_code', type: 'uuid', nullable: true })
+  @Index('IDX_user_accounts_recovery_code', {
+    where: '"recovery_code" IS NOT NULL',
+  })
   recoveryCode!: string | null;
 
   @Column({ name: 'recovery_code_expiry', type: 'timestamptz', nullable: true })
@@ -52,6 +56,9 @@ export class UserAccountOrmEntity extends BaseDBEntity {
     type: 'varchar',
     default: null,
     nullable: true,
+  })
+  @Index('IDX_user_accounts_telegram_confirmation_code', {
+    where: '"telegram_confirmation_code" IS NOT NULL',
   })
   telegramConfirmationCode!: string | null;
 
