@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 import { UpdateBlogDomainDto } from '../../../domain/dto/update-blog.domain-dto';
 import { CreateBlogDomainDto } from '../../../domain/dto/create-blog.domain-dto';
@@ -7,6 +7,7 @@ import { BaseDBEntity } from 'src/core/base-entity/base-db.entity';
 @Entity('blogs')
 export class BlogOrmEntity extends BaseDBEntity {
   @Column({ type: 'varchar' })
+  @Index('IDX_blogs_name_trgm', { synchronize: false })
   name!: string;
 
   @Column({ type: 'varchar' })
