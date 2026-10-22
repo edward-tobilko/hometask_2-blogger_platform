@@ -43,6 +43,7 @@ backup.sql
 
 # Notes
 **/*.notes.md
+**/images/
 
 # Claude
 CLAUDE.md
