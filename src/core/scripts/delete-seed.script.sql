@@ -1,4 +1,3 @@
-
 -- * Comments
 DELETE FROM comments WHERE user_login = 'seed_user';
 
@@ -12,5 +11,10 @@ DELETE FROM security_devices_session WHERE title = 'seed device';
 
 -- * User Accounts
 DELETE FROM user_accounts WHERE login LIKE 'seed login%';
+
+-- * Blogs
+SELECT count(*) AS blogs_count_with_seed FROM blogs WHERE website_url = 'https://seed.org';
+DELETE FROM blogs WHERE website_url = 'https://seed.org';
+SELECT count(*) AS blogs_total_count FROM blogs;
 
 VACUUM ANALYSE; -- вернуть место на диске + обновить статистику планировщика;
