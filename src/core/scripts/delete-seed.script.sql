@@ -14,7 +14,12 @@ DELETE FROM user_accounts WHERE login LIKE 'seed login%';
 
 -- * Blogs
 SELECT count(*) AS blogs_count_with_seed FROM blogs WHERE website_url = 'https://seed.org';
+
+DELETE FROM blogs
+WHERE id IN (SELECT id FROM blogs WHERE website_url = 'https://seed.org' LIMIT 100000);
+
 DELETE FROM blogs WHERE website_url = 'https://seed.org';
+
 SELECT count(*) AS blogs_total_count FROM blogs;
 
 VACUUM ANALYSE; -- вернуть место на диске + обновить статистику планировщика;
