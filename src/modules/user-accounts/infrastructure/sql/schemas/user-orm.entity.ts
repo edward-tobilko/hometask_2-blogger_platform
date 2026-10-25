@@ -11,11 +11,16 @@ import {
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Entity('user_accounts') // in SQL the convention is 'snake_case'
+// * Email is unique among active users only: a soft-deleted account frees its email so the person can register again. Login stays globally unique (see `login` column) to prevent impersonation of deleted users.
+@Index('IDX_user_accounts_email_active', ['email'], {
+  unique: true,
+  where: '"deleted_at" IS NULL',
+})
 export class UserAccountOrmEntity extends BaseDBEntity {
-  @Column({ unique: true })
+  @Column({ unique: true }) // globally unique on purpose — see IDX_user_accounts_email_active
   login!: string;
 
-  @Column({ unique: true })
+  @Column()
   email!: string;
 
   @Column({ name: 'password_hash' })
