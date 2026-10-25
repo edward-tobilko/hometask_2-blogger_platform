@@ -571,6 +571,47 @@ describe('Auth swagger contract', () => {
       expect(fields).toContain('email');
     });
 
+    it('status 204 - email of soft-deleted user can be reused for a new registration', async () => {
+      // * удаляем первого юзера (soft delete -> deleted_at IS NOT NULL)
+      await userTestManager.deleteUser(result!.id);
+
+      // * новый юзер с тем же email, но другим login
+      const dtoSecond = userTestManager.getUserInputDto({ email: dto.email });
+
+      await userTestManager.registrationUser(dtoSecond);
+
+      // * в БД две строки с этим email: удалённая и живая (withDeleted — включить soft-deleted в выборку)
+      const usersWithEmail = await userRepo.find({
+        where: { email: dto.email },
+        withDeleted: true,
+      });
+
+      expect(usersWithEmail).toHaveLength(2);
+      expect(
+        usersWithEmail.filter((user) => user.deletedAt === null),
+      ).toHaveLength(1);
+
+      // * живой юзер — именно новый
+      const activeUser = await userTestManager.findUserByEmail(dto.email);
+
+      expect(activeUser!.login).toBe(dtoSecond.login);
+    });
+
+    it('status 400 - login of soft-deleted user stays reserved', async () => {
+      await userTestManager.deleteUser(result!.id);
+
+      // * новый юзер с тем же login, но другим email
+      const dtoSecond = userTestManager.getUserInputDto({ login: dto.login });
+
+      const failedUserResult = (await userTestManager.registrationUser(
+        dtoSecond,
+        HttpStatus.BAD_REQUEST,
+      )) as BadRequestError;
+
+      // * login глобально уникален -> UNIQUE в БД -> catch 23505 -> 400
+      expectErrorField(failedUserResult, 'login');
+    });
+
     it.each([
       // * login validation
       {
