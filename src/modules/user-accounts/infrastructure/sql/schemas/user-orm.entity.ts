@@ -18,9 +18,11 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes'
 })
 export class UserAccountOrmEntity extends BaseDBEntity {
   @Column({ unique: true }) // globally unique on purpose — see IDX_user_accounts_email_active
+  @Index('IDX_user_accounts_login_trgm', { synchronize: false })
   login!: string;
 
   @Column()
+  @Index('IDX_user_accounts_email_trgm', { synchronize: false })
   email!: string;
 
   @Column({ name: 'password_hash' })
