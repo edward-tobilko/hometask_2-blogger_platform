@@ -10,7 +10,7 @@ SELECT count(*) as posts_count FROM posts; -- контроль ПОСЛЕ: до�
 DELETE FROM security_devices_session WHERE title = 'seed device';
 
 -- * User Accounts
-DELETE FROM user_accounts WHERE login LIKE 'seed login%';
+DELETE FROM user_accounts WHERE login LIKE 'seed-login%';
 
 -- * Blogs
 SELECT count(*) AS blogs_count_with_seed FROM blogs WHERE website_url = 'https://seed.org';

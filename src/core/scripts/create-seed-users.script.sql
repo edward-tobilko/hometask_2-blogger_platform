@@ -1,8 +1,9 @@
 -- * Create 1m fake users
 INSERT INTO user_accounts (login, email, password_hash, recovery_code, telegram_confirmation_code, confirmation_code)
 SELECT
-'seed login' || i,
-'seed email' || i,
+'seed-login' || i,
+-- 'seed-email' || i,
+md5(i::text) || '@seed.org',
 gen_random_uuid(),
 CASE
     WHEN i % 10000 = 0 THEN gen_random_uuid() -- default ELSE returns NULL 
@@ -24,7 +25,7 @@ count(recovery_code) AS with_recovery, -- 100 записей
 count(telegram_confirmation_code) AS with_telegram, -- 200 записей
 count(confirmation_code) AS with_confirm -- 900 000 записей
 FROM user_accounts
-WHERE login LIKE 'seed login%';
+WHERE login LIKE 'seed-login%';
 
 -- * Show all users with recovery_code
 SELECT * FROM user_accounts WHERE recovery_code is not null;
