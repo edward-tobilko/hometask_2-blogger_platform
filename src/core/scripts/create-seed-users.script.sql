@@ -83,3 +83,52 @@ WHERE telegram_confirmation_code = 'aa213dee-6857-4c5c-b1d5-8a70be7b7fde' AND de
 EXPLAIN ANALYSE
 SELECT * FROM user_accounts
 WHERE confirmation_code = 'c2fed3c1-500b-47bb-8062-372a58793c28' AND deleted_at IS NULL; -- ~ 60ms / ~ 0.06ms
+
+-- * Анализ на скорость запросса GET по фильтрам (query params) searchEmailTerm / searchLoginTerm
+-- 1. селективный прогон (совпадений = 1 count)
+EXPLAIN ANALYSE
+SELECT * FROM user_accounts
+WHERE (login ILIKE '%765241%' AND deleted_at IS NULL) OR (email ILIKE '%001fa32e%' AND deleted_at IS NULL)
+ORDER BY created_at DESC
+LIMIT 10; -- ~ 145ms (Parallel Seq Scan + Sort (top-N heapsort)) / ~ 4.2ms (BitmapOr: 2× Bitmap Index Scan GIN -> Bitmap Heap Scan, Recheck Cond);
+
+EXPLAIN ANALYSE
+SELECT COUNT(*) FROM user_accounts
+WHERE (login ILIKE '%765241%' AND deleted_at IS NULL) OR (email ILIKE '%001fa32e%' AND deleted_at IS NULL); -- ~ 150ms (Parallel Seq Scan + Partial Aggregate) / ~ 4.4ms (BitmapOr: 2× Bitmap Index Scan GIN -> Bitmap Heap Scan, Recheck Cond + Aggregate);
+
+-- 2. средний прогон (совпадений = 11,551 counts)
+EXPLAIN ANALYSE
+SELECT * FROM user_accounts
+WHERE (login ILIKE '%seed-login76%' AND deleted_at IS NULL) OR (email ILIKE '%001f%' AND deleted_at IS NULL)
+ORDER BY created_at DESC
+LIMIT 10; -- ~ 155ms (Parallel Seq Scan + Sort (top-N heapsort)) / ~ 23ms (BitmapOr: 2× Bitmap Index Scan GIN -> Bitmap Heap Scan, Recheck Cond);
+
+EXPLAIN ANALYSE
+SELECT COUNT(*) FROM user_accounts
+WHERE (login ILIKE '%seed-login76%' AND deleted_at IS NULL) OR (email ILIKE '%001f%' AND deleted_at IS NULL); -- ~ 150ms (Parallel Seq Scan + Partial Aggregate) / ~ 17ms (BitmapOr: 2× Bitmap Index Scan GIN -> Bitmap Heap Scan, Recheck Cond);
+
+-- 3. неселективный прогон (совпадений = 1m counts)
+SET enable_seqscan = off; -- принудительно отключаем Seq Scan;
+
+EXPLAIN ANALYSE
+SELECT * FROM user_accounts
+WHERE (login ILIKE '%seed%' AND deleted_at IS NULL) OR (email ILIKE '%seed%' AND deleted_at IS NULL)
+ORDER BY created_at DESC
+LIMIT 10; -- ~ 160ms (Parallel Seq Scan + Sort (top-N heapsort)) / ничего не изменилось, потому что PG выбрал Seq Scan, та как он будет быстрее чем чтения через индексы (так как совпадений много, PG решит его лучше через чтения линейно нежели через чиения индекса и построение битовой карты на миллион TID). Если принудительно отключить Seq Scan, то PG использует BitmapOr который будет медленее в 1.5 раза из-за чтения тогоже индекса и битовой карты TID ~ 250ms;
+
+RESET enable_seqscan; -- принудительно включаем Seq Scan;
+
+EXPLAIN ANALYSE
+SELECT COUNT(*) FROM user_accounts
+WHERE (login ILIKE '%seed%' AND deleted_at IS NULL) OR (email ILIKE '%seed%' AND deleted_at IS NULL); -- ~ 100ms (Parallel Seq Scan + Partial Aggregate) / ничего не изменилось;
+
+-- 4. короткий (< 3) прогон (совпадений = 114,742)
+EXPLAIN ANALYSE
+SELECT * FROM user_accounts
+WHERE (login ILIKE '%ab%' AND deleted_at IS NULL) OR (email ILIKE '%ab%' AND deleted_at IS NULL)
+ORDER BY created_at DESC
+LIMIT 10; -- ~ 150ms (Parallel Seq Scan + Sort (top-N heapsort)) / ничего не изменилось, потому что pg_trgm (PG триграмма) берет минимум 3 символа -> PG решает использовать Seq Scan;
+
+EXPLAIN ANALYSE
+SELECT COUNT(*) AS users_filtered_count FROM user_accounts
+WHERE (login ILIKE '%ab%' AND deleted_at IS NULL) OR (email ILIKE '%ab%' AND deleted_at IS NULL); -- ~ 145ms (Parallel Seq Scan + Partial Aggregate) / ничего не изменилось;
