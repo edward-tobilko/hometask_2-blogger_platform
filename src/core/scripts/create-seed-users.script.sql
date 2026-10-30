@@ -36,6 +36,42 @@ SELECT * FROM user_accounts WHERE telegram_confirmation_code is not null;
 -- * Show all users with confirmation_code
 SELECT * FROM user_accounts WHERE confirmation_code is not null;
 
+-- * Show random position row from table
+WITH ranked AS (
+    SELECT
+        id,
+        login,
+        email,
+        ctid,      -- системная колонка -> физический адрес версии строки: (номер страницы по 8 КБ, слот на странице);
+        row_number() OVER (ORDER BY created_at DESC, id) AS api_position    -- позиция в выдаче GET /sa/users по умолчанию;
+    FROM user_accounts
+    WHERE deleted_at IS NULL
+),
+pick AS (
+    SELECT id
+    FROM user_accounts
+    WHERE login LIKE 'seed-login%'
+    ORDER BY random()
+    LIMIT 1
+)
+SELECT r.*,
+    substring(r.login FROM 11)::int AS seed_i,            -- i из generate_series ('seed-login' = 10 символов);
+    ceil(r.api_position / 10.0) AS api_page             -- номер страницы при pageSize = 10;
+FROM ranked r
+JOIN pick p USING (id);
+
+-- * Почему ctid не годится как идентификатор: из-за MVCC UPDATE не перезаписывает строку на месте, а создаёт новую версию в другом месте, поэтому ctid меняется. Его также меняют VACUUM FULL и CLUSTER:
+SELECT ctid, -- (10961,19)
+xmin, -- 51307
+xmax, -- 0
+login FROM user_accounts WHERE login = 'seed-login475779';
+UPDATE user_accounts SET email = email WHERE login = 'seed-login475779';
+SELECT ctid, -- (23151,28)
+xmin, -- 51309
+xmax, -- 0
+login FROM user_accounts WHERE login = 'seed-login475779';
+-- * После UPDATE ctid станет другим (обычно в конце таблицы или на той же странице, если там есть место — это HOT-UPDATE), а xmin получит номер новой транзакции. Это тот же механизм, из-за которого после DELETE и UPDATE нужен VACUUM.
+
 EXPLAIN ANALYSE
 SELECT * FROM user_accounts
 WHERE recovery_code = '916fab98-2db4-413c-aa6a-201c2e4f8a52' AND deleted_at IS NULL; -- ~ 60ms (Parallel Seq Scan под узлом Gather - это значит, что Postgres читал таблицу несколькими процессами-воркерами) / ~ 0.05ms (Index Scan using - теперь Postgres читает по определенному условию на которое мы навешали индекс(IDX_user_accounts_recovery_code));
