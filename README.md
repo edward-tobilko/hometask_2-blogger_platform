@@ -14,6 +14,7 @@ A production-ready REST API for a blogging platform featuring full user account 
 | Language       | TypeScript 5.7                             |
 | Database       | PostgreSQL + TypeORM (all modules)         |
 | Schema         | TypeORM migrations (`synchronize` is off)  |
+| Indexing       | B-tree (composite, partial), GIN `pg_trgm` |
 | Authentication | JWT (access + refresh tokens), Passport.js |
 | Validation     | class-validator, class-transformer         |
 | API Docs       | Swagger / OpenAPI (@nestjs/swagger)        |
@@ -56,6 +57,7 @@ Each domain module is split into four layers:
 - **Exception handling:** custom `DomainException` with global `DomainHttpExceptionsFilter` and `AllHttpExceptionsFilter`
 - **Rate limiting:** global `ThrottlerGuard` configurable via env, can be disabled for testing
 - **Schema migrations:** the database schema is changed only through versioned TypeORM migrations; production applies them automatically before each rollout
+- **Measured indexes:** every index serves a concrete API query and is backed by a seed script with an `EXPLAIN ANALYZE` benchmark (see [Database Indexes](#database-indexes))
 
 ---
 
@@ -262,13 +264,71 @@ yarn migration:show:test
 
 > A migration that exists only locally (not committed, applied only to your development database) may be reverted with `migration:revert:dev`, deleted and regenerated. Never edit, rename or delete a migration that has already been pushed or deployed — fix it with a new migration instead.
 
+**Indexes TypeORM cannot describe.** `@Index` has no way to express an access method or operator class (`USING gin (... gin_trgm_ops)`). Such indexes are written by hand with `migration:create` and declared in the entity with `@Index('<name>', { synchronize: false })`, so `migration:generate` and `--check` do not try to recreate them as B-tree.
+
 ### Applied Migrations
 
-| Migration                                     | Change                                                                  |
-| --------------------------------------------- | ----------------------------------------------------------------------- |
-| `1791566062146-Baseline`                      | Initial schema snapshot (all tables)                                    |
-| `1791652410008-AddBlogsUpdatedAtDeletedAt`    | `blogs` extends `BaseDBEntity`: adds `updated_at`, `deleted_at`         |
-| `1792091015767-RecalculatePostsLikesCounters` | recalculates `posts.likes_count` and `dislikes_count` from `post_likes` |
+| Migration                                                   | Change                                                                                         |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `1791566062146-Baseline`                                    | Initial schema snapshot (all tables)                                                           |
+| `1791652410008-AddBlogsUpdatedAtDeletedAt`                  | `blogs` extends `BaseDBEntity`: adds `updated_at`, `deleted_at`                                |
+| `1792091015767-RecalculatePostsLikesCounters`               | Data migration: recalculates `posts.likes_count` and `dislikes_count` from `post_likes`        |
+| `1792265416547-AddCommentsPostIdIndex`                      | B-tree index on `comments (post_id)`                                                           |
+| `1792267343534-ReplaceCommentsPostIdIndexWithComposite`     | Replaces it with composite `comments (post_id, created_at)`                                    |
+| `1792339995669-AddPostsCompositeIndex`                      | Composite index `posts (blog_id, created_at)`                                                  |
+| `1792342458137-AddPostsCreatedAtIndex`                      | Index `posts (created_at)` for the global posts feed                                           |
+| `1792347023926-ReorderBlogSubscriptionsUniqueToBlogIdFirst` | Unique constraint reordered to `(blog_id, user_id)` so it also serves `WHERE blog_id = ?`      |
+| `1792350759439-AddSecurityDevicesSessionUserIdIndex`        | Index `security_devices_session (user_id)`                                                     |
+| `1792601199799-AddUserAccountsCodesIndexes`                 | Index on `confirmation_code`; partial indexes on `recovery_code`, `telegram_confirmation_code` |
+| `1792611406549-AddBlogsNameTrigramIndex`                    | `CREATE EXTENSION pg_trgm` + GIN trigram index on `blogs (name)` (hand-written)                |
+| `1792960691202-MakeUserAccountsEmailUniqueAmongActive`      | Global `UNIQUE (email)` replaced by partial unique index `WHERE deleted_at IS NULL`            |
+| `1793389374666-AddUserAccountsLoginEmailTrigramIndexes`     | GIN trigram indexes on `user_accounts (login)` and `(email)` (hand-written)                    |
+| `1793477899500-AddPostLikesNewestLikesIndex`                | Partial index `post_likes (post_id, added_at) WHERE status = 'Like'`                           |
+
+---
+
+## Database Indexes
+
+Each index below was added for a specific API query, after reproducing the problem on seeded data (`EXPLAIN ANALYZE` before and after). Timings are from a local PostgreSQL on tables with 0.1–2 million seeded rows.
+
+| Index                                          | Definition                                                      | Serves                                                                     | Before → After   |
+| ---------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------- |
+| `IDX_06a1038b5b8f236c9ddb068af5`               | `comments (post_id, created_at)`                                | `GET /posts/:postId/comments`                                              | 64 ms → 0.06 ms  |
+| `IDX_posts_blog_id_created_at`                 | `posts (blog_id, created_at)`                                   | `GET /blogs/:blogId/posts`                                                 | 80 ms → 0.1 ms   |
+| `IDX_posts_created_at`                         | `posts (created_at)`                                            | `GET /posts` (global feed, no `Sort` node)                                 | 180 ms → 0.07 ms |
+| `IDX_post_likes_post_id_added_at_like`         | `post_likes (post_id, added_at) WHERE status = 'Like'`          | `newestLikes` in `GET /posts`, `GET /posts/:id`                            | 22 ms → 0.1 ms   |
+| `UQ_blog_subscriptions_blog_id_user_id`        | `UNIQUE blog_subscriptions (blog_id, user_id)`                  | `subscribersCount` / subscription status in `GET /blogs`, Telegram fan-out | —                |
+| `IDX_security_devices_session_user_id`         | `security_devices_session (user_id)`                            | `GET /security/devices`, terminate sessions, session revocation on ban     | 50 ms → 0.08 ms  |
+| `IDX_user_accounts_confirmation_code`          | `user_accounts (confirmation_code)`                             | `POST /auth/registration-confirmation`                                     | 60 ms → 0.06 ms  |
+| `IDX_user_accounts_recovery_code`              | `user_accounts (recovery_code) WHERE recovery_code IS NOT NULL` | `POST /auth/new-password`                                                  | 60 ms → 0.05 ms  |
+| `IDX_user_accounts_telegram_confirmation_code` | `... (telegram_confirmation_code) WHERE ... IS NOT NULL`        | Telegram webhook (bot activation code)                                     | 55 ms → 0.07 ms  |
+| `IDX_user_accounts_email_active`               | `UNIQUE user_accounts (email) WHERE deleted_at IS NULL`         | Integrity: email is unique among active users, reusable after soft delete  | —                |
+| `IDX_blogs_name_trgm`                          | `blogs USING gin (name gin_trgm_ops)`                           | `GET /blogs?searchNameTerm=` (`ILIKE '%term%'`)                            | 95 ms → 1.5 ms   |
+| `IDX_user_accounts_login_trgm` / `_email_trgm` | `user_accounts USING gin (login / email gin_trgm_ops)`          | `GET /sa/users?searchLoginTerm=&searchEmailTerm=` (`BitmapOr`)             | 145 ms → 4.2 ms  |
+
+### Trade-offs Observed
+
+- **Write cost:** a GIN index makes inserts slower — 100k rows into `blogs` took ~2105 ms with `IDX_blogs_name_trgm` vs ~745 ms without it.
+- **Partial indexes** (`WHERE ... IS NOT NULL`, `WHERE status = 'Like'`) index only the rows the query can match, so sparse columns stay small.
+- **Selectivity matters:** for a term that matches most of the table (e.g. `seed` on every user), the planner correctly keeps `Parallel Seq Scan`; forcing the index with `SET enable_seqscan = off` was ~1.5× slower.
+- **Trigram limits:** `pg_trgm` needs at least 3 characters — a 2-character search term cannot use the GIN index at all.
+- **`ORDER BY ... LIMIT`:** a composite index whose last column is the sort key returns rows already ordered (`Index Scan Backward`), so the `Sort` node disappears and the scan stops after `LIMIT` rows.
+
+### Benchmark Scripts
+
+Seed and benchmark scripts live in `src/core/scripts/` and are run manually against the **development** database (never production):
+
+| Script                              | Seeds                                             |
+| ----------------------------------- | ------------------------------------------------- |
+| `create-seed-comments.script.sql`   | 1M comments across 1,000 posts                    |
+| `create-seed-posts.script.sql`      | 2M posts across 2,000 blogs                       |
+| `create-seed-post-likes.script.sql` | 100k likes on one post (80% Like / 20% Dislike)   |
+| `create-seed-sessions.script.sql`   | 1M sessions for 200k users                        |
+| `create-seed-users.script.sql`      | 1M users (sparse codes, md5 emails)               |
+| `create-seed-blogs.script.sql`      | 1M blogs with md5 names                           |
+| `delete-seed.script.sql`            | Removes all seeded rows and runs `VACUUM ANALYSE` |
+
+Workflow: seed → `ANALYSE <table>` → `EXPLAIN ANALYSE` the exact query the repository sends → add the index via migration → re-run the same query and record both timings in the script.
 
 ---
 
@@ -405,6 +465,7 @@ src/
 ├── main.ts
 ├── config/               # TypeORM, Config, Throttler modules
 ├── core/                 # Shared: decorators, exceptions, pipes, constants, DTOs, enums, utils
+│   └── scripts/          # SQL seed + EXPLAIN ANALYZE benchmark scripts (dev only)
 ├── db/
 │   ├── data-source.ts    # DataSource for the TypeORM CLI
 │   └── migrations/       # Versioned schema migrations
