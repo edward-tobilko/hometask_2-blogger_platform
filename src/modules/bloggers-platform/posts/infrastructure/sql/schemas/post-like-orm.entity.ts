@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -9,6 +10,9 @@ import {
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 
 @Unique('UQ_post_likes_post_id_user_id', ['postId', 'userId']) // UQ constraint -> под капотом составной уникальный индекс (post_id, user_id);
+@Index('IDX_post_likes_post_id_added_at_like', ['postId', 'addedAt'], {
+  where: `"status" = '${LikeStatus.Like}'`,
+})
 @Entity('post_likes')
 export class PostLikeOrmEntity {
   @PrimaryGeneratedColumn('uuid')
