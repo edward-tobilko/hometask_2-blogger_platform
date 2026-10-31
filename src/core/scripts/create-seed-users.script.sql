@@ -47,16 +47,10 @@ WITH ranked AS (
     FROM user_accounts
     WHERE deleted_at IS NULL
 ),
-pick AS (
-    SELECT id
-    FROM user_accounts
-    WHERE login LIKE 'seed-login%'
-    ORDER BY random()
-    LIMIT 1
-)
+pick AS (SELECT id FROM user_accounts WHERE login LIKE 'seed-login%' ORDER BY random() LIMIT 1)
 SELECT r.*,
     substring(r.login FROM 11)::int AS seed_i,            -- i из generate_series ('seed-login' = 10 символов);
-    ceil(r.api_position / 10.0) AS api_page             -- номер страницы при pageSize = 10;
+    ceil(r.api_position / 10.0) AS api_page               -- номер страницы при pageSize = 10;
 FROM ranked r
 JOIN pick p USING (id);
 
