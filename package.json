@@ -23,7 +23,9 @@
     "migration:revert:dev": "cross-env NODE_ENV=development yarn typeorm migration:revert -d src/db/data-source.ts",
     "migration:revert:test": "cross-env NODE_ENV=testing yarn typeorm migration:revert -d src/db/data-source.ts",
     "migration:show:dev": "cross-env NODE_ENV=development yarn typeorm migration:show -d src/db/data-source.ts",
-    "migration:show:test": "cross-env NODE_ENV=testing yarn typeorm migration:show -d src/db/data-source.ts"
+    "migration:show:test": "cross-env NODE_ENV=testing yarn typeorm migration:show -d src/db/data-source.ts",
+    "migration:check:dev": "cross-env NODE_ENV=development yarn typeorm migration:generate src/db/migrations/Check --check -d src/db/data-source.ts",
+    "migration:check:test": "cross-env NODE_ENV=testing yarn typeorm migration:generate src/db/migrations/Check --check -d src/db/data-source.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
