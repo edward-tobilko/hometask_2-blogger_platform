@@ -752,23 +752,6 @@ describe('Blogs swagger contract', () => {
 
       await blogTestManager.subscribeToBlog(blog.id, accessToken);
     });
-  });
-
-  describe('Tests for POST: /api/blogs/:id/subscribe end-point', () => {
-    it('status 204 - should subscribe to blog', async () => {
-      const blogDto = blogTestManager.getBlogInputDto();
-      const blog = await blogTestManager.createBlog(blogDto);
-
-      const { login, password } =
-        await userTestManager.getRegisteredAndConfirmedUser();
-
-      const { accessToken } = await userTestManager.login({
-        loginOrEmail: login,
-        password,
-      });
-
-      await blogTestManager.subscribeToBlog(blog.id, accessToken);
-    });
 
     it('status 401 - subscribe without auth token', async () => {
       const blog = await blogTestManager.createBlog(
