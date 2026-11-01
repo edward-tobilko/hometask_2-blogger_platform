@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Server } from 'http';
+import { DataSource } from 'typeorm';
 
 import { BlogTestManager } from 'test/helpers/blogs-test-manager.helper';
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
@@ -635,6 +636,83 @@ describe('Blogs swagger contract', () => {
       await blogTestManager.deleteBlog(result.id);
 
       await blogTestManager.getBlogById(result.id, HttpStatus.NOT_FOUND);
+    });
+
+    it('status 204 - should cascade delete posts of removed blog', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+      const posts = await blogTestManager.createSeveralPostsForBlog(blog.id, 2);
+
+      await blogTestManager.deleteBlog(blog.id);
+
+      // * каждый пост удалённого блога -> 404
+      for (const post of posts) {
+        await postTestManager.getPostById(post.id, HttpStatus.NOT_FOUND);
+      }
+
+      // * и в общем списке их тоже нет
+      const postsList = await postTestManager.getPostsPaginatedList();
+
+      expect(postsList.totalCount).toBe(0);
+    });
+
+    it('status 204 - should NOT delete posts of other blogs', async () => {
+      const blogToDelete = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+      const blogToKeep = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      await blogTestManager.createSeveralPostsForBlog(blogToDelete.id, 1);
+
+      const [keptPost] = await blogTestManager.createSeveralPostsForBlog(
+        blogToKeep.id,
+        1,
+      );
+
+      await blogTestManager.deleteBlog(blogToDelete.id);
+
+      // * пост другого блога остался
+      await postTestManager.getPostById(keptPost.id, HttpStatus.OK);
+
+      const postsList = await postTestManager.getPostsPaginatedList();
+
+      expect(postsList.totalCount).toBe(1);
+      expect(postsList.items[0].id).toBe(keptPost.id);
+    });
+
+    it('status 204 - should cascade delete subscriptions of removed blog', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+
+      const dataSource = app.get(DataSource);
+      const countSubscriptions = async (): Promise<number> => {
+        const [{ count }] = await dataSource.query<{ count: string }[]>(
+          `SELECT count(*) FROM blog_subscriptions WHERE blog_id = $1`,
+          [blog.id],
+        );
+
+        return Number(count);
+      };
+
+      expect(await countSubscriptions()).toBe(1); // * подписка точно была
+
+      await blogTestManager.deleteBlog(blog.id);
+
+      expect(await countSubscriptions()).toBe(0);
     });
 
     it('status 404 - if blog not found', async () => {
