@@ -3,11 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { CreatePostDomainDto } from '../../../domain/dto/create-post.domain-dto';
 import { UpdatePostDomainDto } from '../../../domain/dto/update-post.domain-dto';
+import { BlogOrmEntity } from 'src/modules/bloggers-platform/blogs/infrastructure/sql/schemas/blog-orm.entity';
 
 @Entity('posts')
 @Index('IDX_posts_blog_id_created_at', ['blogId', 'createdAt'])
@@ -39,6 +42,11 @@ export class PostOrmEntity {
 
   @Column({ name: 'dislikes_count', type: 'int', default: 0 })
   dislikesCount!: number; // денормализация
+
+  // * JOINS
+  @ManyToOne(() => BlogOrmEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'blog_id', foreignKeyConstraintName: 'FK_posts_blog_id' })
+  blog!: BlogOrmEntity;
 
   static create(dto: CreatePostDomainDto, blogName: string): PostOrmEntity {
     const postInstance = new PostOrmEntity();
