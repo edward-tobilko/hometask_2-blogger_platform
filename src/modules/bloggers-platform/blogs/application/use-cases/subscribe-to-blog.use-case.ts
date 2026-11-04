@@ -9,8 +9,8 @@ import { CreateBlogSubscriptionDomainDto } from '../../domain/dto/create-blog-su
 
 export class SubscribeToBlogCommand extends Command<BlogSubscriptionsOrmEntity> {
   constructor(
-    public userId: string,
     public blogId: string,
+    public userId: string,
   ) {
     super();
   }
@@ -42,9 +42,9 @@ export class SubscribeToBlogUseCase implements ICommandHandler<
      * @throws {Error} - Для "BadRequest" специальный формат вывода extensions -> domain-exceptions.filter.ts
      */
     const existingSubscription =
-      await this.blogSubscriptionRepo.existsByUserAndBlog(
-        command.userId,
+      await this.blogSubscriptionRepo.existsByBlogAndUser(
         command.blogId,
+        command.userId,
       );
 
     if (existingSubscription) {
@@ -58,7 +58,7 @@ export class SubscribeToBlogUseCase implements ICommandHandler<
     }
 
     return this.blogSubscriptionRepo.createAndSave(
-      new CreateBlogSubscriptionDomainDto(command.userId, command.blogId),
+      new CreateBlogSubscriptionDomainDto(command.blogId, command.userId),
     );
   }
 }

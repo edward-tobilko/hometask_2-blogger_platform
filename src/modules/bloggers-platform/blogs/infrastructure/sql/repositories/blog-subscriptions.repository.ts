@@ -12,9 +12,9 @@ export class BlogSubscriptionsRepository {
     private blogSubscriptionRepo: Repository<BlogSubscriptionsOrmEntity>,
   ) {}
 
-  async existsByUserAndBlog(userId: string, blogId: string): Promise<boolean> {
+  async existsByBlogAndUser(blogId: string, userId: string): Promise<boolean> {
     const subscription = await this.blogSubscriptionRepo.findOne({
-      where: { userId, blogId },
+      where: { blogId, userId },
     });
 
     return !!subscription;

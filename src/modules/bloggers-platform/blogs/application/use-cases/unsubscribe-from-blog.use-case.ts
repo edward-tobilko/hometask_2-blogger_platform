@@ -33,7 +33,7 @@ export class UnsubscribeFromBlogUseCase implements ICommandHandler<
     }
 
     const existingSubscription =
-      await this.blogSubscriptionRepo.existsByUserAndBlog(userId, blogId);
+      await this.blogSubscriptionRepo.existsByBlogAndUser(blogId, userId);
 
     if (!existingSubscription) {
       throw new DomainException({

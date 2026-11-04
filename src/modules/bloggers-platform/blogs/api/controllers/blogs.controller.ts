@@ -99,7 +99,7 @@ export class BlogsController {
     @Param('blogId', UuidValidationPipe) blogId: string,
     @CurrentUserFromRequest() user: { id: string },
   ) {
-    const command = new SubscribeToBlogCommand(user.id, blogId);
+    const command = new SubscribeToBlogCommand(blogId, user.id);
 
     await this.commandBus.execute(command);
   }
