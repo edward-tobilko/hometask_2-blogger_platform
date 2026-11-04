@@ -35,12 +35,6 @@ export class BlogSubscriptionsRepository {
     });
   }
 
-  async countSubscribers(blogId: string): Promise<number> {
-    return this.blogSubscriptionRepo.count({
-      where: { blogId },
-    });
-  }
-
   async findSubscribersByBlogId(blogId: string): Promise<string[]> {
     const userSubscriptions = await this.blogSubscriptionRepo
       .createQueryBuilder('bs')

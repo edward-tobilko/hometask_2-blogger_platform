@@ -12,6 +12,7 @@ import { BlogOrmEntity } from '../schemas/blog-orm.entity';
 import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
 import { PostsQuerySqlRepository } from 'src/modules/bloggers-platform/posts/infrastructure/sql/repositories/posts-query-sql.repository';
 import { escapeLike } from 'src/core/utils/escape-like.util';
+import { BlogSubscriptionsOrmEntity } from '../schemas/blog-subscription-orm.entity';
 
 @Injectable()
 export class BlogsQuerySqlRepository {
@@ -21,6 +22,9 @@ export class BlogsQuerySqlRepository {
 
     @InjectRepository(PostOrmEntity)
     private readonly postOrmRepo: Repository<PostOrmEntity>,
+
+    @InjectRepository(BlogSubscriptionsOrmEntity)
+    private readonly blogSubscriptionRepo: Repository<BlogSubscriptionsOrmEntity>,
 
     @InjectDataSource()
     private readonly dataSource: DataSource,
@@ -131,6 +135,16 @@ export class BlogsQuerySqlRepository {
   // * Extra methods over the basic API
   async countPostsForBlog(blogId: string): Promise<number> {
     return this.postOrmRepo.count({
+      where: { blogId },
+    });
+  }
+
+  async existsById(blogId: string): Promise<boolean> {
+    return this.blogsQueryRepo.existsBy({ id: blogId }); // true / false
+  }
+
+  async countSubscribers(blogId: string): Promise<number> {
+    return this.blogSubscriptionRepo.count({
       where: { blogId },
     });
   }

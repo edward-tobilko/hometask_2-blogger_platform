@@ -28,9 +28,9 @@ export class GetPostsForBlogQueryHandler implements IQueryHandler<
     query,
     userId,
   }: GetPostsForBlogQuery): Promise<PostsPaginatedViewModel> {
-    const blogInstance = await this.blogsQueryRepo.findById(blogId);
+    const isBlogExist = await this.blogsQueryRepo.existsById(blogId);
 
-    if (!blogInstance)
+    if (!isBlogExist)
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `This blog with ID:${blogId} was not found`,

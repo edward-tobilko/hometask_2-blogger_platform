@@ -18,9 +18,7 @@ export class GetPostsCountForBlogHandler implements IQueryHandler<
   constructor(private blogsQueryRepo: BlogsQuerySqlRepository) {}
 
   async execute({ blogId }: GetPostsCountForBlogQuery): Promise<number> {
-    const blogInstance = await this.blogsQueryRepo.findById(blogId);
-
-    if (!blogInstance) {
+    if (!(await this.blogsQueryRepo.existsById(blogId))) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `This blog with ID:${blogId} was not found`,
