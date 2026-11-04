@@ -922,4 +922,59 @@ describe('Blogs swagger contract', () => {
       );
     });
   });
+
+  describe('Tests for GET: /api/blogs/:blogId/subscribers/count end-point', () => {
+    it('status 200 - returns 0 for blog without subscribers', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      const response = await request(httpServer)
+        .get(`${blogsPath}/${blog.id}/subscribers/count`)
+        .expect(HttpStatus.OK);
+
+      expect(response.body).toEqual({ subscribersCount: 0 });
+    });
+
+    it('status 200 - counts subscribers of this blog only', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+      const otherBlog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      const { login, password } =
+        await userTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken } = await userTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      await blogTestManager.subscribeToBlog(blog.id, accessToken);
+      await blogTestManager.subscribeToBlog(otherBlog.id, accessToken);
+
+      const response = await request(httpServer)
+        .get(`${blogsPath}/${blog.id}/subscribers/count`)
+        .expect(HttpStatus.OK);
+
+      // * подписка на otherBlog не должна попасть в счётчик blog
+      expect(response.body).toEqual({ subscribersCount: 1 });
+    });
+
+    it('status 404 - non-existent blog', async () => {
+      await request(httpServer)
+        .get(
+          `${blogsPath}/00000000-0000-0000-0000-000000000000/subscribers/count`,
+        )
+        .expect(HttpStatus.NOT_FOUND);
+    });
+
+    it('status 400 - invalid uuid in blogId', async () => {
+      await request(httpServer)
+        .get(`${blogsPath}/not-a-uuid/subscribers/count`)
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+  });
 });
