@@ -2,15 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, ILike, Repository } from 'typeorm';
 
-import { PostsPaginatedViewModel } from 'src/modules/bloggers-platform/posts/api/dto/view-dto/posts-paginated.view-dto';
 import { BlogListPaginatedViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blogs-paginated.view-dto';
 import { BlogsQueryDto } from 'src/modules/bloggers-platform/blogs/api/dto/input-dto/blogs-query.input-dto';
 import { BlogViewModel } from 'src/modules/bloggers-platform/blogs/api/dto/view-dto/blog.view-dto';
-import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 import { BlogOrmEntity } from '../schemas/blog-orm.entity';
-import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
-import { PostsQuerySqlRepository } from 'src/modules/bloggers-platform/posts/infrastructure/sql/repositories/posts-query-sql.repository';
 import { escapeLike } from 'src/core/utils/escape-like.util';
 import { BlogSubscriptionsOrmEntity } from '../schemas/blog-subscription-orm.entity';
 
@@ -20,16 +16,11 @@ export class BlogsQuerySqlRepository {
     @InjectRepository(BlogOrmEntity)
     private readonly blogsQueryRepo: Repository<BlogOrmEntity>,
 
-    @InjectRepository(PostOrmEntity)
-    private readonly postOrmRepo: Repository<PostOrmEntity>,
-
     @InjectRepository(BlogSubscriptionsOrmEntity)
     private readonly blogSubscriptionRepo: Repository<BlogSubscriptionsOrmEntity>,
 
     @InjectDataSource()
     private readonly dataSource: DataSource,
-
-    private readonly postsQueryRepo: PostsQuerySqlRepository,
   ) {}
 
   async findAll(
@@ -124,21 +115,7 @@ export class BlogsQuerySqlRepository {
     );
   }
 
-  async findPostsForBlog(
-    blogId: string,
-    queryParam: PostsQueryDto,
-    userId?: string,
-  ): Promise<PostsPaginatedViewModel> {
-    return this.postsQueryRepo.findAll(queryParam, userId, blogId);
-  }
-
   // * Extra methods over the basic API
-  async countPostsForBlog(blogId: string): Promise<number> {
-    return this.postOrmRepo.count({
-      where: { blogId },
-    });
-  }
-
   async existsById(blogId: string): Promise<boolean> {
     return this.blogsQueryRepo.existsBy({ id: blogId }); // true / false
   }

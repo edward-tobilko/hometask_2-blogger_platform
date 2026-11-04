@@ -196,14 +196,10 @@ export class PostsQuerySqlRepository {
     return PostsQuerySqlRepository.mapRawToViewModel(postsRow, newestLikesRow);
   }
 
-  async findUserCurrentLikeStatus(
-    userId: string,
-    postId: string,
-  ): Promise<LikeStatus | null> {
-    const postInstance = await this.postLikesQueryRepo.findOne({
-      where: { postId, userId },
+  // * Extra methods over the basic API
+  async countByBlogId(blogId: string): Promise<number> {
+    return this.postsQueryRepo.count({
+      where: { blogId },
     });
-
-    return postInstance?.status ?? LikeStatus.None;
   }
 }
