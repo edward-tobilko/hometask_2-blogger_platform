@@ -123,6 +123,50 @@ describe('Blogs swagger contract', () => {
       ).toBeUndefined();
     });
 
+    it('status 200 - searchNameTerm treats "_" as a literal, not a wildcard', async () => {
+      await blogTestManager.createBlog({
+        name: 'nest_js',
+        description: 'framework',
+        websiteUrl: 'https://nest-framework.com',
+      });
+
+      await blogTestManager.createBlog({
+        name: 'nestXjs',
+        description: 'framework',
+        websiteUrl: 'https://nestx-framework.com',
+      });
+
+      const response = await blogTestManager.getBlogsPaginatedList({
+        query: { searchNameTerm: 'nest_js' },
+      });
+
+      // * без экранирования "_" совпал бы с "X" -> totalCount = 2
+      expect(response.totalCount).toBe(1);
+      expect(response.items[0].name).toBe('nest_js');
+    });
+
+    it('status 200 - searchNameTerm treats "%" as a literal, not a wildcard', async () => {
+      await blogTestManager.createBlog({
+        name: 'growth 100%',
+        description: 'percent',
+        websiteUrl: 'https://percent.com',
+      });
+
+      await blogTestManager.createBlog({
+        name: 'javascript',
+        description: 'language',
+        websiteUrl: 'https://js-language.com',
+      });
+
+      const response = await blogTestManager.getBlogsPaginatedList({
+        query: { searchNameTerm: '%' },
+      });
+
+      // * без экранирования "%%%" совпал бы со всеми блогами -> totalCount = 2
+      expect(response.totalCount).toBe(1);
+      expect(response.items[0].name).toBe('growth 100%');
+    });
+
     it('status 200 - sorting blogs by sortDirection and sortBy', async () => {
       await blogTestManager.createSeveralBlogs(3);
 
