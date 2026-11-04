@@ -37,7 +37,6 @@ import { ApiGetPostsForBlogSwagger } from '../decorators/swagger/get-posts-for-b
 import { CreatePostForBlogSwagger } from '../decorators/swagger/create-post-for-blog-swagger.decorator';
 import { ApiUpdateBlogSwagger } from '../decorators/swagger/update-blog-swagger.decorator';
 import { ApiDeleteBlogSwagger } from '../decorators/swagger/delete-blog-swagger.decorator';
-import { CurrentUserOptionalFromRequest } from 'src/modules/user-accounts/guards/decorators/params/current-user.param-decorator';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 import { UpdatePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/update-post.use-case';
 import { ApiUpdatePostForBlogSwagger } from '../decorators/swagger/update-post-for-blog-swagger.decorator';
@@ -58,9 +57,8 @@ export class SaBlogsController {
   @Get()
   async getBlogsList(
     @Query() query: BlogsQueryDto,
-    @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<PaginatedViewDto<BlogViewModel[]>> {
-    return this.queryBus.execute(new GetBlogsListQuery(query, user?.id));
+    return this.queryBus.execute(new GetBlogsListQuery(query));
   }
 
   @ApiCreateBlogSwagger('Create new blog')
@@ -123,11 +121,8 @@ export class SaBlogsController {
   async getPostsListForBlog(
     @Param('blogId', UuidValidationPipe) blogId: string,
     @Query() query: PostsQueryDto,
-    @CurrentUserOptionalFromRequest() user: { id: string } | null,
   ): Promise<PostsPaginatedViewModel> {
-    return this.queryBus.execute(
-      new GetPostsForBlogQuery(blogId, query, user?.id),
-    );
+    return this.queryBus.execute(new GetPostsForBlogQuery(blogId, query));
   }
 
   @ApiUpdatePostForBlogSwagger('Update existing post by id with inputModel')
