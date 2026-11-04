@@ -8,6 +8,7 @@ import { PaginatedViewDto } from 'src/core/dto/paginated-view.dto';
 import { UserViewDto } from '../../../api/view-dto/user.view-dto';
 import { UsersPaginatedViewDto } from '../../../api/view-dto/users-paginated.view-dto';
 import { UserSessionViewDto } from 'src/modules/user-accounts/api/view-dto/user-session.view-dto';
+import { escapeLike } from 'src/core/utils/escape-like.util';
 
 @Injectable()
 export class UsersSqlQueryRepository {
@@ -27,8 +28,10 @@ export class UsersSqlQueryRepository {
     const where: FindOptionsWhere<UserAccountOrmEntity>[] = [];
     const base = { deletedAt: IsNull() };
 
-    if (loginTerm) where.push({ ...base, login: ILike(`%${loginTerm}%`) });
-    if (emailTerm) where.push({ ...base, email: ILike(`%${emailTerm}%`) });
+    if (loginTerm)
+      where.push({ ...base, login: ILike(`%${escapeLike(loginTerm)}%`) });
+    if (emailTerm)
+      where.push({ ...base, email: ILike(`%${escapeLike(emailTerm)}%`) });
     if (!loginTerm && !emailTerm) where.push(base);
 
     const [users, totalCount] = await this.userQueryRepo.findAndCount({
