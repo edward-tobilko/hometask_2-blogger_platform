@@ -404,6 +404,51 @@ describe('Blogs swagger contract', () => {
     });
   });
 
+  describe('Tests for GET: /api/blogs/:blogId/posts/count end-point', () => {
+    it('status 200 - returns 0 for blog without posts', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      const response = await request(httpServer)
+        .get(`${blogsPath}/${blog.id}/posts/count`)
+        .expect(HttpStatus.OK);
+
+      expect(response.body).toEqual({ postsCount: 0 });
+    });
+
+    it('status 200 - counts posts of this blog only', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+      const otherBlog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      await blogTestManager.createSeveralPostsForBlog(blog.id, 3);
+      await blogTestManager.createSeveralPostsForBlog(otherBlog.id, 2);
+
+      const response = await request(httpServer)
+        .get(`${blogsPath}/${blog.id}/posts/count`)
+        .expect(HttpStatus.OK);
+
+      // * посты otherBlog не должны попасть в счётчик blog
+      expect(response.body).toEqual({ postsCount: 3 });
+    });
+
+    it('status 404 - non-existent blog', async () => {
+      await request(httpServer)
+        .get(`${blogsPath}/00000000-0000-0000-0000-000000000000/posts/count`)
+        .expect(HttpStatus.NOT_FOUND);
+    });
+
+    it('status 400 - invalid uuid in blogId', async () => {
+      await request(httpServer)
+        .get(`${blogsPath}/not-a-uuid/posts/count`)
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+  });
+
   describe('Tests for POST: /api/blogs/{blogId}/posts end-point', () => {
     let createdBlog: BlogViewModel;
 
