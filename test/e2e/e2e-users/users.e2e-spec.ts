@@ -105,6 +105,28 @@ describe('Users swagger contract', () => {
       ).toBeUndefined();
     });
 
+    it('searching by login treats "_" as a literal, not a wildcard', async () => {
+      await userTestManager.createUser({
+        login: 'john_doe',
+        password: 'pass123',
+        email: 'john_doe@test.com',
+      });
+
+      await userTestManager.createUser({
+        login: 'john-doe',
+        password: 'pass123',
+        email: 'john-doe@test.com',
+      });
+
+      const response = await userTestManager.getUsersPaginatedList({
+        query: { searchLoginTerm: 'john_doe' },
+      });
+
+      // * без экранирования "_" совпал бы с "-" -> totalCount = 2
+      expect(response.totalCount).toBe(1);
+      expect(response.items[0].login).toBe('john_doe');
+    });
+
     it('searching by email', async () => {
       await userTestManager.createUser({
         login: 'john',
@@ -131,6 +153,28 @@ describe('Users swagger contract', () => {
       expect(
         response.items.find((item) => item.email === 'jane@test.com'),
       ).toBeUndefined();
+    });
+
+    it('searching by email treats "_" as a literal, not a wildcard', async () => {
+      await userTestManager.createUser({
+        login: 'john_doe',
+        password: 'pass123',
+        email: 'john_doe@test.com',
+      });
+
+      await userTestManager.createUser({
+        login: 'john-doe',
+        password: 'pass123',
+        email: 'john-doe@test.com',
+      });
+
+      const response = await userTestManager.getUsersPaginatedList({
+        query: { searchEmailTerm: 'john_doe@' },
+      });
+
+      // * без экранирования "_" совпал бы с "-" -> totalCount = 2
+      expect(response.totalCount).toBe(1);
+      expect(response.items[0].email).toBe('john_doe@test.com');
     });
 
     it('status 401 - if no Basic auth', async () => {
