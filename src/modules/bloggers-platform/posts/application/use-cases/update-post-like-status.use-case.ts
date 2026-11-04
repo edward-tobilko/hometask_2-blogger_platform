@@ -4,7 +4,6 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { calculateLikeDislike } from 'src/core/utils/calculate-like-dislike.util';
-import { PostsQuerySqlRepository } from '../../infrastructure/sql/repositories/posts-query-sql.repository';
 import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
 
 export class UpdatePostLikeStatusCommand {
@@ -20,10 +19,7 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
   UpdatePostLikeStatusCommand,
   void
 > {
-  constructor(
-    private postsRepo: PostsSqlRepository,
-    private readonly postsQueryRepo: PostsQuerySqlRepository,
-  ) {}
+  constructor(private postsRepo: PostsSqlRepository) {}
 
   async execute(command: UpdatePostLikeStatusCommand): Promise<void> {
     const { postId, userId, likeStatus } = command;
@@ -36,7 +32,7 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
         message: `This post with ${postId} was not found`,
       });
 
-    const prevLike = await this.postsQueryRepo.findUserCurrentLikeStatus(
+    const prevLike = await this.postsRepo.findUserCurrentLikeStatus(
       userId,
       postId,
     );

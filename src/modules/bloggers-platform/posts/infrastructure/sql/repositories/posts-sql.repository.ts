@@ -62,4 +62,15 @@ export class PostsSqlRepository {
       .where('id = :postId', { postId, likes, dislikes })
       .execute();
   }
+
+  async findUserCurrentLikeStatus(
+    userId: string,
+    postId: string,
+  ): Promise<LikeStatus | null> {
+    const postInstance = await this.postLikesRepo.findOne({
+      where: { postId, userId },
+    });
+
+    return postInstance?.status ?? LikeStatus.None;
+  }
 }
