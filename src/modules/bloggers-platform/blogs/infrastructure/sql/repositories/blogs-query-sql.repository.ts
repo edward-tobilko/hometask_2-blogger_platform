@@ -11,6 +11,7 @@ import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
 import { BlogOrmEntity } from '../schemas/blog-orm.entity';
 import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
 import { PostsQuerySqlRepository } from 'src/modules/bloggers-platform/posts/infrastructure/sql/repositories/posts-query-sql.repository';
+import { escapeLike } from 'src/core/utils/escape-like.util';
 
 @Injectable()
 export class BlogsQuerySqlRepository {
@@ -51,7 +52,7 @@ export class BlogsQuerySqlRepository {
         'currentUserSubscriptionStatus',
       )
       .setParameter('userId', userId ?? null)
-      .where(nameTerm ? { name: ILike(`%${nameTerm}%`) } : {})
+      .where(nameTerm ? { name: ILike(`%${escapeLike(nameTerm)}%`) } : {})
       .orderBy(
         `blog.${queryParam.sortBy}`,
         queryParam.sortDirection.toUpperCase() as 'ASC' | 'DESC',
