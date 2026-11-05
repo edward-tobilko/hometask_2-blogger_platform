@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Server } from 'http';
+import { DataSource } from 'typeorm';
 
 import { deleteAllData } from 'test/helpers/delete-all-date.helper';
 import { initSettings } from 'test/helpers/init-settings.helper';
@@ -21,6 +22,7 @@ import {
 } from 'src/modules/bloggers-platform/posts/api/constraints/posts.constraints';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/api/constraints/comments.constraints';
+import { CommentTestManager } from 'test/helpers/comments-test-manager.helper';
 
 describe('Posts swagger contract', () => {
   let app: INestApplication;
@@ -28,6 +30,7 @@ describe('Posts swagger contract', () => {
   let postTestManager: PostTestManager;
   let blogTestManager: BlogTestManager;
   let authTestManager: UserTestManager;
+  let commentTestManager: CommentTestManager;
 
   let createdBlog: BlogViewModel;
 
@@ -38,6 +41,7 @@ describe('Posts swagger contract', () => {
     postTestManager = result.postTestManager;
     blogTestManager = result.blogTestManager;
     authTestManager = result.userTestManager;
+    commentTestManager = result.commentTestManager;
   });
 
   afterAll(async () => await app.close());
@@ -789,6 +793,152 @@ describe('Posts swagger contract', () => {
         .delete(`/api/posts/${post.id}`)
         .send(dto)
         .expect(HttpStatus.UNAUTHORIZED);
+    });
+  });
+
+  describe('cascade deletion of post dependents', () => {
+    let accessToken: string;
+
+    // * Считаем строки напрямую в БД: через API лайки удалённого поста уже не видны.
+    const countRows = async (
+      sql: string,
+      params: string[],
+    ): Promise<number> => {
+      const [{ count }] = await app
+        .get(DataSource)
+        .query<{ count: string }[]>(sql, params);
+
+      return Number(count);
+    };
+
+    beforeEach(async () => {
+      const { login, password } =
+        await authTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken: token } = await authTestManager.login({
+        loginOrEmail: login,
+        password,
+      });
+
+      accessToken = token;
+    });
+
+    it('status 204 - comments of removed post should return 404', async () => {
+      const post = await postTestManager.createPost(
+        postTestManager.getPostInputDto({ blogId: createdBlog.id }),
+      );
+
+      const [comment] = await postTestManager.createSeveralCommentsForPost(
+        post.id,
+        accessToken,
+        1,
+      );
+
+      await postTestManager.deletePost(post.id);
+
+      await commentTestManager.getCommentById(
+        comment.id,
+        undefined,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('status 204 - post likes and comment likes of removed post should be deleted', async () => {
+      const post = await postTestManager.createPost(
+        postTestManager.getPostInputDto({ blogId: createdBlog.id }),
+      );
+
+      const [comment] = await postTestManager.createSeveralCommentsForPost(
+        post.id,
+        accessToken,
+        1,
+      );
+
+      await postTestManager.updateLikeStatus(
+        post.id,
+        LikeStatus.Like,
+        accessToken,
+      );
+
+      await commentTestManager.setLikeStatus(
+        comment.id,
+        LikeStatus.Like,
+        accessToken,
+      );
+
+      const countPostLikes = () =>
+        countRows(`SELECT count(*) FROM post_likes WHERE post_id = $1`, [
+          post.id,
+        ]);
+
+      const countCommentLikes = () =>
+        countRows(`SELECT count(*) FROM comment_likes WHERE comment_id = $1`, [
+          comment.id,
+        ]);
+
+      // * лайки точно были
+      expect(await countPostLikes()).toBe(1);
+      expect(await countCommentLikes()).toBe(1);
+
+      await postTestManager.deletePost(post.id);
+
+      expect(await countPostLikes()).toBe(0);
+      expect(await countCommentLikes()).toBe(0);
+    });
+
+    it('status 204 - comments of posts of removed blog should return 404', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      const [post] = await blogTestManager.createSeveralPostsForBlog(
+        blog.id,
+        1,
+      );
+
+      const [comment] = await postTestManager.createSeveralCommentsForPost(
+        post.id,
+        accessToken,
+        1,
+      );
+
+      await blogTestManager.deleteBlog(blog.id);
+
+      await commentTestManager.getCommentById(
+        comment.id,
+        undefined,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('status 204 - should NOT delete comments of other posts', async () => {
+      const postToDelete = await postTestManager.createPost(
+        postTestManager.getPostInputDto({ blogId: createdBlog.id }),
+      );
+
+      const postToKeep = await postTestManager.createPost(
+        postTestManager.getPostInputDto({ blogId: createdBlog.id }),
+      );
+
+      await postTestManager.createSeveralCommentsForPost(
+        postToDelete.id,
+        accessToken,
+        1,
+      );
+
+      const [keptComment] = await postTestManager.createSeveralCommentsForPost(
+        postToKeep.id,
+        accessToken,
+        1,
+      );
+
+      await postTestManager.deletePost(postToDelete.id);
+
+      await commentTestManager.getCommentById(
+        keptComment.id,
+        undefined,
+        HttpStatus.OK,
+      );
     });
   });
 });
