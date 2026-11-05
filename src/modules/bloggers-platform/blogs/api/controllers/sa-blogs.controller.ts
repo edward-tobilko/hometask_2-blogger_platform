@@ -42,6 +42,7 @@ import { UpdatePostByIdCommand } from 'src/modules/bloggers-platform/posts/appli
 import { ApiUpdatePostForBlogSwagger } from '../decorators/swagger/update-post-for-blog-swagger.decorator';
 import { ApiDeletePostForBlogSwagger } from '../decorators/swagger/delete-post-for-blog-swagger.decorator';
 import { DeletePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/delete-post.use-case';
+import { GetBlogByIdQuery } from '../../application/queries/get-blog.query';
 
 @ApiTags('SuperAdminBlogs')
 @SkipThrottle()
@@ -73,9 +74,10 @@ export class SaBlogsController {
       websiteUrl: dto.websiteUrl,
     });
 
-    const blogInstance = await this.commandBus.execute(command);
+    const { id } = await this.commandBus.execute(command);
+    const query = new GetBlogByIdQuery(id);
 
-    return BlogViewModel.mapToViewModel(blogInstance);
+    return this.queryBus.execute(query);
   }
 
   @ApiUpdateBlogSwagger('Update existing Blog by id with inputModel')
