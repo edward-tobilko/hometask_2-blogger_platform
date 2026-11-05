@@ -3,8 +3,12 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
+import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
 
 @Entity('comments')
 @Index(['postId', 'createdAt'])
@@ -38,6 +42,14 @@ export class CommentOrmEntity {
   // * Extra fields over the basic API logic
   @Column({ name: 'is_banned', type: 'boolean', default: false })
   isBanned!: boolean;
+
+  // * JOINS
+  @ManyToOne(() => PostOrmEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'post_id',
+    foreignKeyConstraintName: 'FK_comments_post_id',
+  })
+  post!: PostOrmEntity;
 
   static create(
     postId: string,

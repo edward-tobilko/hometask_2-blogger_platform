@@ -3,11 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
+import { PostOrmEntity } from './post-orm.entity';
 
 @Unique('UQ_post_likes_post_id_user_id', ['postId', 'userId']) // UQ constraint -> под капотом составной уникальный индекс (post_id, user_id);
 @Index('IDX_post_likes_post_id_added_at_like', ['postId', 'addedAt'], {
@@ -29,4 +32,12 @@ export class PostLikeOrmEntity {
 
   @CreateDateColumn({ name: 'added_at', type: 'timestamptz' })
   addedAt!: Date; // нужен в ответе для "newestLikes" (3 последних лайка)
+
+  // * JOINS
+  @ManyToOne(() => PostOrmEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'post_id',
+    foreignKeyConstraintName: 'FK_post_likes_post_id',
+  })
+  post!: PostOrmEntity;
 }

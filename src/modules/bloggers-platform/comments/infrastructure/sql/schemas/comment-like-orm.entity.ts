@@ -1,6 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
+import { CommentOrmEntity } from './comment-orm.entity';
 
 @Unique('UQ_comment_likes_comment_id_user_id', ['commentId', 'userId'])
 @Entity('comment_likes')
@@ -19,4 +27,12 @@ export class CommentLikeOrmEntity {
 
   @Column({ name: 'user_name', type: 'varchar', nullable: true })
   userName!: string | null;
+
+  // * JOINS
+  @ManyToOne(() => CommentOrmEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({
+    name: 'comment_id',
+    foreignKeyConstraintName: 'FK_comment_likes_comment_id',
+  })
+  comment!: CommentOrmEntity;
 }
