@@ -3,7 +3,10 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
-import { PostsQueryDto } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
+import {
+  PostsQueryDto,
+  PostsSortBy,
+} from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 import {
   NewestLikeViewModel,
   PostViewModel,
@@ -22,7 +25,8 @@ interface PostAndPostLikeQBRaw {
   p_created_at: Date;
   p_likes_count: number;
   p_dislikes_count: number;
-  p_blog_name: string | null;
+
+  b_name: string;
 
   pl_status: LikeStatus | null;
 }
@@ -35,6 +39,15 @@ interface NewestLikeRaw {
 
   row_number: string; // PostgreSQL возвращает bigint как string
 }
+
+// * API sortBy -> колонка в QueryBuilder. blogName живёт в таблице blogs (b), остальное — в posts (p).
+const POSTS_SORT_COLUMNS: Record<PostsSortBy, string> = {
+  [PostsSortBy.CreatedAt]: 'p.createdAt',
+  [PostsSortBy.Title]: 'p.title',
+  [PostsSortBy.ShortDescription]: 'p.shortDescription',
+  [PostsSortBy.Content]: 'p.content',
+  [PostsSortBy.BlogName]: 'b.name',
+};
 
 @Injectable()
 export class PostsQuerySqlRepository {
@@ -59,7 +72,7 @@ export class PostsQuerySqlRepository {
     dto.shortDescription = raw.p_short_description;
     dto.content = raw.p_content;
     dto.blogId = raw.p_blog_id;
-    dto.blogName = raw.p_blog_name;
+    dto.blogName = raw.b_name;
     dto.createdAt = raw.p_created_at;
 
     dto.extendedLikesInfo = {
@@ -82,12 +95,23 @@ export class PostsQuerySqlRepository {
     userId?: string,
     blogId?: string,
   ): Promise<PostsPaginatedViewModel> {
-    const [items, totalCount] = await this.postsQueryRepo.findAndCount({
-      where: blogId ? { blogId } : {}, // параметр для делегирования (без дублирования) метода в BlogsQuerySqlRepository
-      order: query.calculateSort(),
-      skip: query.calculateSkip(),
-      take: query.pageSize, // default 10 posts
-    });
+    const postsQb = this.postsQueryRepo
+      .createQueryBuilder('p')
+      .innerJoinAndSelect('p.blog', 'b'); // актуальное имя блога -> post.blog.name
+
+    // * Фильтр только для GET /blogs/:blogId/posts; для GET /posts — все посты.
+    if (blogId) {
+      postsQb.where('p.blogId = :blogId', { blogId });
+    }
+
+    const [items, totalCount] = await postsQb
+      .orderBy(
+        POSTS_SORT_COLUMNS[query.sortBy],
+        query.sortDirection.toUpperCase() as 'ASC' | 'DESC',
+      )
+      .skip(query.calculateSkip())
+      .take(query.pageSize) // default 10 posts
+      .getManyAndCount();
 
     // * Batch-load likes for the current page to avoid N+1 (быстрый поиск по ключу без повторных запросов к БД).
     const likesMap = new Map<string, LikeStatus>(); // строим Map для быстрого поиска
@@ -148,7 +172,11 @@ export class PostsQuerySqlRepository {
             login: newestLikeRow.login,
           })) ?? [];
 
-        return PostViewModel.mapToViewModel(post, myStatus, newestLikes);
+        return PostViewModel.mapToViewModel(
+          { ...post, blogName: post.blog.name }, // имя из JOIN, а не из старой колонки blog_name
+          myStatus,
+          newestLikes,
+        );
       }),
     });
   }
@@ -162,9 +190,10 @@ export class PostsQuerySqlRepository {
         'p.shortDescription',
         'p.content',
         'p.blogId',
-        'p.blogName',
         'p.createdAt',
       ])
+      .innerJoin('p.blog', 'b')
+      .addSelect('b.name')
       .addSelect(['p.likesCount', 'p.dislikesCount'])
       .leftJoin(
         PostLikeOrmEntity,
