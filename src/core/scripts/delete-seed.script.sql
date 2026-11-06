@@ -2,8 +2,8 @@
 DELETE FROM comments WHERE user_login = 'seed_user';
 
 -- * posts
-SELECT count(*) FROM posts WHERE title LIKE 'seed post %'; -- контроль ДО удаления: должно быть 2m (without my own created);
-DELETE FROM posts WHERE title Like 'seed post %'; -- удаление только сида;
+SELECT count(*) FROM posts WHERE title LIKE 'seed-post %'; -- контроль ДО удаления: должно быть 2m (without my own created);
+DELETE FROM posts WHERE title Like 'seed-post %'; -- удаление только сида;
 SELECT count(*) as posts_count FROM posts; -- контроль ПОСЛЕ: должно остаться 15;
 
 -- * post_likes
