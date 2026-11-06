@@ -1,21 +1,24 @@
 -- * Сколько постов у каждого блога
-SELECT blog_id, blog_name, COUNT(*) AS posts_count
-FROM posts
--- WHERE blog_id = 'ae89e137-5df4-4e26-ac72-c1ec455975ad'
-GROUP BY blog_id, blog_name;
+SELECT p.blog_id, b.name, COUNT(*) AS posts_count
+FROM posts p
+JOIN blogs b ON b.id = p.blog_id
+GROUP BY p.blog_id, b.name;
 
--- * Скрипт создаёт 2m постов, распределённых по 2000 блогам, по 2000 на каждый.
+-- * Скрипт создаёт 2m постов: 2000 seed-блогов × 1000 постов на каждый.
 INSERT INTO posts (title, short_description, content, blog_id, created_at)
 SELECT
-'seed post ' || i, -- title
-'seed description ' || i, -- short_description
-'seed content ' || i, -- content
-CASE 
-    WHEN i % 2000 = 0 THEN 'ae89e137-5df4-4e26-ac72-c1ec455975ad'::uuid -- blog_id
-    ELSE md5((i % 2000)::text)::uuid
-END,
-now() - (i || ' seconds')::INTERVAL -- created_at
-FROM generate_series(1, 2000000) as i;
+'seed-post ' || i, -- title
+'seed-description ' || i, -- short_description
+'seed-content ' || i, -- content
+b.id, -- blog_id (настоящий блог)
+now() - ((b.rn * 1000 + i) || ' seconds')::INTERVAL -- created_at (уникальное время у каждого поста)
+FROM (
+    SELECT id, ROW_NUMBER() OVER() AS rn
+    FROM blogs WHERE website_url = 'https://seed.org' LIMIT 2000
+) b -- подзапрос работает как generate_series, но вместо голых чисел даёт настоящие блоги с номером rn;
+CROSS JOIN generate_series(1, 1000) AS i; -- CROSS JOIN соединяет каждую строку b с каждым числом i: 2000 × 1000 = 2 000 000 строк. Это тот же generate_series, только теперь вложенный в каждый блог;
+
+SELECT id FROM blogs WHERE website_url = 'https://seed.org' LIMIT 1;
 
 ANALYSE posts;
 
