@@ -24,6 +24,7 @@ import {
 import { UserTestManager } from 'test/helpers/users-test-manager.helper';
 import { PostTestManager } from 'test/helpers/posts-test-manager.helper';
 import { SubscriptionStatus } from 'src/core/enums/subscription-status.enum';
+import { PostsSortBy } from 'src/modules/bloggers-platform/posts/api/dto/input-dto/posts-query.input-dto';
 
 describe('Blogs swagger contract', () => {
   let app: INestApplication;
@@ -1020,6 +1021,84 @@ describe('Blogs swagger contract', () => {
       await request(httpServer)
         .get(`${blogsPath}/not-a-uuid/subscribers/count`)
         .expect(HttpStatus.BAD_REQUEST);
+    });
+  });
+
+  // * EXTRA tests over the basic API logic
+  describe('blogName of posts after blog rename', () => {
+    it('status 204 - GET /posts/:id should return new blogName', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      const [post] = await blogTestManager.createSeveralPostsForBlog(
+        blog.id,
+        1,
+      );
+
+      const newName = 'renamed blog';
+
+      await blogTestManager.updateBlog(
+        blog.id,
+        blogTestManager.getBlogInputDto({ name: newName }),
+      );
+
+      const postResponse = await postTestManager.getPostById(post.id);
+
+      expect(postResponse.blogName).toBe(newName);
+    });
+
+    it('status 204 - GET /posts and GET /blogs/:blogId/posts should return new blogName', async () => {
+      const blog = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto(),
+      );
+
+      await blogTestManager.createSeveralPostsForBlog(blog.id, 2);
+
+      const newName = 'renamed blog';
+
+      await blogTestManager.updateBlog(
+        blog.id,
+        blogTestManager.getBlogInputDto({ name: newName }),
+      );
+
+      const postsList = await postTestManager.getPostsPaginatedList();
+      const postsForBlog = await blogTestManager.getPostsForBlogPaginatedList(
+        blog.id,
+      );
+
+      // * каждый пост в обоих списках — с новым именем
+      for (const post of [...postsList.items, ...postsForBlog.items]) {
+        expect(post.blogName).toBe(newName);
+      }
+    });
+
+    it('status 204 - sortBy=blogName should order posts by new blog name', async () => {
+      const blogA = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto({ name: 'aaa' }),
+      );
+
+      const blogB = await blogTestManager.createBlog(
+        blogTestManager.getBlogInputDto({ name: 'bbb' }),
+      );
+
+      await blogTestManager.createSeveralPostsForBlog(blogA.id, 1);
+      await blogTestManager.createSeveralPostsForBlog(blogB.id, 1);
+
+      // * "aaa" -> "zzz": блог A должен уйти в конец сортировки
+      await blogTestManager.updateBlog(
+        blogA.id,
+        blogTestManager.getBlogInputDto({ name: 'zzz' }),
+      );
+
+      const result = await postTestManager.getPostsPaginatedList({
+        query: {
+          sortBy: PostsSortBy.BlogName,
+          sortDirection: SortDirections.ASC,
+        },
+      });
+
+      expect(result.items.map((post) => post.blogName)).toEqual(['bbb', 'zzz']);
     });
   });
 });
