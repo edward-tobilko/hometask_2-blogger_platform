@@ -28,10 +28,7 @@ export class PostOrmEntity {
   content!: string; // dto
 
   @Column({ name: 'blog_id', type: 'uuid' })
-  blogId!: string; // FK + blog name
-
-  @Column({ name: 'blog_name', type: 'varchar', nullable: true })
-  blogName!: string | null;
+  blogId!: string; // FK
 
   @Index('IDX_posts_created_at')
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
