@@ -14,7 +14,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 
 import { API_ROUTES } from 'src/core/constants/api-routes.constants';
 import { CommentViewModel } from '../dto/view-dto/comment.view-dto';
-import { GetCommentByIdQueryHandler } from '../../application/queries/comments-query.services';
+import { GetCommentByIdQuery } from '../../application/queries/comments.query';
 import { UpdateCommentByIdCommand } from '../../application/use-cases/update-comment.use-case';
 import { UpdateCommentDto } from '../dto/input-dto/update-comment.input-dto';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
@@ -100,7 +100,7 @@ export class CommentsController {
     @CurrentUserOptionalFromRequest()
     currentUser: { id: string } | null,
   ): Promise<CommentViewModel | null> {
-    const query = new GetCommentByIdQueryHandler(params.id, currentUser?.id);
+    const query = new GetCommentByIdQuery(params.id, currentUser?.id);
 
     return this.queryBus.execute(query);
   }

@@ -5,16 +5,16 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes'
 import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comment.view-dto';
 import { CommentsSqlQueryRepository } from '../../infrastructure/sql/repositories/comments-sql-query.repo';
 
-export class GetCommentByIdQueryHandler {
+export class GetCommentByIdQuery {
   constructor(
     public id: string,
     public userId?: string,
   ) {}
 }
 
-@QueryHandler(GetCommentByIdQueryHandler)
-export class GetCommentByIdQuery implements IQueryHandler<
-  GetCommentByIdQueryHandler,
+@QueryHandler(GetCommentByIdQuery)
+export class GetCommentByIdQueryHandler implements IQueryHandler<
+  GetCommentByIdQuery,
   CommentViewModel
 > {
   constructor(private readonly commentsQueryRepo: CommentsSqlQueryRepository) {}
@@ -22,7 +22,7 @@ export class GetCommentByIdQuery implements IQueryHandler<
   async execute({
     id,
     userId,
-  }: GetCommentByIdQueryHandler): Promise<CommentViewModel> {
+  }: GetCommentByIdQuery): Promise<CommentViewModel> {
     const existingComment = await this.commentsQueryRepo.findByIdCTE(
       id,
       userId,

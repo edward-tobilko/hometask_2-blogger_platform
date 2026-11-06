@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaBlogsController } from './blogs/api/controllers/sa-blogs.controller';
 import { PostsController } from './posts/api/controllers/posts.controller';
 import { CommentsController } from './comments/api/controllers/comment.controller';
-import { GetCommentByIdQuery } from './comments/application/queries/comments-query.services';
+import { GetCommentByIdQueryHandler } from './comments/application/queries/comments.query';
 import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by-id.query';
 import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
 import { CreateCommentUseCase } from './posts/application/use-cases/create-comment.use-case';
@@ -58,7 +58,7 @@ const queryHandlers = [
   GetCommentByPostIdQueryHandler,
 
   // * Comments contract
-  GetCommentByIdQuery,
+  GetCommentByIdQueryHandler,
 ];
 
 const commandHandlers = [

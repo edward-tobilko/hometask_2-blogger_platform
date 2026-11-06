@@ -51,7 +51,7 @@ import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-b
 import { PostIdParamDto } from '../dto/post-params.dto';
 import { UpdatePostLikeStatusCommand } from './../../application/use-cases/update-post-like-status.use-case';
 import { CommentsQueryDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
-import { GetCommentByIdQueryHandler } from 'src/modules/bloggers-platform/comments/application/queries/comments-query.services';
+import { GetCommentByIdQuery } from 'src/modules/bloggers-platform/comments/application/queries/comments.query';
 
 @ApiTags('Posts')
 @SkipThrottle()
@@ -109,7 +109,7 @@ export class PostsController {
       currentUser.id,
     );
     const { id } = await this.commandBus.execute(command);
-    const query = new GetCommentByIdQueryHandler(id);
+    const query = new GetCommentByIdQuery(id);
 
     return await this.queryBus.execute(query);
   }
