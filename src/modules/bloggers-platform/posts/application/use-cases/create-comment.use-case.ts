@@ -3,11 +3,10 @@ import { Command, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-query-repo';
-import { CommentOrmEntity } from 'src/modules/bloggers-platform/comments/infrastructure/sql/schemas/comment-orm.entity';
 import { CommentsSqlRepository } from 'src/modules/bloggers-platform/comments/infrastructure/sql/repositories/comments-sql.repo';
 import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
 
-export class CreateCommentCommand extends Command<CommentOrmEntity> {
+export class CreateCommentCommand extends Command<{ id: string }> {
   constructor(
     public postId: string,
     public content: string,
@@ -29,24 +28,25 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
     postId,
     content,
     userId,
-  }: CreateCommentCommand): Promise<CommentOrmEntity> {
-    const post = await this.postsRepo.findById(postId);
+  }: CreateCommentCommand): Promise<{ id: string }> {
+    const postInstance = await this.postsRepo.findById(postId);
 
-    if (!post)
+    if (!postInstance)
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `This post with ID:${postId} was not found`,
       });
 
-    const user = await this.externalUsersRepo.getByIdOrNotFoundFailQB(userId);
+    const userView =
+      await this.externalUsersRepo.getByIdOrNotFoundFailQB(userId);
 
     const commentInstance = await this.commentsRepo.create(
       postId,
       content,
-      user.id,
-      user.login,
+      userView.id,
+      userView.login,
     );
 
-    return commentInstance;
+    return { id: commentInstance.id };
   }
 }

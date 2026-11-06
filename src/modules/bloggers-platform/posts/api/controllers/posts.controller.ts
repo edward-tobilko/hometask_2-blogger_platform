@@ -51,6 +51,7 @@ import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-b
 import { PostIdParamDto } from '../dto/post-params.dto';
 import { UpdatePostLikeStatusCommand } from './../../application/use-cases/update-post-like-status.use-case';
 import { CommentsQueryDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
+import { GetCommentByIdQueryHandler } from 'src/modules/bloggers-platform/comments/application/queries/comments-query.services';
 
 @ApiTags('Posts')
 @SkipThrottle()
@@ -101,15 +102,16 @@ export class PostsController {
     @Param('postId', UuidValidationPipe) postId: string,
     @Body() dto: CreateCommentInputDto,
     @CurrentUserFromRequest() currentUser: { id: string },
-  ) {
+  ): Promise<CommentViewModel> {
     const command = new CreateCommentCommand(
       postId,
       dto.content,
       currentUser.id,
     );
-    const commentInstance = await this.commandBus.execute(command);
+    const { id } = await this.commandBus.execute(command);
+    const query = new GetCommentByIdQueryHandler(id);
 
-    return CommentViewModel.mapToViewModel(commentInstance);
+    return await this.queryBus.execute(query);
   }
 
   @ApiGetPostsSwagger('Returns all posts')
