@@ -130,6 +130,46 @@ describe('Posts swagger contract', () => {
       expect(post.extendedLikesInfo.myStatus).toBe('Like');
     });
 
+    it('status 204 - parallel likes from one user should count once', async () => {
+      // * 10 одинаковых запросов одновременно — имитация двойного клика / ретраев сети.
+      await Promise.all(
+        Array.from({ length: 10 }, () =>
+          postTestManager.updateLikeStatus(
+            createdPost.id,
+            LikeStatus.Like,
+            accessToken,
+          ),
+        ),
+      );
+
+      const post = await postTestManager.getPostById(createdPost.id);
+
+      expect(post.extendedLikesInfo.likesCount).toBe(1);
+      expect(post.extendedLikesInfo.dislikesCount).toBe(0);
+    });
+
+    it('status 204 - parallel Like / Dislike switches from one user should keep counters consistent', async () => {
+      // * Один юзер дёргает статус туда-сюда параллельно — в итоге у него ровно один голос.
+      await Promise.all(
+        Array.from({ length: 10 }, (_, i) =>
+          postTestManager.updateLikeStatus(
+            createdPost.id,
+            i % 2 === 0 ? LikeStatus.Like : LikeStatus.Dislike,
+            accessToken,
+          ),
+        ),
+      );
+
+      const post = await postTestManager.getPostById(createdPost.id);
+
+      const { likesCount, dislikesCount } = post.extendedLikesInfo;
+
+      // * Какой статус победил — неважно, но сумма голосов одного юзера = 1.
+      expect(likesCount + dislikesCount).toBe(1);
+      expect(likesCount).toBeGreaterThanOrEqual(0);
+      expect(dislikesCount).toBeGreaterThanOrEqual(0);
+    });
+
     it('status 401 - if no auth token provided', async () => {
       await postTestManager.updateLikeStatus(
         createdPost.id,
