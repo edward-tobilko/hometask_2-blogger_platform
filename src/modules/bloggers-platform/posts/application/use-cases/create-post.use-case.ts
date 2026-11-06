@@ -7,13 +7,12 @@ import {
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { BlogsExternalQueryRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/external-query/blogs.external-query-repo';
 import { CreatePostDomainDto } from '../../domain/dto/create-post.domain-dto';
 import { PostCreatedEvent } from '../../domain/events/post-created.event';
-import { PostOrmEntity } from '../../infrastructure/sql/schemas/post-orm.entity';
 import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
+import { BlogsSqlRepository } from 'src/modules/bloggers-platform/blogs/infrastructure/sql/repositories/blogs-sql.repository';
 
-export class CreatePostCommand extends Command<PostOrmEntity> {
+export class CreatePostCommand extends Command<{ id: string }> {
   constructor(public dto: CreatePostDomainDto) {
     super();
   }
@@ -22,35 +21,35 @@ export class CreatePostCommand extends Command<PostOrmEntity> {
 @CommandHandler(CreatePostCommand)
 export class CreatePostUseCase implements ICommandHandler<
   CreatePostCommand,
-  PostOrmEntity
+  { id: string }
 > {
   constructor(
-    private readonly blogsQueryRepo: BlogsExternalQueryRepository,
+    private blogsRepo: BlogsSqlRepository,
     private postsRepo: PostsSqlRepository,
 
     private readonly eventBus: EventBus,
   ) {}
 
-  async execute({ dto }: CreatePostCommand): Promise<PostOrmEntity> {
-    const existingBlog = await this.blogsQueryRepo.findById(dto.blogId);
+  async execute({ dto }: CreatePostCommand): Promise<{ id: string }> {
+    const existingBlogInstance = await this.blogsRepo.findById(dto.blogId);
 
-    if (!existingBlog) {
+    if (!existingBlogInstance) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The blog with ID:${dto.blogId} was not found`,
       });
     }
 
-    const createdPost = await this.postsRepo.create(dto, existingBlog.name);
+    const createdPost = await this.postsRepo.create(dto);
 
     const event = new PostCreatedEvent(
       dto.blogId,
-      existingBlog.name,
+      existingBlogInstance.name,
       dto.title,
     ); // создаем событие
 
     this.eventBus.publish(event); // публикуем
 
-    return createdPost;
+    return { id: createdPost.id };
   }
 }

@@ -25,8 +25,8 @@ export class PostsSqlRepository {
     return this.postsRepo.save(post);
   }
 
-  async create(dto: CreatePostDomainDto, name: string): Promise<PostOrmEntity> {
-    const postInstance = PostOrmEntity.create(dto, name);
+  async create(dto: CreatePostDomainDto): Promise<PostOrmEntity> {
+    const postInstance = PostOrmEntity.create(dto);
 
     return this.save(postInstance);
   }

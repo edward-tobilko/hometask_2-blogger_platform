@@ -129,9 +129,12 @@ export class PostsController {
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
     const command = new CreatePostCommand(dto);
-    const postDoc = await this.commandBus.execute(command);
 
-    return PostViewModel.mapToViewModel(postDoc);
+    const { id } = await this.commandBus.execute(command);
+
+    const query = new GetPostByIdQuery(id);
+
+    return this.queryBus.execute(query);
   }
 
   @ApiGetPostByIdSwagger('Return post by id')

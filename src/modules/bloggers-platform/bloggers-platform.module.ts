@@ -9,7 +9,6 @@ import { GetPostByIdQueryHandler } from './posts/application/queries/get-post-by
 import { GetPostsListQueryHandler } from './posts/application/queries/get-posts-list.query';
 import { CreateCommentUseCase } from './posts/application/use-cases/create-comment.use-case';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
-import { BlogsExternalQueryRepository } from './blogs/infrastructure/external-query/blogs.external-query-repo';
 import { CreatePostUseCase } from './posts/application/use-cases/create-post.use-case';
 import { UpdatePostByIdUseCase } from './posts/application/use-cases/update-post.use-case';
 import { DeletePostByIdUseCase } from './posts/application/use-cases/delete-post.use-case';
@@ -125,7 +124,6 @@ const eventHandlers = [PostCreatedEventHandler];
 
     // * External
     CommentsExternalRepository,
-    BlogsExternalQueryRepository,
   ],
 
   exports: [CommentsExternalRepository],

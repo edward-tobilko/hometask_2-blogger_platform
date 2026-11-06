@@ -48,15 +48,13 @@ export class PostOrmEntity {
   @JoinColumn({ name: 'blog_id', foreignKeyConstraintName: 'FK_posts_blog_id' })
   blog!: BlogOrmEntity;
 
-  static create(dto: CreatePostDomainDto, blogName: string): PostOrmEntity {
+  static create(dto: CreatePostDomainDto): PostOrmEntity {
     const postInstance = new PostOrmEntity();
 
     postInstance.title = dto.title;
     postInstance.shortDescription = dto.shortDescription;
     postInstance.content = dto.content;
     postInstance.blogId = dto.blogId;
-
-    postInstance.blogName = blogName;
 
     return postInstance;
   }

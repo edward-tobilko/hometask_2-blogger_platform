@@ -43,6 +43,7 @@ import { ApiUpdatePostForBlogSwagger } from '../decorators/swagger/update-post-f
 import { ApiDeletePostForBlogSwagger } from '../decorators/swagger/delete-post-for-blog-swagger.decorator';
 import { DeletePostByIdCommand } from 'src/modules/bloggers-platform/posts/application/use-cases/delete-post.use-case';
 import { GetBlogByIdQuery } from '../../application/queries/get-blog.query';
+import { GetPostByIdQuery } from 'src/modules/bloggers-platform/posts/application/queries/get-post-by-id.query';
 
 @ApiTags('SuperAdminBlogs')
 @SkipThrottle()
@@ -112,10 +113,11 @@ export class SaBlogsController {
     dto: CreatePostForBlogDto,
   ): Promise<PostViewModel> {
     const command = new CreatePostCommand({ ...dto, blogId }); // делегируем создания поста с энд-поинта "posts"
-    const post = await this.commandBus.execute(command);
-    const postOutput = PostViewModel.mapToViewModel(post);
+    const result = await this.commandBus.execute(command);
 
-    return postOutput;
+    const query = new GetPostByIdQuery(result.id);
+
+    return this.queryBus.execute(query);
   }
 
   @ApiGetPostsForBlogSwagger('Returns posts for bog with paging and sorting')
