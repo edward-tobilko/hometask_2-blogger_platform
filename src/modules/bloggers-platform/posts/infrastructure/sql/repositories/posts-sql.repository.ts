@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { PostOrmEntity } from '../schemas/post-orm.entity';
@@ -12,9 +12,6 @@ export class PostsSqlRepository {
   constructor(
     @InjectRepository(PostOrmEntity)
     private readonly postsRepo: Repository<PostOrmEntity>,
-
-    @InjectRepository(PostLikeOrmEntity)
-    private readonly postLikesRepo: Repository<PostLikeOrmEntity>,
   ) {}
 
   async findById(id: string): Promise<PostOrmEntity | null> {
@@ -41,9 +38,10 @@ export class PostsSqlRepository {
     likes: number,
     dislikes: number,
     likeStatus: LikeStatus,
+    manager: EntityManager,
   ): Promise<void> {
-    // * INSERT + UPDATE в бд для нового статуса
-    await this.postLikesRepo.upsert(
+    // * TRANSACTION (manager) - это и есть ключевой момент. this.postsRepo берёт свободное соединение из пула, а транзакция и блокировка живут на соединении, которое держит manager. Запрос через this.* ушёл бы мимо транзакции: его бы не откатили, и он бы не ждал блокировки.
+    await manager.getRepository(PostLikeOrmEntity).upsert(
       { postId, userId, status: likeStatus },
       {
         conflictPaths: ['postId', 'userId'],
@@ -52,7 +50,8 @@ export class PostsSqlRepository {
     );
 
     // * Обновляем likes_count / dislikes_count на посте
-    await this.postsRepo
+    await manager
+      .getRepository(PostOrmEntity)
       .createQueryBuilder()
       .update()
       .set({
@@ -64,13 +63,29 @@ export class PostsSqlRepository {
   }
 
   async findUserCurrentLikeStatus(
-    userId: string,
     postId: string,
+    userId: string,
+    manager: EntityManager,
   ): Promise<LikeStatus | null> {
-    const postInstance = await this.postLikesRepo.findOne({
-      where: { postId, userId },
-    });
+    const postInstance = await manager
+      .getRepository(PostLikeOrmEntity)
+      .findOne({
+        where: { postId, userId },
+      });
 
     return postInstance?.status ?? LikeStatus.None;
+  }
+
+  // * SELECT ... FOR UPDATE: блокирует строку поста до конца транзакции — параллельные изменения лайков этого поста встают в очередь;
+  async findByIdForUpdate(
+    id: string,
+    manager: EntityManager,
+  ): Promise<PostOrmEntity | null> {
+    return manager
+      .getRepository(PostOrmEntity)
+      .createQueryBuilder('p')
+      .setLock('pessimistic_write') // -> FOR UPDATE
+      .where('p.id = :id', { id })
+      .getOne();
   }
 }

@@ -1,3 +1,4 @@
+import { DataSource } from 'typeorm';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { DomainException } from 'src/core/exceptions/domain.exception';
@@ -19,39 +20,49 @@ export class UpdatePostLikeStatusUseCase implements ICommandHandler<
   UpdatePostLikeStatusCommand,
   void
 > {
-  constructor(private postsRepo: PostsSqlRepository) {}
+  constructor(
+    private postsRepo: PostsSqlRepository,
+    private dataSource: DataSource,
+  ) {}
 
   async execute(command: UpdatePostLikeStatusCommand): Promise<void> {
     const { postId, userId, likeStatus } = command;
 
-    const postInstance = await this.postsRepo.findById(postId);
+    await this.dataSource.transaction(async (manager) => {
+      const postInstance = await this.postsRepo.findByIdForUpdate(
+        postId,
+        manager,
+      );
 
-    if (!postInstance)
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `This post with ${postId} was not found`,
-      });
+      if (!postInstance)
+        throw new DomainException({
+          code: DomainExceptionCode.NotFound,
+          message: `This post with ${postId} was not found`,
+        });
 
-    const prevLike = await this.postsRepo.findUserCurrentLikeStatus(
-      userId,
-      postId,
-    );
+      const prevLike = await this.postsRepo.findUserCurrentLikeStatus(
+        postId,
+        userId,
+        manager,
+      );
 
-    const nextLike = likeStatus;
+      const nextLike = likeStatus;
 
-    if (prevLike === nextLike) return;
+      if (prevLike === nextLike) return;
 
-    const { likes, disLikes } = calculateLikeDislike(
-      prevLike ?? LikeStatus.None,
-      nextLike,
-    );
+      const { likes, disLikes } = calculateLikeDislike(
+        prevLike ?? LikeStatus.None,
+        nextLike,
+      );
 
-    return this.postsRepo.setLikeStatusForPost(
-      postId,
-      userId,
-      likes,
-      disLikes,
-      likeStatus,
-    );
+      return this.postsRepo.setLikeStatusForPost(
+        postId,
+        userId,
+        likes,
+        disLikes,
+        likeStatus,
+        manager,
+      );
+    });
   }
 }
