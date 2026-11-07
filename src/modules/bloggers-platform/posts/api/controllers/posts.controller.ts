@@ -48,10 +48,10 @@ import { CommentViewModel } from 'src/modules/bloggers-platform/comments/api/dto
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 import { JwtOptionalAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-optional-auth.guard';
 import { GetCommentByPostIdQuery } from '../../application/queries/get-comment-by-post-id.query';
-import { PostIdParamDto } from '../dto/post-params.dto';
 import { UpdatePostLikeStatusCommand } from './../../application/use-cases/update-post-like-status.use-case';
 import { CommentsQueryDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
 import { GetCommentByIdQuery } from 'src/modules/bloggers-platform/comments/application/queries/comments.query';
+import { PostIdParamDto } from '../dto/input-dto/post-id.input-dto';
 
 @ApiTags('Posts')
 @SkipThrottle()
