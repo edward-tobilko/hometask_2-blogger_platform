@@ -112,7 +112,13 @@ export class SaBlogsController {
     @Body()
     dto: CreatePostForBlogDto,
   ): Promise<PostViewModel> {
-    const command = new CreatePostCommand({ ...dto, blogId }); // делегируем создания поста с энд-поинта "posts"
+    const command = new CreatePostCommand({
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId: blogId,
+    }); // делегируем создания поста с энд-поинта "posts";
+
     const result = await this.commandBus.execute(command);
 
     const query = new GetPostByIdQuery(result.id);

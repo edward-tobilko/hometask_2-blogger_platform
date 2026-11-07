@@ -130,7 +130,12 @@ export class PostsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async createPost(@Body() dto: CreatePostDto): Promise<PostViewModel> {
-    const command = new CreatePostCommand(dto);
+    const command = new CreatePostCommand({
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId: dto.blogId,
+    }); // явный маппинг API DTO -> domain DTO: в домен попадают только объявленные поля, лишнее из запроса отсекается;
 
     const { id } = await this.commandBus.execute(command);
 
@@ -158,7 +163,11 @@ export class PostsController {
     @Body() dto: UpdatePostDto,
   ): Promise<void> {
     return this.commandBus.execute<UpdatePostByIdCommand>(
-      new UpdatePostByIdCommand(dto.blogId, params.id, dto),
+      new UpdatePostByIdCommand(dto.blogId, params.id, {
+        title: dto.title,
+        shortDescription: dto.shortDescription,
+        content: dto.content,
+      }),
     );
   }
 
