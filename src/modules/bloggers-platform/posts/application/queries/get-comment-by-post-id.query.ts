@@ -3,9 +3,9 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CommentsPaginatedViewModel } from 'src/modules/bloggers-platform/comments/api/dto/view-dto/comments-paginated.view-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
-import { PostsSqlRepository } from '../../infrastructure/sql/repositories/posts-sql.repository';
 import { CommentsSqlQueryRepository } from 'src/modules/bloggers-platform/comments/infrastructure/sql/repositories/comments-sql-query.repo';
 import { CommentsQueryDto } from 'src/modules/bloggers-platform/comments/api/dto/input-dto/comments-query.input-dto';
+import { PostsQuerySqlRepository } from '../../infrastructure/sql/repositories/posts-query-sql.repository';
 
 export class GetCommentByPostIdQuery {
   constructor(
@@ -21,7 +21,7 @@ export class GetCommentByPostIdQueryHandler implements IQueryHandler<
   CommentsPaginatedViewModel
 > {
   constructor(
-    private postsRepo: PostsSqlRepository,
+    private postsQueryRepo: PostsQuerySqlRepository,
     private commentsQueryRepo: CommentsSqlQueryRepository,
   ) {}
 
@@ -30,9 +30,9 @@ export class GetCommentByPostIdQueryHandler implements IQueryHandler<
     query,
     userId,
   }: GetCommentByPostIdQuery): Promise<CommentsPaginatedViewModel> {
-    const postInstance = await this.postsRepo.findById(postId);
+    const isPostExists = await this.postsQueryRepo.existById(postId);
 
-    if (!postInstance)
+    if (!isPostExists)
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `This post with ID:${postId} was not found`,

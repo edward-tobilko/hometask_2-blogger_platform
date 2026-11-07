@@ -231,4 +231,8 @@ export class PostsQuerySqlRepository {
       where: { blogId },
     });
   }
+
+  async existById(postId: string): Promise<boolean> {
+    return this.postsQueryRepo.existsBy({ id: postId });
+  }
 }
