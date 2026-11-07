@@ -56,7 +56,11 @@ export class UsersController {
   @ApiCreateUserSwagger('Add new user to the system')
   @Post()
   async createUser(@Body() dto: CreateUserInputDto): Promise<UserViewDto> {
-    const command = new CreateUserCommand(dto);
+    const command = new CreateUserCommand({
+      login: dto.login,
+      email: dto.email,
+      password: dto.password,
+    });
 
     const { id } = await this.commandBus.execute(command);
 
@@ -81,7 +85,12 @@ export class UsersController {
     @Param('id', UuidValidationPipe) id: string,
     @Body() dto: BanUserInputDto,
   ) {
-    const command = new BanUserCommand({ ...dto, userId: id });
+    const command = new BanUserCommand({
+      isBanned: dto.isBanned,
+      banReason: dto.banReason,
+      banExpiresAt: dto.banExpiresAt,
+      userId: id,
+    });
 
     await this.commandBus.execute(command);
   }

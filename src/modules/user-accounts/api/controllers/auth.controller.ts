@@ -145,7 +145,13 @@ export class AuthController {
   @Post('registration')
   @HttpCode(HttpStatusCodes.NO_CONTENT_204)
   registration(@Body() dto: CreateUserInputDto): Promise<void> {
-    return this.commandBus.execute(new RegisterUserCommand(dto));
+    return this.commandBus.execute(
+      new RegisterUserCommand({
+        login: dto.login,
+        email: dto.email,
+        password: dto.password,
+      }),
+    );
   }
 
   @ApiRegistrationEmailResendingSwagger(
