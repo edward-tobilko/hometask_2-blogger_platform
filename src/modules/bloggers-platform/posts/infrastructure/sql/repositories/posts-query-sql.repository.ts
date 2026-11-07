@@ -113,12 +113,23 @@ export class PostsQuerySqlRepository {
       .take(query.pageSize) // default 10 posts
       .getManyAndCount();
 
+    // * Guard clause (защита что бы CTE не выполнялся на пустой странице (так как CTE WITH... PG все равно выполняеться), если постов вдруг нету).
+    if (items.length === 0)
+      return PostsPaginatedViewModel.mapToView({
+        pagesCount: Math.ceil(totalCount / query.pageSize),
+        page: query.pageNumber,
+        pageSize: query.pageSize,
+        totalCount,
+
+        items: [],
+      });
+
     // * Batch-load likes for the current page to avoid N+1 (быстрый поиск по ключу без повторных запросов к БД).
     const likesMap = new Map<string, LikeStatus>(); // строим Map для быстрого поиска
 
     const postIds = items.map((post) => post.id); // in-memory processing
 
-    if (userId && items.length > 0) {
+    if (userId) {
       // * Один запрос — все лайки текущего юзера для всех постов страницы
       const userLikes = await this.postLikesQueryRepo.findBy({
         postId: In(postIds),
@@ -217,10 +228,11 @@ export class PostsQuerySqlRepository {
       .limit(3); // for getRawMany
 
     const postsRow = await builderForPosts.getRawOne<PostAndPostLikeQBRaw>();
-    const newestLikesRow =
-      await builderForNewestLikes.getRawMany<NewestLikeRaw>();
 
     if (!postsRow) return null;
+
+    const newestLikesRow =
+      await builderForNewestLikes.getRawMany<NewestLikeRaw>();
 
     return PostsQuerySqlRepository.mapRawToViewModel(postsRow, newestLikesRow);
   }
