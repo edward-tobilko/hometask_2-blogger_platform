@@ -199,6 +199,18 @@ describe('Posts swagger contract', () => {
 
       expect(body.errorsMessages[0].field).toBe('likeStatus');
     });
+
+    it('status 400 - if postId is not a valid UUID', async () => {
+      const result = await request(app.getHttpServer() as Server)
+        .put(`/api/posts/not-a-uuid/like-status`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send({ likeStatus: LikeStatus.Like })
+        .expect(HttpStatus.BAD_REQUEST);
+
+      const body = result.body as BadRequestError;
+
+      expect(body.errorsMessages[0].field).toBe('postId');
+    });
   });
 
   describe('Tests for POST: /api/posts/{postId}/comments', () => {
