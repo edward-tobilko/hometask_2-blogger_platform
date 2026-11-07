@@ -74,7 +74,9 @@ export class CommentsController {
     currentUser: { id: string },
   ): Promise<void> {
     return this.commandBus.execute(
-      new UpdateCommentByIdCommand(commentId, currentUser.id, dto),
+      new UpdateCommentByIdCommand(commentId, currentUser.id, {
+        content: dto.content,
+      }),
     );
   }
 
