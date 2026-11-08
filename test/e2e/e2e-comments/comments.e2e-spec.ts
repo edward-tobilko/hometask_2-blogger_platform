@@ -97,6 +97,52 @@ describe('Comments swagger contract', () => {
       );
     });
 
+    it('status 204 - parallel likes from one user should count once', async () => {
+      // * 10 одинаковых запросов одновременно — имитация двойного клика / ретраев сети.
+      await Promise.all(
+        Array.from({ length: 10 }, () =>
+          commentTestManager.setLikeStatus(
+            createdComment.id,
+            LikeStatus.Like,
+            accessToken,
+          ),
+        ),
+      );
+
+      const comment = await commentTestManager.getCommentById(
+        createdComment.id,
+        accessToken,
+      );
+
+      expect(comment.likesInfo?.likesCount).toBe(1);
+      expect(comment.likesInfo?.dislikesCount).toBe(0);
+      expect(comment.likesInfo?.myStatus).toBe(LikeStatus.Like);
+    });
+
+    it('status 204 - parallel Like / Dislike switches from one user should keep counters consistent', async () => {
+      // * Один юзер дёргает статус туда-сюда параллельно — в итоге у него ровно один голос.
+      await Promise.all(
+        Array.from({ length: 10 }, (_, i) =>
+          commentTestManager.setLikeStatus(
+            createdComment.id,
+            i % 2 === 0 ? LikeStatus.Like : LikeStatus.Dislike,
+            accessToken,
+          ),
+        ),
+      );
+
+      const comment = await commentTestManager.getCommentById(
+        createdComment.id,
+        accessToken,
+      );
+
+      const { likesCount, dislikesCount, myStatus } = comment.likesInfo!;
+
+      // * Какой статус победил — неважно, но сумма голосов одного юзера = 1 и совпадает с myStatus.
+      expect(likesCount + dislikesCount).toBe(1);
+      expect(myStatus === LikeStatus.Like ? likesCount : dislikesCount).toBe(1);
+    });
+
     it('status 401 - if unauthorized', async () => {
       await commentTestManager.setLikeStatus(
         createdComment.id,
