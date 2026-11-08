@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { CommentOrmEntity } from '../schemas/comment-orm.entity';
@@ -11,23 +11,33 @@ export class CommentsSqlRepository {
   constructor(
     @InjectRepository(CommentOrmEntity)
     private readonly commentRepo: Repository<CommentOrmEntity>,
-
-    @InjectRepository(CommentLikeOrmEntity)
-    private readonly commentLikeRepo: Repository<CommentLikeOrmEntity>,
   ) {}
 
   async findById(commentId: string): Promise<CommentOrmEntity | null> {
     return this.commentRepo.findOneBy({ id: commentId });
   }
 
+  async findByIdForUpdate(
+    commentId: string,
+    manager: EntityManager,
+  ): Promise<CommentOrmEntity | null> {
+    return manager.getRepository(CommentOrmEntity).findOne({
+      where: { id: commentId },
+      lock: { mode: 'pessimistic_write' },
+    });
+  }
+
   async findUserCurrentLikeStatus(
     userId: string,
     commentId: string,
+    manager: EntityManager,
   ): Promise<LikeStatus | null> {
-    const commentLikeInstance = await this.commentLikeRepo.findOneBy({
-      commentId,
-      userId,
-    });
+    const commentLikeInstance = await manager
+      .getRepository(CommentLikeOrmEntity)
+      .findOneBy({
+        commentId,
+        userId,
+      });
 
     const userLikeStatus = commentLikeInstance?.status ?? LikeStatus.None;
 
@@ -61,8 +71,9 @@ export class CommentsSqlRepository {
     likes: number,
     disLikes: number,
     userName: string,
+    manager: EntityManager,
   ): Promise<void> {
-    await this.commentLikeRepo.upsert(
+    await manager.getRepository(CommentLikeOrmEntity).upsert(
       {
         commentId,
         userId,
@@ -75,7 +86,8 @@ export class CommentsSqlRepository {
       },
     );
 
-    await this.commentRepo
+    await manager
+      .getRepository(CommentOrmEntity)
       .createQueryBuilder()
       .update()
       .set({

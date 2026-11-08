@@ -1,4 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { DataSource } from 'typeorm';
 
 import { LikeStatus } from 'src/core/enums/like-status.enum';
 import { DomainException } from 'src/core/exceptions/domain.exception';
@@ -23,42 +24,53 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
   constructor(
     private commentsRepo: CommentsSqlRepository,
     private readonly userAccounts: UsersExternalQueryRepository,
+
+    private dataSource: DataSource,
   ) {}
 
   async execute(command: UpdateCommentLikeStatusCommand): Promise<void> {
     const { commentId, userId, likeStatus } = command;
 
-    const commentInstance = await this.commentsRepo.findById(commentId);
-
-    if (!commentInstance)
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `This comment with ID:${commentId} was not found`,
-        extensions: [],
-      });
-
-    const prevLikeStatus = await this.commentsRepo.findUserCurrentLikeStatus(
-      userId,
-      commentId,
-    );
-    const nextLikeStatus = likeStatus;
-
-    if (prevLikeStatus === nextLikeStatus) return;
-
-    const { likes, disLikes } = calculateLikeDislike(
-      prevLikeStatus ?? LikeStatus.None,
-      nextLikeStatus,
-    );
-
     const user = await this.userAccounts.getByIdOrNotFoundFailQB(userId);
 
-    return this.commentsRepo.setLikeStatusForComment(
-      commentId,
-      userId,
-      likeStatus,
-      likes,
-      disLikes,
-      user.login,
-    );
+    await this.dataSource.transaction(async (manager) => {
+      // * Первый запрос в транзакции блокирует строку комментария (FOR UPDATE), поэтому параллельный запрос ждёт до COMMIT. Гонка закрыта!
+      const commentInstance = await this.commentsRepo.findByIdForUpdate(
+        commentId,
+        manager,
+      );
+
+      if (!commentInstance)
+        throw new DomainException({
+          code: DomainExceptionCode.NotFound,
+          message: `This comment with ID:${commentId} was not found`,
+          extensions: [],
+        });
+
+      // * Чтение статуса, upsert и обновление счётчика идут через manager, то есть в одном соединении и одной транзакции. Получается «всё или ничего».
+      const prevLikeStatus = await this.commentsRepo.findUserCurrentLikeStatus(
+        userId,
+        commentId,
+        manager,
+      );
+      const nextLikeStatus = likeStatus;
+
+      if (prevLikeStatus === nextLikeStatus) return;
+
+      const { likes, disLikes } = calculateLikeDislike(
+        prevLikeStatus ?? LikeStatus.None,
+        nextLikeStatus,
+      );
+
+      return this.commentsRepo.setLikeStatusForComment(
+        commentId,
+        userId,
+        likeStatus,
+        likes,
+        disLikes,
+        user.login,
+        manager,
+      );
+    });
   }
 }
