@@ -36,7 +36,7 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
         manager,
       );
 
-      if (!commentInstance)
+      if (!commentInstance || commentInstance.isBanned)
         throw new DomainException({
           code: DomainExceptionCode.NotFound,
           message: `This comment with ID:${commentId} was not found`,
