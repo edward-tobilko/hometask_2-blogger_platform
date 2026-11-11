@@ -26,14 +26,11 @@ export class DeleteCommentByIdUseCase implements ICommandHandler<
     if (!existingComment) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: `This Comment with ID:${commentId} was not found`,
-      });
-    } else if (existingComment.userId !== userId) {
-      throw new DomainException({
-        code: DomainExceptionCode.Forbidden,
-        message: "You can't edit someone else's comment",
+        message: `This comment with ID:${commentId} was not found`,
       });
     }
+
+    existingComment.assertOwnedBy(userId);
 
     await this.commentsRepo.delete(commentId);
   }

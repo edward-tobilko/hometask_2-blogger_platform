@@ -9,6 +9,8 @@ import {
 } from 'typeorm';
 
 import { PostOrmEntity } from 'src/modules/bloggers-platform/posts/infrastructure/sql/schemas/post-orm.entity';
+import { DomainException } from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Entity('comments')
 @Index(['postId', 'createdAt'])
@@ -71,6 +73,15 @@ export class CommentOrmEntity {
 
   update(content: string) {
     this.content = content;
+  }
+
+  assertOwnedBy(userId: string): void {
+    if (this.userId !== userId) {
+      throw new DomainException({
+        code: DomainExceptionCode.Forbidden,
+        message: "You can't modify someone else's comment",
+      });
+    }
   }
 }
 

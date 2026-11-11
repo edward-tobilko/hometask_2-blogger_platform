@@ -42,13 +42,7 @@ export class UpdateCommentByIdUseCase implements ICommandHandler<
 
     const existingComment = await this.findCommentOrFail(commentId);
 
-    if (existingComment.userId !== userId) {
-      throw new DomainException({
-        code: DomainExceptionCode.Forbidden,
-        message: "You can't edit someone else's comment",
-      });
-    }
-
+    existingComment.assertOwnedBy(userId);
     existingComment.update(dto.content);
 
     await this.commentsRepo.save(existingComment);
