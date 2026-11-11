@@ -70,14 +70,12 @@ export class CommentsSqlRepository {
     likeStatus: LikeStatus,
     likes: number,
     disLikes: number,
-    userName: string,
     manager: EntityManager,
   ): Promise<void> {
     await manager.getRepository(CommentLikeOrmEntity).upsert(
       {
         commentId,
         userId,
-        userName,
         status: likeStatus,
       },
       {

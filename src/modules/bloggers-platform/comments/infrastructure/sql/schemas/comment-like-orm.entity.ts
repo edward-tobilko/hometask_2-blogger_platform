@@ -25,9 +25,6 @@ export class CommentLikeOrmEntity {
   @Column({ type: 'enum', enum: LikeStatus, default: LikeStatus.None })
   status!: LikeStatus;
 
-  @Column({ name: 'user_name', type: 'varchar', nullable: true })
-  userName!: string | null;
-
   // * JOINS
   @ManyToOne(() => CommentOrmEntity, { onDelete: 'CASCADE' })
   @JoinColumn({

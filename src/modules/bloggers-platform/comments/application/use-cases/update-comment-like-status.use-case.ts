@@ -6,7 +6,6 @@ import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 import { calculateLikeDislike } from 'src/core/utils/calculate-like-dislike.util';
 import { CommentsSqlRepository } from '../../infrastructure/sql/repositories/comments-sql.repo';
-import { UsersExternalQueryRepository } from 'src/modules/user-accounts/infrastructure/external-repo/users.external-query-repo';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -23,15 +22,12 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
 > {
   constructor(
     private commentsRepo: CommentsSqlRepository,
-    private readonly userAccounts: UsersExternalQueryRepository,
 
     private dataSource: DataSource,
   ) {}
 
   async execute(command: UpdateCommentLikeStatusCommand): Promise<void> {
     const { commentId, userId, likeStatus } = command;
-
-    const user = await this.userAccounts.getByIdOrNotFoundFailQB(userId);
 
     await this.dataSource.transaction(async (manager) => {
       // * Первый запрос в транзакции блокирует строку комментария (FOR UPDATE), поэтому параллельный запрос ждёт до COMMIT. Гонка закрыта!
@@ -68,7 +64,6 @@ export class UpdateCommentLikeStatusUseCase implements ICommandHandler<
         likeStatus,
         likes,
         disLikes,
-        user.login,
         manager,
       );
     });
