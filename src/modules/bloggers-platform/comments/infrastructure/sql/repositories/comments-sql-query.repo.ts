@@ -71,7 +71,7 @@ export class CommentsSqlQueryRepository {
         c.user_login AS "userLogin",
         c.created_at AS "createdAt",
         c.likes_count as "likesCount",
-        c.dislikes_count as "dislikeCount",
+        c.dislikes_count as "dislikesCount",
         cl.status FROM PUBLIC."comments" c
       LEFT JOIN PUBLIC.comment_likes cl ON cl.comment_id = c.id AND cl.user_id = $2
       WHERE c.id = $1 AND c.is_banned = false`,
