@@ -13,6 +13,7 @@ import { UpdateCommentDto } from 'src/modules/bloggers-platform/comments/api/dto
 import { commentsContentConstraints } from 'src/modules/bloggers-platform/comments/api/constraints/comments.constraints';
 import { BadRequestError } from '../../utils/bad-request-error.util';
 import { LikeStatus } from 'src/core/enums/like-status.enum';
+import { BanDuration } from 'src/core/enums/ban-duration.enum';
 
 describe('Comments swagger contract', () => {
   let app: INestApplication;
@@ -159,6 +160,44 @@ describe('Comments swagger contract', () => {
         accessToken,
         HttpStatus.NOT_FOUND,
       );
+    });
+
+    it('status 404 - if comment is hidden because its author is banned', async () => {
+      // * Второй юзер, который будет лайкать.
+      const liker = await authTestManager.getRegisteredAndConfirmedUser();
+
+      const { accessToken: likerToken } = await authTestManager.login({
+        loginOrEmail: liker.login,
+        password: liker.password,
+      });
+
+      // * Баним автора комментария -> комментарий скрыт (is_banned = true).
+      await authTestManager.banUser(createdComment.commentatorInfo.userId, {
+        isBanned: true,
+        banReason: 'spam spam spam spam spam',
+        banExpiresAt: BanDuration.PERMANENT,
+      });
+
+      // * Лайк скрытого комментария = как лайк несуществующего.
+      await commentTestManager.setLikeStatus(
+        createdComment.id,
+        LikeStatus.Like,
+        likerToken,
+        HttpStatus.NOT_FOUND,
+      );
+
+      // * Разбаниваем -> комментарий снова виден, счётчики не изменились
+      await authTestManager.banUser(createdComment.commentatorInfo.userId, {
+        isBanned: false,
+      });
+
+      const comment = await commentTestManager.getCommentById(
+        createdComment.id,
+        likerToken,
+      );
+
+      expect(comment.likesInfo?.likesCount).toBe(0);
+      expect(comment.likesInfo?.myStatus).toBe(LikeStatus.None);
     });
 
     it.each([
