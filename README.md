@@ -36,10 +36,12 @@ Each domain module is split into four layers:
 <module>/
 ├── api/             # Controllers, Decorators, Constraints and Input/View DTOs
 ├── application/     # UseCases (writes), Queries (reads), Event Handlers
-├── domain/          # Entities, Events and DTOs
+├── domain/          # Domain DTOs and Events
 └── infrastructure/
-    └── sql/         # TypeORM repositories + ORM entities
+    └── sql/         # TypeORM repositories + rich ORM entities
 ```
+
+There is no separate `domain/entities/` layer: the ORM entity (`*-orm.entity.ts`) is the rich domain model — columns plus a static `create()` factory and domain methods that enforce invariants (e.g. `CommentOrmEntity.assertOwnedBy()`). This is a conscious trade-off to avoid mapping between two parallel models.
 
 ### Modules
 
@@ -51,13 +53,17 @@ Each domain module is split into four layers:
 
 ### Key Patterns
 
-- **CQRS:** Controllers dispatch commands/queries via `CommandBus`/`QueryBus`. No business logic in controllers.
-- **Domain Events:** mutations publish events via `EventBus`. Handlers wrapped in try/catch to prevent unhandled rejections.
-- **External Repositories:** cross-module reads use `*ExternalRepository` (read-only). Direct imports between modules are forbidden.
+- **CQRS:** Controllers dispatch commands/queries via `CommandBus`/`QueryBus`. No business logic in controllers. Commands return only an `id` (or nothing); the response view is read through a query.
+- **DTO boundaries:** controllers map API input DTOs to domain DTOs explicitly before dispatching a command, so use cases never depend on the `api/` layer.
+- **Domain Events:** mutations publish events via `EventBus` after successful persistence. Handlers wrapped in try/catch to prevent unhandled rejections.
+- **External Repositories:** cross-module access goes through `*ExternalRepository` / `*ExternalQueryRepository` exported by the owning module, exposing only the minimal operations other modules need. Direct imports of another module's internals are forbidden.
 - **Exception handling:** custom `DomainException` with global `DomainHttpExceptionsFilter` and `AllHttpExceptionsFilter`
 - **Rate limiting:** global `ThrottlerGuard` configurable via env, can be disabled for testing
 - **Schema migrations:** the database schema is changed only through versioned TypeORM migrations; production applies them automatically before each rollout
 - **Measured indexes:** every index serves a concrete API query and is backed by a seed script with an `EXPLAIN ANALYZE` benchmark (see [Database Indexes](#database-indexes))
+- **Data integrity in the database:** foreign keys with `ON DELETE CASCADE` instead of application-side cleanup; no denormalized copies that can drift (see [Data Integrity & Concurrency](#data-integrity--concurrency))
+- **Concurrency-safe counters:** like status updates run in a transaction with a row lock (`SELECT ... FOR UPDATE`), so parallel requests cannot double-count
+- **Safe `LIKE` search:** user input in `searchNameTerm` / `searchLoginTerm` / `searchEmailTerm` is passed through `escapeLike()`, so `%` and `_` are matched literally
 
 ---
 
@@ -230,7 +236,8 @@ yarn migration:generate src/db/migrations/AddPostsBlogIdIndex
 yarn migration:generate src/db/migrations/AddPostsBlogIdIndex --dryrun -p
 
 # Verify entities and database are in sync (no file is written; exits 1 if a migration is needed)
-yarn migration:generate src/db/migrations/Check --check
+yarn migration:check:dev
+yarn migration:check:test
 
 # Create an empty migration for hand-written SQL
 yarn migration:create src/db/migrations/RecalculatePostsLikesCounters
@@ -258,9 +265,14 @@ yarn migration:show:test
 1. Change the ORM entity
 2. Preview with `--dryrun`, then `migration:generate` with a descriptive PascalCase name (`AddPostsBlogIdForeignKey`, `RenameLoginToUsername`)
 3. Read the generated SQL — check for unexpected `DROP` statements or noise
-4. `yarn migration:run:dev`, verify with `yarn migration:show:dev` and `--check`
+4. `yarn migration:run:dev`, verify with `yarn migration:show:dev` and `yarn migration:check:dev`
 5. `yarn migration:run:test`, then `yarn test:e2e`
 6. Commit the entity and the migration together
+
+**Removing a column (expand / contract).** Production migrations run before the new version replaces the old one, so for a few seconds the old code works against the new schema. A column is therefore dropped in two deploys:
+
+1. Stop reading and writing the column in code (remove it from the entity) → deploy. The column still exists, nothing breaks.
+2. Generate and deploy the `DROP COLUMN` migration. Its `down()` re-adds the column and backfills it from the source of truth where possible.
 
 > A migration that exists only locally (not committed, applied only to your development database) may be reverted with `migration:revert:dev`, deleted and regenerated. Never edit, rename or delete a migration that has already been pushed or deployed — fix it with a new migration instead.
 
@@ -268,22 +280,26 @@ yarn migration:show:test
 
 ### Applied Migrations
 
-| Migration                                                   | Change                                                                                         |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `1791566062146-Baseline`                                    | Initial schema snapshot (all tables)                                                           |
-| `1791652410008-AddBlogsUpdatedAtDeletedAt`                  | `blogs` extends `BaseDBEntity`: adds `updated_at`, `deleted_at`                                |
-| `1792091015767-RecalculatePostsLikesCounters`               | Data migration: recalculates `posts.likes_count` and `dislikes_count` from `post_likes`        |
-| `1792265416547-AddCommentsPostIdIndex`                      | B-tree index on `comments (post_id)`                                                           |
-| `1792267343534-ReplaceCommentsPostIdIndexWithComposite`     | Replaces it with composite `comments (post_id, created_at)`                                    |
-| `1792339995669-AddPostsCompositeIndex`                      | Composite index `posts (blog_id, created_at)`                                                  |
-| `1792342458137-AddPostsCreatedAtIndex`                      | Index `posts (created_at)` for the global posts feed                                           |
-| `1792347023926-ReorderBlogSubscriptionsUniqueToBlogIdFirst` | Unique constraint reordered to `(blog_id, user_id)` so it also serves `WHERE blog_id = ?`      |
-| `1792350759439-AddSecurityDevicesSessionUserIdIndex`        | Index `security_devices_session (user_id)`                                                     |
-| `1792601199799-AddUserAccountsCodesIndexes`                 | Index on `confirmation_code`; partial indexes on `recovery_code`, `telegram_confirmation_code` |
-| `1792611406549-AddBlogsNameTrigramIndex`                    | `CREATE EXTENSION pg_trgm` + GIN trigram index on `blogs (name)` (hand-written)                |
-| `1792960691202-MakeUserAccountsEmailUniqueAmongActive`      | Global `UNIQUE (email)` replaced by partial unique index `WHERE deleted_at IS NULL`            |
-| `1793389374666-AddUserAccountsLoginEmailTrigramIndexes`     | GIN trigram indexes on `user_accounts (login)` and `(email)` (hand-written)                    |
-| `1793477899500-AddPostLikesNewestLikesIndex`                | Partial index `post_likes (post_id, added_at) WHERE status = 'Like'`                           |
+| Migration                                                   | Change                                                                                                                                         |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `1791566062146-Baseline`                                    | Initial schema snapshot (all tables)                                                                                                           |
+| `1791652410008-AddBlogsUpdatedAtDeletedAt`                  | `blogs` extends `BaseDBEntity`: adds `updated_at`, `deleted_at`                                                                                |
+| `1792091015767-RecalculatePostsLikesCounters`               | Data migration: recalculates `posts.likes_count` and `dislikes_count` from `post_likes`                                                        |
+| `1792265416547-AddCommentsPostIdIndex`                      | B-tree index on `comments (post_id)`                                                                                                           |
+| `1792267343534-ReplaceCommentsPostIdIndexWithComposite`     | Replaces it with composite `comments (post_id, created_at)`                                                                                    |
+| `1792339995669-AddPostsCompositeIndex`                      | Composite index `posts (blog_id, created_at)`                                                                                                  |
+| `1792342458137-AddPostsCreatedAtIndex`                      | Index `posts (created_at)` for the global posts feed                                                                                           |
+| `1792347023926-ReorderBlogSubscriptionsUniqueToBlogIdFirst` | Unique constraint reordered to `(blog_id, user_id)` so it also serves `WHERE blog_id = ?`                                                      |
+| `1792350759439-AddSecurityDevicesSessionUserIdIndex`        | Index `security_devices_session (user_id)`                                                                                                     |
+| `1792601199799-AddUserAccountsCodesIndexes`                 | Index on `confirmation_code`; partial indexes on `recovery_code`, `telegram_confirmation_code`                                                 |
+| `1792611406549-AddBlogsNameTrigramIndex`                    | `CREATE EXTENSION pg_trgm` + GIN trigram index on `blogs (name)` (hand-written)                                                                |
+| `1792960691202-MakeUserAccountsEmailUniqueAmongActive`      | Global `UNIQUE (email)` replaced by partial unique index `WHERE deleted_at IS NULL`                                                            |
+| `1793389374666-AddUserAccountsLoginEmailTrigramIndexes`     | GIN trigram indexes on `user_accounts (login)` and `(email)` (hand-written)                                                                    |
+| `1793477899500-AddPostLikesNewestLikesIndex`                | Partial index `post_likes (post_id, added_at) WHERE status = 'Like'`                                                                           |
+| `1793557612339-AddBlogForeignKeys`                          | Removes orphans, then FKs `posts.blog_id`, `blog_subscriptions.blog_id` → `blogs` `ON DELETE CASCADE`                                          |
+| `1793911418625-AddPostAndCommentForeignKeys`                | Removes orphans, then FKs `comments.post_id`, `post_likes.post_id` → `posts`, `comment_likes.comment_id` → `comments`, all `ON DELETE CASCADE` |
+| `1793994079727-DropPostsBlogName`                           | Drops denormalized `posts.blog_name` (now read via `JOIN blogs`); `down()` backfills it from `blogs.name`                                      |
+| `1794426843726-DropCommentLikesUserName`                    | Drops unused `comment_likes.user_name`; `down()` backfills it from `user_accounts.login`                                                       |
 
 ---
 
@@ -318,17 +334,52 @@ Each index below was added for a specific API query, after reproducing the probl
 
 Seed and benchmark scripts live in `src/core/scripts/` and are run manually against the **development** database (never production):
 
-| Script                              | Seeds                                             |
-| ----------------------------------- | ------------------------------------------------- |
-| `create-seed-comments.script.sql`   | 1M comments across 1,000 posts                    |
-| `create-seed-posts.script.sql`      | 2M posts across 2,000 blogs                       |
-| `create-seed-post-likes.script.sql` | 100k likes on one post (80% Like / 20% Dislike)   |
-| `create-seed-sessions.script.sql`   | 1M sessions for 200k users                        |
-| `create-seed-users.script.sql`      | 1M users (sparse codes, md5 emails)               |
-| `create-seed-blogs.script.sql`      | 1M blogs with md5 names                           |
-| `delete-seed.script.sql`            | Removes all seeded rows and runs `VACUUM ANALYSE` |
+| Script                              | Seeds                                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `create-seed-comments.script.sql`   | 1M comments across 1,000 posts                                                                   |
+| `create-seed-posts.script.sql`      | 2M posts across 2,000 seeded blogs (run the blogs seed first — `posts.blog_id` is a foreign key) |
+| `create-seed-post-likes.script.sql` | 100k likes on one post (80% Like / 20% Dislike)                                                  |
+| `create-seed-sessions.script.sql`   | 1M sessions for 200k users                                                                       |
+| `create-seed-users.script.sql`      | 1M users (sparse codes, md5 emails)                                                              |
+| `create-seed-blogs.script.sql`      | 1M blogs with md5 names                                                                          |
+| `delete-seed.script.sql`            | Removes all seeded rows and runs `VACUUM ANALYSE`                                                |
 
 Workflow: seed → `ANALYSE <table>` → `EXPLAIN ANALYSE` the exact query the repository sends → add the index via migration → re-run the same query and record both timings in the script.
+
+---
+
+## Data Integrity & Concurrency
+
+### Foreign Keys with Cascade Delete
+
+Deleting a parent row removes its dependents in the same statement — no orphaned rows and no cleanup code in use cases.
+
+| Child column                 | References    | On delete |
+| ---------------------------- | ------------- | --------- |
+| `posts.blog_id`              | `blogs.id`    | `CASCADE` |
+| `blog_subscriptions.blog_id` | `blogs.id`    | `CASCADE` |
+| `comments.post_id`           | `posts.id`    | `CASCADE` |
+| `post_likes.post_id`         | `posts.id`    | `CASCADE` |
+| `comment_likes.comment_id`   | `comments.id` | `CASCADE` |
+
+Deleting a blog therefore removes its posts, their comments and all related likes. Covered by e2e tests (`DELETE /sa/blogs/:id`, `DELETE /posts/:id`).
+
+### No Drifting Copies
+
+- `posts.blog_name` was a copy of `blogs.name` and went stale after a blog rename. It was dropped; `blogName` is now read via `JOIN blogs` (including sort by `blogName`).
+- `comment_likes.user_name` was written on every like but never read. It was dropped together with the extra cross-module user lookup it required.
+
+### Like Status Under Concurrent Requests
+
+`likes_count` / `dislikes_count` are denormalized counters on `posts` and `comments`. Updating them is a read-modify-write: read the user's previous status → upsert the like → adjust the counters. Without coordination, parallel requests from one user (double click, network retries) all read the same previous status and each apply their delta — one row in `*_likes`, but the counter is off.
+
+Both `UpdatePostLikeStatusUseCase` and `UpdateCommentLikeStatusUseCase` run inside `dataSource.transaction()`:
+
+1. `SELECT ... FOR UPDATE` on the parent row (post / comment) — concurrent updates of the same item queue up;
+2. read the previous status, upsert the like and update the counters through the transaction's `EntityManager`;
+3. `COMMIT` releases the lock; any thrown `DomainException` causes `ROLLBACK` and is returned unchanged (e.g. `404`).
+
+E2E tests fire 10 parallel requests from one user and assert that the user's vote is counted exactly once.
 
 ---
 
@@ -385,7 +436,7 @@ test/
 │   └── e2e-users/
 ├── helpers/     # Test managers, init helpers
 ├── mock/        # Email service mock
-├── unit/        # Unit tests (view-dto mapping, config)
+├── unit/        # Unit tests (view-dto mapping, entity domain rules, config, utils)
 └── utils/       # Shared test utilities (BadRequestError, expectErrorField)
 ```
 
@@ -515,12 +566,13 @@ Users can link their Telegram account to receive notifications when a new post i
 
 Admins can ban users with a configurable duration. Banned users cannot log in and their comments are hidden.
 
-- `BanDuration` enum: `HOURS_12`, `DAYS_7`, `PERMANENT`
-- `banExpiresAt` calculated and stored as `timestamptz | null` in `user_accounts` table
+- `BanDuration` enum: `MINUTE_1`, `HOURS_12`, `DAYS_7`, `PERMANENT`
+- Ban state stored in a separate `users_ban_info` table (one-to-one with `user_accounts`); `ban_expires_at` is `timestamptz | null` (`null` = permanent)
 - Ban state checked in `AuthService.validateUser` on every login attempt
 - Ban state also checked in `JwtStrategy.validate()` — banned users are immediately rejected on every authenticated request, even with a valid access token
 - Ban triggers `UserBannedEvent` → cascades: session revocation + comment visibility hidden
 - Unban triggers `UserUnBannedEvent` → comments restored
+- A hidden comment behaves as non-existent for other users: `GET /comments/:id` and `PUT /comments/:id/like-status` both return `404`, so likes cannot be recorded while it is hidden
 
 | Method | Endpoint            | Auth  | Description                                         |
 | ------ | ------------------- | ----- | --------------------------------------------------- |
