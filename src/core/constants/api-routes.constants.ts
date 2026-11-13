@@ -2,6 +2,7 @@ export const API_ROUTES = {
   // * Super Admin
   saBlogs: 'sa/blogs',
   users: 'sa/users',
+  quizQuestions: 'sa/quiz/questions',
 
   authorization: 'auth',
   blogs: 'blogs',

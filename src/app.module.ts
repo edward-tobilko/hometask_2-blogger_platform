@@ -15,6 +15,7 @@ import { configModule } from './config/dynamic-config.module';
 import { throttlerModule } from './config/throttler.module';
 import { CoreConfig } from './core/core.config';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
+import { QuizGameModule } from './modules/quiz-game/quiz-game.module';
 // import { CounterModule } from './modules/scope-logger-example/counter.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
     BloggersPlatformModule,
     UserAccountsModule,
     // CounterModule,
+    QuizGameModule,
 
     CoreModule,
 
