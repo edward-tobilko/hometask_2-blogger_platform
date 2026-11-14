@@ -5,11 +5,20 @@ import { SaQuestionsController } from './questions/api/controllers/sa-questions.
 import { CreateQuestionUseCase } from './questions/application/use-cases/create-question.use-case';
 import { QuestionOrmEntity } from './questions/infrastructure/schemas/question-orm.entity';
 import { QuestionsRepository } from './questions/infrastructure/repositories/questions.repo';
+import { QuestionsQueryRepository } from './questions/infrastructure/repositories/questions-query.repo';
+import { GetQuestionByIdHandler } from './questions/application/queries/get-question-by-id.query';
 
 @Module({
   imports: [TypeOrmModule.forFeature([QuestionOrmEntity])],
   controllers: [SaQuestionsController],
-  providers: [CreateQuestionUseCase, QuestionsRepository],
+  providers: [
+    CreateQuestionUseCase,
+
+    GetQuestionByIdHandler,
+
+    QuestionsRepository,
+    QuestionsQueryRepository,
+  ],
   exports: [],
 })
 export class QuizGameModule {}
