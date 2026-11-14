@@ -4,11 +4,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaQuestionsController } from './questions/api/controllers/sa-questions.controller';
 import { CreateQuestionUseCase } from './questions/application/use-cases/create-question.use-case';
 import { QuestionOrmEntity } from './questions/infrastructure/schemas/question-orm.entity';
+import { QuestionsRepository } from './questions/infrastructure/repositories/questions.repo';
 
 @Module({
   imports: [TypeOrmModule.forFeature([QuestionOrmEntity])],
   controllers: [SaQuestionsController],
-  providers: [CreateQuestionUseCase],
+  providers: [CreateQuestionUseCase, QuestionsRepository],
   exports: [],
 })
 export class QuizGameModule {}

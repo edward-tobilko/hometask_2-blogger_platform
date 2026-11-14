@@ -6,6 +6,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { CreateQuestionDomainDto } from '../../domain/dto/create-question-domain.dto';
+
 @Entity('quiz_questions')
 export class QuestionOrmEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -25,6 +27,16 @@ export class QuestionOrmEntity {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz', nullable: true })
   updatedAt!: Date | null;
+
+  static createQuestion(dto: CreateQuestionDomainDto): QuestionOrmEntity {
+    const instance = new QuestionOrmEntity();
+
+    instance.body = dto.body;
+    instance.correctAnswers = dto.correctAnswers;
+    instance.published = false;
+
+    return instance;
+  }
 }
 
 // ? jsonb - принимает любой валидный JSON, будь то {"a": 1} / 42 или "текст".
