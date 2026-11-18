@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { SkipThrottle } from '@nestjs/throttler';
 
@@ -8,6 +8,9 @@ import { BasicAuthGuard } from 'src/modules/user-accounts/guards/basic/basic-aut
 import { CreateQuestionCommand } from '../../application/use-cases/create-question.use-case';
 import { QuestionViewModel } from '../view-dto/question.view-dto';
 import { GetQuestionByIdQuery } from '../../application/queries/get-question-by-id.query';
+import { GetAllQuestionsQuery } from '../../application/queries/get-all-questions-query';
+import { QuestionsListQueryInputDto } from '../input-dto/questions-list-query.input-dto';
+import { QuestionsListPaginatedViewModel } from '../view-dto/questions-paginated.view-dto';
 
 @UseGuards(BasicAuthGuard)
 @SkipThrottle()
@@ -17,6 +20,16 @@ export class SaQuestionsController {
     private commandBus: CommandBus,
     private queryBus: QueryBus,
   ) {}
+
+  // * Returns all questions with pagination and filtering.
+  @Get()
+  async getAllQuestions(
+    @Query() queryDto: QuestionsListQueryInputDto,
+  ): Promise<QuestionsListPaginatedViewModel> {
+    const query = new GetAllQuestionsQuery(queryDto);
+
+    return this.queryBus.execute(query);
+  }
 
   // * Create question.
   @Post()

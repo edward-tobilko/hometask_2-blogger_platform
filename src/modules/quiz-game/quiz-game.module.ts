@@ -7,6 +7,7 @@ import { QuestionOrmEntity } from './questions/infrastructure/schemas/question-o
 import { QuestionsRepository } from './questions/infrastructure/repositories/questions.repo';
 import { QuestionsQueryRepository } from './questions/infrastructure/repositories/questions-query.repo';
 import { GetQuestionByIdHandler } from './questions/application/queries/get-question-by-id.query';
+import { GetAllQuestionsHandler } from './questions/application/queries/get-all-questions-query';
 
 @Module({
   imports: [TypeOrmModule.forFeature([QuestionOrmEntity])],
@@ -15,6 +16,7 @@ import { GetQuestionByIdHandler } from './questions/application/queries/get-ques
     CreateQuestionUseCase,
 
     GetQuestionByIdHandler,
+    GetAllQuestionsHandler,
 
     QuestionsRepository,
     QuestionsQueryRepository,
