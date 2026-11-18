@@ -7,7 +7,7 @@ export class UserViewDto {
   createdAt!: Date;
 
   static mapToViewModel(
-    this: void,
+    this: void, // ! плохая практика прокидывать this и прокидывать класс как значения, а не вызывать этот метод в .map()!
     userInstance: UserAccountOrmEntity, // ! не очень хорошая практика прокидывать в api dto -> orm entity, лучше ясвно обьект с полями!
   ): UserViewDto {
     const dto = new UserViewDto();
