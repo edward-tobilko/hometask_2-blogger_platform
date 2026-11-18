@@ -25,4 +25,7 @@ DELETE FROM blogs WHERE website_url = 'https://seed.org';
 
 SELECT count(*) AS blogs_total_count FROM blogs;
 
+-- * quiz_questions
+DELETE FROM quiz_questions WHERE body LIKE 'Question %';
+
 VACUUM ANALYSE; -- вернуть место на диске + обновить статистику планировщика;
