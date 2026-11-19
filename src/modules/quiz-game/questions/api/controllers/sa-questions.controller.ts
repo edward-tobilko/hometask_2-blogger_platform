@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { SkipThrottle } from '@nestjs/throttler';
 
@@ -11,6 +22,8 @@ import { GetQuestionByIdQuery } from '../../application/queries/get-question-by-
 import { GetAllQuestionsQuery } from '../../application/queries/get-all-questions-query';
 import { QuestionsListQueryInputDto } from '../input-dto/questions-list-query.input-dto';
 import { QuestionsListPaginatedViewModel } from '../view-dto/questions-paginated.view-dto';
+import { DeleteQuestionCommand } from '../../application/use-cases/delete-question.use-case';
+import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 
 @UseGuards(BasicAuthGuard)
 @SkipThrottle()
@@ -46,5 +59,14 @@ export class SaQuestionsController {
     const query = new GetQuestionByIdQuery(id);
 
     return this.queryBus.execute(query);
+  }
+
+  // * Delete question.
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/:id')
+  async deleteQuestion(
+    @Param('id', UuidValidationPipe) id: string,
+  ): Promise<void> {
+    return this.commandBus.execute(new DeleteQuestionCommand(id));
   }
 }
