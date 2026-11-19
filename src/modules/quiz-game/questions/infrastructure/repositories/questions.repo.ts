@@ -12,9 +12,7 @@ export class QuestionsRepository {
     private questionRepo: Repository<QuestionOrmEntity>,
   ) {}
 
-  async createQuestionBySA(
-    dto: CreateQuestionDomainDto,
-  ): Promise<QuestionOrmEntity> {
+  async createBySA(dto: CreateQuestionDomainDto): Promise<QuestionOrmEntity> {
     const questionInstance = QuestionOrmEntity.createQuestion(dto);
 
     return this.questionRepo.save(questionInstance);
