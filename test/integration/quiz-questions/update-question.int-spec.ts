@@ -118,4 +118,28 @@ describe('Quiz questions — update (integration)', () => {
       code: DomainExceptionCode.NotFound,
     });
   });
+
+  it('rejects removing all correct answers from a published question', async () => {
+    const id = await createQuestion('Published question body', ['7']);
+
+    await questionsRepo.update({ id }, { published: true });
+
+    await expect(
+      updateQuestion(id, 'Published question body', []),
+    ).rejects.toMatchObject({ code: DomainExceptionCode.BadRequest });
+
+    const entity = await questionsRepo.findOneByOrFail({ id });
+
+    expect(entity.correctAnswers).toEqual(['7']);
+  });
+
+  it('allows empty correct answers for an unpublished question', async () => {
+    const id = await createQuestion('Draft question body', ['7']);
+
+    await updateQuestion(id, 'Draft question body', []);
+
+    const entity = await questionsRepo.findOneByOrFail({ id });
+
+    expect(entity.correctAnswers).toEqual([]);
+  });
 });
