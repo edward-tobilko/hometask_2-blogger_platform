@@ -45,6 +45,19 @@ export class QuestionOrmEntity {
   }
 
   update(dto: UpdateQuestionDomainDto): void {
+    if (this.published && !dto.correctAnswers?.length) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'published question must keep at least one correct answer',
+        extensions: [
+          new Extension(
+            `this input has incorrect values or property 'correctAnswers' are not passed but property 'published' is true`,
+            'correctAnswers',
+          ),
+        ], // <- error 400 throw extensions message for client;
+      });
+    }
+
     this.body = dto.body;
     this.correctAnswers = dto.correctAnswers;
   }
@@ -60,7 +73,7 @@ export class QuestionOrmEntity {
             `this input has incorrect values or specified question doesn't have correct answers`,
             'correctAnswers',
           ),
-        ], // <- error 400 throw extensions message for client;
+        ],
       });
     }
 
