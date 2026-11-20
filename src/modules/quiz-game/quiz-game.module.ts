@@ -10,6 +10,7 @@ import { GetQuestionByIdHandler } from './questions/application/queries/get-ques
 import { GetAllQuestionsHandler } from './questions/application/queries/get-all-questions-query';
 import { DeleteQuestionUseCase } from './questions/application/use-cases/delete-question.use-case';
 import { UpdateQuestionUseCase } from './questions/application/use-cases/update-question.use-case';
+import { PublishQuestionUseCase } from './questions/application/use-cases/publish-question.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([QuestionOrmEntity])],
@@ -18,6 +19,7 @@ import { UpdateQuestionUseCase } from './questions/application/use-cases/update-
     CreateQuestionUseCase,
     DeleteQuestionUseCase,
     UpdateQuestionUseCase,
+    PublishQuestionUseCase,
 
     GetQuestionByIdHandler,
     GetAllQuestionsHandler,

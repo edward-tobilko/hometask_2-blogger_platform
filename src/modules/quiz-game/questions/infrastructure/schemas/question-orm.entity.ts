@@ -8,6 +8,11 @@ import {
 
 import { CreateQuestionDomainDto } from '../../domain/dto/create-question-domain.dto';
 import { UpdateQuestionDomainDto } from '../../domain/dto/update-question-domain.dto';
+import {
+  DomainException,
+  Extension,
+} from 'src/core/exceptions/domain.exception';
+import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
 @Entity('quiz_questions')
 export class QuestionOrmEntity {
@@ -42,6 +47,24 @@ export class QuestionOrmEntity {
   update(dto: UpdateQuestionDomainDto): void {
     this.body = dto.body;
     this.correctAnswers = dto.correctAnswers;
+  }
+
+  changePublishStatus(publish: boolean): void {
+    if (publish && this.correctAnswers.length === 0) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message:
+          'question must have at least one correct answer to be published',
+        extensions: [
+          new Extension(
+            `this input has incorrect values or specified question doesn't have correct answers`,
+            'correctAnswers',
+          ),
+        ], // <- error 400 throw extensions message for client;
+      });
+    }
+
+    this.published = publish;
   }
 }
 

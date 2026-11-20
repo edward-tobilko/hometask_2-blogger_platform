@@ -27,6 +27,8 @@ import { DeleteQuestionCommand } from '../../application/use-cases/delete-questi
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
 import { UpdateQuestionInputDto } from '../input-dto/update-question.input-dto';
 import { UpdateQuestionCommand } from '../../application/use-cases/update-question.use-case';
+import { PublishQuestionCommand } from '../../application/use-cases/publish-question.use-case';
+import { PublishQuestionInputDto } from '../input-dto/publish-question.input-dto';
 
 @UseGuards(BasicAuthGuard)
 @SkipThrottle()
@@ -83,6 +85,20 @@ export class SaQuestionsController {
     const command = new UpdateQuestionCommand(id, {
       body: dto.body,
       correctAnswers: dto.correctAnswers,
+    });
+
+    await this.commandBus.execute(command);
+  }
+
+  // * Publish / unpublish question.
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put('/:id/publish')
+  async publishQuestion(
+    @Param('id', UuidValidationPipe) id: string,
+    @Body() dto: PublishQuestionInputDto,
+  ): Promise<void> {
+    const command = new PublishQuestionCommand(id, {
+      published: dto.published,
     });
 
     await this.commandBus.execute(command);
