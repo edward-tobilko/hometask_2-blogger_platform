@@ -20,13 +20,13 @@ export class QuestionsRepository {
     return this.questionRepo.findOneBy({ id });
   }
 
-  async createBySA(dto: CreateQuestionDomainDto): Promise<QuestionOrmEntity> {
+  async create(dto: CreateQuestionDomainDto): Promise<QuestionOrmEntity> {
     const questionInstance = QuestionOrmEntity.createQuestion(dto);
 
     return this.questionRepo.save(questionInstance);
   }
 
-  async deleteBySA(id: string): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     const result = await this.questionRepo.delete(id);
 
     return result.affected === 1; // TypeORM отдаёт число в DeleteResult.affected -> 1 - удалили, отдаём 204 /  0 — ничего не удалили, отдаём 404;

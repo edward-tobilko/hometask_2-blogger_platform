@@ -21,7 +21,7 @@ export class CreateQuestionUseCase implements ICommandHandler<
   async execute({ dto }: CreateQuestionCommand): Promise<{
     id: string;
   }> {
-    const instance = await this.questionsRepo.createBySA(dto);
+    const instance = await this.questionsRepo.create(dto);
 
     return {
       id: instance.id,

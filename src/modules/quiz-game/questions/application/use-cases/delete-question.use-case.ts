@@ -18,7 +18,7 @@ export class DeleteQuestionUseCase implements ICommandHandler<
   constructor(private questionsRepo: QuestionsRepository) {}
 
   async execute({ id }: DeleteQuestionCommand): Promise<void> {
-    const isDeleted = await this.questionsRepo.deleteBySA(id);
+    const isDeleted = await this.questionsRepo.delete(id);
 
     if (!isDeleted) {
       throw new DomainException({
