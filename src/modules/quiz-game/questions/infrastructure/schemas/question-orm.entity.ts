@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 import { CreateQuestionDomainDto } from '../../domain/dto/create-question-domain.dto';
+import { UpdateQuestionDomainDto } from '../../domain/dto/update-question-domain.dto';
 
 @Entity('quiz_questions')
 export class QuestionOrmEntity {
@@ -36,6 +37,11 @@ export class QuestionOrmEntity {
     instance.published = false;
 
     return instance;
+  }
+
+  update(dto: UpdateQuestionDomainDto): void {
+    this.body = dto.body;
+    this.correctAnswers = dto.correctAnswers;
   }
 }
 

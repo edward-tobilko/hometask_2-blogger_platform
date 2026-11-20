@@ -12,6 +12,10 @@ export class QuestionsRepository {
     private questionRepo: Repository<QuestionOrmEntity>,
   ) {}
 
+  async save(entity: QuestionOrmEntity): Promise<QuestionOrmEntity> {
+    return this.questionRepo.save(entity);
+  }
+
   async findById(id: string): Promise<QuestionOrmEntity | null> {
     return this.questionRepo.findOneBy({ id });
   }

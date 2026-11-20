@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -24,6 +25,8 @@ import { QuestionsListQueryInputDto } from '../input-dto/questions-list-query.in
 import { QuestionsListPaginatedViewModel } from '../view-dto/questions-paginated.view-dto';
 import { DeleteQuestionCommand } from '../../application/use-cases/delete-question.use-case';
 import { UuidValidationPipe } from 'src/core/pipes/uuid-validation.pipe';
+import { UpdateQuestionInputDto } from '../input-dto/update-question.input-dto';
+import { UpdateQuestionCommand } from '../../application/use-cases/update-question.use-case';
 
 @UseGuards(BasicAuthGuard)
 @SkipThrottle()
@@ -68,5 +71,20 @@ export class SaQuestionsController {
     @Param('id', UuidValidationPipe) id: string,
   ): Promise<void> {
     return this.commandBus.execute(new DeleteQuestionCommand(id));
+  }
+
+  // * Update question.
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put('/:id')
+  async updateQuestionBySA(
+    @Param('id', UuidValidationPipe) id: string,
+    @Body() dto: UpdateQuestionInputDto,
+  ): Promise<void> {
+    const command = new UpdateQuestionCommand(id, {
+      body: dto.body,
+      correctAnswers: dto.correctAnswers,
+    });
+
+    await this.commandBus.execute(command);
   }
 }
