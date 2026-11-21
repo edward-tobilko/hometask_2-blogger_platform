@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 import { CreateQuestionDomainDto } from '../../domain/dto/create-question-domain.dto';
@@ -31,7 +30,7 @@ export class QuestionOrmEntity {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz', nullable: true })
+  @Column({ name: 'updated_at', type: 'timestamptz', nullable: true })
   updatedAt!: Date | null;
 
   static createQuestion(dto: CreateQuestionDomainDto): QuestionOrmEntity {
@@ -40,6 +39,7 @@ export class QuestionOrmEntity {
     instance.body = dto.body;
     instance.correctAnswers = dto.correctAnswers;
     instance.published = false;
+    instance.updatedAt = null;
 
     return instance;
   }
@@ -60,6 +60,8 @@ export class QuestionOrmEntity {
 
     this.body = dto.body;
     this.correctAnswers = dto.correctAnswers;
+
+    this.updatedAt = new Date();
   }
 
   changePublishStatus(publish: boolean): void {
@@ -78,6 +80,8 @@ export class QuestionOrmEntity {
     }
 
     this.published = publish;
+
+    this.updatedAt = new Date();
   }
 }
 
