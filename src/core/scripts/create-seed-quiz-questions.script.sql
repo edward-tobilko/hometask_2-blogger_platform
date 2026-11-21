@@ -1,10 +1,11 @@
+
 INSERT INTO quiz_questions (body, correct_answers, published, created_at, updated_at)
 SELECT
 'Question ' || i,
 jsonb_build_array('answer ' || i, i::text),
 false,
 now() - i * INTERVAL '1 second',
-now() - i * INTERVAL '1 second'
+null
 FROM generate_series(1, 100) AS i;
 
 SELECT count(*) FROM quiz_questions;
