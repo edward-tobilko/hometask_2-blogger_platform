@@ -45,7 +45,7 @@ export class QuestionOrmEntity {
   }
 
   update(dto: UpdateQuestionDomainDto): void {
-    if (this.published && !dto.correctAnswers?.length) {
+    if (this.published && !dto.correctAnswers.length) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'published question must keep at least one correct answer',
