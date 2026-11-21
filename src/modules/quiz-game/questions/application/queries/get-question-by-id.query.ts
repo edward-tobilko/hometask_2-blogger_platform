@@ -1,12 +1,14 @@
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { IQueryHandler, QueryHandler, Query } from '@nestjs/cqrs';
 
 import { QuestionsQueryRepository } from '../../infrastructure/repositories/questions-query.repo';
 import { QuestionViewModel } from '../../api/view-dto/question.view-dto';
 import { DomainException } from 'src/core/exceptions/domain.exception';
 import { DomainExceptionCode } from 'src/core/exceptions/domain.exception-codes';
 
-export class GetQuestionByIdQuery {
-  constructor(public readonly questionId: string) {}
+export class GetQuestionByIdQuery extends Query<QuestionViewModel> {
+  constructor(public readonly questionId: string) {
+    super();
+  }
 }
 
 @QueryHandler(GetQuestionByIdQuery)
