@@ -18,6 +18,7 @@ function makeConfigService(overrides: Record<string, string | undefined> = {}) {
     ADMIN_USER_NAME: 'admin',
     ADMIN_PASSWORD: 'password',
     TELEGRAM_BOT_TOKEN: 'test_token',
+    TELEGRAM_WEBHOOK_SECRET: 'test_webhook_secret',
     TELEGRAM_BOT_NAME: 'test_bot',
   };
 
@@ -113,6 +114,15 @@ describe('Unit test for CoreConfig', () => {
             }),
           ),
       ).toThrow();
+    });
+
+    it('should throw if TELEGRAM_WEBHOOK_SECRET is missing', () => {
+      expect(
+        () =>
+          new CoreConfig(
+            makeConfigService({ TELEGRAM_WEBHOOK_SECRET: undefined }),
+          ),
+      ).toThrow('TELEGRAM_WEBHOOK_SECRET');
     });
   });
 
