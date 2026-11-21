@@ -86,25 +86,17 @@ describe('Quiz questions — publish (integration)', () => {
     expect(entity.correctAnswers).toEqual(['kept', 'тоже']);
   });
 
-  it('moves "updatedAt" forward when status changes', async () => {
+  it('sets "updatedAt" when publish status changes', async () => {
     const id = await createQuestion();
 
-    // * Отодвигаем дату в прошлое, чтобы сравнение не зависело от миллисекунд.
-    await questionsRepo.query(
-      `UPDATE quiz_questions SET updated_at = now() - interval '1 hour' WHERE id = $1`,
-      [id],
-    );
-    const before = await questionsRepo.findOneByOrFail({ id });
+    expect((await questionsRepo.findOneByOrFail({ id })).updatedAt).toBeNull();
 
     await publishQuestion(id, true);
 
     const after = await questionsRepo.findOneByOrFail({ id });
 
-    expect(after.updatedAt!.getTime()).toBeGreaterThan(
-      before.updatedAt!.getTime(),
-    );
+    expect(after.updatedAt).toBeInstanceOf(Date);
   });
-
   it('publishes only the requested question', async () => {
     const publishedId = await createQuestion('Question that will be published');
     const draftId = await createQuestion('Question that stays draft');

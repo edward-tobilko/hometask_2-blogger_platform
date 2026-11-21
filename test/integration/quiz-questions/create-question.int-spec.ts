@@ -95,7 +95,7 @@ describe('Quiz questions — create (integration)', () => {
       correctAnswers: ['8'],
       published: false,
       createdAt: expect.stringMatching(/Z$/),
-      updatedAt: expect.stringMatching(/Z$/),
+      updatedAt: null,
     });
   });
 

@@ -61,25 +61,17 @@ describe('Quiz questions — update (integration)', () => {
     expect(entity.correctAnswers).toEqual(['new', 'новый']);
   });
 
-  it('moves "updatedAt" forward and keeps "createdAt"', async () => {
+  it('sets updatedAt on update and keeps createdAt', async () => {
     const id = await createQuestion();
-
-    // * Отодвигаем даты в прошлое, чтобы сравнение не зависело от миллисекунд между create и update
-    await questionsRepo.query(
-      `UPDATE quiz_questions
-           SET created_at = now() - interval '1 hour', updated_at = now() - interval '1 hour'
-         WHERE id = $1`,
-      [id],
-    );
     const before = await questionsRepo.findOneByOrFail({ id });
+
+    expect(before.updatedAt).toBeNull();
 
     await updateQuestion(id, 'Updated question body', ['new']);
 
     const after = await questionsRepo.findOneByOrFail({ id });
 
-    expect(after.updatedAt!.getTime()).toBeGreaterThan(
-      before.updatedAt!.getTime(),
-    );
+    expect(after.updatedAt).toBeInstanceOf(Date);
     expect(after.createdAt.getTime()).toBe(before.createdAt.getTime());
   });
 
