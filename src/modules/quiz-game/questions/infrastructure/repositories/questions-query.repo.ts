@@ -7,7 +7,7 @@ import { QuestionViewModel } from '../../api/view-dto/question.view-dto';
 import { QuestionsListQueryInputDto } from '../../api/input-dto/questions-list-query.input-dto';
 import { QuestionsListPaginatedViewModel } from '../../api/view-dto/questions-paginated.view-dto';
 import { escapeLike } from 'src/core/utils/escape-like.util';
-import { QuestionsPublishedStatus } from 'src/core/enums/quiz-questions-published-status.enum';
+import { PublishedStatus } from 'src/core/enums/published-status.enum';
 
 @Injectable()
 export class QuestionsQueryRepository {
@@ -26,9 +26,9 @@ export class QuestionsQueryRepository {
 
     if (bodySearchTerm) where.body = ILike(`%${escapeLike(bodySearchTerm)}%`);
 
-    if (publishedStatus === QuestionsPublishedStatus.NOT_PUBLISHED) {
+    if (publishedStatus === PublishedStatus.NOT_PUBLISHED) {
       where.published = false;
-    } else if (publishedStatus === QuestionsPublishedStatus.PUBLISHED) {
+    } else if (publishedStatus === PublishedStatus.PUBLISHED) {
       where.published = true;
     }
 

@@ -1,7 +1,7 @@
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 import { QueryDto } from 'src/core/dto/query.dto';
-import { QuestionsPublishedStatus } from 'src/core/enums/quiz-questions-published-status.enum';
+import { PublishedStatus } from 'src/core/enums/published-status.enum';
 
 export enum QuestionsSortBy {
   CreatedAt = 'createdAt',
@@ -16,7 +16,7 @@ export class QuestionsListQueryInputDto extends QueryDto {
   @IsOptional()
   bodySearchTerm: string | null = null;
 
-  @IsEnum(QuestionsPublishedStatus)
+  @IsEnum(PublishedStatus)
   @IsOptional()
-  publishedStatus: QuestionsPublishedStatus = QuestionsPublishedStatus.ALL;
+  publishedStatus: PublishedStatus = PublishedStatus.ALL;
 }
