@@ -11,10 +11,20 @@ import { GetAllQuestionsHandler } from './questions/application/queries/get-all-
 import { DeleteQuestionUseCase } from './questions/application/use-cases/delete-question.use-case';
 import { UpdateQuestionUseCase } from './questions/application/use-cases/update-question.use-case';
 import { PublishQuestionUseCase } from './questions/application/use-cases/publish-question.use-case';
+import { GameOrmEntity } from './pair-game/infrastructure/schemas/game-orm.entity';
+import { PlayerProgressOrmEntity } from './pair-game/infrastructure/schemas/player-progress-orm.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([QuestionOrmEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      QuestionOrmEntity,
+      GameOrmEntity,
+      PlayerProgressOrmEntity,
+    ]),
+  ],
+
   controllers: [SaQuestionsController],
+
   providers: [
     CreateQuestionUseCase,
     DeleteQuestionUseCase,
