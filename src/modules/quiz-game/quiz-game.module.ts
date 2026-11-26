@@ -11,6 +11,7 @@ import { GetAllQuestionsHandler } from './questions/application/queries/get-all-
 import { DeleteQuestionUseCase } from './questions/application/use-cases/delete-question.use-case';
 import { UpdateQuestionUseCase } from './questions/application/use-cases/update-question.use-case';
 import { PublishQuestionUseCase } from './questions/application/use-cases/publish-question.use-case';
+import { PairGameController } from './pair-game/api/controllers/pair-game.controller';
 import { GameOrmEntity } from './pair-game/infrastructure/schemas/game-orm.entity';
 import { PlayerProgressOrmEntity } from './pair-game/infrastructure/schemas/player-progress-orm.entity';
 
@@ -23,7 +24,7 @@ import { PlayerProgressOrmEntity } from './pair-game/infrastructure/schemas/play
     ]),
   ],
 
-  controllers: [SaQuestionsController],
+  controllers: [SaQuestionsController, PairGameController],
 
   providers: [
     CreateQuestionUseCase,
@@ -37,6 +38,7 @@ import { PlayerProgressOrmEntity } from './pair-game/infrastructure/schemas/play
     QuestionsRepository,
     QuestionsQueryRepository,
   ],
+
   exports: [],
 })
 export class QuizGameModule {}

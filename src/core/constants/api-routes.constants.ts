@@ -10,6 +10,7 @@ export const API_ROUTES = {
   posts: 'posts',
   testing: 'testing',
   securityDevices: 'security/devices',
+  pairQuizGame: 'pair-game-quiz/pairs',
 
   integrations: 'integrations/telegram', // * extra path over the basic API logic
 } as const;
