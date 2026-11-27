@@ -31,4 +31,17 @@ export class PlayerProgressOrmEntity {
     foreignKeyConstraintName: 'FK_players_progress_game_id',
   })
   game!: GameOrmEntity;
+
+  static createPlayerProgress(
+    gameId: string,
+    userId: string,
+  ): PlayerProgressOrmEntity {
+    const entity = new PlayerProgressOrmEntity();
+
+    entity.gameId = gameId;
+    entity.userId = userId;
+    entity.score = 0;
+
+    return entity;
+  }
 }

@@ -14,6 +14,8 @@ import { PublishQuestionUseCase } from './questions/application/use-cases/publis
 import { PairGameController } from './pair-game/api/controllers/pair-game.controller';
 import { GameOrmEntity } from './pair-game/infrastructure/schemas/game-orm.entity';
 import { PlayerProgressOrmEntity } from './pair-game/infrastructure/schemas/player-progress-orm.entity';
+import { PairGameRepository } from './pair-game/infrastructure/repositories/pair-game.repo';
+import { ConnectToPairUseCase } from './pair-game/application/use-cases/connect-to-pair.use-case';
 
 @Module({
   imports: [
@@ -31,12 +33,14 @@ import { PlayerProgressOrmEntity } from './pair-game/infrastructure/schemas/play
     DeleteQuestionUseCase,
     UpdateQuestionUseCase,
     PublishQuestionUseCase,
+    ConnectToPairUseCase,
 
     GetQuestionByIdHandler,
     GetAllQuestionsHandler,
 
     QuestionsRepository,
     QuestionsQueryRepository,
+    PairGameRepository,
   ],
 
   exports: [],

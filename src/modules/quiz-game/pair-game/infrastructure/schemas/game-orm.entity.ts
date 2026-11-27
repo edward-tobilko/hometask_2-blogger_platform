@@ -24,4 +24,14 @@ export class GameOrmEntity {
 
   @Column({ name: 'finish_game_date', type: 'timestamptz', nullable: true })
   finishGameDate!: Date | null;
+
+  static createPairGame(): GameOrmEntity {
+    const entity = new GameOrmEntity();
+
+    entity.status = GameStatusEnum.PENDING_SECOND_PLAYER;
+    entity.startGameDate = null;
+    entity.finishGameDate = null;
+
+    return entity;
+  }
 }
