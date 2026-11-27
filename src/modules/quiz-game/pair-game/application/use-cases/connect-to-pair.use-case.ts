@@ -1,4 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { DataSource } from 'typeorm';
 
 import { PairGameRepository } from '../../infrastructure/repositories/pair-game.repo';
 import { PairGameViewModel } from '../../api/view-dto/pair-game.view-dto'; // TODO: remove api/ import — return { id } and read view via QueryBus (my-current query);
@@ -16,7 +17,10 @@ export class ConnectToPairUseCase implements ICommandHandler<
   ConnectToPairCommand,
   PairGameViewModel
 > {
-  constructor(private pairGameRepo: PairGameRepository) {}
+  constructor(
+    private pairGameRepo: PairGameRepository,
+    private dataSource: DataSource,
+  ) {}
 
   async execute({ userId }: ConnectToPairCommand): Promise<PairGameViewModel> {
     // * При повторном создании игры (connection end-point), делаем проверку на 403.
@@ -32,14 +36,16 @@ export class ConnectToPairUseCase implements ICommandHandler<
 
     const gameEntity = GameOrmEntity.createPairGame();
 
-    await this.pairGameRepo.saveGame(gameEntity); // TODO: wrap saveGame + savePlayerProgress in a transaction;
+    await this.dataSource.transaction(async (manager) => {
+      await this.pairGameRepo.saveGame(gameEntity, manager);
 
-    const playerProgressEntity = PlayerProgressOrmEntity.createPlayerProgress(
-      gameEntity.id,
-      userId,
-    );
+      const playerProgressEntity = PlayerProgressOrmEntity.createPlayerProgress(
+        gameEntity.id,
+        userId,
+      );
 
-    await this.pairGameRepo.savePlayerProgress(playerProgressEntity);
+      await this.pairGameRepo.savePlayerProgress(playerProgressEntity, manager);
+    });
 
     return PairGameViewModel.mapToView(gameEntity);
   }

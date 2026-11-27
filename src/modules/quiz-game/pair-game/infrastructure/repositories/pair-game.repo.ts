@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 
 import { GameOrmEntity } from '../schemas/game-orm.entity';
 import { PlayerProgressOrmEntity } from '../schemas/player-progress-orm.entity';
@@ -16,14 +16,18 @@ export class PairGameRepository {
     private playerProgressRepo: Repository<PlayerProgressOrmEntity>,
   ) {}
 
-  async saveGame(entity: GameOrmEntity): Promise<GameOrmEntity> {
-    return this.gameRepo.save(entity);
+  async saveGame(
+    entity: GameOrmEntity,
+    manager: EntityManager,
+  ): Promise<GameOrmEntity> {
+    return manager.getRepository(GameOrmEntity).save(entity);
   }
 
   async savePlayerProgress(
     entity: PlayerProgressOrmEntity,
+    manager: EntityManager,
   ): Promise<PlayerProgressOrmEntity> {
-    return this.playerProgressRepo.save(entity);
+    return manager.getRepository(PlayerProgressOrmEntity).save(entity);
   }
 
   async findUnfinishedGameProgressByUserId(
